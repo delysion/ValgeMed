@@ -47,16 +47,31 @@ export function ScoreRing({
     rose: "rgba(168, 107, 125, 0.15)",
     danger: "rgba(139, 74, 90, 0.15)",
   };
+  const ringBorder = {
+    cyan: "border-cyan/10",
+    violet: "border-violet/10",
+    emerald: "border-emerald/10",
+    gold: "border-gold/10",
+    rose: "border-rose/10",
+    danger: "border-danger/10",
+  };
 
   return (
-    <div className={cn("relative grid place-items-center", sizeClass[size])} aria-label={`${label}: ${safe.toFixed(1)} out of 10`}>
+    <div
+      className={cn(
+        "relative grid place-items-center rounded-full border bg-white/[0.02] backdrop-blur-xl",
+        sizeClass[size],
+        ringBorder[tone],
+      )}
+      aria-label={`${label}: ${safe.toFixed(1)} out of 10`}
+    >
       {animated ? (
         <div
           className="absolute -inset-4 rounded-full blur-2xl"
           style={{ background: `radial-gradient(circle, ${glowColor[tone]} 0%, transparent 70%)` }}
         />
       ) : null}
-      <svg viewBox="0 0 120 120" className={cn("absolute inset-0 h-full w-full -rotate-90", animated ? "ring-glow" : "")}>
+      <svg viewBox="0 0 120 120" className={cn("absolute inset-0 h-full w-full -rotate-90 p-2", animated ? "ring-glow" : "")}>
         <circle cx="60" cy="60" r={radius} fill="none" stroke="rgba(248,250,252,0.05)" strokeWidth="8" />
         <circle
           cx="60"
@@ -70,14 +85,14 @@ export function ScoreRing({
           className="motion-premium"
           style={{
             filter: animated ? `drop-shadow(0 0 8px ${colorByTone[tone]})` : undefined,
-            transition: "stroke-dasharray 800ms ease-out",
+            transition: "stroke-dasharray 1s cubic-bezier(0.16, 1, 0.3, 1)",
           }}
         />
       </svg>
       <div className="relative text-center">
         <div className={cn("font-mono font-semibold text-white", textSize[size])}>{safe.toFixed(1)}</div>
         <div className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted">{label}</div>
-        {caption ? <div className="mt-1 text-[11px] leading-snug text-muted-2">{caption}</div> : null}
+        {caption ? <div className="mt-1.5 text-[11px] leading-snug text-muted-2">{caption}</div> : null}
       </div>
     </div>
   );

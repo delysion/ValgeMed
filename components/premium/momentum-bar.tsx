@@ -30,15 +30,23 @@ export function MomentumBar({
   };
 
   return (
-    <div>
+    <div className="group">
       <div className="mb-2 flex items-center justify-between gap-3">
         <span className="text-sm font-medium text-white">{label}</span>
-        <span className="font-mono text-xs text-muted">{safe.toFixed(0)}%</span>
+        <span className="font-mono text-xs text-muted transition-colors group-hover:text-white">{safe.toFixed(0)}%</span>
       </div>
-      <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.05]">
+      <div className="relative h-2 overflow-hidden rounded-full bg-white/[0.05]">
         <div
           className={cn("h-full rounded-full bg-gradient-to-r transition-all duration-700 ease-out", gradient[tone])}
           style={{ width: `${safe}%` }}
+        />
+        <div
+          className={cn("absolute inset-0 rounded-full opacity-0 transition-opacity duration-300 group-hover:opacity-100", gradient[tone])}
+          style={{
+            width: `${safe}%`,
+            filter: "blur(6px)",
+            transform: "translateY(1px)",
+          }}
         />
       </div>
       {detail ? (

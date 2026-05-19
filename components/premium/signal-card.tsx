@@ -36,12 +36,12 @@ export function SignalCard({
     danger: "border-danger/12 hover:border-danger/20",
   };
   const toneIcon = {
-    cyan: "bg-cyan/10 text-cyan",
-    violet: "bg-violet/10 text-violet",
-    emerald: "bg-emerald/10 text-emerald",
-    gold: "bg-gold/10 text-gold",
-    rose: "bg-rose/10 text-rose",
-    danger: "bg-danger/10 text-danger",
+    cyan: "bg-cyan/10 text-cyan group-hover:shadow-[0_0_12px_rgba(124,175,214,0.15)]",
+    violet: "bg-violet/10 text-violet group-hover:shadow-[0_0_12px_rgba(139,156,191,0.15)]",
+    emerald: "bg-emerald/10 text-emerald group-hover:shadow-[0_0_12px_rgba(74,124,111,0.15)]",
+    gold: "bg-gold/10 text-gold group-hover:shadow-[0_0_12px_rgba(201,164,92,0.15)]",
+    rose: "bg-rose/10 text-rose group-hover:shadow-[0_0_12px_rgba(168,107,125,0.15)]",
+    danger: "bg-danger/10 text-danger group-hover:shadow-[0_0_12px_rgba(139,74,90,0.15)]",
   };
   const Tag = href ? "a" : "div";
 
@@ -50,6 +50,7 @@ export function SignalCard({
       href={href}
       className={cn(
         "group relative overflow-hidden rounded-xl border border-white/[0.06] bg-white/[0.02] p-4 backdrop-blur-xl transition-all duration-300 hover:bg-white/[0.04]",
+        "panel-lift",
         toneBorder[tone],
         toneGlow[tone],
       )}
@@ -59,7 +60,7 @@ export function SignalCard({
         <div className="flex items-start justify-between gap-2">
           <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted">{title}</p>
           {Icon ? (
-            <div className={cn("rounded-md p-1.5 transition-transform duration-300 group-hover:scale-105", toneIcon[tone])}>
+            <div className={cn("rounded-md p-1.5 transition-all duration-300 group-hover:scale-110", toneIcon[tone])}>
               <Icon className="h-3.5 w-3.5" />
             </div>
           ) : null}
@@ -68,7 +69,7 @@ export function SignalCard({
         {detail ? <p className="mt-1.5 text-xs leading-5 text-muted">{detail}</p> : null}
         {accent ? (
           <div className="mt-2 flex items-center gap-1.5">
-            <div className={cn("h-1 w-1 rounded-full", toneIcon[tone].split(" ")[1].replace("text-", "bg-"))} />
+            <div className={cn("h-1 w-1 rounded-full", toneIcon[tone].split(" ")[1])} />
             <span className="text-[10px] font-medium text-muted-2">{accent}</span>
           </div>
         ) : null}
