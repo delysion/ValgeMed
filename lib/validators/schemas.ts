@@ -285,7 +285,7 @@ export const quizAttemptSchema = z
     notes: nullableText,
   })
   .refine((value) => value.correctAnswers <= value.totalQuestions, {
-    message: "Le risposte corrette non possono superare il totale.",
+    message: "Correct answers cannot exceed total questions.",
     path: ["correctAnswers"],
   })
   .transform((value) => ({

@@ -19,6 +19,7 @@ import {
   LayoutDashboard,
   LogOut,
   MapPin,
+  Menu,
   Network,
   Radar,
   Settings,
@@ -37,6 +38,8 @@ import { getI18n } from "@/lib/i18n/server";
 import { TranslationProvider } from "@/lib/i18n/useTranslation";
 import type { TranslationKey } from "@/lib/i18n/dictionaries/en";
 import { getTheme } from "@/lib/theme/config";
+
+import { cn } from "@/lib/utils";
 
 const navItems: Array<{ href: string; label: TranslationKey; icon: typeof Command; featured?: boolean }> = [
   { href: "/command", label: "nav.command", icon: Command, featured: true },
@@ -86,48 +89,40 @@ function NavLink({
   return (
     <Link
       href={item.href}
-      className={
+      className={cn(
+        "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
         item.featured
-          ? "group flex items-center gap-3 rounded-lg border border-primary/20 bg-primary-soft px-3 py-2 text-sm font-medium text-primary shadow-sm transition-all duration-200 hover:bg-primary-soft/80"
-          : "group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-text-secondary transition-all duration-200 hover:bg-bg-subtle hover:text-text-primary"
-      }
+          ? "border border-primary/20 bg-primary-soft text-primary shadow-sm hover:bg-primary-soft/70 hover:shadow-md"
+          : "text-text-secondary hover:bg-bg-subtle hover:text-text-primary",
+      )}
     >
       <Icon className={cn(
-        "h-4 w-4 shrink-0 transition-all duration-200 group-hover:scale-110",
+        "h-[18px] w-[18px] shrink-0 transition-transform duration-200 group-hover:scale-110",
         item.featured ? "text-primary" : "text-text-muted group-hover:text-text-primary",
       )} />
       <span className="truncate">{t(item.label)}</span>
+      {item.featured && (
+        <span className="ml-auto flex h-1.5 w-1.5 rounded-full bg-primary" />
+      )}
     </Link>
   );
 }
 
-import { cn } from "@/lib/utils";
-
-function Navigation({ t, compact = false }: { t: (key: TranslationKey) => string; compact?: boolean }) {
-  if (compact) {
-    return (
-      <nav className="grid gap-5 pb-8">
-        {navSections.map((section) => (
-          <div key={section.label}>
-            <div className="mb-2 flex items-center gap-2 px-1">
-              <span className="text-[0.6rem] font-semibold uppercase tracking-[0.18em] text-text-muted">{section.label}</span>
-              <div className="h-px flex-1 bg-border" />
-            </div>
-            <div className="grid gap-0.5">
-              {section.items.map((item) => (
-                <NavLink key={item.href} item={item} t={t} compact />
-              ))}
-            </div>
-          </div>
-        ))}
-      </nav>
-    );
-  }
-
+function Navigation({ t }: { t: (key: TranslationKey) => string }) {
   return (
-    <nav className="grid gap-1 pb-8">
-      {navItems.map((item) => (
-        <NavLink key={item.href} item={item} t={t} />
+    <nav className="grid gap-5 pb-6">
+      {navSections.map((section) => (
+        <div key={section.label}>
+          <div className="mb-2 flex items-center gap-2 px-1">
+            <span className="text-xs font-bold uppercase tracking-[0.12em] text-text-muted">{section.label}</span>
+            <div className="h-px flex-1 bg-border-light" />
+          </div>
+          <div className="grid gap-0.5">
+            {section.items.map((item) => (
+              <NavLink key={item.href} item={item} t={t} />
+            ))}
+          </div>
+        </div>
       ))}
     </nav>
   );
@@ -146,15 +141,16 @@ export async function AppShell({
   return (
     <TranslationProvider locale={locale} dictionary={dictionary}>
       <div className="min-h-screen bg-bg-page">
+        {/* Desktop Sidebar */}
         <aside className="fixed inset-y-0 left-0 z-20 hidden w-64 overflow-y-auto border-r border-border bg-bg-surface lg:block">
-          <div className="sticky top-0 z-10 border-b border-border bg-bg-surface p-4">
+          <div className="sticky top-0 z-10 border-b border-border bg-bg-page/80 backdrop-blur-xl p-5">
             <div className="flex items-center gap-3">
-              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-primary to-violet shadow-sm">
+              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-primary to-violet shadow-md shadow-primary/20">
                 <Command className="h-5 w-5 text-white" />
               </div>
               <div className="min-w-0">
-                <p className="text-[9px] uppercase tracking-[0.18em] text-text-muted">{t("app.privateConsole")}</p>
-                <h1 className="truncate text-base font-semibold tracking-tight text-text-primary">{t("app.name")}</h1>
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-text-muted">{t("app.privateConsole")}</p>
+                <h1 className="truncate text-base font-bold tracking-tight text-text-primary">{t("app.name")}</h1>
               </div>
             </div>
           </div>
@@ -163,58 +159,60 @@ export async function AppShell({
           </div>
         </aside>
 
+        {/* Main Content Area */}
         <div className="lg:pl-64">
-          <header className="sticky top-0 z-30 flex min-h-14 items-center justify-between gap-3 border-b border-border bg-bg-surface/80 px-3 py-2 backdrop-blur-md sm:px-4 lg:px-6">
-            <div className="flex min-w-0 items-center gap-2.5">
+          {/* Mobile + Desktop Header */}
+          <header className="sticky top-0 z-30 flex min-h-16 items-center justify-between gap-3 border-b border-border bg-bg-surface/85 px-4 py-2.5 backdrop-blur-xl sm:px-5 lg:px-8">
+            <div className="flex min-w-0 items-center gap-3">
               <Sheet>
                 <SheetTrigger asChild>
-                  <Button variant="outline" size="icon" className="h-9 w-9 lg:hidden" aria-label="Menu">
-                    <ClipboardList className="h-4 w-4" />
+                  <Button variant="outline" size="icon" className="h-10 w-10 rounded-xl lg:hidden" aria-label="Menu">
+                    <Menu className="h-5 w-5" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent className="left-0 right-auto w-[min(90vw,300px)] border-l-0 border-r border-border">
-                  <div className="mb-4">
-                    <div className="flex items-center gap-3 rounded-xl border border-border bg-bg-surface p-3 shadow-sm">
-                      <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-primary to-violet">
-                        <Command className="h-4 w-4 text-white" />
-                      </div>
-                      <div className="min-w-0">
-                        <h2 className="text-base font-semibold text-text-primary">{t("app.name")}</h2>
-                        <p className="text-[10px] text-text-muted">{t("app.tagline")}</p>
-                      </div>
+                <SheetContent className="left-0 right-auto w-[min(88vw,300px)] border-r border-l-0 border-border bg-bg-surface p-0 sm:max-w-sm">
+                  <div className="flex items-center gap-3 border-b border-border bg-bg-page/80 p-4">
+                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-primary to-violet shadow-sm">
+                      <Command className="h-5 w-5 text-white" />
                     </div>
-                    <div className="mt-3">
-                      <LanguageSelector current={locale} label={t("language.label")} />
+                    <div className="min-w-0">
+                      <h2 className="text-base font-semibold tracking-tight text-text-primary">{t("app.name")}</h2>
+                      <p className="text-xs text-text-muted">{t("app.tagline")}</p>
                     </div>
                   </div>
-                  <Navigation t={t} compact />
+                  <div className="p-4">
+                    <LanguageSelector current={locale} label={t("language.label")} />
+                  </div>
+                  <div className="overflow-y-auto px-3 pb-6">
+                    <Navigation t={t} />
+                  </div>
                 </SheetContent>
               </Sheet>
               <div className="min-w-0">
-                <p className="text-[10px] text-text-muted">{t("app.owner")}</p>
-                <p className="truncate text-sm font-medium text-text-primary">{session.email}</p>
+                <p className="text-xs font-medium text-text-muted">{t("app.owner")}</p>
+                <p className="truncate text-sm font-semibold text-text-primary">{session.email}</p>
               </div>
             </div>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-2">
               <ThemeToggle theme={theme} />
               <div className="hidden sm:block">
                 <LanguageSelector current={locale} label={t("language.label")} compact />
               </div>
-              <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
+              <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex gap-1.5 rounded-lg">
                 <a href="/api/export/json" aria-label={t("app.exportJson")}>
                   <FileDown className="h-4 w-4" />
                   {t("app.exportJson")}
                 </a>
               </Button>
               <form action={logoutAction}>
-                <Button type="submit" variant="outline" size="sm">
+                <Button type="submit" variant="outline" size="sm" className="rounded-lg gap-1.5">
                   <LogOut className="h-4 w-4" />
                   <span className="hidden sm:inline">{t("app.logout")}</span>
                 </Button>
               </form>
             </div>
           </header>
-          <main className="mx-auto w-full max-w-[1440px] px-3 py-4 sm:px-5 sm:py-5 lg:px-6">{children}</main>
+          <main className="mx-auto w-full max-w-[1440px] px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-8">{children}</main>
         </div>
       </div>
     </TranslationProvider>
@@ -233,15 +231,15 @@ export function PageHeader({
   eyebrow?: string;
 }) {
   return (
-    <div className="motion-premium mb-5 flex flex-col gap-2.5 rounded-2xl border border-border bg-bg-surface p-4 shadow-[var(--shadow-card)] sm:p-6 md:flex-row md:items-end md:justify-between">
-      <div>
+    <div className="motion-premium mb-6 flex flex-col gap-4 rounded-2xl border border-border bg-bg-surface p-5 shadow-[var(--shadow-card)] sm:p-6 md:flex-row md:items-end md:justify-between">
+      <div className="min-w-0">
         {eyebrow ? (
-          <p className="mb-1.5 text-[9px] font-semibold uppercase tracking-[0.16em] text-primary sm:text-[10px]">{eyebrow}</p>
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-primary">{eyebrow}</p>
         ) : null}
-        <h2 className="text-balance text-xl font-semibold tracking-tight text-text-primary sm:text-2xl md:text-3xl">{title}</h2>
-        {description ? <p className="mt-1.5 max-w-3xl text-xs leading-6 text-text-secondary sm:text-sm sm:leading-7 md:text-base">{description}</p> : null}
+        <h2 className="text-balance text-2xl font-bold tracking-tight text-text-primary sm:text-3xl">{title}</h2>
+        {description ? <p className="mt-2 max-w-2xl text-sm leading-relaxed text-text-secondary">{description}</p> : null}
       </div>
-      {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
+      {actions ? <div className="flex flex-wrap items-center gap-2.5 shrink-0">{actions}</div> : null}
     </div>
   );
 }

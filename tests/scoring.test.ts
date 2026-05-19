@@ -73,6 +73,6 @@ describe("scoring engine", () => {
     expect(result.score).toBeGreaterThanOrEqual(0);
     expect(result.score).toBeLessThanOrEqual(10);
     expect(result.factors).toHaveLength(8);
-    expect(result.note).toContain("Segnale strategico");
+    expect(result.note).toContain("Strategic signal");
   });
 });

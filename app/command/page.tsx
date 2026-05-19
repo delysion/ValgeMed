@@ -155,7 +155,7 @@ export default async function CommandPage() {
         }
       />
 
-      <div className="motion-premium space-y-5">
+      <div className="motion-premium flex flex-col gap-5">
         <CommandGreeting
           greeting={t("command.greeting")}
           dateLabel={dateFormatter.format(today)}
@@ -180,29 +180,29 @@ export default async function CommandPage() {
         ) : null}
 
         <div className="grid gap-5 lg:grid-cols-3">
-          <div className="space-y-5 lg:col-span-2">
+          <div className="flex flex-col gap-5 lg:col-span-2">
             <TodayFocusCard todayLog={todayLog} todaySessions={todaySessions} todayTasks={todayTasks} t={t as (key: string) => string} />
 
             <WeeklyCommandPanel dailyLogs={data.dailyLogs} studySessions={data.studySessions} t={t as (key: string) => string} />
 
             <GlassCard>
               <SectionHeader title={t("command.battlePlan")} description={t("command.oneCleanBlock")} icon={Sparkles} />
-              <div className="mt-5 space-y-4">
+              <div className="mt-5 flex flex-col gap-4">
                 <MomentumBar label={t("gamification.todayMomentum")} value={Math.max(activeRatio, todayLog ? 45 : 0)} tone="cyan" detail={`${t("study.activeRecall")}: ${activeMinutesToday} min`} />
                 <MomentumBar label={t("gamification.recoveryBalance")} value={elite.energyIntegrity.score * 10} tone="emerald" detail={t("health.warning")} />
                 <MomentumBar label={t("gamification.readinessTrend")} value={elite.examReadiness.score * 10} tone="violet" detail={t("common.strategicSignal")} />
               </div>
             </GlassCard>
 
-            <CollapsiblePanel title={t("command.studyQuests")} defaultOpen badge={<span className="rounded-md bg-white/5 px-1.5 py-0.5 font-mono text-[10px] text-text-secondary">{completedQuests}/{quests.length}</span>}>
-              <div className="grid gap-2.5 sm:grid-cols-2">
+            <CollapsiblePanel title={t("command.studyQuests")} defaultOpen badge={<span className="rounded-md bg-white/5 px-1.5 py-0.5 font-mono text-xs text-text-secondary">{completedQuests}/{quests.length}</span>}>
+              <div className="grid gap-2.5 grid-cols-1 sm:grid-cols-2">
                 {quests.map((quest) => (
                   <QuestItem key={quest.title} {...quest} />
                 ))}
               </div>
             </CollapsiblePanel>
 
-            <CollapsiblePanel title={t("reviews.title")} icon={<BookOpen className="h-4 w-4 text-violet" />} badge={dueReviews.length > 0 ? <span className="flex h-5 w-5 items-center justify-center rounded-full bg-violet/20 text-[10px] font-semibold text-violet">{dueReviews.length}</span> : undefined}>
+            <CollapsiblePanel title={t("reviews.title")} icon={<BookOpen className="h-4 w-4 text-violet" />} badge={dueReviews.length > 0 ? <span className="flex h-5 w-5 items-center justify-center rounded-full bg-violet/20 text-xs font-semibold text-violet">{dueReviews.length}</span> : undefined}>
               <RevisionQueue items={data.reviewItems} />
             </CollapsiblePanel>
 
@@ -213,10 +213,10 @@ export default async function CommandPage() {
             <DailyLogForm log={todayLog} compact />
           </div>
 
-          <div className="space-y-5">
+          <div className="flex flex-col gap-5">
             <GlassCard tone="cyan">
               <SectionHeader title={t("command.signals")} description={t("common.strategicSignal")} />
-              <div className="mt-4 space-y-3">
+              <div className="mt-4 flex flex-col gap-3">
                 <MetricCard
                   title={t("command.mainBottleneck")}
                   value={weakTopic ? weakTopic.title : t("command.addWeakTopic")}
@@ -250,7 +250,7 @@ export default async function CommandPage() {
 
             <GlassCard>
               <SectionHeader title={t("command.examCountdown")} icon={CalendarClock} />
-              <div className="mt-4 space-y-3">
+              <div className="mt-4 flex flex-col gap-3">
                 {upcomingExams.length > 0 ? upcomingExams.map((exam) => (
                   <ExamCountdown key={exam.id} exam={exam} />
                 )) : (
@@ -261,7 +261,7 @@ export default async function CommandPage() {
 
             <GlassCard tone="gold">
               <SectionHeader title={t("command.intelligence")} icon={Radar} />
-              <div className="mt-4 space-y-3">
+              <div className="mt-4 flex flex-col gap-3">
                 <SignalTile
                   label={t("command.languageSpark")}
                   value={data.languageProgress[0]?.title ?? t("command.createLanguage")}

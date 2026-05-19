@@ -22,54 +22,66 @@ export default async function SettingsPage() {
   return (
     <AppShell session={session}>
       <PageHeader title={t("settings.title")} description={t("settings.subtitle")} />
-      <div className="grid gap-5 xl:grid-cols-4">
-        <GlassCard tone="cyan">
-          <Database className="h-5 w-5 text-cyan" />
-          <h3 className="mt-4 text-xl font-semibold text-text-primary">{t("settings.database")}</h3>
-          <Badge className="mt-4" variant={dbStatus.configured ? "success" : "danger"}>
-            {dbStatus.configured ? t("settings.configured") : t("settings.missingDb")}
-          </Badge>
-          <p className="mt-3 text-sm text-text-secondary">{dbStatus.provider}</p>
-        </GlassCard>
+      <div className="flex flex-col gap-5">
+        {/* Settings Cards */}
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
+          <GlassCard tone="cyan">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-bg text-cyan">
+              <Database className="h-5 w-5" />
+            </div>
+            <h3 className="mt-4 text-lg font-semibold text-text-primary">{t("settings.database")}</h3>
+            <Badge className="mt-3" variant={dbStatus.configured ? "success" : "danger"}>
+              {dbStatus.configured ? t("settings.configured") : t("settings.missingDb")}
+            </Badge>
+            <p className="mt-2 text-sm text-text-secondary">{dbStatus.provider}</p>
+          </GlassCard>
 
-        <GlassCard tone="violet">
-          <Download className="h-5 w-5 text-violet" />
-          <h3 className="mt-4 text-xl font-semibold text-text-primary">{t("settings.export")}</h3>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <Button asChild size="sm">
-              <a href="/api/export/json">JSON</a>
-            </Button>
-            <Button asChild variant="outline" size="sm">
-              <a href="/api/export/csv">CSV</a>
-            </Button>
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/settings/import-export">{t("settings.export")}</Link>
-            </Button>
-          </div>
-        </GlassCard>
+          <GlassCard tone="violet">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-bg text-violet">
+              <Download className="h-5 w-5" />
+            </div>
+            <h3 className="mt-4 text-lg font-semibold text-text-primary">{t("settings.export")}</h3>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Button asChild size="sm">
+                <a href="/api/export/json">JSON</a>
+              </Button>
+              <Button asChild variant="outline" size="sm">
+                <a href="/api/export/csv">CSV</a>
+              </Button>
+              <Button asChild variant="ghost" size="sm">
+                <Link href="/settings/import-export">{t("settings.export")}</Link>
+              </Button>
+            </div>
+          </GlassCard>
 
-        <GlassCard tone="gold">
-          <Globe2 className="h-5 w-5 text-gold" />
-          <h3 className="mt-4 text-xl font-semibold text-text-primary">{t("settings.languagePreference")}</h3>
-          <p className="mt-2 text-sm leading-6 text-text-secondary">{t("settings.languageBody")}</p>
-          <div className="mt-4">
-            <LanguageSelector current={locale} label={t("language.label")} />
-          </div>
-        </GlassCard>
+          <GlassCard tone="gold">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gold-bg text-gold">
+              <Globe2 className="h-5 w-5" />
+            </div>
+            <h3 className="mt-4 text-lg font-semibold text-text-primary">{t("settings.languagePreference")}</h3>
+            <p className="mt-2 text-sm leading-6 text-text-secondary">{t("settings.languageBody")}</p>
+            <div className="mt-3">
+              <LanguageSelector current={locale} label={t("language.label")} />
+            </div>
+          </GlassCard>
 
-        <GlassCard tone="emerald">
-          <Shield className="h-5 w-5 text-emerald" />
-          <h3 className="mt-4 text-xl font-semibold text-text-primary">{t("settings.privacy")}</h3>
-          <p className="mt-2 text-sm leading-6 text-text-secondary">{session.email}</p>
-          <p className="mt-2 text-sm leading-6 text-text-secondary">{t("settings.version")}: {packageJson.version}</p>
-        </GlassCard>
-      </div>
+          <GlassCard tone="emerald">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-bg text-emerald">
+              <Shield className="h-5 w-5" />
+            </div>
+            <h3 className="mt-4 text-lg font-semibold text-text-primary">{t("settings.privacy")}</h3>
+            <p className="mt-2 text-sm leading-6 text-text-secondary">{session.email}</p>
+            <p className="mt-1 text-sm leading-6 text-text-secondary">{t("settings.version")}: {packageJson.version}</p>
+          </GlassCard>
+        </div>
 
-      <div className="mt-5 grid gap-5 xl:grid-cols-4">
-        <WeightCard title={t("settings.weightExam")} weights={readinessWeights} />
-        <WeightCard title={t("settings.weightEfficiency")} weights={efficiencyWeights} />
-        <WeightCard title={t("settings.weightBurnout")} weights={burnoutWeights} />
-        <WeightCard title={t("settings.weightElite")} weights={eliteIndexWeights} />
+        {/* Weight Cards */}
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
+          <WeightCard title={t("settings.weightExam")} weights={readinessWeights} />
+          <WeightCard title={t("settings.weightEfficiency")} weights={efficiencyWeights} />
+          <WeightCard title={t("settings.weightBurnout")} weights={burnoutWeights} />
+          <WeightCard title={t("settings.weightElite")} weights={eliteIndexWeights} />
+        </div>
       </div>
     </AppShell>
   );
@@ -78,12 +90,12 @@ export default async function SettingsPage() {
 function WeightCard({ title, weights }: { title: string; weights: Record<string, number> }) {
   return (
     <GlassCard>
-      <h3 className="text-lg font-semibold text-text-primary">{title}</h3>
-      <div className="mt-4 space-y-2">
+      <h3 className="text-base font-semibold text-text-primary">{title}</h3>
+      <div className="mt-3 flex flex-col gap-2">
         {Object.entries(weights).map(([key, value]) => (
-          <div key={key} className="flex items-center justify-between gap-3 border-b border-border pb-2 text-sm">
+          <div key={key} className="flex items-center justify-between gap-3 rounded-lg border-b border-border pb-2 text-sm last:border-b-0 last:pb-0">
             <span className="text-text-secondary">{key}</span>
-            <span className="font-mono text-text-primary">{value}</span>
+            <span className="font-mono text-sm font-medium text-text-primary">{value}</span>
           </div>
         ))}
       </div>

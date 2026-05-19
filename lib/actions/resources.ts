@@ -205,7 +205,7 @@ export async function markReviewItemReviewedAction(formData: FormData) {
   const [item] = await db.select().from(reviewItems).where(eq(reviewItems.id, id)).limit(1);
 
   if (!item) {
-    throw new Error("Review item non trovato.");
+    throw new Error("Review item not found.");
   }
 
   const nextSchedule = getNextReviewSchedule(

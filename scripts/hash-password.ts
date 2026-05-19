@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 const password = process.argv[2];
 
 if (!password) {
-  console.error("Uso: pnpm hash:password \"la-tua-password\"");
+  console.error("Usage: pnpm hash:password \"your-password\"");
   process.exit(1);
 }
 

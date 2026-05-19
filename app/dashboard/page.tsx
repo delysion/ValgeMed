@@ -121,70 +121,64 @@ export default async function DashboardPage() {
 
   return (
     <AppShell session={session}>
-      <div className="space-y-6">
+      <div className="flex flex-col gap-6">
         {/* ─── HERO SECTION ─── */}
-        <section className="relative overflow-hidden rounded-2xl border border-primary/10 bg-gradient-to-br from-primary-soft via-white to-cyan-bg/50 p-6 shadow-[var(--shadow-hero)] md:p-8 lg:p-10">
-          <div className="pointer-events-none absolute -left-20 -top-20 h-72 w-72 rounded-full bg-primary/5 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-24 -right-24 h-80 w-80 rounded-full bg-cyan/5 blur-3xl" />
-          <div className="pointer-events-none absolute left-1/3 top-1/2 h-48 w-48 rounded-full bg-violet/5 blur-3xl" />
+        <section className="relative overflow-hidden rounded-2xl border border-primary/10 bg-gradient-to-br from-primary-soft via-bg-elevated to-cyan-bg/40 p-5 shadow-[var(--shadow-hero)] sm:p-7 md:p-8">
+          <div className="pointer-events-none absolute -left-20 -top-20 h-72 w-72 rounded-full bg-primary/6 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-24 -right-24 h-80 w-80 rounded-full bg-violet/5 blur-3xl" />
+          <div className="pointer-events-none absolute left-1/3 top-1/2 h-48 w-48 rounded-full bg-cyan/5 blur-3xl" />
 
-          <div className="relative grid gap-6 lg:grid-cols-[1fr_auto]">
-            <div className="flex flex-col gap-5">
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge variant="violet" className="px-2.5 py-1 text-[10px] tracking-wide">
-                  {fmtDate(new Date())}
+          <div className="relative flex flex-col gap-5">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant="violet">{fmtDate(new Date())}</Badge>
+              {streak > 0 ? (
+                <Badge variant="gold" className="gap-1">
+                  <Zap className="h-3 w-3" /> {streak}-day streak
                 </Badge>
-                {streak > 0 ? (
-                  <Badge variant="gold" className="gap-1.5 px-2.5 py-1 text-[10px]">
-                    <Zap className="h-3 w-3" /> {streak}-day streak
-                  </Badge>
-                ) : null}
-                {lowData ? (
-                  <Badge variant="warning" className="px-2.5 py-1 text-[10px]">
-                    Getting started
-                  </Badge>
-                ) : null}
-              </div>
+              ) : null}
+              {lowData ? (
+                <Badge variant="warning">Getting started</Badge>
+              ) : null}
+            </div>
 
-              <div>
-                <h2 className="text-balance text-[28px] font-semibold tracking-tight text-text-primary sm:text-4xl md:text-5xl">
-                  Command Center
-                </h2>
-                <p className="mt-2 max-w-xl text-sm leading-6 text-text-secondary sm:text-base">
-                  {lowData
-                    ? "Your system is quiet. Add subjects, topics, and sessions to bring the dashboard alive."
-                    : "Weekly trajectory, readiness, errors, reviews and energy infrastructure."}
-                </p>
-              </div>
+            <div>
+              <h2 className="text-balance text-3xl font-bold tracking-tight text-text-primary sm:text-4xl">
+                Command Center
+              </h2>
+              <p className="mt-2 max-w-xl text-sm leading-relaxed text-text-secondary sm:text-base">
+                {lowData
+                  ? "Your system is quiet. Add subjects, topics, and sessions to bring the dashboard alive."
+                  : "Weekly trajectory, readiness, errors, reviews and energy infrastructure."}
+              </p>
+            </div>
 
-              <div className="flex flex-wrap items-center gap-3">
-                <LevelCard
-                  level={level}
-                  levelLabel={levelLabel}
-                  xp={xp}
-                  xpToNext={xpToNext}
-                  streak={streak}
-                  className="min-w-[220px] flex-1 border-primary/10 bg-white/70 backdrop-blur-sm"
-                />
-                {dueReviews > 0 ? (
-                  <div className="flex items-center gap-2 rounded-lg border border-violet/20 bg-violet-bg/50 px-3.5 py-2.5">
-                    <RotateCw className="h-4 w-4 text-violet" />
-                    <span className="text-xs font-medium text-text-primary">{dueReviews} due reviews</span>
-                  </div>
-                ) : null}
-                {openErrors.length > 0 ? (
-                  <div className="flex items-center gap-2 rounded-lg border border-rose/20 bg-rose-bg/50 px-3.5 py-2.5">
-                    <ShieldCheck className="h-4 w-4 text-rose" />
-                    <span className="text-xs font-medium text-text-primary">{openErrors.length} open errors</span>
-                  </div>
-                ) : null}
-              </div>
+            <div className="flex flex-wrap items-center gap-3">
+              <LevelCard
+                level={level}
+                levelLabel={levelLabel}
+                xp={xp}
+                xpToNext={xpToNext}
+                streak={streak}
+                className="min-w-[200px] flex-1 border-primary/15 bg-white/60 backdrop-blur-sm shadow-sm"
+              />
+              {dueReviews > 0 ? (
+                <div className="flex items-center gap-2 rounded-xl border border-violet/20 bg-violet-bg/60 px-3.5 py-2.5 shadow-sm">
+                  <RotateCw className="h-4 w-4 text-violet" />
+                  <span className="text-xs font-semibold text-text-primary">{dueReviews} due reviews</span>
+                </div>
+              ) : null}
+              {openErrors.length > 0 ? (
+                <div className="flex items-center gap-2 rounded-xl border border-rose/20 bg-rose-bg/60 px-3.5 py-2.5 shadow-sm">
+                  <ShieldCheck className="h-4 w-4 text-rose" />
+                  <span className="text-xs font-semibold text-text-primary">{openErrors.length} open errors</span>
+                </div>
+              ) : null}
             </div>
           </div>
         </section>
 
-        {/* ─── STAT ROW ─── */}
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
+        {/* ─── STAT ROW — responsive grid ─── */}
+        <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
           <MetricCard
             title={t("dashboard.studyThisWeek")}
             value={studyMinutesThisWeek}
@@ -225,127 +219,137 @@ export default async function DashboardPage() {
         </div>
 
         {/* ─── MAIN GRID ─── */}
-        <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+        <div className="grid gap-6 lg:grid-cols-[1fr_380px] xl:grid-cols-[1.15fr_0.85fr]">
           {/* ─── LEFT COLUMN ─── */}
-          <div className="space-y-6">
+          <div className="flex flex-col gap-6">
             {/* Weekly Activity Chart */}
-            <GlassCard tone="cyan">
-              <SectionHeader
-                title="Weekly Activity"
-                description="Study minutes over the last days"
-                icon={TrendingUp}
-              />
-              <div className="mt-5">
-                {minutesChart.length > 0 ? (
-                  <ActivityAreaChart data={minutesChart} dataKey="minutes" color="#7C3AED" height={220} />
-                ) : (
-                  <EmptyState
-                    title="No study data yet"
-                    description="Log a study session to see your activity chart light up."
-                    tone="cyan"
-                  />
-                )}
+            <GlassCard tone="cyan" padded={false}>
+              <div className="p-5 sm:p-6">
+                <SectionHeader
+                  title="Weekly Activity"
+                  description="Study minutes over the last days"
+                  icon={TrendingUp}
+                />
+                <div className="mt-5">
+                  {minutesChart.length > 0 ? (
+                    <ActivityAreaChart data={minutesChart} dataKey="minutes" color="#7C3AED" height={220} />
+                  ) : (
+                    <EmptyState
+                      title="No study data yet"
+                      description="Log a study session to see your activity chart light up."
+                      tone="cyan"
+                    />
+                  )}
+                </div>
               </div>
             </GlassCard>
 
             {/* Charts Row: Readiness + Method */}
-            <div className="grid gap-6 sm:grid-cols-2">
-              <GlassCard>
-                <SectionHeader title={t("dashboard.examReadiness")} description={t("common.strategicSignal")} />
-                <div className="mt-4">
-                  {readinessChart.length > 0 ? (
-                    <MetricBarChart data={readinessChart} dataKey="readiness" domain={[0, 10]} />
-                  ) : (
-                    <EmptyState title="No exams tracked" description="Add an exam to see readiness." tone="violet" />
-                  )}
+            <div className="grid gap-4 sm:grid-cols-2">
+              <GlassCard padded={false}>
+                <div className="p-5 sm:p-6">
+                  <SectionHeader title={t("dashboard.examReadiness")} description={t("common.strategicSignal")} />
+                  <div className="mt-4">
+                    {readinessChart.length > 0 ? (
+                      <MetricBarChart data={readinessChart} dataKey="readiness" domain={[0, 10]} />
+                    ) : (
+                      <EmptyState title="No exams tracked" description="Add an exam to see readiness." tone="violet" />
+                    )}
+                  </div>
                 </div>
               </GlassCard>
-              <GlassCard>
-                <SectionHeader title={t("dashboard.activeVsPassive")} description={`${activeMinutes}a / ${passiveMinutes}p min`} />
-                <div className="mt-4">
-                  {methodChart.length ? (
-                    <MethodPieChart data={methodChart} />
-                  ) : (
-                    <EmptyState title="No study methods" description="Start studying to see the split." tone="emerald" />
-                  )}
+              <GlassCard padded={false}>
+                <div className="p-5 sm:p-6">
+                  <SectionHeader title={t("dashboard.activeVsPassive")} description={`${activeMinutes}a / ${passiveMinutes}p min`} />
+                  <div className="mt-4">
+                    {methodChart.length ? (
+                      <MethodPieChart data={methodChart} />
+                    ) : (
+                      <EmptyState title="No study methods" description="Start studying to see the split." tone="emerald" />
+                    )}
+                  </div>
                 </div>
               </GlassCard>
             </div>
 
             {/* Next Actions / Weak Topics */}
-            <GlassCard>
-              <SectionHeader title="Focus Areas" description="Weak topics need attention" icon={Focus} />
-              <div className="mt-4 space-y-2">
-                {weakTopics.length > 0 ? (
-                  weakTopics.slice(0, 4).map((topic, i) => (
-                    <Link
-                      key={topic.id}
-                      href="/topics"
-                      className="flex items-center justify-between gap-3 rounded-lg border border-border bg-white p-3.5 shadow-sm transition-all duration-200 hover:shadow-md motion-safe:fade-in"
-                      style={{ animationDelay: `${i * 80}ms` }}
-                    >
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-rose-bg text-rose">
-                          <Brain className="h-3.5 w-3.5" />
+            <GlassCard padded={false}>
+              <div className="p-5 sm:p-6">
+                <SectionHeader title="Focus Areas" description="Weak topics need attention" icon={Focus} />
+                <div className="mt-4 flex flex-col gap-2">
+                  {weakTopics.length > 0 ? (
+                    weakTopics.slice(0, 4).map((topic, i) => (
+                      <Link
+                        key={topic.id}
+                        href="/topics"
+                        className="flex items-center justify-between gap-3 rounded-xl border border-border bg-bg-elevated p-3.5 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-[1px] motion-safe:fade-in"
+                        style={{ animationDelay: `${i * 80}ms` }}
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-rose-bg text-rose">
+                            <Brain className="h-4 w-4" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-semibold text-text-primary">{topic.title}</p>
+                            <p className="mt-0.5 text-xs text-text-secondary">
+                              {t("common.confidence")} {topic.confidence}/10
+                            </p>
+                          </div>
                         </div>
-                        <div className="min-w-0">
-                          <p className="truncate text-sm font-medium text-text-primary">{topic.title}</p>
-                          <p className="mt-0.5 text-xs text-text-secondary">
-                            {t("common.confidence")} {topic.confidence}/10
-                          </p>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <div className="h-2 w-20 overflow-hidden rounded-full bg-bg-subtle">
+                            <div
+                              className="h-full rounded-full bg-gradient-to-r from-rose to-gold"
+                              style={{ width: `${(topic.confidence / 10) * 100}%` }}
+                            />
+                          </div>
+                          <ArrowRight className="h-4 w-4 shrink-0 text-text-muted" />
                         </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="h-1.5 w-16 overflow-hidden rounded-full bg-bg-subtle">
-                          <div
-                            className="h-full rounded-full bg-gradient-to-r from-rose to-gold"
-                            style={{ width: `${(topic.confidence / 10) * 100}%` }}
-                          />
-                        </div>
-                        <ArrowRight className="h-3.5 w-3.5 shrink-0 text-text-muted" />
-                      </div>
-                    </Link>
-                  ))
-                ) : (
-                  <EmptyState title="All topics strong" description="No weak topics to surface." tone="emerald" />
-                )}
+                      </Link>
+                    ))
+                  ) : (
+                    <EmptyState title="All topics strong" description="No weak topics to surface." tone="emerald" />
+                  )}
+                </div>
               </div>
             </GlassCard>
 
             {/* Recent Activity */}
-            <GlassCard>
-              <SectionHeader title="Recent Activity" description="Latest study sessions" icon={Clock} />
-              <div className="mt-4 space-y-2">
-                {data.studySessions.slice(0, 5).map((session, i) => (
-                  <div
-                    key={`${session.id}-${i}`}
-                    className="flex items-center gap-3 rounded-lg border border-border bg-white p-3 shadow-sm transition-all duration-200 motion-safe:fade-in"
-                    style={{ animationDelay: `${i * 80}ms` }}
-                  >
-                    <div className={cn("flex h-7 w-7 shrink-0 items-center justify-center rounded-md", {
-                      "bg-cyan-bg text-cyan": session.method === "active_recall",
-                      "bg-violet-bg text-violet": session.method === "quiz",
-                      "bg-emerald-bg text-emerald": session.method === "simulation",
-                      "bg-rose-bg text-rose": session.method === "error_review",
-                      "bg-gold-bg text-gold": session.method === "reading" || session.method === "notes",
-                    })}>
-                      <Brain className="h-3.5 w-3.5" />
+            <GlassCard padded={false}>
+              <div className="p-5 sm:p-6">
+                <SectionHeader title="Recent Activity" description="Latest study sessions" icon={Clock} />
+                <div className="mt-4 flex flex-col gap-2">
+                  {data.studySessions.slice(0, 5).map((session, i) => (
+                    <div
+                      key={`${session.id}-${i}`}
+                      className="flex items-center gap-3 rounded-xl border border-border bg-bg-elevated p-3 shadow-sm transition-all duration-200 motion-safe:fade-in"
+                      style={{ animationDelay: `${i * 80}ms` }}
+                    >
+                      <div className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-lg", {
+                        "bg-cyan-bg text-cyan": session.method === "active_recall",
+                        "bg-violet-bg text-violet": session.method === "quiz",
+                        "bg-emerald-bg text-emerald": session.method === "simulation",
+                        "bg-rose-bg text-rose": session.method === "error_review",
+                        "bg-gold-bg text-gold": session.method === "reading" || session.method === "notes",
+                      })}>
+                        <Brain className="h-4 w-4" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold text-text-primary">{session.method.replace(/_/g, " ")}</p>
+                        <p className="text-xs text-text-muted">{session.durationMinutes} min</p>
+                      </div>
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-text-primary">{session.method.replace(/_/g, " ")}</p>
-                      <p className="text-[10px] text-text-muted">{session.durationMinutes} min</p>
-                    </div>
-                  </div>
-                ))}
-                {data.studySessions.length === 0 ? (
-                  <p className="py-4 text-center text-xs text-text-muted">No sessions yet this week</p>
-                ) : null}
+                  ))}
+                  {data.studySessions.length === 0 ? (
+                    <p className="py-6 text-center text-sm text-text-muted">No sessions yet this week</p>
+                  ) : null}
+                </div>
               </div>
             </GlassCard>
           </div>
 
           {/* ─── RIGHT SIDEBAR ─── */}
-          <div className="space-y-6">
+          <div className="flex flex-col gap-5">
             {/* Daily Streak */}
             <DailyStreakCard streak={streak} longestStreak={longest} />
 
@@ -366,71 +370,77 @@ export default async function DashboardPage() {
             />
 
             {/* Upcoming Exams */}
-            <GlassCard tone="gold">
-              <SectionHeader title={t("dashboard.upcomingRisks")} />
-              <div className="mt-4 space-y-2">
-                {examsWithReadiness.slice(0, 4).map((exam) => (
-                  <Link
-                    key={exam.id}
-                    href={`/exams/${exam.id}`}
-                    className="flex items-center justify-between gap-3 rounded-lg border border-border bg-white p-3.5 shadow-sm transition-all duration-200 hover:shadow-md motion-safe:fade-in"
-                  >
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-medium text-text-primary">{exam.title}</p>
-                      <p className="mt-0.5 text-xs text-text-secondary">
-                        {fmtDate(exam.examDate)} {exam.examDate ? `· ${differenceInCalendarDays(exam.examDate, startOfToday())}d` : ""}
-                      </p>
-                    </div>
-                    <Badge
-                      variant={exam.liveReadiness < 5 ? "danger" : "gold"}
-                      className="shrink-0 text-[10px]"
+            <GlassCard tone="gold" padded={false}>
+              <div className="p-5 sm:p-6">
+                <SectionHeader title={t("dashboard.upcomingRisks")} />
+                <div className="mt-4 flex flex-col gap-2">
+                  {examsWithReadiness.slice(0, 4).map((exam) => (
+                    <Link
+                      key={exam.id}
+                      href={`/exams/${exam.id}`}
+                      className="flex items-center justify-between gap-3 rounded-xl border border-border bg-bg-elevated p-3.5 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-[1px] motion-safe:fade-in"
                     >
-                      {exam.liveReadiness.toFixed(1)}
-                    </Badge>
-                  </Link>
-                ))}
-                {examsWithReadiness.length === 0 ? (
-                  <p className="py-4 text-center text-sm text-text-secondary">{t("common.empty")}</p>
-                ) : null}
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold text-text-primary">{exam.title}</p>
+                        <p className="mt-0.5 text-xs text-text-secondary">
+                          {fmtDate(exam.examDate)} {exam.examDate ? `· ${differenceInCalendarDays(exam.examDate, startOfToday())}d` : ""}
+                        </p>
+                      </div>
+                      <Badge
+                        variant={exam.liveReadiness < 5 ? "danger" : "gold"}
+                        className="shrink-0"
+                      >
+                        {exam.liveReadiness.toFixed(1)}
+                      </Badge>
+                    </Link>
+                  ))}
+                  {examsWithReadiness.length === 0 ? (
+                    <p className="py-6 text-center text-sm text-text-secondary">{t("common.empty")}</p>
+                  ) : null}
+                </div>
               </div>
             </GlassCard>
 
             {/* Missions */}
             {weakTopics.length > 0 || openErrors.length > 0 ? (
-              <GlassCard tone="violet">
-                <SectionHeader title="Active Missions" description="Clear these to level up" />
-                <div className="mt-4 space-y-2">
-                  {weakTopics.slice(0, 2).map((topic) => (
-                    <MissionCard
-                      key={topic.id}
-                      title={`Master "${topic.title}"`}
-                      detail={`Confidence: ${topic.confidence}/10`}
-                      progress={(topic.confidence / 10) * 100}
-                      completed={topic.confidence >= 8}
-                      tone="violet"
-                    />
-                  ))}
-                  {openErrors.length > 0 ? (
-                    <MissionCard
-                      title="Destroy open errors"
-                      detail={`${openErrors.length} error${openErrors.length > 1 ? "s" : ""} to resolve`}
-                      progress={openErrors.length > 0 ? Math.min(100, (1 - openErrors.length / (openErrors.length + 3)) * 100) : 100}
-                      completed={false}
-                      tone="rose"
-                    />
-                  ) : null}
+              <GlassCard tone="violet" padded={false}>
+                <div className="p-5 sm:p-6">
+                  <SectionHeader title="Active Missions" description="Clear these to level up" />
+                  <div className="mt-4 flex flex-col gap-2">
+                    {weakTopics.slice(0, 2).map((topic) => (
+                      <MissionCard
+                        key={topic.id}
+                        title={`Master "${topic.title}"`}
+                        detail={`Confidence: ${topic.confidence}/10`}
+                        progress={(topic.confidence / 10) * 100}
+                        completed={topic.confidence >= 8}
+                        tone="violet"
+                      />
+                    ))}
+                    {openErrors.length > 0 ? (
+                      <MissionCard
+                        title="Destroy open errors"
+                        detail={`${openErrors.length} error${openErrors.length > 1 ? "s" : ""} to resolve`}
+                        progress={openErrors.length > 0 ? Math.min(100, (1 - openErrors.length / (openErrors.length + 3)) * 100) : 100}
+                        completed={false}
+                        tone="rose"
+                      />
+                    ) : null}
+                  </div>
                 </div>
               </GlassCard>
             ) : null}
 
             {/* Quick Actions */}
-            <GlassCard>
-              <SectionHeader title="Quick Actions" />
-              <div className="mt-4 grid grid-cols-2 gap-2">
-                <QuickActionButton href="/study" icon={BookOpen} label="Study" tone="violet" />
-                <QuickActionButton href="/reviews" icon={ListChecks} label="Reviews" tone="cyan" />
-                <QuickActionButton href="/errors" icon={ShieldCheck} label="Errors" tone="rose" />
-                <QuickActionButton href="/daily-log" icon={Focus} label="Daily Log" tone="emerald" />
+            <GlassCard padded={false}>
+              <div className="p-5 sm:p-6">
+                <SectionHeader title="Quick Actions" />
+                <div className="mt-4 grid grid-cols-2 gap-2.5">
+                  <QuickActionButton href="/study" icon={BookOpen} label="Study" tone="violet" />
+                  <QuickActionButton href="/reviews" icon={ListChecks} label="Reviews" tone="cyan" />
+                  <QuickActionButton href="/errors" icon={ShieldCheck} label="Errors" tone="rose" />
+                  <QuickActionButton href="/daily-log" icon={Focus} label="Daily Log" tone="emerald" />
+                </div>
               </div>
             </GlassCard>
           </div>
@@ -452,23 +462,21 @@ function QuickActionButton({
   tone: "violet" | "cyan" | "rose" | "emerald";
 }) {
   const toneClasses = {
-    violet: "border-violet/20 hover:bg-violet-bg hover:border-violet/30 text-violet",
-    cyan: "border-cyan/20 hover:bg-cyan-bg hover:border-cyan/30 text-cyan",
-    rose: "border-rose/20 hover:bg-rose-bg hover:border-rose/30 text-rose",
-    emerald: "border-emerald/20 hover:bg-emerald-bg hover:border-emerald/30 text-emerald",
+    violet: "border-violet/25 hover:bg-violet-bg hover:border-violet/40 text-violet",
+    cyan: "border-cyan/25 hover:bg-cyan-bg hover:border-cyan/40 text-cyan",
+    rose: "border-rose/25 hover:bg-rose-bg hover:border-rose/40 text-rose",
+    emerald: "border-emerald/25 hover:bg-emerald-bg hover:border-emerald/40 text-emerald",
   };
   return (
     <Link
       href={href}
       className={cn(
-        "flex items-center gap-2 rounded-lg border border-border bg-white px-3 py-3 text-xs font-medium transition-all duration-200 hover:shadow-md",
+        "flex items-center gap-2 rounded-xl border border-border bg-bg-elevated px-3.5 py-3 text-xs font-semibold transition-all duration-200 hover:shadow-md hover:-translate-y-[1px]",
         toneClasses[tone],
       )}
     >
-      <Icon className="h-3.5 w-3.5" />
+      <Icon className="h-4 w-4" />
       <span>{label}</span>
     </Link>
   );
 }
-
-

@@ -60,7 +60,7 @@ export const burnoutWeights = {
 };
 
 const scoreNote =
-  "Indicatore euristico in scala 0-10: utile per decidere il prossimo passo, non una verita assoluta.";
+  "Heuristic indicator on a 0-10 scale: useful for deciding the next step, not an absolute truth.";
 
 function factor(
   label: string,
@@ -472,7 +472,7 @@ export function calculateEliteIndexScore(input: {
     score,
     factors,
     label: getEliteIndexLabel(score),
-    note: "Segnale strategico in scala 0-10: non e una verita oggettiva, serve a scegliere il prossimo passo.",
+    note: "Strategic signal on a 0-10 scale: not an objective truth, but useful for choosing the next step.",
   };
 }
 

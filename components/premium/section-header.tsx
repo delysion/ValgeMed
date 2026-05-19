@@ -16,15 +16,19 @@ export function SectionHeader({
   className?: string;
 }) {
   return (
-    <div className={cn("flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between", className)}>
-      <div className="flex items-center gap-2.5">
-        {Icon ? <Icon className="h-4 w-4 text-text-muted" /> : null}
-        <div>
-          <h3 className="text-base font-semibold text-text-primary">{title}</h3>
-          {description ? <p className="mt-0.5 text-sm text-text-secondary">{description}</p> : null}
+    <div className={cn("flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between", className)}>
+      <div className="flex items-start gap-3 min-w-0">
+        {Icon ? (
+          <div className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+            <Icon className="h-4 w-4" />
+          </div>
+        ) : null}
+        <div className="min-w-0">
+          <h3 className="text-lg font-bold tracking-tight text-text-primary">{title}</h3>
+          {description ? <p className="mt-1 text-sm leading-relaxed text-text-secondary">{description}</p> : null}
         </div>
       </div>
-      {action ? <div className="mt-2 sm:mt-0">{action}</div> : null}
+      {action ? <div className="mt-1 sm:mt-0 shrink-0">{action}</div> : null}
     </div>
   );
 }

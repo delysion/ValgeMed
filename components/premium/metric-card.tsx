@@ -17,51 +17,48 @@ export function MetricCard({
   tone?: "cyan" | "violet" | "emerald" | "gold" | "rose" | "danger";
   trend?: string;
 }) {
-  const toneDot = {
-    cyan: "bg-cyan",
-    violet: "bg-violet",
-    emerald: "bg-emerald",
-    gold: "bg-gold",
-    rose: "bg-rose",
-    danger: "bg-rose",
-  };
   const toneIcon = {
-    cyan: "text-cyan bg-cyan-bg",
-    violet: "text-violet bg-violet-bg",
-    emerald: "text-emerald bg-emerald-bg",
-    gold: "text-gold bg-gold-bg",
-    rose: "text-rose bg-rose-bg",
-    danger: "text-rose bg-rose-bg",
+    cyan: "text-cyan bg-cyan-bg border-cyan/15",
+    violet: "text-violet bg-violet-bg border-violet/15",
+    emerald: "text-emerald bg-emerald-bg border-emerald/15",
+    gold: "text-gold bg-gold-bg border-gold/15",
+    rose: "text-rose bg-rose-bg border-rose/15",
+    danger: "text-rose bg-rose-bg border-rose/15",
+  };
+  const toneBorder = {
+    cyan: "border-cyan/20",
+    violet: "border-violet/20",
+    emerald: "border-emerald/20",
+    gold: "border-gold/20",
+    rose: "border-rose/20",
+    danger: "border-rose/20",
   };
 
   return (
     <div
       className={cn(
-        "group relative overflow-hidden rounded-xl border border-border bg-white p-3.5 shadow-[var(--shadow-card)] transition-all duration-200 hover:shadow-md sm:p-4",
-        "card-hover",
+        "group relative overflow-hidden rounded-2xl border bg-bg-elevated p-4 shadow-[var(--shadow-card)] transition-all duration-200 hover:shadow-[var(--shadow-elevated)] hover:-translate-y-[2px] sm:p-5",
+        toneBorder[tone],
       )}
     >
-      <div className="relative">
-        <div className="flex items-center justify-between gap-2">
-          <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-text-secondary sm:text-[10px]">{title}</p>
-          {Icon ? (
-            <div className={cn("rounded-md p-1.5 transition-all duration-200 group-hover:scale-110", toneIcon[tone])}>
-              <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-            </div>
-          ) : null}
-        </div>
-        <div className="mt-2 flex items-end gap-2">
-          <p className="font-mono text-lg font-semibold text-text-primary sm:text-xl">{value}</p>
-          {trend ? (
-            <span className="rounded bg-bg-subtle px-1.5 py-0.5 text-[9px] font-medium text-text-secondary sm:text-[10px]">{trend}</span>
-          ) : null}
-        </div>
-        {detail ? (
-          <div className="mt-1.5 flex items-center gap-1.5">
-            <div className={cn("h-1 w-1 rounded-full", toneDot[tone])} />
-            <p className="text-[11px] leading-5 text-text-secondary sm:text-xs">{detail}</p>
+      <div className="flex items-center gap-3 sm:block">
+        {Icon ? (
+          <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border transition-transform duration-200 group-hover:scale-110 sm:mb-3 sm:h-9 sm:w-9", toneIcon[tone])}>
+            <Icon className="h-5 w-5 sm:h-4 sm:w-4" />
           </div>
         ) : null}
+        <div className="min-w-0 flex-1">
+          <p className="text-xs font-medium text-text-secondary">{title}</p>
+          <div className="mt-0.5 flex items-baseline gap-2 sm:mt-1">
+            <p className="text-xl font-bold tracking-tight text-text-primary sm:text-2xl">{value}</p>
+            {trend ? (
+              <span className="rounded-md bg-bg-subtle px-1.5 py-0.5 text-[10px] font-semibold text-text-secondary">{trend}</span>
+            ) : null}
+          </div>
+          {detail ? (
+            <p className="mt-1 text-xs leading-relaxed text-text-muted">{detail}</p>
+          ) : null}
+        </div>
       </div>
     </div>
   );

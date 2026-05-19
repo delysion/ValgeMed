@@ -11,17 +11,22 @@ export function Field({
   children,
   description,
   className,
+  required,
 }: {
   label: string;
   children: ReactNode;
   description?: string;
   className?: string;
+  required?: boolean;
 }) {
   return (
-    <div className={cn("flex flex-col gap-1.5", className)}>
-      <Label className="text-xs font-semibold text-text-secondary">{label}</Label>
+    <div className={cn("flex flex-col gap-2", className)}>
+      <Label className="text-sm font-medium text-text-secondary">
+        {label}
+        {required ? <span className="ml-1 text-rose" title="Required">*</span> : null}
+      </Label>
       {children}
-      {description ? <p className="text-xs text-text-muted">{description}</p> : null}
+      {description ? <p className="text-xs leading-relaxed text-text-muted">{description}</p> : null}
     </div>
   );
 }
@@ -34,7 +39,7 @@ export function FieldGrid({
   className?: string;
 }) {
   return (
-    <div className={cn("grid gap-3 sm:grid-cols-2 xl:grid-cols-4", className)}>
+    <div className={cn("grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4", className)}>
       {children}
     </div>
   );
@@ -62,7 +67,7 @@ export function TextField({
   required?: boolean;
 }) {
   return (
-    <Field label={label} description={description}>
+    <Field label={label} description={description} required={required}>
       <Input
         name={name}
         type={type}
@@ -116,7 +121,7 @@ export function NativeSelectField({
       <select
         name={name}
         defaultValue={defaultValue ?? ""}
-        className="flex h-10 w-full rounded-lg border border-border bg-bg-surface px-3 text-sm text-text-primary outline-none transition focus:border-primary/50 focus:ring-2 focus:ring-primary/15"
+        className="flex h-11 w-full rounded-xl border border-border bg-bg-elevated px-4 text-sm text-text-primary shadow-[var(--shadow-inner)] outline-none transition-all duration-150 focus:border-primary/50 focus:bg-bg-surface focus:shadow-[0_0_0_3px_var(--primary-glow),var(--shadow-inner)] focus:ring-0"
       >
         {options.map((option) => (
           <option key={option.value} value={option.value} className="bg-bg-surface text-text-primary">
@@ -138,10 +143,10 @@ export function SubmitBar({
   cancelLabel?: string;
 }) {
   return (
-    <div className="flex flex-wrap items-center gap-3 pt-4">
-      <Button type="submit" className="min-h-[44px] min-w-[120px]">{label}</Button>
+    <div className="flex flex-wrap items-center gap-3 pt-6">
+      <Button type="submit" className="min-h-[44px] min-w-[140px] rounded-xl">{label}</Button>
       {cancelHref ? (
-        <Button asChild type="button" variant="ghost" className="min-h-[44px]">
+        <Button asChild type="button" variant="ghost" className="min-h-[44px] rounded-xl">
           <a href={cancelHref}>{cancelLabel}</a>
         </Button>
       ) : null}

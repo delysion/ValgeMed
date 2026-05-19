@@ -82,7 +82,7 @@ function FormCard({
   children: React.ReactNode;
 }) {
   return (
-    <Card>
+    <Card className="overflow-hidden">
       <CardHeader>
         <CardTitle>{title}</CardTitle>
         <CardDescription>{description}</CardDescription>
@@ -96,18 +96,18 @@ export function SubjectForm({ subject }: { subject?: Subject }) {
   return (
     <FormCard
       title={subject ? "Edit Subject" : "New Subject"}
-      description="Difficulty and importance shape priority, risk and progression."
+      description="Difficulty and importance shape how the system prioritizes your study time."
     >
-      <form action={subject ? updateSubjectAction : createSubjectAction} className="space-y-3">
+      <form action={subject ? updateSubjectAction : createSubjectAction} className="space-y-5">
         {subject ? <input type="hidden" name="id" value={subject.id} /> : null}
         <FieldGrid>
-          <TextField label="Name" name="name" defaultValue={subject?.name} required placeholder="e.g. Human Anatomy" />
-          <TextField label="Code" name="code" defaultValue={subject?.code} placeholder="e.g. AR-101" description="Course code if applicable." />
-          <TextField label="Color" name="color" defaultValue={subject?.color ?? "#4F46E5"} description="Hex color for visual identification." />
-          <TextField label="Difficulty" name="difficulty" type="number" min={0} max={10} defaultValue={subject?.difficulty ?? 0} description="0–10 scale." />
-          <TextField label="Importance" name="importance" type="number" min={0} max={10} defaultValue={subject?.importance ?? 0} description="0–10 scale." />
+          <TextField label="Subject name" name="name" defaultValue={subject?.name} required placeholder="e.g. Human Anatomy" description="The name you will see everywhere." />
+          <TextField label="Course code" name="code" defaultValue={subject?.code} placeholder="e.g. AR-101" description="Optional identifier for your records." />
+          <TextField label="Theme color" name="color" defaultValue={subject?.color ?? "#5746E5"} description="Used to visually identify this subject in charts and lists." />
+          <TextField label="Difficulty (0–10)" name="difficulty" type="number" min={0} max={10} defaultValue={subject?.difficulty ?? 5} description="How hard is this material for you personally?" />
+          <TextField label="Importance (0–10)" name="importance" type="number" min={0} max={10} defaultValue={subject?.importance ?? 5} description="How critical is this subject for your goals?" />
         </FieldGrid>
-        <TextAreaField label="Description" name="description" defaultValue={subject?.description} placeholder="What this subject covers, key themes, or personal notes…" />
+        <TextAreaField label="Description & notes" name="description" defaultValue={subject?.description} placeholder="What this subject covers, key themes, exam weight, or personal strategy notes…" description="Anything that helps you remember why this subject matters." />
         <SubmitBar label={subject ? "Save Subject" : "Create Subject"} cancelHref={subject ? "/subjects" : undefined} />
       </form>
     </FormCard>
@@ -124,20 +124,20 @@ export function ExamForm({
   return (
     <FormCard
       title={exam ? "Edit Exam" : "New Exam"}
-      description="Every exam becomes a command center with topics, errors, quizzes and a plan."
+      description="Every exam becomes a command center with topics, errors, quizzes and a battle plan."
     >
-      <form action={exam ? updateExamAction : createExamAction} className="space-y-3">
+      <form action={exam ? updateExamAction : createExamAction} className="space-y-5">
         {exam ? <input type="hidden" name="id" value={exam.id} /> : null}
         <FieldGrid>
-          <NativeSelectField label="Subject" name="subjectId" options={relationOptions(subjects, "Select")} defaultValue={exam?.subjectId} />
-          <TextField label="Title" name="title" defaultValue={exam?.title} required placeholder="e.g. Pharmacology Final" />
-          <TextField label="Date" name="examDate" type="date" defaultValue={dateValue(exam?.examDate)} />
-          <TextField label="ECTS" name="ects" type="number" defaultValue={exam?.ects ?? ""} description="Credit points." />
-          <NativeSelectField label="Format" name="format" options={optionize(examFormats)} defaultValue={exam?.format ?? "unknown"} />
-          <TextField label="Difficulty" name="difficulty" type="number" min={0} max={10} defaultValue={exam?.difficulty ?? 0} description="0–10 scale." />
-          <TextField label="Importance" name="importance" type="number" min={0} max={10} defaultValue={exam?.importance ?? 0} description="0–10 scale." />
+          <NativeSelectField label="Subject" name="subjectId" options={relationOptions(subjects, "Select a subject")} defaultValue={exam?.subjectId} description="Which subject does this exam belong to?" />
+          <TextField label="Exam title" name="title" defaultValue={exam?.title} required placeholder="e.g. Pharmacology Final" description="A clear name you will recognize under pressure." />
+          <TextField label="Exam date" name="examDate" type="date" defaultValue={dateValue(exam?.examDate)} description="Used to calculate urgency and countdown." />
+          <TextField label="ECTS credits" name="ects" type="number" defaultValue={exam?.ects ?? ""} description="Credit points if applicable." />
+          <NativeSelectField label="Exam format" name="format" options={optionize(examFormats)} defaultValue={exam?.format ?? "unknown"} description="Oral, written, practical, or mixed." />
+          <TextField label="Difficulty (0–10)" name="difficulty" type="number" min={0} max={10} defaultValue={exam?.difficulty ?? 5} description="How hard is the exam content?" />
+          <TextField label="Importance (0–10)" name="importance" type="number" min={0} max={10} defaultValue={exam?.importance ?? 5} description="How much does this exam affect your trajectory?" />
         </FieldGrid>
-        <TextAreaField label="Notes" name="notes" defaultValue={exam?.notes} placeholder="Format details, special rules, or preparation tips…" />
+        <TextAreaField label="Notes & strategy" name="notes" defaultValue={exam?.notes} placeholder="Format details, special rules, professor preferences, or your personal preparation strategy…" description="Anything that might affect how you prepare." />
         <SubmitBar label={exam ? "Save Exam" : "Create Exam"} cancelHref={exam ? "/exams" : undefined} />
       </form>
     </FormCard>
@@ -156,22 +156,22 @@ export function TopicForm({
   return (
     <FormCard
       title={topic ? "Edit Topic" : "New Topic"}
-      description="Confidence, priority and next review guide recall and revision."
+      description="Confidence and priority guide how the system schedules your recall and revision."
     >
-      <form action={topic ? updateTopicAction : createTopicAction} className="space-y-3">
+      <form action={topic ? updateTopicAction : createTopicAction} className="space-y-5">
         {topic ? <input type="hidden" name="id" value={topic.id} /> : null}
         <FieldGrid>
-          <NativeSelectField label="Subject" name="subjectId" options={relationOptions(subjects, "Select")} defaultValue={topic?.subjectId} />
-          <NativeSelectField label="Exam" name="examId" options={relationOptions(exams)} defaultValue={topic?.examId} />
-          <TextField label="Title" name="title" defaultValue={topic?.title} required placeholder="e.g. Cardiac Cycle" />
-          <NativeSelectField label="Status" name="status" options={optionize(topicStatuses)} defaultValue={topic?.status ?? "not_started"} />
-          <TextField label="Difficulty" name="difficulty" type="number" min={0} max={10} defaultValue={topic?.difficulty ?? 0} description="0–10 scale." />
-          <TextField label="Priority" name="priority" type="number" min={0} max={10} defaultValue={topic?.priority ?? 0} description="0–10 scale." />
-          <TextField label="Confidence" name="confidence" type="number" min={0} max={10} defaultValue={topic?.confidence ?? 0} description="0–10 scale." />
-          <TextField label="Last studied" name="lastStudiedAt" type="date" defaultValue={dateValue(topic?.lastStudiedAt)} />
-          <TextField label="Next review" name="nextReviewAt" type="date" defaultValue={dateValue(topic?.nextReviewAt)} />
+          <NativeSelectField label="Subject" name="subjectId" options={relationOptions(subjects, "Select a subject")} defaultValue={topic?.subjectId} description="Organizes topics by subject." />
+          <NativeSelectField label="Linked exam" name="examId" options={relationOptions(exams, "None")} defaultValue={topic?.examId} description="Connects this topic to an exam for readiness tracking." />
+          <TextField label="Topic title" name="title" defaultValue={topic?.title} required placeholder="e.g. Cardiac Cycle" description="A specific, actionable name you will recognize." />
+          <NativeSelectField label="Status" name="status" options={optionize(topicStatuses)} defaultValue={topic?.status ?? "not_started"} description="Where are you in the learning process?" />
+          <TextField label="Difficulty (0–10)" name="difficulty" type="number" min={0} max={10} defaultValue={topic?.difficulty ?? 5} description="How hard is this material?" />
+          <TextField label="Priority (0–10)" name="priority" type="number" min={0} max={10} defaultValue={topic?.priority ?? 5} description="How urgent is this topic right now?" />
+          <TextField label="Confidence (0–10)" name="confidence" type="number" min={0} max={10} defaultValue={topic?.confidence ?? 0} description="How well do you know this today? Be honest." />
+          <TextField label="Last studied" name="lastStudiedAt" type="date" defaultValue={dateValue(topic?.lastStudiedAt)} description="When did you last review this topic?" />
+          <TextField label="Next review" name="nextReviewAt" type="date" defaultValue={dateValue(topic?.nextReviewAt)} description="When should you review this next?" />
         </FieldGrid>
-        <TextAreaField label="Description" name="description" defaultValue={topic?.description} placeholder="Key concepts, subtopics, or learning objectives…" />
+        <TextAreaField label="Description & key concepts" name="description" defaultValue={topic?.description} placeholder="Key concepts, subtopics, equations to memorize, or common traps…" description="A quick reference for future you." />
         <SubmitBar label={topic ? "Save Topic" : "Create Topic"} cancelHref={topic ? "/topics" : undefined} />
       </form>
     </FormCard>
@@ -192,24 +192,24 @@ export function StudySessionForm({
   return (
     <FormCard
       title={session ? "Edit Session" : "New Session"}
-      description="Track method, focus, energy and output: yield per hour, not just hours."
+      description="Track method, focus, energy and output. Quality beats quantity every time."
     >
-      <form action={session ? updateStudySessionAction : createStudySessionAction} className="space-y-3">
+      <form action={session ? updateStudySessionAction : createStudySessionAction} className="space-y-5">
         {session ? <input type="hidden" name="id" value={session.id} /> : null}
         <FieldGrid>
-          <NativeSelectField label="Subject" name="subjectId" options={relationOptions(subjects, "Select")} defaultValue={session?.subjectId} />
-          <NativeSelectField label="Topic" name="topicId" options={relationOptions(topics)} defaultValue={session?.topicId} />
-          <NativeSelectField label="Exam" name="examId" options={relationOptions(exams)} defaultValue={session?.examId} />
-          <TextField label="Start" name="startedAt" type="datetime-local" defaultValue={dateTimeValue(session?.startedAt) || dateTimeValue(new Date())} required />
-          <TextField label="End" name="endedAt" type="datetime-local" defaultValue={dateTimeValue(session?.endedAt)} />
-          <TextField label="Minutes" name="durationMinutes" type="number" defaultValue={session?.durationMinutes ?? 50} required description="Duration in minutes." />
-          <NativeSelectField label="Method" name="method" options={optionize(studyMethods)} defaultValue={session?.method ?? "mixed"} />
-          <TextField label="Focus" name="focusLevel" type="number" min={0} max={10} defaultValue={session?.focusLevel ?? 7} description="0–10 scale." />
-          <TextField label="Energy" name="energyLevel" type="number" min={0} max={10} defaultValue={session?.energyLevel ?? 7} description="0–10 scale." />
-          <TextField label="Output" name="outputQuality" type="number" min={0} max={10} defaultValue={session?.outputQuality ?? 7} description="0–10 scale." />
+          <NativeSelectField label="Subject" name="subjectId" options={relationOptions(subjects, "Select a subject")} defaultValue={session?.subjectId} description="What subject were you studying?" />
+          <NativeSelectField label="Topic" name="topicId" options={relationOptions(topics, "None")} defaultValue={session?.topicId} description="Which specific topic?" />
+          <NativeSelectField label="Exam" name="examId" options={relationOptions(exams, "None")} defaultValue={session?.examId} description="Link to an exam if relevant." />
+          <TextField label="Start time" name="startedAt" type="datetime-local" defaultValue={dateTimeValue(session?.startedAt) || dateTimeValue(new Date())} required description="When did the session begin?" />
+          <TextField label="End time" name="endedAt" type="datetime-local" defaultValue={dateTimeValue(session?.endedAt)} description="When did it finish?" />
+          <TextField label="Duration (minutes)" name="durationMinutes" type="number" defaultValue={session?.durationMinutes ?? 50} required description="How long did you study?" />
+          <NativeSelectField label="Study method" name="method" options={optionize(studyMethods)} defaultValue={session?.method ?? "mixed"} description="Active recall is highest yield." />
+          <TextField label="Focus level (0–10)" name="focusLevel" type="number" min={0} max={10} defaultValue={session?.focusLevel ?? 7} description="How focused were you, honestly?" />
+          <TextField label="Energy level (0–10)" name="energyLevel" type="number" min={0} max={10} defaultValue={session?.energyLevel ?? 7} description="How did you feel physically and mentally?" />
+          <TextField label="Output quality (0–10)" name="outputQuality" type="number" min={0} max={10} defaultValue={session?.outputQuality ?? 7} description="How much did you actually learn and retain?" />
         </FieldGrid>
-        <TextAreaField label="Notes" name="notes" defaultValue={session?.notes} placeholder="What worked, what didn't, key insights…" />
-        <SubmitBar label={session ? "Save Session" : "Create Session"} cancelHref={session ? "/study-sessions" : undefined} />
+        <TextAreaField label="Session notes" name="notes" defaultValue={session?.notes} placeholder="What worked, what didn't, key insights, or what to review next time…" description="These notes become your personal playbook." />
+        <SubmitBar label={session ? "Save Session" : "Log Session"} cancelHref={session ? "/study-sessions" : undefined} />
       </form>
     </FormCard>
   );
@@ -264,30 +264,30 @@ export function ErrorLogForm({
 }) {
   return (
     <FormCard
-      title={error ? "Edit Error" : "New Error"}
-      description="Errors become prevention rules, not personal blame."
+      title={error ? "Edit Error" : "Log an Error"}
+      description="Errors become prevention rules. Every mistake is data for the system."
     >
-      <form action={error ? updateErrorLogAction : createErrorLogAction} className="space-y-3">
+      <form action={error ? updateErrorLogAction : createErrorLogAction} className="space-y-5">
         {error ? <input type="hidden" name="id" value={error.id} /> : null}
         <input type="hidden" name="resolved" value="false" />
         <FieldGrid>
-          <NativeSelectField label="Subject" name="subjectId" options={relationOptions(subjects, "Select")} defaultValue={error?.subjectId} />
-          <NativeSelectField label="Topic" name="topicId" options={relationOptions(topics)} defaultValue={error?.topicId} />
-          <NativeSelectField label="Exam" name="examId" options={relationOptions(exams)} defaultValue={error?.examId} />
-          <TextField label="Title" name="title" defaultValue={error?.title} required placeholder="e.g. Confused systole with diastole" />
-          <NativeSelectField label="Type" name="errorType" options={optionize(errorTypes)} defaultValue={error?.errorType ?? "other"} />
-          <TextField label="Retest" name="retestAt" type="date" defaultValue={dateValue(error?.retestAt)} description="When to retest this error." />
-          <TextField label="Severity" name="severity" type="number" min={0} max={10} defaultValue={error?.severity ?? 0} description="0–10 scale." />
-          <TextField label="Recurrences" name="recurrenceCount" type="number" min={0} defaultValue={error?.recurrenceCount ?? 0} description="How many times it has recurred." />
+          <NativeSelectField label="Subject" name="subjectId" options={relationOptions(subjects, "Select a subject")} defaultValue={error?.subjectId} description="Which subject was this error in?" />
+          <NativeSelectField label="Topic" name="topicId" options={relationOptions(topics, "None")} defaultValue={error?.topicId} description="Narrow down to a specific topic." />
+          <NativeSelectField label="Exam" name="examId" options={relationOptions(exams, "None")} defaultValue={error?.examId} description="Was this related to a specific exam?" />
+          <TextField label="Error title" name="title" defaultValue={error?.title} required placeholder="e.g. Confused systole with diastole" description="A short, clear description of the mistake." />
+          <NativeSelectField label="Error type" name="errorType" options={optionize(errorTypes)} defaultValue={error?.errorType ?? "other"} description="Categorize to spot patterns." />
+          <TextField label="Retest date" name="retestAt" type="date" defaultValue={dateValue(error?.retestAt)} description="When will you test yourself on this again?" />
+          <TextField label="Severity (0–10)" name="severity" type="number" min={0} max={10} defaultValue={error?.severity ?? 5} description="How serious is this gap in knowledge?" />
+          <TextField label="Recurrences" name="recurrenceCount" type="number" min={0} defaultValue={error?.recurrenceCount ?? 0} description="How many times has this same error happened?" />
         </FieldGrid>
-        <TextAreaField label="Description" name="description" defaultValue={error?.description} placeholder="What was the mistake? What was the right answer?" />
-        <TextAreaField label="Cause" name="cause" defaultValue={error?.cause} placeholder="Why did it happen? Misunderstanding, lack of practice, haste?" />
-        <TextAreaField label="Correction" name="correction" defaultValue={error?.correction} placeholder="What is the correct understanding or approach?" />
-        <TextAreaField label="Prevention rule" name="preventionRule" defaultValue={error?.preventionRule} placeholder="e.g. Always trace the pathway before answering." />
+        <TextAreaField label="What went wrong?" name="description" defaultValue={error?.description} placeholder="Describe the mistake clearly. What did you answer? What was correct?" description="Be specific. Future you will thank present you." />
+        <TextAreaField label="Why did it happen?" name="cause" defaultValue={error?.cause} placeholder="Misunderstanding? Rushed? Forgot a key fact? Confused two similar concepts?" description="Understanding the root cause prevents recurrence." />
+        <TextAreaField label="The correct understanding" name="correction" defaultValue={error?.correction} placeholder="Write out the correct answer or approach in your own words." description="Teaching yourself the right way cements the correction." />
+        <TextAreaField label="Prevention rule" name="preventionRule" defaultValue={error?.preventionRule} placeholder="e.g. Always trace the conduction pathway before answering." description="A simple rule that would have prevented this error." />
         <Field label="Resolved">
-          <Input type="checkbox" name="resolved" defaultChecked={error?.resolved ?? false} className="h-4 w-4" />
+          <Input type="checkbox" name="resolved" defaultChecked={error?.resolved ?? false} className="h-5 w-5 rounded-md" />
         </Field>
-        <SubmitBar label={error ? "Save Error" : "Create Error"} cancelHref={error ? "/errors" : undefined} />
+        <SubmitBar label={error ? "Save Error" : "Log Error & Learn"} cancelHref={error ? "/errors" : undefined} />
       </form>
     </FormCard>
   );
@@ -305,18 +305,18 @@ export function QuizAttemptForm({
   examId?: string;
 }) {
   return (
-    <FormCard title="New Quiz Attempt" description="Real accuracy, not a feeling of familiarity.">
-      <form action={createQuizAttemptAction} className="space-y-3">
+    <FormCard title="New Quiz Attempt" description="Track real accuracy. Feelings of familiarity are not evidence of knowledge.">
+      <form action={createQuizAttemptAction} className="space-y-5">
         <FieldGrid>
-          <NativeSelectField label="Subject" name="subjectId" options={relationOptions(subjects, "Select")} defaultValue={exams.find((exam) => exam.id === examId)?.subjectId} />
-          <NativeSelectField label="Topic" name="topicId" options={relationOptions(topics)} />
-          <NativeSelectField label="Exam" name="examId" options={relationOptions(exams)} defaultValue={examId} />
-          <TextField label="Date" name="date" type="date" defaultValue={formatISO(new Date(), { representation: "date" })} />
-          <TextField label="Questions" name="totalQuestions" type="number" defaultValue={20} description="Total questions in the quiz." />
-          <TextField label="Correct" name="correctAnswers" type="number" defaultValue={0} description="How many did you get right?" />
+          <NativeSelectField label="Subject" name="subjectId" options={relationOptions(subjects, "Select a subject")} defaultValue={exams.find((exam) => exam.id === examId)?.subjectId} description="Which subject was tested?" />
+          <NativeSelectField label="Topic" name="topicId" options={relationOptions(topics, "None")} description="Which specific topic, if any?" />
+          <NativeSelectField label="Exam" name="examId" options={relationOptions(exams, "None")} defaultValue={examId} description="Preparing for a specific exam?" />
+          <TextField label="Date" name="date" type="date" defaultValue={formatISO(new Date(), { representation: "date" })} description="When did you take this quiz?" />
+          <TextField label="Total questions" name="totalQuestions" type="number" defaultValue={20} description="How many questions were on the quiz?" />
+          <TextField label="Correct answers" name="correctAnswers" type="number" defaultValue={0} description="How many did you answer correctly? Be honest." />
         </FieldGrid>
-        <TextAreaField label="Notes" name="notes" placeholder="Which topics were hardest?" />
-        <SubmitBar label="Record Quiz" />
+        <TextAreaField label="Reflections" name="notes" placeholder="Which topics were hardest? What patterns did you notice? What will you review before the next attempt?" description="These reflections guide your next study session." />
+        <SubmitBar label="Record Quiz Result" />
       </form>
     </FormCard>
   );
@@ -326,25 +326,25 @@ export function DailyLogForm({ log, compact = false }: { log?: DailyLog | null; 
   return (
     <FormCard
       title={log ? "Update Daily Log" : "Daily Log"}
-      description="Sleep, energy and stress weigh on the plan: they are not decorative details."
+      description="Sleep, energy and stress shape the plan. These are not decorative details."
     >
-      <form action={log?.id ? updateDailyLogAction : upsertDailyLogAction} className="space-y-3">
+      <form action={log?.id ? updateDailyLogAction : upsertDailyLogAction} className="space-y-5">
         {log?.id ? <input type="hidden" name="id" value={log.id} /> : null}
         <input type="hidden" name="movementDone" value="false" />
         <FieldGrid className={compact ? "xl:grid-cols-3" : undefined}>
-          <TextField label="Date" name="date" type="date" defaultValue={log?.date ?? formatISO(new Date(), { representation: "date" })} />
-          <TextField label="Sleep" name="sleepHours" type="number" defaultValue={log?.sleepHours ?? ""} placeholder="e.g. 7.5" description="Hours of sleep." />
-          <TextField label="Energy" name="energyLevel" type="number" min={0} max={10} defaultValue={log?.energyLevel ?? ""} description="0–10 scale." />
-          <TextField label="Stress" name="stressLevel" type="number" min={0} max={10} defaultValue={log?.stressLevel ?? ""} description="0–10 scale." />
-          <TextField label="Mood" name="moodLevel" type="number" min={0} max={10} defaultValue={log?.moodLevel ?? ""} description="0–10 scale." />
-          <TextField label="Study min" name="studyMinutes" type="number" defaultValue={log?.studyMinutes ?? 0} description="Total study time." />
-          <TextField label="Recall min" name="activeRecallMinutes" type="number" defaultValue={log?.activeRecallMinutes ?? 0} description="Active recall time." />
-          <TextField label="Passive min" name="passiveStudyMinutes" type="number" defaultValue={log?.passiveStudyMinutes ?? 0} description="Passive study time." />
+          <TextField label="Date" name="date" type="date" defaultValue={log?.date ?? formatISO(new Date(), { representation: "date" })} description="Which day is this log for?" />
+          <TextField label="Sleep (hours)" name="sleepHours" type="number" defaultValue={log?.sleepHours ?? ""} placeholder="e.g. 7.5" description="Total hours of sleep last night." />
+          <TextField label="Energy (0–10)" name="energyLevel" type="number" min={0} max={10} defaultValue={log?.energyLevel ?? ""} description="How energetic did you feel today?" />
+          <TextField label="Stress (0–10)" name="stressLevel" type="number" min={0} max={10} defaultValue={log?.stressLevel ?? ""} description="How stressed or overwhelmed did you feel?" />
+          <TextField label="Mood (0–10)" name="moodLevel" type="number" min={0} max={10} defaultValue={log?.moodLevel ?? ""} description="Overall emotional state today." />
+          <TextField label="Total study (min)" name="studyMinutes" type="number" defaultValue={log?.studyMinutes ?? 0} description="All study time combined." />
+          <TextField label="Active recall (min)" name="activeRecallMinutes" type="number" defaultValue={log?.activeRecallMinutes ?? 0} description="Time spent on active recall specifically." />
+          <TextField label="Passive study (min)" name="passiveStudyMinutes" type="number" defaultValue={log?.passiveStudyMinutes ?? 0} description="Reading, notes, videos without active testing." />
         </FieldGrid>
-        <Field label="Movement">
-          <Input type="checkbox" name="movementDone" defaultChecked={log?.movementDone ?? false} className="h-4 w-4" />
+        <Field label="Did you move today?">
+          <Input type="checkbox" name="movementDone" defaultChecked={log?.movementDone ?? false} className="h-5 w-5 rounded-md" />
         </Field>
-        <TextAreaField label="Notes" name="notes" defaultValue={log?.notes} placeholder="How was today? What affected your focus?" />
+        <TextAreaField label="Daily reflections" name="notes" defaultValue={log?.notes} placeholder="How was today? What affected your focus? What will you do differently tomorrow?" description="Short reflections compound into long-term self-awareness." />
         <SubmitBar label={log?.id ? "Save Log" : "Log Today"} cancelHref={log?.id ? "/daily-log" : undefined} />
       </form>
     </FormCard>
@@ -353,18 +353,18 @@ export function DailyLogForm({ log, compact = false }: { log?: DailyLog | null; 
 
 export function GoalForm({ goal }: { goal?: Goal }) {
   return (
-    <FormCard title={goal ? "Edit Goal" : "New Goal"} description="Academic, health and professional identity goals.">
-      <form action={goal ? updateGoalAction : createGoalAction} className="space-y-3">
+    <FormCard title={goal ? "Edit Goal" : "New Goal"} description="Academic, health and professional identity goals that shape your trajectory.">
+      <form action={goal ? updateGoalAction : createGoalAction} className="space-y-5">
         {goal ? <input type="hidden" name="id" value={goal.id} /> : null}
         <FieldGrid>
-          <TextField label="Title" name="title" defaultValue={goal?.title} required placeholder="e.g. Master ECG interpretation" />
-          <NativeSelectField label="Type" name="goalType" options={optionize(goalTypes)} defaultValue={goal?.goalType ?? "daily"} />
-          <TextField label="Target" name="targetDate" type="date" defaultValue={goal?.targetDate ?? ""} description="When should this be achieved?" />
-          <NativeSelectField label="Status" name="status" options={optionize(goalStatuses)} defaultValue={goal?.status ?? "active"} />
-          <TextField label="Priority" name="priority" type="number" min={0} max={10} defaultValue={goal?.priority ?? 0} description="0–10 scale." />
+          <TextField label="Goal title" name="title" defaultValue={goal?.title} required placeholder="e.g. Master ECG interpretation" description="A specific, measurable goal you can act on." />
+          <NativeSelectField label="Goal type" name="goalType" options={optionize(goalTypes)} defaultValue={goal?.goalType ?? "daily"} description="Daily, weekly, semester, or career goal?" />
+          <TextField label="Target date" name="targetDate" type="date" defaultValue={goal?.targetDate ?? ""} description="When do you want to achieve this by?" />
+          <NativeSelectField label="Status" name="status" options={optionize(goalStatuses)} defaultValue={goal?.status ?? "active"} description="Is this currently active or on hold?" />
+          <TextField label="Priority (0–10)" name="priority" type="number" min={0} max={10} defaultValue={goal?.priority ?? 5} description="How does this compare to your other goals?" />
         </FieldGrid>
-        <TextAreaField label="Description" name="description" defaultValue={goal?.description} placeholder="What does success look like? How will you measure it?" />
-        <SubmitBar label={goal ? "Save Goal" : "Create Goal"} cancelHref={goal ? "/goals" : undefined} />
+        <TextAreaField label="What does success look like?" name="description" defaultValue={goal?.description} placeholder="Describe the goal in detail. How will you know when you have achieved it? What are the milestones?" description="Specificity increases commitment and clarity." />
+        <SubmitBar label={goal ? "Save Goal" : "Set Goal"} cancelHref={goal ? "/goals" : undefined} />
       </form>
     </FormCard>
   );
@@ -382,20 +382,20 @@ export function TaskForm({
   topics: Topic[];
 }) {
   return (
-    <FormCard title={task ? "Edit Task" : "New Task"} description="Concrete actions linked to subject, exam or topic.">
-      <form action={task ? updateTaskAction : createTaskAction} className="space-y-3">
+    <FormCard title={task ? "Edit Task" : "New Task"} description="Concrete actions linked to your subjects, exams, and topics.">
+      <form action={task ? updateTaskAction : createTaskAction} className="space-y-5">
         {task ? <input type="hidden" name="id" value={task.id} /> : null}
         <FieldGrid>
-          <TextField label="Title" name="title" defaultValue={task?.title} required placeholder="e.g. Review pharm flashcards" />
-          <TextField label="Due" name="dueAt" type="date" defaultValue={dateValue(task?.dueAt)} />
-          <NativeSelectField label="Status" name="status" options={optionize(taskStatuses)} defaultValue={task?.status ?? "todo"} />
-          <TextField label="Priority" name="priority" type="number" min={0} max={10} defaultValue={task?.priority ?? 0} description="0–10 scale." />
-          <NativeSelectField label="Subject" name="relatedSubjectId" options={relationOptions(subjects)} defaultValue={task?.relatedSubjectId} />
-          <NativeSelectField label="Exam" name="relatedExamId" options={relationOptions(exams)} defaultValue={task?.relatedExamId} />
-          <NativeSelectField label="Topic" name="relatedTopicId" options={relationOptions(topics)} defaultValue={task?.relatedTopicId} />
+          <TextField label="Task title" name="title" defaultValue={task?.title} required placeholder="e.g. Review pharmacology flashcards" description="A clear, actionable next step." />
+          <TextField label="Due date" name="dueAt" type="date" defaultValue={dateValue(task?.dueAt)} description="When does this need to be done?" />
+          <NativeSelectField label="Status" name="status" options={optionize(taskStatuses)} defaultValue={task?.status ?? "todo"} description="Current progress on this task." />
+          <TextField label="Priority (0–10)" name="priority" type="number" min={0} max={10} defaultValue={task?.priority ?? 5} description="How urgent is this compared to other tasks?" />
+          <NativeSelectField label="Subject" name="relatedSubjectId" options={relationOptions(subjects, "None")} defaultValue={task?.relatedSubjectId} description="Which subject is this task for?" />
+          <NativeSelectField label="Exam" name="relatedExamId" options={relationOptions(exams, "None")} defaultValue={task?.relatedExamId} description="Is this preparing for a specific exam?" />
+          <NativeSelectField label="Topic" name="relatedTopicId" options={relationOptions(topics, "None")} defaultValue={task?.relatedTopicId} description="Which topic does this task cover?" />
         </FieldGrid>
-        <TextAreaField label="Description" name="description" defaultValue={task?.description} placeholder="Additional context, resources, or steps…" />
-        <SubmitBar label={task ? "Save Task" : "Create Task"} cancelHref={task ? "/goals" : undefined} />
+        <TextAreaField label="Details & resources" name="description" defaultValue={task?.description} placeholder="Additional context, resources, specific steps, or why this task matters…" description="Notes that help you pick this up quickly later." />
+        <SubmitBar label={task ? "Save Task" : "Add Task"} cancelHref={task ? "/goals" : undefined} />
       </form>
     </FormCard>
   );
@@ -409,14 +409,14 @@ export function IdentityNoteForm({
   cancelHref?: string;
 }) {
   return (
-    <FormCard title={note ? "Edit Identity Note" : "Identity Note"} description="Personal standards and identity as a future professional.">
-      <form action={note ? updateIdentityNoteAction : createIdentityNoteAction} className="space-y-3">
+    <FormCard title={note ? "Edit Identity Note" : "Identity Note"} description="Personal standards and identity as a future professional. This is your compass.">
+      <form action={note ? updateIdentityNoteAction : createIdentityNoteAction} className="space-y-5">
         {note ? <input type="hidden" name="id" value={note.id} /> : null}
         <FieldGrid>
-          <TextField label="Title" name="title" defaultValue={note?.title} required placeholder="e.g. My clinical philosophy" />
-          <NativeSelectField label="Category" name="category" options={optionize(identityCategories)} defaultValue={note?.category ?? "professional_identity"} />
+          <TextField label="Note title" name="title" defaultValue={note?.title} required placeholder="e.g. My clinical philosophy" description="A theme or principle you want to remember." />
+          <NativeSelectField label="Category" name="category" options={optionize(identityCategories)} defaultValue={note?.category ?? "professional_identity"} description="What area of your identity does this touch?" />
         </FieldGrid>
-        <TextAreaField label="Content" name="content" defaultValue={note?.content} placeholder="What kind of doctor or dentist do you want to become?" />
+        <TextAreaField label="Your note" name="content" defaultValue={note?.content} placeholder="What kind of doctor or dentist do you want to become? What principles will guide your decisions under pressure?" description="Write honestly. This is private and for your future self." />
         <SubmitBar label={note ? "Save Note" : "Create Note"} cancelHref={note ? cancelHref : undefined} />
       </form>
     </FormCard>

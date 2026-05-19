@@ -5,22 +5,23 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-page disabled:pointer-events-none disabled:opacity-50 select-none",
   {
     variants: {
       variant: {
         default:
-          "bg-primary text-white shadow-sm hover:bg-primary/90 hover:shadow-md active:scale-[0.97]",
-        destructive: "border border-rose/20 bg-rose-bg text-rose hover:bg-rose/10 active:scale-[0.97]",
-        outline: "border border-border bg-bg-surface text-text-secondary hover:bg-bg-subtle hover:text-text-primary active:scale-[0.97]",
+          "bg-primary text-white shadow-[0_1px_2px_rgba(0,0,0,0.1)] hover:bg-[#4d3fd9] hover:shadow-[0_4px_16px_rgba(87,70,229,0.30)] hover:-translate-y-[1px] active:translate-y-0 active:scale-[0.97]",
+        destructive: "border border-rose/25 bg-rose-bg text-rose hover:bg-rose/10 hover:border-rose/40 hover:-translate-y-[1px] active:translate-y-0 active:scale-[0.97]",
+        outline: "border border-border-strong bg-bg-elevated text-text-secondary hover:bg-bg-subtle hover:text-text-primary hover:border-border hover:-translate-y-[1px] active:translate-y-0 active:scale-[0.97]",
         ghost: "text-text-secondary hover:bg-bg-subtle hover:text-text-primary active:scale-[0.97]",
         muted: "bg-bg-subtle text-text-secondary hover:bg-border hover:text-text-primary active:scale-[0.97]",
-        gold: "border border-gold/20 bg-gold-bg text-gold hover:bg-gold/10 active:scale-[0.97]",
+        gold: "border border-gold/25 bg-gold-bg text-gold hover:bg-gold/10 hover:border-gold/40 hover:-translate-y-[1px] active:translate-y-0 active:scale-[0.97]",
       },
       size: {
-        default: "h-9 px-4",
+        default: "h-10 px-5",
         sm: "h-8 px-3 text-xs",
-        icon: "h-9 w-9",
+        lg: "h-12 px-6 text-base",
+        icon: "h-10 w-10",
       },
     },
     defaultVariants: {
