@@ -70,13 +70,13 @@ export function DataTableShell({
   });
 
   return (
-    <div className={cn("overflow-hidden rounded-2xl border border-white/10", className)}>
+    <div className={cn("overflow-hidden rounded-2xl border border-border", className)}>
       <table className="w-full min-w-[680px] border-collapse text-sm">
-        <thead className="bg-white/[0.04]">
+        <thead className="bg-bg-subtle">
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <th key={header.id} className="px-3 py-2 text-left font-medium text-muted">
+                <th key={header.id} className="px-3 py-2 text-left font-medium text-text-secondary">
                   {header.isPlaceholder
                     ? null
                     : flexRender(header.column.columnDef.header, header.getContext())}
@@ -88,9 +88,9 @@ export function DataTableShell({
         <tbody>
           {table.getRowModel().rows.length ? (
             table.getRowModel().rows.map((row) => (
-              <tr key={row.id} className="border-t border-white/10">
+              <tr key={row.id} className="border-t border-border">
                 {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className="px-3 py-2 text-muted">
+                  <td key={cell.id} className="px-3 py-2 text-text-secondary">
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
                 ))}
@@ -98,7 +98,7 @@ export function DataTableShell({
             ))
           ) : (
             <tr>
-              <td colSpan={columns.length} className="px-3 py-8 text-center text-muted">
+              <td colSpan={columns.length} className="px-3 py-8 text-center text-text-secondary">
                 {labels.empty}
               </td>
             </tr>

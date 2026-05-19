@@ -43,24 +43,24 @@ export function ResourceTable<T extends { id: string }>({
           emptyState ? (
             <EmptyState title={emptyState.title} description={emptyState.description} actionLabel={emptyState.actionLabel} href={emptyState.href} />
           ) : (
-            <div className="rounded-3xl border border-dashed border-white/10 bg-white/[0.035] p-6 text-center text-sm text-muted">
+            <div className="rounded-3xl border border-dashed border-border bg-bg-subtle p-6 text-center text-sm text-text-secondary">
               {labels.empty}
             </div>
           )
         ) : (
           rows.map((row) => (
-            <article key={row.id} className="rounded-3xl border border-white/10 bg-white/[0.045] p-4 shadow-[var(--ring-soft)]">
+            <article key={row.id} className="rounded-3xl border border-border bg-bg-subtle p-4 shadow-[var(--ring-soft)]">
               <div className="space-y-3">
                 {columns.map((column) => (
                   <div key={column.header}>
-                    <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-muted-2">
+                    <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-text-muted">
                       {column.header}
                     </p>
-                    <div className="mt-1 text-sm text-muted">{column.render(row)}</div>
+                    <div className="mt-1 text-sm text-text-secondary">{column.render(row)}</div>
                   </div>
                 ))}
               </div>
-              <div className="mt-4 flex justify-end gap-1 border-t border-white/10 pt-3">
+              <div className="mt-4 flex justify-end gap-1 border-t border-border pt-3">
                 {extraActions?.(row)}
                 <Button asChild variant="ghost" size="icon">
                   <a href={`${editBasePath}?${editParam}=${row.id}`} aria-label={labels.edit}>
@@ -79,9 +79,9 @@ export function ResourceTable<T extends { id: string }>({
         )}
       </div>
 
-      <div className="hidden overflow-x-auto rounded-2xl border border-white/10 md:block">
+      <div className="hidden overflow-x-auto rounded-2xl border border-border md:block">
       <table className="w-full min-w-[760px] border-collapse text-sm">
-        <thead className="bg-white/[0.04] text-xs uppercase tracking-[0.12em] text-muted">
+        <thead className="bg-bg-subtle text-xs uppercase tracking-[0.12em] text-text-secondary">
           <tr>
             {columns.map((column) => (
               <th key={column.header} className="px-3 py-2 text-left font-medium">
@@ -98,15 +98,15 @@ export function ResourceTable<T extends { id: string }>({
                 {emptyState ? (
                   <EmptyState title={emptyState.title} description={emptyState.description} actionLabel={emptyState.actionLabel} href={emptyState.href} />
                 ) : (
-                  <p className="text-center text-muted">{labels.empty}</p>
+                  <p className="text-center text-text-secondary">{labels.empty}</p>
                 )}
               </td>
             </tr>
           ) : (
             rows.map((row) => (
-              <tr key={row.id} className="border-t border-white/10 align-top">
+              <tr key={row.id} className="border-t border-border align-top">
                 {columns.map((column) => (
-                  <td key={column.header} className="px-3 py-2 text-muted">
+                  <td key={column.header} className="px-3 py-2 text-text-secondary">
                     {column.render(row)}
                   </td>
                 ))}

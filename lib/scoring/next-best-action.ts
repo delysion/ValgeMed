@@ -97,7 +97,7 @@ export function getNextBestAction(input: {
   if (severeOpenError) {
     return {
       kind: "error_review",
-      title: "Error review mirata",
+      title: "Targeted error review",
       reason: `High-severity open error: ${severeOpenError.title}.`,
       href: "/errors",
     };
@@ -126,7 +126,7 @@ export function getNextBestAction(input: {
   if (fragileTopic) {
     return {
       kind: "active_recall",
-      title: "Active recall su topic fragile",
+      title: "Active recall on fragile topic",
       reason: `${fragileTopic.title} has confidence <= 3.`,
       href: "/topics",
     };
@@ -139,7 +139,7 @@ export function getNextBestAction(input: {
   ) {
     return {
       kind: "quiz",
-      title: "Converti passivo in quiz",
+      title: "Convert passive into quiz",
       reason: "Passive study is exceeding active recall today.",
       href: "/study-sessions",
     };
@@ -149,7 +149,7 @@ export function getNextBestAction(input: {
     if (input.todayLog.energyLevel <= 3) {
       return {
         kind: "light_consolidation",
-        title: "Consolidamento leggero",
+        title: "Light consolidation",
         reason: "Low energy: light review and clean closure today.",
         href: "/reviews",
       };
@@ -223,7 +223,7 @@ export function getNextBestAction(input: {
 
   return {
     kind: "priority_topic",
-    title: priorityTopic ? `Topic prioritario: ${priorityTopic.title}` : "Pianifica il primo topic",
+    title: priorityTopic ? `Priority topic: ${priorityTopic.title}` : "Plan your first topic",
     reason: priorityTopic
       ? "No immediate alarm: choose the topic with highest priority and difficulty."
       : "Add subjects and topics to activate the study operating system.",

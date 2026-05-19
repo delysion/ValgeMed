@@ -107,10 +107,10 @@ export function NativeSelectField({
       <select
         name={name}
         defaultValue={defaultValue ?? ""}
-        className="flex h-10 w-full rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 text-sm text-white outline-none transition focus:border-estonian-blue/50 focus:ring-2 focus:ring-estonian-blue/15"
+        className="flex h-10 w-full rounded-lg border border-border bg-white px-3 text-sm text-text-primary outline-none transition focus:border-primary/50 focus:ring-2 focus:ring-primary/15"
       >
         {options.map((option) => (
-          <option key={option.value} value={option.value} className="bg-[#0B1F33]">
+          <option key={option.value} value={option.value} className="bg-white text-text-primary">
             {option.label}
           </option>
         ))}
@@ -129,8 +129,8 @@ export function SubmitBar({
   cancelLabel?: string;
 }) {
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <Button type="submit" className="min-h-[44px]">{label}</Button>
+    <div className="flex flex-wrap items-center gap-3 pt-4">
+      <Button type="submit" className="min-h-[44px] min-w-[120px]">{label}</Button>
       {cancelHref ? (
         <Button asChild type="button" variant="ghost" className="min-h-[44px]">
           <a href={cancelHref}>{cancelLabel}</a>
