@@ -16,9 +16,9 @@ export function EmptyState({
   href?: string;
 }) {
   return (
-    <div className="rounded-3xl border border-dashed border-white/10 bg-white/[0.035] p-8 text-center">
+    <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.025] p-8 text-center">
       {Icon ? (
-        <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl border border-white/10 bg-white/[0.06] text-cyan">
+        <div className="mx-auto grid h-12 w-12 place-items-center rounded-xl border border-white/10 bg-white/[0.04] text-cyan">
           <Icon className="h-5 w-5" />
         </div>
       ) : null}

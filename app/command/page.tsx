@@ -1,29 +1,25 @@
 import Link from "next/link";
 import { differenceInCalendarDays, formatISO, startOfToday, subDays } from "date-fns";
-import { ArrowRight, Brain, CalendarClock, Flame, Languages, Radar, ShieldCheck, Sparkles, Target, Trophy } from "lucide-react";
+import { ArrowRight, Brain, CalendarClock, Flame, Languages, Radar, ShieldCheck, Sparkles, Target, Trophy, Zap } from "lucide-react";
 
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { DailyLogForm } from "@/components/forms/entity-forms";
-import { AchievementBadge, QuestCard } from "@/components/premium/gamification";
+import { AchievementBadge } from "@/components/premium/gamification";
+import { CommandGreeting } from "@/components/premium/command-greeting";
 import { GlassCard } from "@/components/premium/glass-card";
 import { MetricCard } from "@/components/premium/metric-card";
 import { MomentumBar } from "@/components/premium/momentum-bar";
-import { ScoreRing } from "@/components/premium/score-ring";
-import { Badge } from "@/components/ui/badge";
+import { QuestItem } from "@/components/premium/quest-grid";
+import { SignalTile } from "@/components/premium/signal-panel";
 import { Button } from "@/components/ui/button";
 import { requireOwnerSession } from "@/lib/auth/session";
 import { getCoreData } from "@/lib/data/queries";
 import { fmtDate } from "@/lib/labels";
-import type { TranslationKey } from "@/lib/i18n/dictionaries/en";
 import { getI18n } from "@/lib/i18n/server";
 import { buildBurnoutRiskFromLogs, buildEliteIndex, buildExamReadiness } from "@/lib/scoring/engine";
-import { getNextBestAction, type NextBestAction } from "@/lib/scoring/next-best-action";
+import { getNextBestAction } from "@/lib/scoring/next-best-action";
 
 export const dynamic = "force-dynamic";
-
-function nextActionKey(action: NextBestAction, part: "title" | "reason"): TranslationKey {
-  return `nba.${action.kind}.${part}` as TranslationKey;
-}
 
 function commandStreak(dates: string[]) {
   const dateSet = new Set(dates);
@@ -102,13 +98,13 @@ export default async function CommandPage() {
     },
     {
       title: t("quest.activeRecall"),
-      detail: `${activeMinutesToday}/30`,
+      detail: `${activeMinutesToday}/30 min`,
       complete: activeMinutesToday >= 30,
       tone: "cyan" as const,
     },
     {
       title: t("quest.dueReviews"),
-      detail: `${dueReviews.length}`,
+      detail: dueReviews.length === 0 ? t("status.done") : `${dueReviews.length} ${t("reviews.dueToday").toLowerCase()}`,
       complete: dueReviews.length === 0,
       tone: "violet" as const,
     },
@@ -126,6 +122,8 @@ export default async function CommandPage() {
     },
   ];
 
+  const completedQuests = quests.filter((q) => q.complete).length;
+
   return (
     <AppShell session={session}>
       <PageHeader
@@ -142,155 +140,134 @@ export default async function CommandPage() {
         }
       />
 
-      <div className="motion-premium grid gap-5 xl:grid-cols-[1.12fr_0.88fr]">
-        <GlassCard tone="violet" className="min-h-[430px] p-6 md:p-7">
-          <div className="grid gap-6 lg:grid-cols-[1fr_240px]">
-            <div className="flex flex-col justify-between gap-8">
-              <div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <Badge variant="violet">{dateFormatter.format(today)}</Badge>
-                  {streak > 0 ? <Badge variant="gold">{t("gamification.commandStreak")} {streak}</Badge> : null}
-                  {lowData ? <Badge variant="warning">{t("command.lowDataTitle")}</Badge> : null}
-                </div>
-                <h3 className="mt-6 max-w-3xl text-balance text-4xl font-semibold tracking-normal text-white md:text-6xl">
-                  {t("command.greeting")}
-                </h3>
-                <p className="mt-4 max-w-2xl text-base leading-7 text-muted md:text-lg">{t("common.nextMoveVisible")}</p>
-              </div>
+      <div className="motion-premium space-y-5">
+        <CommandGreeting
+          greeting={t("command.greeting")}
+          dateLabel={dateFormatter.format(today)}
+          streak={streak}
+          eliteScore={elite.eliteIndex.score}
+          eliteLabel={elite.eliteIndex.label}
+          nextAction={nextAction}
+          t={t}
+          lowData={lowData}
+        />
 
-              <div className="rounded-3xl border border-white/10 bg-black/20 p-5">
-                <div className="flex flex-wrap items-center justify-between gap-4">
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan">{t("command.nextBestAction")}</p>
-                    <h4 className="mt-2 text-2xl font-semibold text-white">{t(nextActionKey(nextAction, "title"))}</h4>
-                    <p className="mt-2 max-w-xl text-sm leading-6 text-muted">{t(nextActionKey(nextAction, "reason"))}</p>
-                  </div>
-                  <Button asChild>
-                    <Link href={nextAction.href}>
-                      {t("common.open")}
-                      <ArrowRight className="h-4 w-4" />
-                    </Link>
-                  </Button>
-                </div>
+        {lowData ? (
+          <GlassCard tone="gold">
+            <div className="flex items-start gap-3">
+              <Zap className="mt-0.5 h-5 w-5 shrink-0 text-gold" />
+              <div>
+                <h3 className="text-base font-semibold text-white">{t("command.lowDataTitle")}</h3>
+                <p className="mt-1.5 text-sm leading-6 text-muted">{t("command.lowDataBody")}</p>
               </div>
             </div>
-            <div className="grid place-items-center">
-              <ScoreRing
-                score={elite.eliteIndex.score}
-                label={t("command.eliteIndex")}
-                caption={elite.eliteIndex.label}
-                tone="violet"
+          </GlassCard>
+        ) : null}
+
+        <div className="grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
+          <div className="space-y-5">
+            <GlassCard>
+              <div className="mb-5 flex items-center justify-between gap-3">
+                <div>
+                  <h3 className="text-lg font-semibold text-white">{t("command.battlePlan")}</h3>
+                  <p className="mt-0.5 text-sm text-muted">{t("command.oneCleanBlock")}</p>
+                </div>
+                <Sparkles className="h-5 w-5 text-cyan" />
+              </div>
+              <div className="space-y-4">
+                <MomentumBar label={t("gamification.todayMomentum")} value={Math.max(activeRatio, todayLog ? 45 : 0)} tone="cyan" detail={`${t("study.activeRecall")}: ${activeMinutesToday} min`} />
+                <MomentumBar label={t("gamification.recoveryBalance")} value={elite.energyIntegrity.score * 10} tone="emerald" detail={t("health.warning")} />
+                <MomentumBar label={t("gamification.readinessTrend")} value={elite.examReadiness.score * 10} tone="violet" detail={t("common.strategicSignal")} />
+              </div>
+            </GlassCard>
+
+            <DailyLogForm log={todayLog} compact />
+          </div>
+
+          <div className="space-y-5">
+            <GlassCard tone="cyan">
+              <div className="mb-4 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <Trophy className="h-5 w-5 text-gold" />
+                  <h3 className="text-lg font-semibold text-white">{t("command.studyQuests")}</h3>
+                </div>
+                <span className="rounded-lg bg-white/5 px-2 py-1 text-xs font-mono text-muted">
+                  {completedQuests}/{quests.length}
+                </span>
+              </div>
+              <div className="grid gap-2.5 sm:grid-cols-2">
+                {quests.map((quest) => (
+                  <QuestItem key={quest.title} {...quest} />
+                ))}
+              </div>
+            </GlassCard>
+
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+              <MetricCard
+                title={t("command.mainBottleneck")}
+                value={weakTopic ? weakTopic.title : t("command.addWeakTopic")}
+                detail={t("command.weakTopicTarget")}
+                icon={Target}
+                tone="rose"
+              />
+              <MetricCard
+                title={t("command.energySignal")}
+                value={elite.energyIntegrity.score.toFixed(1)}
+                detail={t("common.protectEnergy")}
+                icon={Flame}
+                tone={elite.energyIntegrity.score < 4 ? "danger" : "emerald"}
+              />
+              <MetricCard
+                title={t("command.examAtRisk")}
+                value={riskyExam ? riskyExam.title : t("command.noCriticalExam")}
+                detail={riskyExam ? `${t("exams.readiness")} ${riskyExam.liveReadiness.toFixed(1)}/10` : t("common.quietProgress")}
+                icon={CalendarClock}
+                tone="gold"
+              />
+              <MetricCard
+                title={t("command.errorToDestroy")}
+                value={severeError ? severeError.title : t("command.noOpenErrors")}
+                detail={severeError?.preventionRule ?? t("errors.errorDestroyed")}
+                icon={ShieldCheck}
+                tone={severeError ? "danger" : "emerald"}
               />
             </div>
-          </div>
-        </GlassCard>
 
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
-          <MetricCard
-            title={t("command.mainBottleneck")}
-            value={weakTopic ? weakTopic.title : t("command.addWeakTopic")}
-            detail={t("command.weakTopicTarget")}
-            icon={Target}
-            tone="rose"
-          />
-          <MetricCard
-            title={t("command.energySignal")}
-            value={elite.energyIntegrity.score.toFixed(1)}
-            detail={t("common.protectEnergy")}
-            icon={Flame}
-            tone={elite.energyIntegrity.score < 4 ? "danger" : "emerald"}
-          />
-          <MetricCard
-            title={t("command.examAtRisk")}
-            value={riskyExam ? riskyExam.title : t("command.noCriticalExam")}
-            detail={riskyExam ? `${t("exams.readiness")} ${riskyExam.liveReadiness.toFixed(1)}/10` : t("common.quietProgress")}
-            icon={CalendarClock}
-            tone="gold"
-          />
-        </div>
-      </div>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+              <SignalTile
+                label={t("command.languageSpark")}
+                value={data.languageProgress[0]?.title ?? t("command.createLanguage")}
+                icon={Languages}
+                tone="gold"
+                status={t("language.weeklySpark")}
+              />
+              <SignalTile
+                label={t("command.opportunitySignal")}
+                value={opportunitiesActive[0]?.title ?? t("command.noOpportunity")}
+                icon={Radar}
+                tone="cyan"
+                status={opportunitiesActive[0]?.deadline ? `${t("opportunities.deadline")} ${fmtDate(opportunitiesActive[0].deadline)}` : t("opportunities.subtitle")}
+              />
+              <SignalTile
+                label={t("command.reputationMove")}
+                value={data.reputationEvents[0]?.title ?? t("nba.reputation_signal.title")}
+                icon={Brain}
+                tone="violet"
+                status={t("reputation.trust")}
+              />
+            </div>
 
-      {lowData ? (
-        <GlassCard tone="gold" className="mt-5">
-          <h3 className="text-lg font-semibold text-white">{t("command.lowDataTitle")}</h3>
-          <p className="mt-2 text-sm leading-6 text-muted">{t("command.lowDataBody")}</p>
-        </GlassCard>
-      ) : null}
-
-      <div className="mt-5 grid gap-5 xl:grid-cols-[0.92fr_1.08fr]">
-        <div className="space-y-5">
-          <GlassCard>
-            <div className="mb-5 flex items-center justify-between gap-4">
-              <div>
-                <h3 className="text-xl font-semibold text-white">{t("command.battlePlan")}</h3>
-                <p className="mt-1 text-sm text-muted">{t("command.oneCleanBlock")}</p>
+            <GlassCard tone="gold">
+              <h3 className="text-lg font-semibold text-white">{t("command.eveningReview")}</h3>
+              <p className="mt-1.5 text-sm leading-6 text-muted">{t("elite.improveBody")}</p>
+              <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
+                <AchievementBadge title={t("achievement.firstError")} unlocked={destroyedErrors > 0} detail={`${destroyedErrors} ${t("errors.destroyed")}`} />
+                <AchievementBadge title={t("achievement.languageSpark")} unlocked={languageMinutes >= 30} detail={t("language.weeklySpark")} />
+                <AchievementBadge title={t("achievement.reputationSignal")} unlocked={data.reputationEvents.length > 0} detail={t("reputation.trust")} />
+                <AchievementBadge title={t("achievement.researchSeed")} unlocked={data.opportunities.some((item) => item.opportunityType === "research")} detail={t("opportunities.title")} />
               </div>
-              <Sparkles className="h-5 w-5 text-cyan" />
-            </div>
-            <div className="space-y-4">
-              <MomentumBar label={t("gamification.todayMomentum")} value={Math.max(activeRatio, todayLog ? 45 : 0)} tone="cyan" detail={`${t("study.activeRecall")}: ${activeMinutesToday} min`} />
-              <MomentumBar label={t("gamification.recoveryBalance")} value={elite.energyIntegrity.score * 10} tone="emerald" detail={t("health.warning")} />
-              <MomentumBar label={t("gamification.readinessTrend")} value={elite.examReadiness.score * 10} tone="violet" detail={t("common.strategicSignal")} />
-            </div>
-          </GlassCard>
-
-          <DailyLogForm log={todayLog} compact />
-        </div>
-
-        <div className="space-y-5">
-          <GlassCard tone="cyan">
-            <div className="mb-4 flex items-center gap-2">
-              <Trophy className="h-5 w-5 text-gold" />
-              <h3 className="text-xl font-semibold text-white">{t("command.studyQuests")}</h3>
-            </div>
-            <div className="grid gap-3 md:grid-cols-2">
-              {quests.map((quest) => (
-                <QuestCard key={quest.title} {...quest} />
-              ))}
-            </div>
-          </GlassCard>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <MetricCard
-              title={t("command.errorToDestroy")}
-              value={severeError ? severeError.title : t("command.noOpenErrors")}
-              detail={severeError?.preventionRule ?? t("errors.errorDestroyed")}
-              icon={ShieldCheck}
-              tone={severeError ? "danger" : "emerald"}
-            />
-            <MetricCard
-              title={t("command.languageSpark")}
-              value={data.languageProgress[0]?.title ?? t("command.createLanguage")}
-              detail={t("language.weeklySpark")}
-              icon={Languages}
-              tone="gold"
-            />
-            <MetricCard
-              title={t("command.opportunitySignal")}
-              value={opportunitiesActive[0]?.title ?? t("command.noOpportunity")}
-              detail={opportunitiesActive[0]?.deadline ? `${t("opportunities.deadline")} ${fmtDate(opportunitiesActive[0].deadline)}` : t("opportunities.subtitle")}
-              icon={Radar}
-              tone="cyan"
-            />
-            <MetricCard
-              title={t("command.reputationMove")}
-              value={data.reputationEvents[0]?.title ?? t("nba.reputation_signal.title")}
-              detail={t("reputation.subtitle")}
-              icon={Brain}
-              tone="violet"
-            />
+            </GlassCard>
           </div>
-
-          <GlassCard tone="gold">
-            <h3 className="text-xl font-semibold text-white">{t("command.eveningReview")}</h3>
-            <p className="mt-2 text-sm leading-6 text-muted">{t("elite.improveBody")}</p>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <AchievementBadge title={t("achievement.firstError")} unlocked={destroyedErrors > 0} detail={`${destroyedErrors} ${t("errors.destroyed")}`} />
-              <AchievementBadge title={t("achievement.languageSpark")} unlocked={languageMinutes >= 30} detail={t("language.weeklySpark")} />
-              <AchievementBadge title={t("achievement.reputationSignal")} unlocked={data.reputationEvents.length > 0} detail={t("reputation.trust")} />
-              <AchievementBadge title={t("achievement.researchSeed")} unlocked={data.opportunities.some((item) => item.opportunityType === "research")} detail={t("opportunities.title")} />
-            </div>
-          </GlassCard>
         </div>
       </div>
     </AppShell>

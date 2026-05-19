@@ -1,6 +1,5 @@
 import type { LucideIcon } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 export function MetricCard({
@@ -18,30 +17,41 @@ export function MetricCard({
   tone?: "cyan" | "violet" | "emerald" | "gold" | "rose" | "danger";
   trend?: string;
 }) {
-  const toneClass = {
-    cyan: "text-cyan bg-cyan/10 border-cyan/20",
-    violet: "text-violet bg-violet/10 border-violet/20",
-    emerald: "text-emerald bg-emerald/10 border-emerald/20",
-    gold: "text-gold bg-gold/10 border-gold/20",
-    rose: "text-rose bg-rose/10 border-rose/20",
-    danger: "text-danger bg-danger/10 border-danger/20",
+  const toneDot = {
+    cyan: "bg-cyan",
+    violet: "bg-violet",
+    emerald: "bg-emerald",
+    gold: "bg-gold",
+    rose: "bg-rose",
+    danger: "bg-danger",
+  };
+  const toneIcon = {
+    cyan: "text-cyan",
+    violet: "text-violet",
+    emerald: "text-emerald",
+    gold: "text-gold",
+    rose: "text-rose",
+    danger: "text-danger",
   };
 
   return (
-    <div className="rounded-3xl border border-white/10 bg-white/[0.045] p-4 shadow-[var(--ring-soft)] backdrop-blur-xl transition hover:-translate-y-0.5 hover:bg-white/[0.065]">
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">{title}</p>
-        {Icon ? (
-          <div className={cn("rounded-2xl border p-2", toneClass[tone])}>
-            <Icon className="h-4 w-4" />
-          </div>
+    <div className="group rounded-xl border border-white/10 bg-white/[0.03] p-4 backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/[0.05]">
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">{title}</p>
+        {Icon ? <Icon className={cn("h-4 w-4 shrink-0 transition-transform duration-300 group-hover:scale-110", toneIcon[tone])} /> : null}
+      </div>
+      <div className="mt-3 flex items-end gap-2">
+        <p className="font-mono text-2xl font-semibold text-white">{value}</p>
+        {trend ? (
+          <span className="rounded-md bg-white/5 px-1.5 py-0.5 text-[10px] font-medium text-muted">{trend}</span>
         ) : null}
       </div>
-      <div className="mt-4 flex items-end justify-between gap-3">
-        <p className="font-mono text-3xl font-semibold text-white">{value}</p>
-        {trend ? <Badge variant={tone === "danger" ? "danger" : "muted"}>{trend}</Badge> : null}
-      </div>
-      {detail ? <p className="mt-2 text-sm leading-6 text-muted">{detail}</p> : null}
+      {detail ? (
+        <div className="mt-2 flex items-center gap-1.5">
+          <div className={cn("h-1.5 w-1.5 rounded-full", toneDot[tone])} />
+          <p className="text-xs leading-5 text-muted">{detail}</p>
+        </div>
+      ) : null}
     </div>
   );
 }

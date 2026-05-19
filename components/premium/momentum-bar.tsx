@@ -20,17 +20,33 @@ export function MomentumBar({
     rose: "from-rose to-violet",
     danger: "from-danger to-warning",
   };
+  const dotColor = {
+    cyan: "bg-cyan",
+    violet: "bg-violet",
+    emerald: "bg-emerald",
+    gold: "bg-gold",
+    rose: "bg-rose",
+    danger: "bg-danger",
+  };
 
   return (
     <div>
-      <div className="mb-2 flex items-center justify-between gap-3 text-sm">
-        <span className="font-medium text-white">{label}</span>
-        <span className="font-mono text-muted">{safe.toFixed(0)}%</span>
+      <div className="mb-2 flex items-center justify-between gap-3">
+        <span className="text-sm font-medium text-white">{label}</span>
+        <span className="font-mono text-xs text-muted">{safe.toFixed(0)}%</span>
       </div>
-      <div className="h-2.5 overflow-hidden rounded-full bg-white/10">
-        <div className={cn("h-full rounded-full bg-gradient-to-r", gradient[tone])} style={{ width: `${safe}%` }} />
+      <div className="h-2 overflow-hidden rounded-full bg-white/[0.06]">
+        <div
+          className={cn("h-full rounded-full bg-gradient-to-r transition-all duration-700 ease-out", gradient[tone])}
+          style={{ width: `${safe}%` }}
+        />
       </div>
-      {detail ? <p className="mt-2 text-xs text-muted">{detail}</p> : null}
+      {detail ? (
+        <div className="mt-2 flex items-center gap-1.5">
+          <div className={cn("h-1 w-1 rounded-full", dotColor[tone])} />
+          <p className="text-[11px] text-muted-2">{detail}</p>
+        </div>
+      ) : null}
     </div>
   );
 }

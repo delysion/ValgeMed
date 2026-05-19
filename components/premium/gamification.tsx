@@ -1,4 +1,4 @@
-import { Check, Lock, ShieldAlert, Sparkle } from "lucide-react";
+import { Lock, ShieldAlert, Sparkle } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import type { TranslationKey } from "@/lib/i18n/dictionaries/en";
@@ -31,38 +31,6 @@ export function MasteryBadge({ level, label }: { level: MasteryLevel; label: str
   return <Badge variant={variant}>{label}</Badge>;
 }
 
-export function QuestCard({
-  title,
-  detail,
-  complete,
-  tone = "cyan",
-}: {
-  title: string;
-  detail: string;
-  complete: boolean;
-  tone?: "cyan" | "violet" | "emerald" | "gold" | "rose";
-}) {
-  const toneClass = {
-    cyan: "border-cyan/20 bg-cyan/10 text-cyan",
-    violet: "border-violet/20 bg-violet/10 text-violet",
-    emerald: "border-emerald/20 bg-emerald/10 text-emerald",
-    gold: "border-gold/20 bg-gold/10 text-gold",
-    rose: "border-rose/20 bg-rose/10 text-rose",
-  };
-
-  return (
-    <div className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.045] p-4 transition hover:bg-white/[0.065]">
-      <div className={cn("rounded-2xl border p-2", complete ? "border-emerald/20 bg-emerald/10 text-emerald" : toneClass[tone])}>
-        {complete ? <Check className="h-4 w-4" /> : <Sparkle className="h-4 w-4" />}
-      </div>
-      <div>
-        <p className="font-medium text-white">{title}</p>
-        <p className="mt-1 text-sm text-muted">{detail}</p>
-      </div>
-    </div>
-  );
-}
-
 export function AchievementBadge({
   title,
   unlocked,
@@ -73,9 +41,11 @@ export function AchievementBadge({
   detail?: string;
 }) {
   return (
-    <div className={cn("rounded-2xl border p-4", unlocked ? "border-gold/25 bg-gold/10" : "border-white/10 bg-white/[0.035]")}>
+    <div className={cn("group rounded-xl border p-3.5 transition-all duration-300", unlocked ? "border-gold/20 bg-gold/[0.06] hover:bg-gold/[0.1]" : "border-white/10 bg-white/[0.025]")}>
       <div className="flex items-center gap-2">
-        {unlocked ? <Sparkle className="h-4 w-4 text-gold" /> : <Lock className="h-4 w-4 text-muted-2" />}
+        <div className={cn("flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-transform duration-300 group-hover:scale-110", unlocked ? "bg-gold/10 text-gold" : "bg-white/5 text-muted-2")}>
+          {unlocked ? <Sparkle className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />}
+        </div>
         <p className={cn("text-sm font-semibold", unlocked ? "text-white" : "text-muted")}>{title}</p>
       </div>
       {detail ? <p className="mt-2 text-xs text-muted">{detail}</p> : null}
