@@ -1,30 +1,8 @@
 import {
-  Activity,
-  BarChart3,
-  Bot,
-  Brain,
-  CalendarDays,
-  CircleAlert,
-  ClipboardList,
-  Clock,
   Command,
-  Compass,
   FileDown,
-  FolderOpen,
-  GraduationCap,
-  Handshake,
-  HeartPulse,
-  Languages,
-  LayoutDashboard,
   LogOut,
-  MapPin,
   Menu,
-  Network,
-  Radar,
-  Settings,
-  Target,
-  Timeline,
-  UserRound,
 } from "lucide-react";
 
 import { LanguageSelector } from "@/components/language-selector";
@@ -35,73 +13,9 @@ import { logoutAction } from "@/lib/auth/actions";
 import type { OwnerSession } from "@/lib/auth/session";
 import { getI18n } from "@/lib/i18n/server";
 import { TranslationProvider } from "@/lib/i18n/useTranslation";
-import type { TranslationKey } from "@/lib/i18n/dictionaries/en";
 import { getTheme } from "@/lib/theme/config";
 
-import { NavLink } from "@/components/nav-link";
-import { cn } from "@/lib/utils";
-
-const navItems: Array<{ href: string; label: TranslationKey; icon: typeof Command; featured?: boolean }> = [
-  { href: "/command", label: "nav.command", icon: Command, featured: true },
-  { href: "/dashboard", label: "nav.dashboard", icon: LayoutDashboard },
-  { href: "/timeline", label: "nav.timeline", icon: Timeline },
-  { href: "/elite-index", label: "nav.eliteIndex", icon: BarChart3 },
-  { href: "/subjects", label: "nav.subjects", icon: ClipboardList },
-  { href: "/exams", label: "nav.exams", icon: GraduationCap },
-  { href: "/topics", label: "nav.topics", icon: Brain },
-  { href: "/study", label: "nav.study", icon: Activity },
-  { href: "/reviews", label: "nav.reviews", icon: CalendarDays },
-  { href: "/errors", label: "nav.errors", icon: CircleAlert },
-  { href: "/goals", label: "nav.goals", icon: Target },
-  { href: "/memory", label: "nav.memory", icon: FolderOpen },
-  { href: "/identity", label: "nav.identity", icon: UserRound },
-  { href: "/tartu", label: "nav.tartu", icon: MapPin },
-  { href: "/time", label: "nav.time", icon: Clock },
-  { href: "/health", label: "nav.health", icon: HeartPulse },
-  { href: "/language", label: "nav.language", icon: Languages },
-  { href: "/opportunities", label: "nav.opportunities", icon: Radar },
-  { href: "/reputation", label: "nav.reputation", icon: Handshake },
-  { href: "/network", label: "nav.network", icon: Network },
-  { href: "/life-admin", label: "nav.lifeAdmin", icon: Compass },
-  { href: "/strategic-review", label: "nav.strategicReview", icon: BarChart3 },
-  { href: "/portfolio", label: "nav.portfolio", icon: FolderOpen },
-  { href: "/ai", label: "nav.ai", icon: Bot },
-  { href: "/settings", label: "nav.settings", icon: Settings },
-];
-
-const navSections: Array<{ label: string; items: typeof navItems }> = [
-  { label: "Core", items: navItems.slice(0, 4) },
-  { label: "Study", items: navItems.slice(4, 10) },
-  { label: "Life", items: navItems.slice(10, 17) },
-  { label: "Strategy", items: navItems.slice(17) },
-];
-
-function Navigation({ t }: { t: (key: TranslationKey) => string }) {
-  return (
-    <nav className="grid gap-5 pb-6">
-      {navSections.map((section) => (
-        <div key={section.label}>
-          <div className="mb-2 flex items-center gap-2 px-1">
-            <span className="text-xs font-bold uppercase tracking-[0.12em] text-text-muted">{section.label}</span>
-            <div className="h-px flex-1 bg-border-light" />
-          </div>
-          <div className="grid gap-0.5">
-            {section.items.map((item) => (
-              <NavLink
-                key={item.href}
-                href={item.href}
-                label={item.label}
-                icon={item.icon}
-                t={t}
-                featured={item.featured}
-              />
-            ))}
-          </div>
-        </div>
-      ))}
-    </nav>
-  );
-}
+import { Navigation } from "./navigation";
 
 export async function AppShell({
   children,
