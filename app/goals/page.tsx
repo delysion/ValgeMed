@@ -11,6 +11,7 @@ import {
 } from "@/lib/actions/resources";
 import { requireOwnerSession } from "@/lib/auth/session";
 import { getCoreData } from "@/lib/data/queries";
+import { getI18n } from "@/lib/i18n/server";
 import { fmtDate, humanize } from "@/lib/labels";
 
 export const dynamic = "force-dynamic";
@@ -21,6 +22,7 @@ export default async function GoalsPage({
   searchParams: Promise<{ editGoal?: string; editTask?: string; editNote?: string }>;
 }) {
   const session = await requireOwnerSession();
+  const { t } = await getI18n();
   const params = await searchParams;
   const data = await getCoreData();
   const editingGoal = data.goals.find((goal) => goal.id === params.editGoal);
@@ -29,12 +31,12 @@ export default async function GoalsPage({
 
   return (
     <AppShell session={session}>
-      <PageHeader title="Goals" description="Obiettivi, task e identita professionale." />
+      <PageHeader title={t("nav.goals")} description={t("strategic.subtitle")} />
       <Tabs defaultValue="goals">
         <TabsList>
-          <TabsTrigger value="goals">Goals</TabsTrigger>
-          <TabsTrigger value="tasks">Tasks</TabsTrigger>
-          <TabsTrigger value="identity">Identity</TabsTrigger>
+          <TabsTrigger value="goals">{t("nav.goals")}</TabsTrigger>
+          <TabsTrigger value="tasks">{t("common.nextAction")}</TabsTrigger>
+          <TabsTrigger value="identity">{t("nav.identity")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="goals">
@@ -42,7 +44,7 @@ export default async function GoalsPage({
             <GoalForm goal={editingGoal} />
             <Card>
               <CardHeader>
-                <CardTitle>Goal list</CardTitle>
+                <CardTitle>{t("nav.goals")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <ResourceTable
@@ -51,11 +53,11 @@ export default async function GoalsPage({
                   editParam="editGoal"
                   deleteAction={deleteGoalAction}
                   columns={[
-                    { header: "Goal", render: (goal) => <span className="font-medium text-white">{goal.title}</span> },
-                    { header: "Tipo", render: (goal) => humanize(goal.goalType) },
-                    { header: "Target", render: (goal) => fmtDate(goal.targetDate) },
-                    { header: "Status", render: (goal) => <Badge variant={goal.status === "completed" ? "success" : "muted"}>{humanize(goal.status)}</Badge> },
-                    { header: "Priorita", render: (goal) => `${goal.priority}/10` },
+                    { header: t("common.title"), render: (goal) => <span className="font-medium text-white">{goal.title}</span> },
+                    { header: t("common.type"), render: (goal) => humanize(goal.goalType) },
+                    { header: t("common.date"), render: (goal) => fmtDate(goal.targetDate) },
+                    { header: t("common.status"), render: (goal) => <Badge variant={goal.status === "completed" ? "success" : "muted"}>{humanize(goal.status)}</Badge> },
+                    { header: t("common.priority"), render: (goal) => `${goal.priority}/10` },
                   ]}
                 />
               </CardContent>
@@ -68,7 +70,7 @@ export default async function GoalsPage({
             <TaskForm task={editingTask} subjects={data.subjects} exams={data.exams} topics={data.topics} />
             <Card>
               <CardHeader>
-                <CardTitle>Task list</CardTitle>
+                <CardTitle>{t("common.nextAction")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <ResourceTable
@@ -77,10 +79,10 @@ export default async function GoalsPage({
                   editParam="editTask"
                   deleteAction={deleteTaskAction}
                   columns={[
-                    { header: "Task", render: (task) => <span className="font-medium text-white">{task.title}</span> },
-                    { header: "Due", render: (task) => fmtDate(task.dueAt) },
-                    { header: "Status", render: (task) => humanize(task.status) },
-                    { header: "Priorita", render: (task) => <Badge>{task.priority}/10</Badge> },
+                    { header: t("common.title"), render: (task) => <span className="font-medium text-white">{task.title}</span> },
+                    { header: t("common.date"), render: (task) => fmtDate(task.dueAt) },
+                    { header: t("common.status"), render: (task) => humanize(task.status) },
+                    { header: t("common.priority"), render: (task) => <Badge>{task.priority}/10</Badge> },
                   ]}
                 />
               </CardContent>
@@ -93,7 +95,7 @@ export default async function GoalsPage({
             <IdentityNoteForm note={editingNote} cancelHref="/goals" />
             <Card>
               <CardHeader>
-                <CardTitle>Identity notes</CardTitle>
+                <CardTitle>{t("nav.identity")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <ResourceTable
@@ -102,9 +104,9 @@ export default async function GoalsPage({
                   editParam="editNote"
                   deleteAction={deleteIdentityNoteAction}
                   columns={[
-                    { header: "Titolo", render: (note) => <span className="font-medium text-white">{note.title}</span> },
-                    { header: "Categoria", render: (note) => humanize(note.category) },
-                    { header: "Contenuto", render: (note) => <span className="line-clamp-2">{note.content}</span> },
+                    { header: t("common.title"), render: (note) => <span className="font-medium text-white">{note.title}</span> },
+                    { header: t("common.category"), render: (note) => humanize(note.category) },
+                    { header: t("common.output"), render: (note) => <span className="line-clamp-2">{note.content}</span> },
                   ]}
                 />
               </CardContent>

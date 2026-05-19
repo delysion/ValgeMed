@@ -6,24 +6,26 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { deleteLifeAdminItemAction } from "@/lib/actions/resources";
 import { requireOwnerSession } from "@/lib/auth/session";
 import { getCoreData } from "@/lib/data/queries";
+import { getI18n } from "@/lib/i18n/server";
 import { fmtDate, humanize } from "@/lib/labels";
 
 export const dynamic = "force-dynamic";
 
 export default async function LifeAdminPage({ searchParams }: { searchParams: Promise<{ edit?: string }> }) {
   const session = await requireOwnerSession();
+  const { t } = await getI18n();
   const params = await searchParams;
   const data = await getCoreData();
   const editing = data.lifeAdminItems.find((item) => item.id === params.edit);
 
   return (
     <AppShell session={session}>
-      <PageHeader title="Life Admin" description="Scadenze e attriti pratici: documenti, housing, salute, universita, travel." />
+      <PageHeader title={t("life.title")} description={t("life.subtitle")} />
       <div className="grid gap-4 xl:grid-cols-[420px_1fr]">
         <LifeAdminItemForm item={editing} />
         <Card>
           <CardHeader>
-            <CardTitle>Life admin items</CardTitle>
+            <CardTitle>{t("life.title")}</CardTitle>
           </CardHeader>
           <CardContent>
             <ResourceTable
@@ -31,11 +33,11 @@ export default async function LifeAdminPage({ searchParams }: { searchParams: Pr
               editBasePath="/life-admin"
               deleteAction={deleteLifeAdminItemAction}
               columns={[
-                { header: "Item", render: (item) => <span className="font-medium text-white">{item.title}</span> },
-                { header: "Categoria", render: (item) => humanize(item.category) },
-                { header: "Due", render: (item) => fmtDate(item.dueAt) },
-                { header: "Status", render: (item) => <Badge variant={item.status === "done" ? "success" : "muted"}>{humanize(item.status)}</Badge> },
-                { header: "Priorita", render: (item) => `${item.priority}/10` },
+                { header: t("common.title"), render: (item) => <span className="font-medium text-white">{item.title}</span> },
+                { header: t("common.category"), render: (item) => humanize(item.category) },
+                { header: t("common.date"), render: (item) => fmtDate(item.dueAt) },
+                { header: t("common.status"), render: (item) => <Badge variant={item.status === "done" ? "success" : "muted"}>{humanize(item.status)}</Badge> },
+                { header: t("common.priority"), render: (item) => `${item.priority}/10` },
               ]}
             />
           </CardContent>

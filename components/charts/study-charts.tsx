@@ -15,7 +15,7 @@ import {
   YAxis,
 } from "recharts";
 
-const colors = ["#a8d8ff", "#b9a7ff", "#d8dee9", "#7dd3fc", "#c4b5fd", "#94a3b8"];
+const colors = ["#79e7ff", "#c7a6ff", "#8ef0c4", "#f2d58a", "#ffb8c7", "#c8e7ff"];
 
 export function MinutesBarChart({
   data,
@@ -35,16 +35,16 @@ export function MetricBarChart({
   domain?: [number, number];
 }) {
   return (
-    <ResponsiveContainer width="100%" height={220}>
+    <ResponsiveContainer width="100%" height={240}>
       <BarChart data={data}>
-        <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
-        <XAxis dataKey="name" stroke="#98a3b3" fontSize={11} />
-        <YAxis stroke="#98a3b3" fontSize={11} domain={domain} />
+        <CartesianGrid stroke="rgba(255,255,255,0.07)" vertical={false} />
+        <XAxis dataKey="name" stroke="#a6adba" fontSize={11} tickLine={false} axisLine={false} />
+        <YAxis stroke="#a6adba" fontSize={11} domain={domain} tickLine={false} axisLine={false} />
         <Tooltip
           cursor={{ fill: "rgba(255,255,255,0.04)" }}
-          contentStyle={{ background: "#10141c", border: "1px solid rgba(255,255,255,.1)" }}
+          contentStyle={{ background: "rgba(10,16,32,.96)", border: "1px solid rgba(255,255,255,.14)", borderRadius: 16 }}
         />
-        <Bar dataKey={dataKey} radius={[4, 4, 0, 0]} fill="#a8d8ff" />
+        <Bar dataKey={dataKey} radius={[12, 12, 4, 4]} fill="#79e7ff" />
       </BarChart>
     </ResponsiveContainer>
   );
@@ -61,10 +61,10 @@ export function TrendLineChart({
     <ResponsiveContainer width="100%" height={240}>
       <LineChart data={data}>
         <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
-        <XAxis dataKey="date" stroke="#98a3b3" fontSize={11} />
-        <YAxis stroke="#98a3b3" fontSize={11} domain={[0, 10]} />
+        <XAxis dataKey="date" stroke="#a6adba" fontSize={11} tickLine={false} axisLine={false} />
+        <YAxis stroke="#a6adba" fontSize={11} domain={[0, 10]} tickLine={false} axisLine={false} />
         <Tooltip
-          contentStyle={{ background: "#10141c", border: "1px solid rgba(255,255,255,.1)" }}
+          contentStyle={{ background: "rgba(10,16,32,.96)", border: "1px solid rgba(255,255,255,.14)", borderRadius: 16 }}
         />
         {lines.map((line, index) => (
           <Line
@@ -95,7 +95,7 @@ export function MethodPieChart({
           ))}
         </Pie>
         <Tooltip
-          contentStyle={{ background: "#10141c", border: "1px solid rgba(255,255,255,.1)" }}
+          contentStyle={{ background: "rgba(10,16,32,.96)", border: "1px solid rgba(255,255,255,.14)", borderRadius: 16 }}
         />
       </PieChart>
     </ResponsiveContainer>

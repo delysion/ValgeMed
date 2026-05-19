@@ -1,37 +1,96 @@
 @import "tailwindcss";
 
 :root {
-  --background: #080a0f;
-  --foreground: #f4f7fb;
-  --panel: #10141c;
-  --panel-soft: #151b25;
-  --muted: #98a3b3;
-  --ice: #a8d8ff;
-  --violet: #b9a7ff;
-  --graphite: #080a0f;
+  --background: #06070b;
+  --foreground: #f7f3ee;
+  --midnight: #0a1020;
+  --graphite: #0b0d12;
+  --charcoal: #121621;
+  --panel: rgba(18, 22, 33, 0.72);
+  --panel-solid: #121621;
+  --panel-soft: rgba(255, 255, 255, 0.055);
+  --muted: #a6adba;
+  --muted-2: #737b8d;
+  --line: rgba(255, 255, 255, 0.11);
+  --line-strong: rgba(255, 255, 255, 0.18);
+  --ice: #c8e7ff;
+  --cyan: #79e7ff;
+  --violet: #c7a6ff;
+  --emerald: #8ef0c4;
+  --gold: #f2d58a;
+  --rose: #ffb8c7;
+  --danger: #ff7474;
+  --warning: #f3ba63;
+  --success: #8ef0c4;
+  --shadow-premium: 0 24px 80px rgba(0, 0, 0, 0.42);
+  --ring-soft: 0 0 0 1px rgba(255, 255, 255, 0.09), inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-midnight: var(--midnight);
+  --color-graphite: var(--graphite);
+  --color-charcoal: var(--charcoal);
   --color-panel: var(--panel);
+  --color-panel-solid: var(--panel-solid);
   --color-panel-soft: var(--panel-soft);
   --color-muted: var(--muted);
+  --color-muted-2: var(--muted-2);
+  --color-line: var(--line);
   --color-ice: var(--ice);
+  --color-cyan: var(--cyan);
   --color-violet: var(--violet);
-  --color-graphite: var(--graphite);
+  --color-emerald: var(--emerald);
+  --color-gold: var(--gold);
+  --color-rose: var(--rose);
+  --color-danger: var(--danger);
+  --color-warning: var(--warning);
+  --color-success: var(--success);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-body {
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
   background: var(--background);
+}
+
+body {
+  min-height: 100%;
+  background:
+    linear-gradient(118deg, rgba(121, 231, 255, 0.12) 0%, transparent 27%),
+    linear-gradient(142deg, transparent 38%, rgba(199, 166, 255, 0.11) 64%, transparent 100%),
+    linear-gradient(180deg, #06070b 0%, #090d18 42%, #08070b 100%);
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }
 
+body::before {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  content: "";
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 54px 54px;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.78), transparent 78%);
+}
+
 ::selection {
-  background: rgba(168, 216, 255, 0.25);
+  background: rgba(121, 231, 255, 0.28);
+}
+
+input,
+textarea,
+select {
+  font: inherit;
 }
 
 input[type="date"],
@@ -39,6 +98,47 @@ input[type="datetime-local"] {
   color-scheme: dark;
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  .motion-premium {
+    animation: premium-enter 420ms ease-out both;
+  }
+
+  .glow-pulse {
+    animation: glow-pulse 3.8s ease-in-out infinite;
+  }
+}
+
+@keyframes premium-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes glow-pulse {
+  0%,
+  100% {
+    opacity: 0.78;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
 @utility text-balance {
   text-wrap: balance;
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+}
+
+@utility no-scrollbar-webkit {
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }

@@ -6,24 +6,26 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { deleteOpportunityAction } from "@/lib/actions/resources";
 import { requireOwnerSession } from "@/lib/auth/session";
 import { getCoreData } from "@/lib/data/queries";
+import { getI18n } from "@/lib/i18n/server";
 import { fmtDate, humanize } from "@/lib/labels";
 
 export const dynamic = "force-dynamic";
 
 export default async function OpportunitiesPage({ searchParams }: { searchParams: Promise<{ edit?: string }> }) {
   const session = await requireOwnerSession();
+  const { t } = await getI18n();
   const params = await searchParams;
   const data = await getCoreData();
   const editing = data.opportunities.find((opportunity) => opportunity.id === params.edit);
 
   return (
     <AppShell session={session}>
-      <PageHeader title="Opportunity Radar" description="Research, internships, shadowing, scholarships, mentorship e clinical exposure." />
+      <PageHeader title={t("opportunities.title")} description={t("opportunities.subtitle")} />
       <div className="grid gap-4 xl:grid-cols-[420px_1fr]">
         <OpportunityForm opportunity={editing} />
         <Card>
           <CardHeader>
-            <CardTitle>Opportunities</CardTitle>
+            <CardTitle>{t("opportunities.title")}</CardTitle>
           </CardHeader>
           <CardContent>
             <ResourceTable
@@ -31,11 +33,11 @@ export default async function OpportunitiesPage({ searchParams }: { searchParams
               editBasePath="/opportunities"
               deleteAction={deleteOpportunityAction}
               columns={[
-                { header: "Opportunita", render: (item) => <span className="font-medium text-white">{item.title}</span> },
-                { header: "Tipo", render: (item) => humanize(item.opportunityType) },
-                { header: "Deadline", render: (item) => fmtDate(item.deadline) },
-                { header: "Upside", render: (item) => <Badge>{item.strategicUpside}/10</Badge> },
-                { header: "Status", render: (item) => humanize(item.status) },
+                { header: t("common.title"), render: (item) => <span className="font-medium text-white">{item.title}</span> },
+                { header: t("common.type"), render: (item) => humanize(item.opportunityType) },
+                { header: t("opportunities.deadline"), render: (item) => fmtDate(item.deadline) },
+                { header: t("opportunities.upside"), render: (item) => <Badge>{item.strategicUpside}/10</Badge> },
+                { header: t("common.status"), render: (item) => humanize(item.status) },
               ]}
             />
           </CardContent>

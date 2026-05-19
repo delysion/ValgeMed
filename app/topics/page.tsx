@@ -1,12 +1,16 @@
+import { ArrowRight, Filter, Trash2 } from "lucide-react";
+
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { TopicForm } from "@/components/forms/entity-forms";
-import { ResourceTable } from "@/components/tables/resource-table";
+import { getMasteryLevel, masteryKey, MasteryBadge } from "@/components/premium/gamification";
+import { GlassCard } from "@/components/premium/glass-card";
+import { MomentumBar } from "@/components/premium/momentum-bar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { deleteTopicAction } from "@/lib/actions/resources";
 import { requireOwnerSession } from "@/lib/auth/session";
 import { getCoreData } from "@/lib/data/queries";
+import { getI18n } from "@/lib/i18n/server";
 import { fmtDate, humanize } from "@/lib/labels";
 
 export const dynamic = "force-dynamic";
@@ -17,10 +21,12 @@ export default async function TopicsPage({
   searchParams: Promise<{ edit?: string; subject?: string; status?: string; priority?: string }>;
 }) {
   const session = await requireOwnerSession();
+  const { t } = await getI18n();
   const params = await searchParams;
   const data = await getCoreData();
   const editing = data.topics.find((topic) => topic.id === params.edit);
   const subjectById = new Map(data.subjects.map((subject) => [subject.id, subject]));
+  const examById = new Map(data.exams.map((exam) => [exam.id, exam]));
   const filteredTopics = data.topics.filter((topic) => {
     if (params.subject && topic.subjectId !== params.subject) return false;
     if (params.status && topic.status !== params.status) return false;
@@ -30,52 +36,77 @@ export default async function TopicsPage({
 
   return (
     <AppShell session={session}>
-      <PageHeader title="Topics" description="Active recall, confidence e prossima review per ogni blocco." />
-      <div className="grid gap-4 xl:grid-cols-[460px_1fr]">
+      <PageHeader title={t("topics.title")} description={t("topics.subtitle")} />
+      <div className="grid gap-5 xl:grid-cols-[420px_1fr]">
         <TopicForm topic={editing} subjects={data.subjects} exams={data.exams} />
-        <Card>
-          <CardHeader>
-            <CardTitle>Topic table</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <form className="grid gap-2 md:grid-cols-4">
-              <select name="subject" defaultValue={params.subject ?? ""} className="h-9 rounded-md border border-white/10 bg-black/30 px-3 text-sm text-white">
-                <option value="">Tutte le materie</option>
+        <div className="space-y-5">
+          <GlassCard>
+            <form className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              <select name="subject" defaultValue={params.subject ?? ""} className="h-11 rounded-2xl border border-white/10 bg-black/25 px-4 text-sm text-white">
+                <option value="">{t("common.subject")}</option>
                 {data.subjects.map((subject) => (
                   <option key={subject.id} value={subject.id} className="bg-[#11151c]">{subject.name}</option>
                 ))}
               </select>
-              <select name="status" defaultValue={params.status ?? ""} className="h-9 rounded-md border border-white/10 bg-black/30 px-3 text-sm text-white">
-                <option value="">Tutti gli status</option>
+              <select name="status" defaultValue={params.status ?? ""} className="h-11 rounded-2xl border border-white/10 bg-black/25 px-4 text-sm text-white">
+                <option value="">{t("common.status")}</option>
                 {["not_started", "first_exposure", "understood", "recalled", "practiced", "error_corrected", "consolidated", "exam_ready"].map((status) => (
                   <option key={status} value={status} className="bg-[#11151c]">{humanize(status)}</option>
                 ))}
               </select>
-              <input name="priority" type="number" min={0} max={10} defaultValue={params.priority ?? ""} placeholder="Min priority" className="h-9 rounded-md border border-white/10 bg-black/30 px-3 text-sm text-white" />
-              <Button type="submit" variant="outline">Filtra</Button>
+              <input name="priority" type="number" min={0} max={10} defaultValue={params.priority ?? ""} placeholder={t("common.priority")} className="h-11 rounded-2xl border border-white/10 bg-black/25 px-4 text-sm text-white" />
+              <Button type="submit" variant="outline">
+                <Filter className="h-4 w-4" />
+                {t("common.open")}
+              </Button>
             </form>
-            <ResourceTable
-              rows={filteredTopics}
-              editBasePath="/topics"
-              deleteAction={deleteTopicAction}
-              columns={[
-                {
-                  header: "Topic",
-                  render: (topic) => (
+          </GlassCard>
+
+          <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
+            {filteredTopics.map((topic) => {
+              const openErrors = data.errorLogs.filter((error) => error.topicId === topic.id && !error.resolved).length;
+              const level = getMasteryLevel({ confidence: topic.confidence, status: topic.status, openErrors });
+              const suggestedAction = topic.confidence <= 3 ? t("nba.active_recall.title") : openErrors > 0 ? t("nba.error_review.title") : t("reviews.title");
+
+              return (
+                <GlassCard key={topic.id} tone={level === "dangerous" ? "danger" : level === "examReady" ? "gold" : "cyan"} className="flex flex-col gap-4">
+                  <div className="flex items-start justify-between gap-3">
                     <div>
-                      <div className="font-medium text-white">{topic.title}</div>
-                      <div className="text-xs text-muted">{subjectById.get(topic.subjectId)?.name ?? "-"}</div>
+                      <p className="text-xs uppercase tracking-[0.14em] text-muted">{subjectById.get(topic.subjectId)?.name ?? t("common.subject")}</p>
+                      <h3 className="mt-2 text-xl font-semibold text-white">{topic.title}</h3>
+                      <p className="mt-1 text-sm text-muted">{topic.examId ? examById.get(topic.examId)?.title : t("topics.linkedExam")}</p>
                     </div>
-                  ),
-                },
-                { header: "Status", render: (topic) => humanize(topic.status) },
-                { header: "Priority", render: (topic) => <Badge>{topic.priority}/10</Badge> },
-                { header: "Confidence", render: (topic) => <Badge variant={topic.confidence <= 3 ? "danger" : "muted"}>{topic.confidence}/10</Badge> },
-                { header: "Next review", render: (topic) => fmtDate(topic.nextReviewAt) },
-              ]}
-            />
-          </CardContent>
-        </Card>
+                    <MasteryBadge level={level} label={t(masteryKey(level))} />
+                  </div>
+                  <div className="space-y-3">
+                    <MomentumBar label={t("common.confidence")} value={topic.confidence * 10} tone={topic.confidence <= 3 ? "danger" : "cyan"} />
+                    <MomentumBar label={t("common.priority")} value={topic.priority * 10} tone="violet" />
+                  </div>
+                  <div className="grid gap-2 text-sm text-muted sm:grid-cols-2">
+                    <div className="rounded-2xl bg-white/[0.04] p-3">{t("common.nextReview")}: {fmtDate(topic.nextReviewAt)}</div>
+                    <div className="rounded-2xl bg-white/[0.04] p-3">{t("errors.unresolved")}: {openErrors}</div>
+                  </div>
+                  <div className="mt-auto flex items-center justify-between gap-3 border-t border-white/10 pt-4">
+                    <Badge variant="muted">{suggestedAction}</Badge>
+                    <div className="flex gap-1">
+                      <Button asChild variant="ghost" size="icon" aria-label={t("common.edit")}>
+                        <a href={`/topics?edit=${topic.id}`}>
+                          <ArrowRight className="h-4 w-4" />
+                        </a>
+                      </Button>
+                      <form action={deleteTopicAction}>
+                        <input type="hidden" name="id" value={topic.id} />
+                        <Button type="submit" variant="destructive" size="icon" aria-label={t("common.delete")}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </form>
+                    </div>
+                  </div>
+                </GlassCard>
+              );
+            })}
+          </div>
+        </div>
       </div>
     </AppShell>
   );

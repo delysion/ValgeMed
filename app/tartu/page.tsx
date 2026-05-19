@@ -6,24 +6,26 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { deleteTartuNoteAction } from "@/lib/actions/resources";
 import { requireOwnerSession } from "@/lib/auth/session";
 import { getCoreData } from "@/lib/data/queries";
+import { getI18n } from "@/lib/i18n/server";
 import { humanize } from "@/lib/labels";
 
 export const dynamic = "force-dynamic";
 
 export default async function TartuPage({ searchParams }: { searchParams: Promise<{ edit?: string }> }) {
   const session = await requireOwnerSession();
+  const { t } = await getI18n();
   const params = await searchParams;
   const data = await getCoreData();
   const editing = data.tartuNotes.find((note) => note.id === params.edit);
 
   return (
     <AppShell session={session}>
-      <PageHeader title="Tartu / Estonia" description="Lingua, routine, cultura accademica, documenti e adattamento a Tartu." />
+      <PageHeader title={t("tartu.title")} description={t("tartu.subtitle")} />
       <div className="grid gap-4 xl:grid-cols-[420px_1fr]">
         <TartuNoteForm note={editing} />
         <Card>
           <CardHeader>
-            <CardTitle>Tartu notes</CardTitle>
+            <CardTitle>{t("tartu.title")}</CardTitle>
           </CardHeader>
           <CardContent>
             <ResourceTable
@@ -31,10 +33,10 @@ export default async function TartuPage({ searchParams }: { searchParams: Promis
               editBasePath="/tartu"
               deleteAction={deleteTartuNoteAction}
               columns={[
-                { header: "Titolo", render: (note) => <span className="font-medium text-white">{note.title}</span> },
-                { header: "Categoria", render: (note) => humanize(note.category) },
-                { header: "Status", render: (note) => <Badge variant={note.status === "done" ? "success" : "muted"}>{humanize(note.status)}</Badge> },
-                { header: "Priorita", render: (note) => `${note.priority}/10` },
+                { header: t("common.title"), render: (note) => <span className="font-medium text-white">{note.title}</span> },
+                { header: t("common.category"), render: (note) => humanize(note.category) },
+                { header: t("common.status"), render: (note) => <Badge variant={note.status === "done" ? "success" : "muted"}>{humanize(note.status)}</Badge> },
+                { header: t("common.priority"), render: (note) => `${note.priority}/10` },
               ]}
             />
           </CardContent>

@@ -8,6 +8,7 @@ import { ResourceTable } from "@/components/tables/resource-table";
 import { deleteSubjectAction } from "@/lib/actions/resources";
 import { requireOwnerSession } from "@/lib/auth/session";
 import { getCoreData } from "@/lib/data/queries";
+import { getI18n } from "@/lib/i18n/server";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +18,7 @@ export default async function SubjectsPage({
   searchParams: Promise<{ edit?: string }>;
 }) {
   const session = await requireOwnerSession();
+  const { t } = await getI18n();
   const params = await searchParams;
   const data = await getCoreData();
   const editing = data.subjects.find((subject) => subject.id === params.edit);
@@ -24,14 +26,14 @@ export default async function SubjectsPage({
   return (
     <AppShell session={session}>
       <PageHeader
-        title="Subjects"
-        description="Materie, peso strategico, difficolta percepita e progressione."
+        title={t("nav.subjects")}
+        description={t("topics.subtitle")}
       />
       <div className="grid gap-4 xl:grid-cols-[420px_1fr]">
         <SubjectForm subject={editing} />
         <Card>
           <CardHeader>
-            <CardTitle>Materie</CardTitle>
+            <CardTitle>{t("nav.subjects")}</CardTitle>
           </CardHeader>
           <CardContent>
             <ResourceTable
@@ -40,26 +42,26 @@ export default async function SubjectsPage({
               deleteAction={deleteSubjectAction}
               columns={[
                 {
-                  header: "Materia",
+                  header: t("common.subject"),
                   render: (subject) => (
                     <div>
                       <Link href={`/subjects/${subject.id}`} className="font-medium text-white hover:text-ice">
                         {subject.name}
                       </Link>
-                      <div className="text-xs text-muted">{subject.code ?? "no code"}</div>
+                      <div className="text-xs text-muted">{subject.code ?? "-"}</div>
                     </div>
                   ),
                 },
                 {
-                  header: "Difficulty",
+                  header: t("common.difficulty"),
                   render: (subject) => <Badge variant="muted">{subject.difficulty}/10</Badge>,
                 },
                 {
-                  header: "Importance",
+                  header: t("common.importance"),
                   render: (subject) => <Badge>{subject.importance}/10</Badge>,
                 },
                 {
-                  header: "Progress",
+                  header: t("common.progress"),
                   render: (subject) => {
                     const subjectTopics = data.topics.filter(
                       (topic) => topic.subjectId === subject.id,

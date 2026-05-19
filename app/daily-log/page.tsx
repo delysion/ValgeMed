@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { deleteDailyLogAction } from "@/lib/actions/resources";
 import { requireOwnerSession } from "@/lib/auth/session";
 import { getCoreData } from "@/lib/data/queries";
+import { getI18n } from "@/lib/i18n/server";
 import { fmtDate } from "@/lib/labels";
 
 export const dynamic = "force-dynamic";
@@ -17,6 +18,7 @@ export default async function DailyLogPage({
   searchParams: Promise<{ edit?: string }>;
 }) {
   const session = await requireOwnerSession();
+  const { t } = await getI18n();
   const params = await searchParams;
   const data = await getCoreData();
   const editing = data.dailyLogs.find((log) => log.id === params.edit);
@@ -34,13 +36,13 @@ export default async function DailyLogPage({
 
   return (
     <AppShell session={session}>
-      <PageHeader title="Daily log" description="Energia, sonno, stress e minuti di studio." />
+      <PageHeader title={t("nav.dailyLog")} description={t("health.subtitle")} />
       <div className="grid gap-4 xl:grid-cols-[460px_1fr]">
         <DailyLogForm log={editing} />
         <div className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Trend</CardTitle>
+              <CardTitle>{t("gamification.readinessTrend")}</CardTitle>
             </CardHeader>
             <CardContent>
               <TrendLineChart
@@ -56,7 +58,7 @@ export default async function DailyLogPage({
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle>Logs</CardTitle>
+              <CardTitle>{t("nav.dailyLog")}</CardTitle>
             </CardHeader>
             <CardContent>
               <ResourceTable
@@ -64,12 +66,12 @@ export default async function DailyLogPage({
                 editBasePath="/daily-log"
                 deleteAction={deleteDailyLogAction}
                 columns={[
-                  { header: "Data", render: (log) => fmtDate(log.date) },
-                  { header: "Sonno", render: (log) => log.sleepHours ?? "-" },
-                  { header: "Energia", render: (log) => <Badge>{log.energyLevel ?? "-"}</Badge> },
-                  { header: "Stress", render: (log) => <Badge variant={(log.stressLevel ?? 0) >= 7 ? "danger" : "muted"}>{log.stressLevel ?? "-"}</Badge> },
-                  { header: "Study", render: (log) => `${log.studyMinutes} min` },
-                  { header: "Recall/passive", render: (log) => `${log.activeRecallMinutes}/${log.passiveStudyMinutes}` },
+                  { header: t("common.date"), render: (log) => fmtDate(log.date) },
+                  { header: t("health.sleep"), render: (log) => log.sleepHours ?? "-" },
+                  { header: t("command.energySignal"), render: (log) => <Badge>{log.energyLevel ?? "-"}</Badge> },
+                  { header: t("health.stress"), render: (log) => <Badge variant={(log.stressLevel ?? 0) >= 7 ? "danger" : "muted"}>{log.stressLevel ?? "-"}</Badge> },
+                  { header: t("study.title"), render: (log) => `${log.studyMinutes} ${t("common.minutes").toLowerCase()}` },
+                  { header: t("dashboard.activeVsPassive"), render: (log) => `${log.activeRecallMinutes}/${log.passiveStudyMinutes}` },
                 ]}
               />
             </CardContent>

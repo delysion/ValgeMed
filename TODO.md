@@ -12,6 +12,8 @@
 - Advanced spaced repetition.
 - Exam import.
 - Anki import/export.
+- Complete remaining low-level CRUD form i18n so every form field label and option is dictionary-driven.
+- Persist language preference in the database if a durable single-owner settings table is added.
 - Import dati create-only con schermata di revisione e deduplicazione.
 - Migliorare battle plan con vincoli di energia e finestre disponibili.
 - Dashboard per rendimento per ora per materia.

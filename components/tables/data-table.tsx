@@ -21,11 +21,15 @@ type RowData = Record<string, Primitive>;
 export function DataTable({
   data,
   columns,
+  labels = { empty: "No data yet.", yes: "yes", no: "no" },
 }: {
   data: RowData[];
   columns: Array<{ key: string; header: string }>;
+  labels?: { empty: string; yes: string; no: string };
 }) {
   const [sorting, setSorting] = useState<SortingState>([]);
+  const yesLabel = labels.yes;
+  const noLabel = labels.no;
   const tableColumns = useMemo<ColumnDef<RowData>[]>(
     () =>
       columns.map((column) => ({
@@ -45,13 +49,13 @@ export function DataTable({
         cell: ({ getValue }) => {
           const value = getValue<Primitive>();
           if (typeof value === "boolean") {
-            return value ? "si" : "no";
+            return value ? yesLabel : noLabel;
           }
 
           return value ?? "";
         },
       })),
-    [columns],
+    [columns, noLabel, yesLabel],
   );
   const table = useReactTable({
     data,
@@ -63,7 +67,7 @@ export function DataTable({
   });
 
   return (
-    <div className="overflow-hidden rounded-lg border border-white/10">
+    <div className="overflow-hidden rounded-2xl border border-white/10">
       <table className="w-full min-w-[680px] border-collapse text-sm">
         <thead className="bg-white/[0.04]">
           {table.getHeaderGroups().map((headerGroup) => (
@@ -92,7 +96,7 @@ export function DataTable({
           ) : (
             <tr>
               <td colSpan={columns.length} className="px-3 py-8 text-center text-muted">
-                Nessun dato.
+                {labels.empty}
               </td>
             </tr>
           )}

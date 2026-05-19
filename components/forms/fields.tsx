@@ -31,7 +31,7 @@ export function FieldGrid({
   className?: string;
 }) {
   return (
-    <div className={cn("grid gap-3 md:grid-cols-2 xl:grid-cols-4", className)}>
+    <div className={cn("grid gap-3 sm:grid-cols-2 xl:grid-cols-4", className)}>
       {children}
     </div>
   );
@@ -107,7 +107,7 @@ export function NativeSelectField({
       <select
         name={name}
         defaultValue={defaultValue ?? ""}
-        className="flex h-9 w-full rounded-md border border-white/10 bg-black/30 px-3 text-sm text-white outline-none focus:border-ice/70 focus:ring-2 focus:ring-ice/15"
+        className="flex h-11 w-full rounded-2xl border border-white/10 bg-black/25 px-4 text-sm text-white outline-none transition focus:border-cyan/70 focus:ring-2 focus:ring-cyan/15"
       >
         {options.map((option) => (
           <option key={option.value} value={option.value} className="bg-[#11151c]">
@@ -127,7 +127,7 @@ export function SubmitBar({
   cancelHref?: string;
 }) {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center gap-2">
       <Button type="submit">{label}</Button>
       {cancelHref ? (
         <Button asChild type="button" variant="ghost">

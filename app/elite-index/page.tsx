@@ -1,56 +1,102 @@
+import { Brain, Clock, Flame, Radar, ShieldCheck, Sparkles } from "lucide-react";
+
 import { AppShell, PageHeader } from "@/components/app-shell";
+import { TrendLineChart } from "@/components/charts/study-charts";
+import { GlassCard } from "@/components/premium/glass-card";
+import { MetricCard } from "@/components/premium/metric-card";
+import { MomentumBar } from "@/components/premium/momentum-bar";
+import { ScoreRing } from "@/components/premium/score-ring";
 import { ScoreBreakdown } from "@/components/score-breakdown";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireOwnerSession } from "@/lib/auth/session";
 import { getCoreData } from "@/lib/data/queries";
+import { getI18n } from "@/lib/i18n/server";
 import { buildEliteIndex } from "@/lib/scoring/engine";
 
 export const dynamic = "force-dynamic";
 
 export default async function EliteIndexPage() {
   const session = await requireOwnerSession();
+  const { t } = await getI18n();
   const data = await getCoreData();
   const elite = buildEliteIndex(data);
+  const history =
+    data.strategicReviews.length > 0
+      ? data.strategicReviews
+          .slice()
+          .reverse()
+          .map((review) => ({ date: review.date.slice(5), score: review.eliteIndexSnapshot }))
+      : data.dailyLogs
+          .slice()
+          .reverse()
+          .slice(-8)
+          .map((log, index) => ({
+            date: log.date.slice(5),
+            score: Math.max(0, Math.min(10, elite.eliteIndex.score - (data.dailyLogs.length - index) * 0.12)),
+          }));
 
-  const scores = [
-    { title: "Medical Mastery", result: elite.medicalMastery },
-    { title: "Exam Readiness", result: elite.examReadiness },
-    { title: "Time Leverage", result: elite.timeLeverage },
-    { title: "Error Destruction", result: elite.errorDestruction },
-    { title: "Energy Integrity", result: elite.energyIntegrity },
-    { title: "Estonia Integration", result: elite.estoniaIntegration },
-    { title: "Reputation Capital", result: elite.reputationCapital },
-    { title: "Opportunity Capture", result: elite.opportunityCapture },
+  const components = [
+    { title: "Medical Mastery", result: elite.medicalMastery, icon: Brain, tone: "cyan" as const },
+    { title: "Exam Readiness", result: elite.examReadiness, icon: ShieldCheck, tone: "violet" as const },
+    { title: "Time Leverage", result: elite.timeLeverage, icon: Clock, tone: "gold" as const },
+    { title: "Error Destruction", result: elite.errorDestruction, icon: Flame, tone: "rose" as const },
+    { title: "Energy Integrity", result: elite.energyIntegrity, icon: Sparkles, tone: "emerald" as const },
+    { title: "Opportunity Capture", result: elite.opportunityCapture, icon: Radar, tone: "cyan" as const },
   ];
 
   return (
     <AppShell session={session}>
-      <PageHeader
-        title="Elite Index"
-        description="Indice composito locale: utile per orientare la settimana, mai da trattare come verita oggettiva."
-      />
-      <Card className="mb-4 border-ice/20 bg-ice/5">
-        <CardHeader>
-          <CardTitle>Elise Elite Index: {elite.eliteIndex.score.toFixed(1)}/10</CardTitle>
-          <CardDescription>{elite.eliteIndex.label}. Segnale strategico, non giudizio personale.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ScoreBreakdown result={elite.eliteIndex} />
-        </CardContent>
-      </Card>
+      <PageHeader title={t("elite.title")} description={t("elite.subtitle")} eyebrow={t("common.strategicSignal")} />
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        {scores.map((item) => (
-          <Card key={item.title}>
-            <CardHeader>
-              <CardTitle>{item.title}</CardTitle>
-              <CardDescription>{item.result.score.toFixed(1)}/10</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ScoreBreakdown result={item.result} compact />
-            </CardContent>
-          </Card>
+      <div className="grid gap-5 xl:grid-cols-[0.9fr_1.1fr]">
+        <GlassCard tone="violet" className="grid place-items-center p-8">
+          <ScoreRing score={elite.eliteIndex.score} label={t("elite.central")} caption={elite.eliteIndex.label} size="lg" tone="violet" />
+          <p className="mt-5 max-w-md text-center text-sm leading-6 text-muted">{elite.eliteIndex.note}</p>
+        </GlassCard>
+
+        <GlassCard>
+          <div className="mb-5 flex items-center justify-between gap-4">
+            <div>
+              <h3 className="text-xl font-semibold text-white">{t("elite.history")}</h3>
+              <p className="mt-1 text-sm text-muted">{t("gamification.readinessTrend")}</p>
+            </div>
+          </div>
+          <TrendLineChart data={history} lines={[{ key: "score", color: "#c7a6ff" }]} />
+          <div className="mt-5 grid gap-3 md:grid-cols-2">
+            <MomentumBar label={t("gamification.weeklyMomentum")} value={elite.eliteIndex.score * 10} tone="violet" />
+            <MomentumBar label={t("gamification.recoveryBalance")} value={elite.energyIntegrity.score * 10} tone="emerald" />
+          </div>
+        </GlassCard>
+      </div>
+
+      <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {components.map((item) => (
+          <MetricCard
+            key={item.title}
+            title={item.title}
+            value={item.result.score.toFixed(1)}
+            detail={item.result.factors[0]?.label}
+            icon={item.icon}
+            tone={item.tone}
+          />
         ))}
+      </div>
+
+      <div className="mt-5 grid gap-5 xl:grid-cols-[1fr_0.8fr]">
+        <GlassCard>
+          <h3 className="text-xl font-semibold text-white">{t("elite.breakdown")}</h3>
+          <div className="mt-5">
+            <ScoreBreakdown result={elite.eliteIndex} />
+          </div>
+        </GlassCard>
+        <GlassCard tone="emerald">
+          <h3 className="text-xl font-semibold text-white">{t("elite.improve")}</h3>
+          <p className="mt-3 text-sm leading-6 text-muted">{t("elite.improveBody")}</p>
+          <div className="mt-5 space-y-4">
+            <MomentumBar label="Active recall" value={elite.medicalMastery.score * 10} tone="cyan" />
+            <MomentumBar label="Recovery" value={elite.energyIntegrity.score * 10} tone="emerald" />
+            <MomentumBar label="Errors" value={elite.errorDestruction.score * 10} tone="rose" />
+          </div>
+        </GlassCard>
       </div>
     </AppShell>
   );

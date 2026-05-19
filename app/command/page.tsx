@@ -1,40 +1,46 @@
 import Link from "next/link";
-import { differenceInCalendarDays, formatISO, startOfToday } from "date-fns";
-import { ArrowRight, Brain, Clock, Flame, Languages, ShieldCheck, Sparkles } from "lucide-react";
+import { differenceInCalendarDays, formatISO, startOfToday, subDays } from "date-fns";
+import { ArrowRight, Brain, CalendarClock, Flame, Languages, Radar, ShieldCheck, Sparkles, Target, Trophy } from "lucide-react";
 
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { DailyLogForm } from "@/components/forms/entity-forms";
-import { ScoreBreakdown } from "@/components/score-breakdown";
+import { AchievementBadge, QuestCard } from "@/components/premium/gamification";
+import { GlassCard } from "@/components/premium/glass-card";
+import { MetricCard } from "@/components/premium/metric-card";
+import { MomentumBar } from "@/components/premium/momentum-bar";
+import { ScoreRing } from "@/components/premium/score-ring";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireOwnerSession } from "@/lib/auth/session";
 import { getCoreData } from "@/lib/data/queries";
 import { fmtDate } from "@/lib/labels";
-import { buildEliteIndex, buildExamReadiness, buildBurnoutRiskFromLogs } from "@/lib/scoring/engine";
-import { getNextBestAction } from "@/lib/scoring/next-best-action";
+import type { TranslationKey } from "@/lib/i18n/dictionaries/en";
+import { getI18n } from "@/lib/i18n/server";
+import { buildBurnoutRiskFromLogs, buildEliteIndex, buildExamReadiness } from "@/lib/scoring/engine";
+import { getNextBestAction, type NextBestAction } from "@/lib/scoring/next-best-action";
 
 export const dynamic = "force-dynamic";
 
-function CommandItem({
-  label,
-  value,
-  href,
-}: {
-  label: string;
-  value: string;
-  href: string;
-}) {
-  return (
-    <Link href={href} className="rounded-md border border-white/10 bg-white/[0.03] p-3 transition hover:bg-white/[0.06]">
-      <p className="text-xs uppercase tracking-[0.12em] text-muted">{label}</p>
-      <p className="mt-2 text-sm font-medium text-white">{value}</p>
-    </Link>
-  );
+function nextActionKey(action: NextBestAction, part: "title" | "reason"): TranslationKey {
+  return `nba.${action.kind}.${part}` as TranslationKey;
+}
+
+function commandStreak(dates: string[]) {
+  const dateSet = new Set(dates);
+  let streak = 0;
+  let cursor = startOfToday();
+
+  while (dateSet.has(formatISO(cursor, { representation: "date" }))) {
+    streak += 1;
+    cursor = subDays(cursor, 1);
+  }
+
+  return streak;
 }
 
 export default async function CommandPage() {
   const session = await requireOwnerSession();
+  const { t, locale } = await getI18n();
   const data = await getCoreData();
   const today = startOfToday();
   const todayDate = formatISO(today, { representation: "date" });
@@ -67,185 +73,224 @@ export default async function CommandPage() {
   const riskyExam = examsWithReadiness
     .filter((exam) => exam.examDate)
     .sort((a, b) => a.liveReadiness - b.liveReadiness || differenceInCalendarDays(a.examDate as Date, today) - differenceInCalendarDays(b.examDate as Date, today))[0];
-  const weakTopic = data.topics
-    .slice()
-    .sort((a, b) => a.confidence - b.confidence || b.priority - a.priority)[0];
+  const weakTopic = data.topics.slice().sort((a, b) => a.confidence - b.confidence || b.priority - a.priority)[0];
   const severeError = data.errorLogs
     .filter((error) => !error.resolved)
     .sort((a, b) => b.severity + b.recurrenceCount - (a.severity + a.recurrenceCount))[0];
-  const languageMove = data.languageProgress
-    .slice()
-    .sort((a, b) => a.confidence - b.confidence || b.minutes - a.minutes)[0];
-  const opportunity = data.opportunities
-    .filter((item) => !["passed", "archived"].includes(item.status))
-    .sort((a, b) => b.strategicUpside - a.strategicUpside)[0];
-  const lifeAdmin = data.lifeAdminItems
-    .filter((item) => item.status !== "done")
-    .sort((a, b) => b.priority - a.priority)[0];
-  const lowData =
-    data.subjects.length === 0 ||
-    data.topics.length === 0 ||
-    data.dailyLogs.length === 0 ||
-    data.studySessions.length === 0;
+  const activeMinutesToday = todayLog?.activeRecallMinutes ?? 0;
+  const passiveMinutesToday = todayLog?.passiveStudyMinutes ?? 0;
+  const activeRatio = activeMinutesToday + passiveMinutesToday === 0 ? 0 : (activeMinutesToday / (activeMinutesToday + passiveMinutesToday)) * 100;
+  const dueReviews = data.reviewItems.filter((item) => item.isActive && item.dueAt <= today);
+  const destroyedErrors = data.errorLogs.filter((error) => error.resolved).length;
+  const recurringErrors = data.errorLogs.filter((error) => !error.resolved && error.recurrenceCount > 0).length;
+  const languageMinutes = data.languageProgress.reduce((sum, item) => sum + item.minutes, 0);
+  const opportunitiesActive = data.opportunities.filter((item) => !["passed", "archived"].includes(item.status));
+  const streak = commandStreak(data.dailyLogs.map((log) => log.date));
+  const dateFormatter = new Intl.DateTimeFormat(locale === "et" ? "et-EE" : "en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  });
+  const lowData = data.subjects.length === 0 || data.topics.length === 0 || data.dailyLogs.length === 0 || data.studySessions.length === 0;
+
+  const quests = [
+    {
+      title: t("quest.destroyError"),
+      detail: severeError?.title ?? t("errors.errorDestroyed"),
+      complete: destroyedErrors > 0 && recurringErrors === 0,
+      tone: "rose" as const,
+    },
+    {
+      title: t("quest.activeRecall"),
+      detail: `${activeMinutesToday}/30`,
+      complete: activeMinutesToday >= 30,
+      tone: "cyan" as const,
+    },
+    {
+      title: t("quest.dueReviews"),
+      detail: `${dueReviews.length}`,
+      complete: dueReviews.length === 0,
+      tone: "violet" as const,
+    },
+    {
+      title: t("quest.protectEnergy"),
+      detail: `${elite.energyIntegrity.score.toFixed(1)}/10`,
+      complete: elite.energyIntegrity.score >= 6,
+      tone: "emerald" as const,
+    },
+    {
+      title: t("quest.languageBlock"),
+      detail: `${languageMinutes} min`,
+      complete: languageMinutes >= 30,
+      tone: "gold" as const,
+    },
+  ];
 
   return (
     <AppShell session={session}>
       <PageHeader
-        title="Command"
-        description="La pagina madre: prossima azione, energia, memoria, errori, Tartu e traiettoria professionale."
+        eyebrow={t("common.systemAwake")}
+        title={t("command.title")}
+        description={t("command.subtitle")}
         actions={
           <Button asChild variant="outline">
             <Link href="/elite-index">
-              Elite Index
+              {t("command.eliteIndex")}
               <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
         }
       />
 
+      <div className="motion-premium grid gap-5 xl:grid-cols-[1.12fr_0.88fr]">
+        <GlassCard tone="violet" className="min-h-[430px] p-6 md:p-7">
+          <div className="grid gap-6 lg:grid-cols-[1fr_240px]">
+            <div className="flex flex-col justify-between gap-8">
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge variant="violet">{dateFormatter.format(today)}</Badge>
+                  {streak > 0 ? <Badge variant="gold">{t("gamification.commandStreak")} {streak}</Badge> : null}
+                  {lowData ? <Badge variant="warning">{t("command.lowDataTitle")}</Badge> : null}
+                </div>
+                <h3 className="mt-6 max-w-3xl text-balance text-4xl font-semibold tracking-normal text-white md:text-6xl">
+                  {t("command.greeting")}
+                </h3>
+                <p className="mt-4 max-w-2xl text-base leading-7 text-muted md:text-lg">{t("common.nextMoveVisible")}</p>
+              </div>
+
+              <div className="rounded-3xl border border-white/10 bg-black/20 p-5">
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan">{t("command.nextBestAction")}</p>
+                    <h4 className="mt-2 text-2xl font-semibold text-white">{t(nextActionKey(nextAction, "title"))}</h4>
+                    <p className="mt-2 max-w-xl text-sm leading-6 text-muted">{t(nextActionKey(nextAction, "reason"))}</p>
+                  </div>
+                  <Button asChild>
+                    <Link href={nextAction.href}>
+                      {t("common.open")}
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </div>
+            <div className="grid place-items-center">
+              <ScoreRing
+                score={elite.eliteIndex.score}
+                label={t("command.eliteIndex")}
+                caption={elite.eliteIndex.label}
+                tone="violet"
+              />
+            </div>
+          </div>
+        </GlassCard>
+
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
+          <MetricCard
+            title={t("command.mainBottleneck")}
+            value={weakTopic ? weakTopic.title : t("command.addWeakTopic")}
+            detail={t("command.weakTopicTarget")}
+            icon={Target}
+            tone="rose"
+          />
+          <MetricCard
+            title={t("command.energySignal")}
+            value={elite.energyIntegrity.score.toFixed(1)}
+            detail={t("common.protectEnergy")}
+            icon={Flame}
+            tone={elite.energyIntegrity.score < 4 ? "danger" : "emerald"}
+          />
+          <MetricCard
+            title={t("command.examAtRisk")}
+            value={riskyExam ? riskyExam.title : t("command.noCriticalExam")}
+            detail={riskyExam ? `${t("exams.readiness")} ${riskyExam.liveReadiness.toFixed(1)}/10` : t("common.quietProgress")}
+            icon={CalendarClock}
+            tone="gold"
+          />
+        </div>
+      </div>
+
       {lowData ? (
-        <Card className="mb-4 border-ice/20 bg-ice/5">
-          <CardHeader>
-            <CardTitle>Low-data mode</CardTitle>
-            <CardDescription>
-              Gli score sono provvisori: inserisci almeno una materia, un topic, un daily log e una sessione per renderli piu utili.
-            </CardDescription>
-          </CardHeader>
-        </Card>
+        <GlassCard tone="gold" className="mt-5">
+          <h3 className="text-lg font-semibold text-white">{t("command.lowDataTitle")}</h3>
+          <p className="mt-2 text-sm leading-6 text-muted">{t("command.lowDataBody")}</p>
+        </GlassCard>
       ) : null}
 
-      <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
-        <div className="space-y-4">
-          <Card className="border-violet/20 bg-violet/5">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4" />
-                Next best action
-              </CardTitle>
-              <CardDescription>Regole locali, nessuna AI cloud, nessuna verita assoluta.</CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="mt-5 grid gap-5 xl:grid-cols-[0.92fr_1.08fr]">
+        <div className="space-y-5">
+          <GlassCard>
+            <div className="mb-5 flex items-center justify-between gap-4">
               <div>
-                <Badge variant="violet">{nextAction.kind}</Badge>
-                <h3 className="mt-2 text-xl font-semibold text-white">{nextAction.title}</h3>
-                <p className="mt-2 max-w-2xl text-sm text-muted">{nextAction.reason}</p>
+                <h3 className="text-xl font-semibold text-white">{t("command.battlePlan")}</h3>
+                <p className="mt-1 text-sm text-muted">{t("command.oneCleanBlock")}</p>
               </div>
-              <Button asChild>
-                <Link href={nextAction.href}>
-                  Apri
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
+              <Sparkles className="h-5 w-5 text-cyan" />
+            </div>
+            <div className="space-y-4">
+              <MomentumBar label={t("gamification.todayMomentum")} value={Math.max(activeRatio, todayLog ? 45 : 0)} tone="cyan" detail={`${t("study.activeRecall")}: ${activeMinutesToday} min`} />
+              <MomentumBar label={t("gamification.recoveryBalance")} value={elite.energyIntegrity.score * 10} tone="emerald" detail={t("health.warning")} />
+              <MomentumBar label={t("gamification.readinessTrend")} value={elite.examReadiness.score * 10} tone="violet" detail={t("common.strategicSignal")} />
+            </div>
+          </GlassCard>
 
-          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            <CommandItem
-              label="Exam at risk"
-              value={riskyExam ? `${riskyExam.title} - readiness ${riskyExam.liveReadiness.toFixed(1)}/10` : "Nessun esame critico tracciato"}
-              href={riskyExam ? `/exams/${riskyExam.id}` : "/exams"}
-            />
-            <CommandItem
-              label="Weak topic to destroy"
-              value={weakTopic ? `${weakTopic.title} - confidence ${weakTopic.confidence}/10` : "Aggiungi topics fragili"}
-              href="/topics"
-            />
-            <CommandItem
-              label="Error to retest"
-              value={severeError ? `${severeError.title} - severity ${severeError.severity}/10` : "Nessun errore aperto"}
-              href="/errors"
-            />
-            <CommandItem
-              label="Language move"
-              value={languageMove ? `${languageMove.title} - ${languageMove.language}` : "Crea un item Estonian/Latin"}
-              href="/language"
-            />
-            <CommandItem
-              label="Opportunity radar"
-              value={opportunity ? `${opportunity.title} - upside ${opportunity.strategicUpside}/10` : "Nessuna opportunita attiva"}
-              href="/opportunities"
-            />
-            <CommandItem
-              label="Life admin"
-              value={lifeAdmin ? `${lifeAdmin.title} - priority ${lifeAdmin.priority}/10` : "Nessuna frizione aperta"}
-              href="/life-admin"
-            />
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-3">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Brain className="h-4 w-4" />
-                  Memory
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="font-mono text-3xl text-white">{data.reviewItems.filter((item) => item.isActive && item.dueAt <= today).length}</p>
-                <p className="text-sm text-muted">review due/overdue</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Flame className="h-4 w-4" />
-                  Energy
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="font-mono text-3xl text-white">{elite.energyIntegrity.score.toFixed(1)}</p>
-                <p className="text-sm text-muted">Energy Integrity</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Languages className="h-4 w-4" />
-                  Estonia
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="font-mono text-3xl text-white">{elite.estoniaIntegration.score.toFixed(1)}</p>
-                <p className="text-sm text-muted">Tartu integration</p>
-              </CardContent>
-            </Card>
-          </div>
+          <DailyLogForm log={todayLog} compact />
         </div>
 
-        <div className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4" />
-                Elise Elite Index
-              </CardTitle>
-              <CardDescription>{elite.eliteIndex.label}. Segnale strategico, non giudizio.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ScoreBreakdown result={elite.eliteIndex} compact />
-            </CardContent>
-          </Card>
-          <DailyLogForm log={todayLog} compact />
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Clock className="h-4 w-4" />
-                Upcoming exam window
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {examsWithReadiness.slice(0, 4).map((exam) => (
-                <Link key={exam.id} href={`/exams/${exam.id}`} className="flex items-center justify-between rounded-md border border-white/10 p-3 hover:bg-white/[0.04]">
-                  <div>
-                    <p className="text-sm font-medium text-white">{exam.title}</p>
-                    <p className="text-xs text-muted">{fmtDate(exam.examDate)}</p>
-                  </div>
-                  <Badge>{exam.liveReadiness.toFixed(1)}</Badge>
-                </Link>
+        <div className="space-y-5">
+          <GlassCard tone="cyan">
+            <div className="mb-4 flex items-center gap-2">
+              <Trophy className="h-5 w-5 text-gold" />
+              <h3 className="text-xl font-semibold text-white">{t("command.studyQuests")}</h3>
+            </div>
+            <div className="grid gap-3 md:grid-cols-2">
+              {quests.map((quest) => (
+                <QuestCard key={quest.title} {...quest} />
               ))}
-              {examsWithReadiness.length === 0 ? <p className="text-sm text-muted">Nessun esame inserito.</p> : null}
-            </CardContent>
-          </Card>
+            </div>
+          </GlassCard>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <MetricCard
+              title={t("command.errorToDestroy")}
+              value={severeError ? severeError.title : t("command.noOpenErrors")}
+              detail={severeError?.preventionRule ?? t("errors.errorDestroyed")}
+              icon={ShieldCheck}
+              tone={severeError ? "danger" : "emerald"}
+            />
+            <MetricCard
+              title={t("command.languageSpark")}
+              value={data.languageProgress[0]?.title ?? t("command.createLanguage")}
+              detail={t("language.weeklySpark")}
+              icon={Languages}
+              tone="gold"
+            />
+            <MetricCard
+              title={t("command.opportunitySignal")}
+              value={opportunitiesActive[0]?.title ?? t("command.noOpportunity")}
+              detail={opportunitiesActive[0]?.deadline ? `${t("opportunities.deadline")} ${fmtDate(opportunitiesActive[0].deadline)}` : t("opportunities.subtitle")}
+              icon={Radar}
+              tone="cyan"
+            />
+            <MetricCard
+              title={t("command.reputationMove")}
+              value={data.reputationEvents[0]?.title ?? t("nba.reputation_signal.title")}
+              detail={t("reputation.subtitle")}
+              icon={Brain}
+              tone="violet"
+            />
+          </div>
+
+          <GlassCard tone="gold">
+            <h3 className="text-xl font-semibold text-white">{t("command.eveningReview")}</h3>
+            <p className="mt-2 text-sm leading-6 text-muted">{t("elite.improveBody")}</p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <AchievementBadge title={t("achievement.firstError")} unlocked={destroyedErrors > 0} detail={`${destroyedErrors} ${t("errors.destroyed")}`} />
+              <AchievementBadge title={t("achievement.languageSpark")} unlocked={languageMinutes >= 30} detail={t("language.weeklySpark")} />
+              <AchievementBadge title={t("achievement.reputationSignal")} unlocked={data.reputationEvents.length > 0} detail={t("reputation.trust")} />
+              <AchievementBadge title={t("achievement.researchSeed")} unlocked={data.opportunities.some((item) => item.opportunityType === "research")} detail={t("opportunities.title")} />
+            </div>
+          </GlassCard>
         </div>
       </div>
     </AppShell>

@@ -1,34 +1,34 @@
-# Tartu Med/Dent OS
+# ELISE OS
 
-Console privata single-user per organizzare studio, esami, active recall, spaced review, errori, energia e obiettivi per una futura studentessa di Medicina/Odontoiatria a Tartu.
+Private single-user academic command system for an ambitious future medical or dental student in Tartu.
 
-Non e un SaaS: niente registrazione pubblica, billing, social feature, scraping, integrazioni email o AI cloud nella prima versione.
+ELISE OS is not a SaaS. It has no public registration, billing, social features, scraping, email integration, or automatic AI cloud workflow. It is a private console for study, exams, memory, active recall, errors, energy, burnout prevention, Tartu integration, opportunities, reputation, portfolio, and long-term academic trajectory.
 
 ## Stack
 
 - Next.js App Router, TypeScript strict, Tailwind CSS
 - Neon Postgres + Drizzle ORM
-- Zod validators lato server
-- shadcn-style UI locale, TanStack Table, Recharts, lucide-react, date-fns
+- Zod server-side validators
+- shadcn-style local UI, TanStack Table, Recharts, lucide-react, date-fns
 - pnpm
 
-## Setup locale
+## Local Setup
 
 ```bash
 pnpm install
 cp .env.example .env
-pnpm auth:hash "scegli-una-password-lunga"
+pnpm auth:hash "choose-a-long-private-password"
 ```
 
-Inserisci il valore generato in `APP_PASSWORD_HASH` dentro `.env`.
+Paste the generated value into `APP_PASSWORD_HASH` in `.env`.
 
-Genera anche un secret di sessione:
+Generate a session secret:
 
 ```bash
 openssl rand -base64 32
 ```
 
-Poi configura:
+Required environment variables:
 
 ```bash
 DATABASE_URL=
@@ -37,38 +37,38 @@ APP_PASSWORD_HASH=
 SESSION_SECRET=
 ```
 
-Avvio locale:
+Run locally:
 
 ```bash
 pnpm dev
 ```
 
-## Setup Neon
+## Neon Setup
 
-1. Crea un progetto Neon.
-2. Copia la connection string Postgres pooled o standard.
-3. Incollala in `DATABASE_URL`.
-4. Esegui migrations e seed:
+1. Create a Neon project.
+2. Copy the Postgres connection string.
+3. Set it as `DATABASE_URL`.
+4. Run migrations and seed data:
 
 ```bash
 pnpm db:migrate
 pnpm db:seed
 ```
 
-## Setup Vercel
+## Vercel Setup
 
-1. Importa il repository in Vercel.
-2. Aggiungi le variabili ambiente:
+1. Import the repository in Vercel.
+2. Add the environment variables:
    - `DATABASE_URL`
    - `OWNER_EMAIL`
    - `APP_PASSWORD_HASH`
    - `SESSION_SECRET`
-3. Esegui `pnpm db:migrate` da locale o da job separato prima del primo uso.
+3. Run `pnpm db:migrate` before first use.
 4. Deploy.
 
-Il cookie di sessione e `httpOnly`, `sameSite=lax` e `secure` in produzione.
+The session cookie is `httpOnly`, `sameSite=lax`, and `secure` in production.
 
-## Comandi
+## Commands
 
 ```bash
 pnpm dev
@@ -81,54 +81,103 @@ pnpm db:seed
 pnpm test
 ```
 
-## Auth privata
+## Private Auth
 
-- Non esiste registrazione utenti.
-- L'unico accesso e la pagina `/login`.
-- La password non viene mai salvata in chiaro.
-- `APP_PASSWORD_HASH` deve essere un hash bcrypt generato con:
+- There is no user registration.
+- The only entry point is `/login`.
+- The password is never stored in plain text.
+- Generate `APP_PASSWORD_HASH` with:
 
 ```bash
 pnpm auth:hash "password"
 ```
 
-Se `APP_PASSWORD_HASH` o `SESSION_SECRET` mancano, il login mostra un errore chiaro.
+If `APP_PASSWORD_HASH` or `SESSION_SECRET` are missing, login shows a clear configuration error.
+
+## Bilingual UI
+
+ELISE OS supports:
+
+- English (`en`) as the default language.
+- Estonian (`et`) as the secondary language.
+
+The i18n structure lives in:
+
+```text
+lib/i18n/
+  config.ts
+  actions.ts
+  server.ts
+  useTranslation.tsx
+  dictionaries/
+    en.ts
+    et.ts
+```
+
+Language can be changed from:
+
+- the desktop top bar,
+- the mobile navigation drawer,
+- the Settings page.
+
+The selected language is persisted in the `elise_language` cookie and mirrored to `localStorage` as a fallback. Server-rendered pages read the cookie first, so protected routes render in the selected language without a client-side flash.
+
+## AI Governance
+
+The `/ai` page is an optional AI Command Studio. In v1 it is a privacy-conscious packet preview, not an automatic AI integration.
+
+AI packet payloads include:
+
+```json
+{
+  "language": "en"
+}
+```
+
+The prompt rule is:
+
+```text
+Respond in the selected UI language. Keep medical terminology precise. Do not invent facts.
+```
+
+Medical and scientific terminology may remain in English or Latin where appropriate.
 
 ## Privacy
 
-- Nessuna AI cloud nella prima versione.
-- Nessun dato viene inviato a servizi AI.
-- Export dati disponibile in `/settings` e `/settings/import-export` come JSON o CSV.
-- Tutte le pagine private e gli export sono protetti dalla sessione.
-- Il database e Neon Postgres configurato via `DATABASE_URL`.
-- La pagina `/ai` documenta la governance: AI_PROVIDER resta `none` nella v1.
+- No automatic AI cloud calls in v1.
+- No personal data is sent to AI services by default.
+- JSON and CSV exports are available in Settings and protected API routes.
+- All private pages and exports require the owner session.
+- Neon Postgres is configured through `DATABASE_URL`.
 
-## Implementato
+## Implemented
 
-- Schema Drizzle completo con migration iniziale e migration estesa.
-- Seed con dati fittizi.
-- Login single-user.
-- CRUD per subjects, exams, topics, study sessions, review items, error logs, daily logs, goals, tasks e identity notes.
-- CRUD locale per Tartu notes, time blocks, health logs, language progress, reputation events, opportunities, professional contacts, life admin items, portfolio items e strategic reviews.
-- `/command` come pagina madre: next best action, weak topic, exam at risk, error retest, language move, opportunity radar, life admin e daily log.
-- Dashboard con next best action, due reviews, open errors, study minutes, active/passive, burnout risk, readiness chart e weak topics.
-- Subject command center in `/subjects/[id]` con mastery, active topics, weak topics, reviews, open errors, quiz accuracy e last active recall.
-- Exam command center con breakdown, topics, errors, quiz attempts, sessions e piano 7 giorni.
-- Scoring engine locale con Exam Readiness, Study Efficiency, Burnout Risk, Time Leverage, Medical Mastery, Error Destruction, Energy Integrity, Estonia Integration, Reputation Capital, Opportunity Capture ed Elise Elite Index.
-- Next best action engine senza AI con logica per recovery, exam risk, error review, review due, active recall, passivo eccessivo, language move, opportunity, reputation e life admin.
-- Export JSON/CSV per tabelle studio, obiettivi, identity e moduli life/elite.
-- Test minimi per scoring, validators e scheduling.
-- Documentazione di prodotto in `docs/PRODUCT_BIBLE.md` e guida iniziale in `docs/ELISE_START_GUIDE.md`.
+- Drizzle schema and migrations.
+- Seed script with realistic demo data.
+- Single-user login and logout.
+- CRUD for subjects, exams, topics, study sessions, review items, error logs, daily logs, goals, tasks, and identity notes.
+- Local modules for Tartu notes, time blocks, health logs, language progress, reputation events, opportunities, contacts, life admin items, portfolio items, and strategic reviews.
+- Premium AppShell with responsive sidebar, mobile drawer, top bar, and language selector.
+- `/command` as the primary private command page.
+- `/dashboard` as weekly strategic overview.
+- `/elite-index` with central score, history, components, and ethical suggestions.
+- `/exams` and `/exams/[id]` as exam cards and Exam Battle Room.
+- `/topics`, `/errors`, `/study`, `/health`, `/language`, `/opportunities`, `/reputation`, `/portfolio`, and `/ai` redesigned around state, risk, progress, and next move.
+- Local scoring engine: Exam Readiness, Study Efficiency, Burnout Risk, Time Leverage, Medical Mastery, Error Destruction, Energy Integrity, Estonia Integration, Reputation Capital, Opportunity Capture, and Elise Elite Index.
+- Non-AI next best action engine.
+- Elegant gamification: Elise Elite Index, mastery badges, study quests, achievements, command streak, momentum, and error destruction states.
+- Export JSON/CSV for study, goals, identity, life, and elite modules.
+- Minimal tests for scoring, validators, and scheduling.
 
-## Limiti noti
+## Known Limits
 
-- Lo spaced repetition segue una cadenza base semplice: domani, +3, +7, +14, +30 giorni, con ripetizione domani se confidence e molto bassa.
-- I pesi scoring sono costanti versionate in `lib/scoring/engine.ts`.
-- CSV export e un singolo file con sezioni per tabella.
-- Non c'e upload file, import esami, calendario o notifiche.
-- Non c'e AI locale o cloud.
-- L'import dati e volutamente non attivo nella v1: evitare overwrite e duplicati richiede una UI di revisione create-only.
+- Some low-level CRUD form labels are still legacy server component copy and should be moved fully into the i18n dictionaries in a follow-up.
+- Spaced repetition uses a simple explainable cadence: tomorrow, +3, +7, +14, +30 days, with tomorrow again for very low confidence.
+- Scoring weights are versioned constants in `lib/scoring/engine.ts`; Settings shows them, but full persistence is not implemented yet.
+- CSV export is one file with table sections.
+- No file upload, exam import, calendar integration, PDF notes, push notifications, or semantic search.
+- No local or cloud AI execution is implemented in v1.
 
-## Cosa non e stato implementato
+## Future Roadmap
 
-Le idee future sono in `TODO.md`: AI locale, calendar integration, file upload, PDF notes, semantic search, PWA notifications, advanced spaced repetition, exam import, import create-only, Anki import/export, encrypted backup, offline mode e multilingual Estonian study layer avanzato.
+The future roadmap is tracked in `TODO.md`.
