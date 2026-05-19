@@ -56,24 +56,24 @@ export default async function ExamsPage({ searchParams }: { searchParams: Promis
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <Badge variant="muted">{subjectById.get(exam.subjectId)?.name ?? t("common.subject")}</Badge>
-                    <h3 className="mt-3 text-2xl font-semibold text-white">{exam.title}</h3>
-                    <p className="mt-1 text-sm text-muted">{humanize(exam.format)} - {fmtDate(exam.examDate)}</p>
+                    <h3 className="mt-3 text-2xl font-semibold text-text-primary">{exam.title}</h3>
+                    <p className="mt-1 text-sm text-text-secondary">{humanize(exam.format)} - {fmtDate(exam.examDate)}</p>
                   </div>
                   <RiskBadge value={exam.riskLevel} labels={{ low: t("risk.low"), medium: t("risk.medium"), high: t("risk.high"), critical: t("risk.critical") }} />
                 </div>
 
                 <div className="grid gap-3 sm:grid-cols-3">
                   <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
-                    <p className="text-xs text-muted">{t("exams.readiness")}</p>
-                    <p className="mt-1 font-mono text-2xl text-white">{exam.liveReadiness.toFixed(1)}</p>
+                    <p className="text-xs text-text-secondary">{t("exams.readiness")}</p>
+                    <p className="mt-1 font-mono text-2xl text-text-primary">{exam.liveReadiness.toFixed(1)}</p>
                   </div>
                   <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
-                    <p className="text-xs text-muted">{t("exams.urgency")}</p>
-                    <p className="mt-1 font-mono text-2xl text-white">{daysLeft ?? "-"}</p>
+                    <p className="text-xs text-text-secondary">{t("exams.urgency")}</p>
+                    <p className="mt-1 font-mono text-2xl text-text-primary">{daysLeft ?? "-"}</p>
                   </div>
                   <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
-                    <p className="text-xs text-muted">{t("exams.openErrors")}</p>
-                    <p className="mt-1 font-mono text-2xl text-white">{exam.openErrors.length}</p>
+                    <p className="text-xs text-text-secondary">{t("exams.openErrors")}</p>
+                    <p className="mt-1 font-mono text-2xl text-text-primary">{exam.openErrors.length}</p>
                   </div>
                 </div>
 
@@ -105,7 +105,7 @@ export default async function ExamsPage({ searchParams }: { searchParams: Promis
                 <CardTitle>{t("common.empty")}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted">{t("exams.subtitle")}</p>
+                <p className="text-sm text-text-secondary">{t("exams.subtitle")}</p>
               </CardContent>
             </Card>
           ) : null}

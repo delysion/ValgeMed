@@ -33,7 +33,7 @@ export default async function LifeAdminPage({ searchParams }: { searchParams: Pr
               editBasePath="/life-admin"
               deleteAction={deleteLifeAdminItemAction}
               columns={[
-                { header: t("common.title"), render: (item) => <span className="font-medium text-white">{item.title}</span> },
+                { header: t("common.title"), render: (item) => <span className="font-medium text-text-primary">{item.title}</span> },
                 { header: t("common.category"), render: (item) => humanize(item.category) },
                 { header: t("common.date"), render: (item) => fmtDate(item.dueAt) },
                 { header: t("common.status"), render: (item) => <Badge variant={item.status === "done" ? "success" : "muted"}>{humanize(item.status)}</Badge> },

@@ -67,11 +67,11 @@ export default async function LanguagePage({ searchParams }: { searchParams: Pro
                 editBasePath="/language"
                 deleteAction={deleteLanguageProgressAction}
                 columns={[
-                  { header: t("common.title"), render: (item) => <span className="font-medium text-white">{item.title}</span> },
+                  { header: t("common.title"), render: (item) => <span className="font-medium text-text-primary">{item.title}</span> },
                   { header: t("nav.language"), render: (item) => <Badge variant="muted">{humanize(item.language)}</Badge> },
                   { header: t("common.minutes"), render: (item) => <Badge>{item.minutes}m</Badge> },
                   { header: t("common.confidence"), render: (item) => <Badge variant={item.confidence >= 6 ? "success" : "muted"}>{item.confidence}/10</Badge> },
-                  { header: t("common.nextReview"), render: (item) => <span className="text-xs text-muted">{fmtDate(item.nextPracticeAt)}</span> },
+                  { header: t("common.nextReview"), render: (item) => <span className="text-xs text-text-secondary">{fmtDate(item.nextPracticeAt)}</span> },
                 ]}
               />
             </div>

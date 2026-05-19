@@ -10,27 +10,27 @@ export default async function ImportExportPage() {
 
   return (
     <AppShell session={session}>
-      <PageHeader title="Import / Export" description="Export locale dei dati. Import create-only resta in roadmap per evitare sovrascritture accidentali." />
+      <PageHeader title="Import / Export" description="Local data export. Import is create-only and remains on the roadmap to avoid accidental overwrites." />
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>Export JSON</CardTitle>
-            <CardDescription>Backup completo, incluse tabelle life/elite.</CardDescription>
+            <CardDescription>Full backup including life and elite tables.</CardDescription>
           </CardHeader>
           <CardContent>
             <Button asChild>
-              <a href="/api/export/json">Scarica JSON</a>
+              <a href="/api/export/json">Download JSON</a>
             </Button>
           </CardContent>
         </Card>
         <Card>
           <CardHeader>
             <CardTitle>Export CSV</CardTitle>
-            <CardDescription>Formato tabellare per revisione esterna.</CardDescription>
+            <CardDescription>Tabular format for external review.</CardDescription>
           </CardHeader>
           <CardContent>
             <Button asChild variant="outline">
-              <a href="/api/export/csv">Scarica CSV</a>
+              <a href="/api/export/csv">Download CSV</a>
             </Button>
           </CardContent>
         </Card>

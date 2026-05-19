@@ -50,14 +50,14 @@ export default async function EliteIndexPage() {
       <div className="grid gap-5 xl:grid-cols-[0.9fr_1.1fr]">
         <GlassCard tone="violet" className="grid place-items-center p-8">
           <ScoreRing score={elite.eliteIndex.score} label={t("elite.central")} caption={elite.eliteIndex.label} size="lg" tone="violet" />
-          <p className="mt-5 max-w-md text-center text-sm leading-6 text-muted">{elite.eliteIndex.note}</p>
+          <p className="mt-5 max-w-md text-center text-sm leading-6 text-text-secondary">{elite.eliteIndex.note}</p>
         </GlassCard>
 
         <GlassCard>
           <div className="mb-5 flex items-center justify-between gap-4">
             <div>
-              <h3 className="text-xl font-semibold text-white">{t("elite.history")}</h3>
-              <p className="mt-1 text-sm text-muted">{t("gamification.readinessTrend")}</p>
+              <h3 className="text-xl font-semibold text-text-primary">{t("elite.history")}</h3>
+              <p className="mt-1 text-sm text-text-secondary">{t("gamification.readinessTrend")}</p>
             </div>
           </div>
           <TrendLineChart data={history} lines={[{ key: "score", color: "#c7a6ff" }]} />
@@ -83,14 +83,14 @@ export default async function EliteIndexPage() {
 
       <div className="mt-5 grid gap-5 xl:grid-cols-[1fr_0.8fr]">
         <GlassCard>
-          <h3 className="text-xl font-semibold text-white">{t("elite.breakdown")}</h3>
+          <h3 className="text-xl font-semibold text-text-primary">{t("elite.breakdown")}</h3>
           <div className="mt-5">
             <ScoreBreakdown result={elite.eliteIndex} />
           </div>
         </GlassCard>
         <GlassCard tone="emerald">
-          <h3 className="text-xl font-semibold text-white">{t("elite.improve")}</h3>
-          <p className="mt-3 text-sm leading-6 text-muted">{t("elite.improveBody")}</p>
+          <h3 className="text-xl font-semibold text-text-primary">{t("elite.improve")}</h3>
+          <p className="mt-3 text-sm leading-6 text-text-secondary">{t("elite.improveBody")}</p>
           <div className="mt-5 space-y-4">
             <MomentumBar label={t("elite.activeRecallBar")} value={elite.medicalMastery.score * 10} tone="cyan" />
             <MomentumBar label={t("elite.recoveryBar")} value={elite.energyIntegrity.score * 10} tone="emerald" />

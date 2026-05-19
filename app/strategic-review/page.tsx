@@ -33,7 +33,7 @@ export default async function StrategicReviewPage({ searchParams }: { searchPara
               editBasePath="/strategic-review"
               deleteAction={deleteStrategicReviewAction}
               columns={[
-                { header: t("common.date"), render: (review) => <span className="font-medium text-white">{fmtDate(review.date)}</span> },
+                { header: t("common.date"), render: (review) => <span className="font-medium text-text-primary">{fmtDate(review.date)}</span> },
                 { header: t("common.type"), render: (review) => humanize(review.reviewType) },
                 { header: t("elite.central"), render: (review) => <Badge>{review.eliteIndexSnapshot}/10</Badge> },
                 { header: t("common.nextAction"), render: (review) => <span className="line-clamp-2">{review.nextFocus ?? "-"}</span> },

@@ -21,7 +21,7 @@ export async function loginAction(
     validateLoginEnvironment();
   } catch (error) {
     return {
-      error: error instanceof Error ? error.message : "Configurazione auth non valida.",
+      error: error instanceof Error ? error.message : "Invalid auth configuration.",
     };
   }
 
@@ -30,13 +30,13 @@ export async function loginAction(
   const passwordHash = process.env.APP_PASSWORD_HASH;
 
   if (!passwordHash) {
-    return { error: "APP_PASSWORD_HASH mancante." };
+    return { error: "Missing APP_PASSWORD_HASH." };
   }
 
   const validPassword = await bcrypt.compare(password, passwordHash);
 
   if (!validPassword) {
-    return { error: "Password non corretta." };
+    return { error: "Incorrect password." };
   }
 
   await createOwnerSession(ownerEmail);

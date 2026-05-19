@@ -33,7 +33,7 @@ export default async function TartuPage({ searchParams }: { searchParams: Promis
               editBasePath="/tartu"
               deleteAction={deleteTartuNoteAction}
               columns={[
-                { header: t("common.title"), render: (note) => <span className="font-medium text-white">{note.title}</span> },
+                { header: t("common.title"), render: (note) => <span className="font-medium text-text-primary">{note.title}</span> },
                 { header: t("common.category"), render: (note) => humanize(note.category) },
                 { header: t("common.status"), render: (note) => <Badge variant={note.status === "done" ? "success" : "muted"}>{humanize(note.status)}</Badge> },
                 { header: t("common.priority"), render: (note) => `${note.priority}/10` },

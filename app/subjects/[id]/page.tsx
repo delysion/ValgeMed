@@ -74,7 +74,7 @@ export default async function SubjectCommandCenterPage({
                 <CardTitle>{t("subjectCmd.topics")}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="font-mono text-3xl text-white">{subjectTopics.length}</p>
+                <p className="font-mono text-3xl text-text-primary">{subjectTopics.length}</p>
               </CardContent>
             </Card>
             <Card>
@@ -82,7 +82,7 @@ export default async function SubjectCommandCenterPage({
                 <CardTitle>{t("subjectCmd.reviewsDue")}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="font-mono text-3xl text-white">{subjectReviews.length}</p>
+                <p className="font-mono text-3xl text-text-primary">{subjectReviews.length}</p>
               </CardContent>
             </Card>
             <Card>
@@ -90,7 +90,7 @@ export default async function SubjectCommandCenterPage({
                 <CardTitle>{t("subjectCmd.openErrors")}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="font-mono text-3xl text-white">{subjectErrors.length}</p>
+                <p className="font-mono text-3xl text-text-primary">{subjectErrors.length}</p>
               </CardContent>
             </Card>
             <Card>
@@ -98,7 +98,7 @@ export default async function SubjectCommandCenterPage({
                 <CardTitle>{t("subjectCmd.quizAvg")}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="font-mono text-3xl text-white">{quizAverage.toFixed(0)}%</p>
+                <p className="font-mono text-3xl text-text-primary">{quizAverage.toFixed(0)}%</p>
               </CardContent>
             </Card>
           </div>
@@ -134,15 +134,15 @@ export default async function SubjectCommandCenterPage({
             </CardHeader>
             <CardContent className="space-y-2">
               {subjectErrors.slice(0, 6).map((error) => (
-                <div key={error.id} className="rounded-md border border-white/10 p-3">
+                <div key={error.id} className="rounded-md border border-border p-3">
                   <div className="flex items-center justify-between gap-3">
-                    <p className="font-medium text-white">{error.title}</p>
+                    <p className="font-medium text-text-primary">{error.title}</p>
                     <Badge variant={error.severity >= 7 ? "danger" : "muted"}>{error.severity}/10</Badge>
                   </div>
-                  <p className="mt-1 text-sm text-muted">{error.preventionRule ?? error.correction ?? error.description}</p>
+                  <p className="mt-1 text-sm text-text-secondary">{error.preventionRule ?? error.correction ?? error.description}</p>
                 </div>
               ))}
-              {subjectErrors.length === 0 ? <p className="text-sm text-muted">{t("subjectCmd.noErrors")}</p> : null}
+              {subjectErrors.length === 0 ? <p className="text-sm text-text-secondary">{t("subjectCmd.noErrors")}</p> : null}
             </CardContent>
           </Card>
         </div>
@@ -161,21 +161,21 @@ export default async function SubjectCommandCenterPage({
             <CardHeader>
               <CardTitle>{t("subjectCmd.pulse")}</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3 text-sm text-muted">
-              <div className="flex items-center justify-between border-b border-white/10 pb-2">
+            <CardContent className="space-y-3 text-sm text-text-secondary">
+              <div className="flex items-center justify-between border-b border-border pb-2">
                 <span>{t("subjectCmd.difficulty")}</span>
                 <Badge variant="muted">{subject.difficulty}/10</Badge>
               </div>
-              <div className="flex items-center justify-between border-b border-white/10 pb-2">
+              <div className="flex items-center justify-between border-b border-border pb-2">
                 <span>{t("subjectCmd.importance")}</span>
                 <Badge>{subject.importance}/10</Badge>
               </div>
-              <div className="flex items-center justify-between border-b border-white/10 pb-2">
+              <div className="flex items-center justify-between border-b border-border pb-2">
                 <span>{t("subjectCmd.lastRecall")}</span>
                 <span>{fmtDate(lastRecall?.startedAt)}</span>
               </div>
               <div>
-                <p className="text-xs uppercase tracking-[0.12em] text-muted">{t("subjectCmd.descLabel")}</p>
+                <p className="text-xs uppercase tracking-[0.12em] text-text-secondary">{t("subjectCmd.descLabel")}</p>
                 <p className="mt-1">{subject.description ?? t("subjectCmd.noDescription")}</p>
               </div>
             </CardContent>

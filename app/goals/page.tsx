@@ -53,7 +53,7 @@ export default async function GoalsPage({
                   editParam="editGoal"
                   deleteAction={deleteGoalAction}
                   columns={[
-                    { header: t("common.title"), render: (goal) => <span className="font-medium text-white">{goal.title}</span> },
+                    { header: t("common.title"), render: (goal) => <span className="font-medium text-text-primary">{goal.title}</span> },
                     { header: t("common.type"), render: (goal) => humanize(goal.goalType) },
                     { header: t("common.date"), render: (goal) => fmtDate(goal.targetDate) },
                     { header: t("common.status"), render: (goal) => <Badge variant={goal.status === "completed" ? "success" : "muted"}>{humanize(goal.status)}</Badge> },
@@ -79,7 +79,7 @@ export default async function GoalsPage({
                   editParam="editTask"
                   deleteAction={deleteTaskAction}
                   columns={[
-                    { header: t("common.title"), render: (task) => <span className="font-medium text-white">{task.title}</span> },
+                    { header: t("common.title"), render: (task) => <span className="font-medium text-text-primary">{task.title}</span> },
                     { header: t("common.date"), render: (task) => fmtDate(task.dueAt) },
                     { header: t("common.status"), render: (task) => humanize(task.status) },
                     { header: t("common.priority"), render: (task) => <Badge>{task.priority}/10</Badge> },
@@ -104,7 +104,7 @@ export default async function GoalsPage({
                   editParam="editNote"
                   deleteAction={deleteIdentityNoteAction}
                   columns={[
-                    { header: t("common.title"), render: (note) => <span className="font-medium text-white">{note.title}</span> },
+                    { header: t("common.title"), render: (note) => <span className="font-medium text-text-primary">{note.title}</span> },
                     { header: t("common.category"), render: (note) => humanize(note.category) },
                     { header: t("common.output"), render: (note) => <span className="line-clamp-2">{note.content}</span> },
                   ]}

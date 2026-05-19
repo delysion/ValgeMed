@@ -45,10 +45,10 @@ export default async function SubjectsPage({
                   header: t("common.subject"),
                   render: (subject) => (
                     <div>
-                      <Link href={`/subjects/${subject.id}`} className="font-medium text-white hover:text-ice">
+                      <Link href={`/subjects/${subject.id}`} className="font-medium text-text-primary hover:text-ice">
                         {subject.name}
                       </Link>
-                      <div className="text-xs text-muted">{subject.code ?? "-"}</div>
+                      <div className="text-xs text-text-secondary">{subject.code ?? "-"}</div>
                     </div>
                   ),
                 },

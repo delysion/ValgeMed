@@ -172,8 +172,8 @@ export default async function CommandPage() {
             <div className="flex items-start gap-3">
               <Zap className="mt-0.5 h-5 w-5 shrink-0 text-gold" />
               <div>
-                <h3 className="text-base font-semibold text-white">{t("command.lowDataTitle")}</h3>
-                <p className="mt-1.5 text-sm leading-6 text-muted">{t("command.lowDataBody")}</p>
+                <h3 className="text-base font-semibold text-text-primary">{t("command.lowDataTitle")}</h3>
+                <p className="mt-1.5 text-sm leading-6 text-text-secondary">{t("command.lowDataBody")}</p>
               </div>
             </div>
           </GlassCard>
@@ -194,7 +194,7 @@ export default async function CommandPage() {
               </div>
             </GlassCard>
 
-            <CollapsiblePanel title={t("command.studyQuests")} defaultOpen badge={<span className="rounded-md bg-white/5 px-1.5 py-0.5 font-mono text-[10px] text-muted">{completedQuests}/{quests.length}</span>}>
+            <CollapsiblePanel title={t("command.studyQuests")} defaultOpen badge={<span className="rounded-md bg-white/5 px-1.5 py-0.5 font-mono text-[10px] text-text-secondary">{completedQuests}/{quests.length}</span>}>
               <div className="grid gap-2.5 sm:grid-cols-2">
                 {quests.map((quest) => (
                   <QuestItem key={quest.title} {...quest} />
@@ -254,7 +254,7 @@ export default async function CommandPage() {
                 {upcomingExams.length > 0 ? upcomingExams.map((exam) => (
                   <ExamCountdown key={exam.id} exam={exam} />
                 )) : (
-                  <p className="text-sm text-muted">{t("command.noCriticalExam")}</p>
+                  <p className="text-sm text-text-secondary">{t("command.noCriticalExam")}</p>
                 )}
               </div>
             </GlassCard>
@@ -288,7 +288,7 @@ export default async function CommandPage() {
 
             <GlassCard tone="violet">
               <SectionHeader title={t("command.eveningReview")} />
-              <p className="mt-2 text-sm leading-6 text-muted">{t("elite.improveBody")}</p>
+              <p className="mt-2 text-sm leading-6 text-text-secondary">{t("elite.improveBody")}</p>
               <div className="mt-4 grid gap-2.5">
                 <AchievementBadge title={t("achievement.firstError")} unlocked={destroyedErrors > 0} detail={`${destroyedErrors} ${t("errors.destroyed")}`} />
                 <AchievementBadge title={t("achievement.languageSpark")} unlocked={languageMinutes >= 30} detail={t("language.weeklySpark")} />

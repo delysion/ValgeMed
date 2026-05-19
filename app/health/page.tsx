@@ -81,7 +81,7 @@ export default async function HealthPage({ searchParams }: { searchParams: Promi
                   deleteAction={deleteHealthLogAction}
                   emptyState={{ title: t("common.emptyTitle"), description: t("common.emptyBody") }}
                   columns={[
-                    { header: t("common.date"), render: (log) => <span className="font-medium text-white">{fmtDate(log.date)}</span> },
+                    { header: t("common.date"), render: (log) => <span className="font-medium text-text-primary">{fmtDate(log.date)}</span> },
                     { header: t("health.sleep"), render: (log) => <Badge variant="muted">{log.sleepQuality ?? "-"}</Badge> },
                     { header: t("health.cognitiveFatigue"), render: (log) => <Badge variant={(log.cognitiveFatigue ?? 0) >= 7 ? "danger" : "muted"}>{log.cognitiveFatigue ?? "-"}</Badge> },
                     { header: t("health.recoveryBalance"), render: (log) => <Badge variant={(log.recoveryQuality ?? 0) >= 6 ? "success" : "muted"}>{log.recoveryQuality ?? "-"}</Badge> },

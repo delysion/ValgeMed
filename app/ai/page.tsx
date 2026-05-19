@@ -39,10 +39,10 @@ export default async function AiPage() {
             </div>
             <div>
               <Badge variant="warning">{t("ai.status")}: OFF</Badge>
-              <h3 className="mt-3 text-3xl font-semibold text-white">{t("ai.packetMode")}</h3>
+              <h3 className="mt-3 text-3xl font-semibold text-text-primary">{t("ai.packetMode")}</h3>
             </div>
           </div>
-          <p className="mt-5 text-sm leading-6 text-muted">{t("ai.warning")}</p>
+          <p className="mt-5 text-sm leading-6 text-text-secondary">{t("ai.warning")}</p>
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
             <MetricCard title={t("language.label")} value={locale.toUpperCase()} detail={t("ai.promptRule")} icon={LockKeyhole} tone="gold" />
             <MetricCard title={t("settings.privacy")} value={t("ai.packetMode")} detail={t("ai.warning")} icon={LockKeyhole} tone="emerald" />
@@ -55,12 +55,12 @@ export default async function AiPage() {
             return (
               <GlassCard key={tool.key} tone={tool.tone}>
                 <div className="flex items-start gap-3">
-                  <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-3">
+                  <div className="rounded-2xl border border-border bg-white/[0.06] p-3">
                     <Icon className="h-5 w-5 text-cyan" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-white">{t(tool.key as never)}</h3>
-                    <p className="mt-2 text-sm leading-6 text-muted">{t("ai.warning")}</p>
+                    <h3 className="text-lg font-semibold text-text-primary">{t(tool.key as never)}</h3>
+                    <p className="mt-2 text-sm leading-6 text-text-secondary">{t("ai.warning")}</p>
                   </div>
                 </div>
               </GlassCard>
@@ -71,16 +71,16 @@ export default async function AiPage() {
 
       <div className="mt-5 grid gap-5 xl:grid-cols-2">
         <GlassCard>
-          <h3 className="text-xl font-semibold text-white">{t("ai.payloadPreview")}</h3>
-          <pre className="mt-4 overflow-x-auto rounded-2xl border border-white/10 bg-black/30 p-4 text-xs leading-6 text-cyan">
+          <h3 className="text-xl font-semibold text-text-primary">{t("ai.payloadPreview")}</h3>
+          <pre className="mt-4 overflow-x-auto rounded-2xl border border-border bg-bg-subtle p-4 text-xs leading-6 text-cyan">
             {JSON.stringify(payload, null, 2)}
           </pre>
         </GlassCard>
         <GlassCard tone="emerald">
-          <h3 className="text-xl font-semibold text-white">{t("ai.outputPreview")}</h3>
-          <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.045] p-5">
-            <p className="text-sm leading-6 text-muted">{t("common.nextMoveVisible")}</p>
-            <p className="mt-3 text-sm leading-6 text-white">{t("ai.promptRule")}</p>
+          <h3 className="text-xl font-semibold text-text-primary">{t("ai.outputPreview")}</h3>
+          <div className="mt-4 rounded-2xl border border-border bg-white/[0.045] p-5">
+            <p className="text-sm leading-6 text-text-secondary">{t("common.nextMoveVisible")}</p>
+            <p className="mt-3 text-sm leading-6 text-text-primary">{t("ai.promptRule")}</p>
           </div>
         </GlassCard>
       </div>

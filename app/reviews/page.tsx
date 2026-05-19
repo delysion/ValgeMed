@@ -46,11 +46,11 @@ export default async function ReviewsPage({
                 <CardTitle>{t("reviews.dueToday")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
-                {dueToday.length === 0 ? <p className="text-sm text-muted">{t("common.noData")}</p> : null}
+                {dueToday.length === 0 ? <p className="text-sm text-text-secondary">{t("common.noData")}</p> : null}
                 {dueToday.slice(0, 6).map((item) => (
-                  <div key={item.id} className="rounded-md border border-white/10 p-3">
-                    <div className="text-sm text-white">{item.question}</div>
-                    <div className="mt-1 text-xs text-muted">{subjectById.get(item.subjectId)?.name ?? "-"}</div>
+                  <div key={item.id} className="rounded-md border border-border p-3">
+                    <div className="text-sm text-text-primary">{item.question}</div>
+                    <div className="mt-1 text-xs text-text-secondary">{subjectById.get(item.subjectId)?.name ?? "-"}</div>
                   </div>
                 ))}
               </CardContent>
@@ -60,11 +60,11 @@ export default async function ReviewsPage({
                 <CardTitle>{t("reviews.overdue")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
-                {overdue.length === 0 ? <p className="text-sm text-muted">{t("common.noData")}</p> : null}
+                {overdue.length === 0 ? <p className="text-sm text-text-secondary">{t("common.noData")}</p> : null}
                 {overdue.slice(0, 6).map((item) => (
-                  <div key={item.id} className="rounded-md border border-red-300/20 bg-red-300/5 p-3">
-                    <div className="text-sm text-white">{item.question}</div>
-                    <div className="mt-1 text-xs text-muted">{t("common.date")} {fmtDate(item.dueAt)}</div>
+                  <div key={item.id} className="rounded-md border border-rose/20 bg-rose-bg p-3">
+                    <div className="text-sm text-text-primary">{item.question}</div>
+                    <div className="mt-1 text-xs text-text-secondary">{t("common.date")} {fmtDate(item.dueAt)}</div>
                   </div>
                 ))}
               </CardContent>
@@ -88,7 +88,7 @@ export default async function ReviewsPage({
                       min={0}
                       max={10}
                       defaultValue={item.confidence}
-                      className="h-8 w-14 rounded-md border border-white/10 bg-black/30 px-2 text-xs text-white"
+                      className="h-8 w-14 rounded-md border border-border bg-bg-subtle px-2 text-xs text-text-primary"
                     />
                       <Button type="submit" variant="ghost" size="icon" aria-label={t("reviews.markReviewed")}>
                       <RotateCw className="h-4 w-4" />
@@ -96,7 +96,7 @@ export default async function ReviewsPage({
                   </form>
                 )}
                 columns={[
-                  { header: t("common.question"), render: (item) => <span className="line-clamp-2 text-white">{item.question}</span> },
+                  { header: t("common.question"), render: (item) => <span className="line-clamp-2 text-text-primary">{item.question}</span> },
                   { header: t("common.subject"), render: (item) => subjectById.get(item.subjectId)?.name ?? "-" },
                   { header: t("common.type"), render: (item) => humanize(item.reviewType) },
                   { header: t("common.date"), render: (item) => fmtDate(item.dueAt) },

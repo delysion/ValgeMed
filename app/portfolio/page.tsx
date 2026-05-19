@@ -66,9 +66,9 @@ export default async function PortfolioPage({ searchParams }: { searchParams: Pr
                 editBasePath="/portfolio"
                 deleteAction={deletePortfolioItemAction}
                 columns={[
-                  { header: t("common.title"), render: (item) => <span className="font-medium text-white">{item.title}</span> },
+                  { header: t("common.title"), render: (item) => <span className="font-medium text-text-primary">{item.title}</span> },
                   { header: t("common.type"), render: (item) => <Badge variant="muted">{humanize(item.itemType)}</Badge> },
-                  { header: t("common.date"), render: (item) => <span className="text-xs text-muted">{fmtDate(item.date)}</span> },
+                  { header: t("common.date"), render: (item) => <span className="text-xs text-text-secondary">{fmtDate(item.date)}</span> },
                   { header: t("opportunities.value"), render: (item) => <Badge variant={item.strategicValue >= 7 ? "success" : "default"}>{item.strategicValue}/10</Badge> },
                   { header: t("common.status"), render: (item) => <Badge variant="default">{humanize(item.status)}</Badge> },
                 ]}

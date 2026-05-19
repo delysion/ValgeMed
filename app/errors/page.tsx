@@ -47,8 +47,8 @@ export default async function ErrorsPage({ searchParams }: { searchParams: Promi
                   <Badge variant={error.resolved ? "success" : "danger"}>
                     {error.resolved ? t("errors.errorDestroyed") : t("status.open")}
                   </Badge>
-                  <h3 className="mt-3 text-xl font-semibold text-white">{error.title}</h3>
-                  <p className="mt-1 text-sm text-muted">{subjectById.get(error.subjectId)?.name ?? t("common.subject")} - {humanize(error.errorType)}</p>
+                  <h3 className="mt-3 text-xl font-semibold text-text-primary">{error.title}</h3>
+                  <p className="mt-1 text-sm text-text-secondary">{subjectById.get(error.subjectId)?.name ?? t("common.subject")} - {humanize(error.errorType)}</p>
                 </div>
                 <div className="grid h-14 w-14 place-items-center rounded-2xl border border-white/10 bg-white/[0.06]">
                   <Skull className="h-5 w-5 text-rose" />
@@ -56,21 +56,21 @@ export default async function ErrorsPage({ searchParams }: { searchParams: Promi
               </div>
               <div className="mt-5 grid gap-3 sm:grid-cols-3">
                 <div className="rounded-2xl bg-white/[0.045] p-3">
-                  <p className="text-xs text-muted">{t("errors.severity")}</p>
-                  <p className="font-mono text-2xl text-white">{error.severity}</p>
+                  <p className="text-xs text-text-secondary">{t("errors.severity")}</p>
+                  <p className="font-mono text-2xl text-text-primary">{error.severity}</p>
                 </div>
                 <div className="rounded-2xl bg-white/[0.045] p-3">
-                  <p className="text-xs text-muted">{t("errors.recurrence")}</p>
-                  <p className="font-mono text-2xl text-white">{error.recurrenceCount}</p>
+                  <p className="text-xs text-text-secondary">{t("errors.recurrence")}</p>
+                  <p className="font-mono text-2xl text-text-primary">{error.recurrenceCount}</p>
                 </div>
                 <div className="rounded-2xl bg-white/[0.045] p-3">
-                  <p className="text-xs text-muted">{t("errors.retestDue")}</p>
-                  <p className="text-sm font-medium text-white">{fmtDate(error.retestAt)}</p>
+                  <p className="text-xs text-text-secondary">{t("errors.retestDue")}</p>
+                  <p className="text-sm font-medium text-text-primary">{fmtDate(error.retestAt)}</p>
                 </div>
               </div>
               <div className="mt-4 rounded-2xl border border-white/10 bg-black/20 p-4">
-                <p className="text-xs uppercase tracking-[0.14em] text-muted">{t("errors.preventionRule")}</p>
-                <p className="mt-2 text-sm leading-6 text-white">{error.preventionRule ?? error.correction ?? error.description}</p>
+                <p className="text-xs uppercase tracking-[0.14em] text-text-secondary">{t("errors.preventionRule")}</p>
+                <p className="mt-2 text-sm leading-6 text-text-primary">{error.preventionRule ?? error.correction ?? error.description}</p>
               </div>
               <div className="mt-4 flex justify-end gap-2">
                 <form action={toggleErrorResolvedAction}>

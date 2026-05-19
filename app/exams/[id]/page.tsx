@@ -92,7 +92,7 @@ export default async function ExamCommandCenter({ params }: { params: Promise<{ 
         </GlassCard>
 
         <GlassCard>
-          <h3 className="text-xl font-semibold text-white">{t("examRoom.readinessRing")}</h3>
+          <h3 className="text-xl font-semibold text-text-primary">{t("examRoom.readinessRing")}</h3>
           <div className="mt-5">
             <ScoreBreakdown result={readiness} compact />
           </div>
@@ -106,12 +106,12 @@ export default async function ExamCommandCenter({ params }: { params: Promise<{ 
       <div className="mt-5 grid gap-5 xl:grid-cols-[1fr_0.86fr]">
         <div className="space-y-5">
           <GlassCard tone="gold">
-            <h3 className="text-xl font-semibold text-white">{t("examRoom.last7")}</h3>
+            <h3 className="text-xl font-semibold text-text-primary">{t("examRoom.last7")}</h3>
             <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
               {plan.map((item) => (
                 <div key={item.date.toISOString()} className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
-                  <div className="text-xs uppercase tracking-[0.14em] text-muted">{format(item.date, "EEE dd")}</div>
-                  <div className="mt-3 text-sm font-medium text-white">{item.action}</div>
+                  <div className="text-xs uppercase tracking-[0.14em] text-text-secondary">{format(item.date, "EEE dd")}</div>
+                  <div className="mt-3 text-sm font-medium text-text-primary">{item.action}</div>
                 </div>
               ))}
             </div>
@@ -119,28 +119,28 @@ export default async function ExamCommandCenter({ params }: { params: Promise<{ 
 
           <div className="grid gap-5 md:grid-cols-2">
             <GlassCard tone="rose">
-              <h3 className="text-xl font-semibold text-white">{t("examRoom.mustDestroy")}</h3>
+              <h3 className="text-xl font-semibold text-text-primary">{t("examRoom.mustDestroy")}</h3>
               <div className="mt-4 space-y-3">
                 {mustDestroy.map((error) => (
                   <div key={error.id} className="rounded-2xl border border-danger/20 bg-danger/10 p-4">
                     <div className="flex items-center justify-between gap-3">
-                      <p className="font-medium text-white">{error.title}</p>
+                      <p className="font-medium text-text-primary">{error.title}</p>
                       <Badge variant="danger">{error.severity}/10</Badge>
                     </div>
-                    <p className="mt-2 text-sm text-muted">{error.preventionRule ?? error.correction ?? error.description}</p>
+                    <p className="mt-2 text-sm text-text-secondary">{error.preventionRule ?? error.correction ?? error.description}</p>
                   </div>
                 ))}
-                {mustDestroy.length === 0 ? <p className="text-sm text-muted">{t("command.noOpenErrors")}</p> : null}
+                {mustDestroy.length === 0 ? <p className="text-sm text-text-secondary">{t("command.noOpenErrors")}</p> : null}
               </div>
             </GlassCard>
 
             <GlassCard tone="cyan">
-              <h3 className="text-xl font-semibold text-white">{t("examRoom.last48")}</h3>
+              <h3 className="text-xl font-semibold text-text-primary">{t("examRoom.last48")}</h3>
               <div className="mt-4 space-y-3">
                 {(last48.length ? last48 : [t("topics.suggestedAction")]).map((action) => (
                   <div key={action} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.045] p-4">
                     <Target className="h-4 w-4 text-cyan" />
-                    <p className="text-sm font-medium text-white">{action}</p>
+                    <p className="text-sm font-medium text-text-primary">{action}</p>
                   </div>
                 ))}
               </div>
@@ -148,7 +148,7 @@ export default async function ExamCommandCenter({ params }: { params: Promise<{ 
           </div>
 
           <GlassCard>
-            <h3 className="text-xl font-semibold text-white">{t("topics.title")}</h3>
+            <h3 className="text-xl font-semibold text-text-primary">{t("topics.title")}</h3>
             <div className="mt-4 grid gap-3 md:grid-cols-2">
               {examTopics.map((topic) => {
                 const level = getMasteryLevel({ confidence: topic.confidence, status: topic.status, openErrors: examErrors.filter((error) => error.topicId === topic.id && !error.resolved).length });
@@ -156,8 +156,8 @@ export default async function ExamCommandCenter({ params }: { params: Promise<{ 
                   <div key={topic.id} className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <p className="font-medium text-white">{topic.title}</p>
-                        <p className="mt-1 text-xs text-muted">{humanize(topic.status)}</p>
+                        <p className="font-medium text-text-primary">{topic.title}</p>
+                        <p className="mt-1 text-xs text-text-secondary">{humanize(topic.status)}</p>
                       </div>
                       <MasteryBadge level={level} label={t(masteryKey(level))} />
                     </div>
@@ -171,13 +171,13 @@ export default async function ExamCommandCenter({ params }: { params: Promise<{ 
         <div className="space-y-5">
           <QuizAttemptForm subjects={data.subjects} topics={data.topics} exams={data.exams} examId={exam.id} />
           <GlassCard tone="emerald">
-            <h3 className="text-xl font-semibold text-white">{t("examRoom.simulation")}</h3>
+            <h3 className="text-xl font-semibold text-text-primary">{t("examRoom.simulation")}</h3>
             <div className="mt-4 space-y-3">
               {examQuiz.map((attempt) => (
                 <div key={attempt.id} className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.045] p-4">
                   <div>
-                    <p className="font-medium text-white">{fmtDate(attempt.date)}</p>
-                    <p className="text-xs text-muted">{attempt.correctAnswers}/{attempt.totalQuestions}</p>
+                    <p className="font-medium text-text-primary">{fmtDate(attempt.date)}</p>
+                    <p className="text-xs text-text-secondary">{attempt.correctAnswers}/{attempt.totalQuestions}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <Badge>{attempt.scorePercent.toFixed(1)}%</Badge>
@@ -194,13 +194,13 @@ export default async function ExamCommandCenter({ params }: { params: Promise<{ 
           </GlassCard>
 
           <GlassCard>
-            <h3 className="text-xl font-semibold text-white">{t("study.sessionHistory")}</h3>
+            <h3 className="text-xl font-semibold text-text-primary">{t("study.sessionHistory")}</h3>
             <div className="mt-4 space-y-3">
               {examSessions.slice(0, 6).map((studySession) => (
                 <div key={studySession.id} className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.045] p-4">
                   <div>
-                    <p className="font-medium text-white">{humanize(studySession.method)}</p>
-                    <p className="text-xs text-muted">{fmtDate(studySession.startedAt)}</p>
+                    <p className="font-medium text-text-primary">{humanize(studySession.method)}</p>
+                    <p className="text-xs text-text-secondary">{fmtDate(studySession.startedAt)}</p>
                   </div>
                   <Badge variant="violet">{studySession.durationMinutes} {t("common.minutes")}</Badge>
                 </div>

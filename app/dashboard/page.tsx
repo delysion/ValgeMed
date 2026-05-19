@@ -281,7 +281,7 @@ export default async function DashboardPage() {
                     <Link
                       key={topic.id}
                       href="/topics"
-                      className="flex items-center justify-between gap-3 rounded-lg border border-border bg-white p-3.5 shadow-sm transition-all duration-200 hover:shadow-md motion-safe:animate-fade-in"
+                      className="flex items-center justify-between gap-3 rounded-lg border border-border bg-white p-3.5 shadow-sm transition-all duration-200 hover:shadow-md motion-safe:fade-in"
                       style={{ animationDelay: `${i * 80}ms` }}
                     >
                       <div className="flex items-center gap-3 min-w-0">
@@ -319,7 +319,7 @@ export default async function DashboardPage() {
                 {data.studySessions.slice(0, 5).map((session, i) => (
                   <div
                     key={`${session.id}-${i}`}
-                    className="flex items-center gap-3 rounded-lg border border-border bg-white p-3 shadow-sm transition-all duration-200 motion-safe:animate-fade-in"
+                    className="flex items-center gap-3 rounded-lg border border-border bg-white p-3 shadow-sm transition-all duration-200 motion-safe:fade-in"
                     style={{ animationDelay: `${i * 80}ms` }}
                   >
                     <div className={cn("flex h-7 w-7 shrink-0 items-center justify-center rounded-md", {
@@ -373,7 +373,7 @@ export default async function DashboardPage() {
                   <Link
                     key={exam.id}
                     href={`/exams/${exam.id}`}
-                    className="flex items-center justify-between gap-3 rounded-lg border border-border bg-white p-3.5 shadow-sm transition-all duration-200 hover:shadow-md motion-safe:animate-fade-in"
+                    className="flex items-center justify-between gap-3 rounded-lg border border-border bg-white p-3.5 shadow-sm transition-all duration-200 hover:shadow-md motion-safe:fade-in"
                   >
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium text-text-primary">{exam.title}</p>

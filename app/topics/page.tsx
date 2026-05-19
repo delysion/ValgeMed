@@ -42,19 +42,19 @@ export default async function TopicsPage({
         <div className="space-y-5">
           <GlassCard>
             <form className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              <select name="subject" defaultValue={params.subject ?? ""} className="h-11 rounded-2xl border border-white/10 bg-black/25 px-4 text-sm text-white">
+              <select name="subject" defaultValue={params.subject ?? ""} className="h-11 rounded-2xl border border-white/10 bg-black/25 px-4 text-sm text-text-primary">
                 <option value="">{t("common.subject")}</option>
                 {data.subjects.map((subject) => (
                   <option key={subject.id} value={subject.id} className="bg-[#11151c]">{subject.name}</option>
                 ))}
               </select>
-              <select name="status" defaultValue={params.status ?? ""} className="h-11 rounded-2xl border border-white/10 bg-black/25 px-4 text-sm text-white">
+              <select name="status" defaultValue={params.status ?? ""} className="h-11 rounded-2xl border border-white/10 bg-black/25 px-4 text-sm text-text-primary">
                 <option value="">{t("common.status")}</option>
                 {["not_started", "first_exposure", "understood", "recalled", "practiced", "error_corrected", "consolidated", "exam_ready"].map((status) => (
                   <option key={status} value={status} className="bg-[#11151c]">{humanize(status)}</option>
                 ))}
               </select>
-              <input name="priority" type="number" min={0} max={10} defaultValue={params.priority ?? ""} placeholder={t("common.priority")} className="h-11 rounded-2xl border border-white/10 bg-black/25 px-4 text-sm text-white" />
+              <input name="priority" type="number" min={0} max={10} defaultValue={params.priority ?? ""} placeholder={t("common.priority")} className="h-11 rounded-2xl border border-white/10 bg-black/25 px-4 text-sm text-text-primary" />
               <Button type="submit" variant="outline">
                 <Filter className="h-4 w-4" />
                 {t("common.open")}
@@ -72,9 +72,9 @@ export default async function TopicsPage({
                 <GlassCard key={topic.id} tone={level === "dangerous" ? "danger" : level === "examReady" ? "gold" : "cyan"} className="flex flex-col gap-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="text-xs uppercase tracking-[0.14em] text-muted">{subjectById.get(topic.subjectId)?.name ?? t("common.subject")}</p>
-                      <h3 className="mt-2 text-xl font-semibold text-white">{topic.title}</h3>
-                      <p className="mt-1 text-sm text-muted">{topic.examId ? examById.get(topic.examId)?.title : t("topics.linkedExam")}</p>
+                      <p className="text-xs uppercase tracking-[0.14em] text-text-secondary">{subjectById.get(topic.subjectId)?.name ?? t("common.subject")}</p>
+                      <h3 className="mt-2 text-xl font-semibold text-text-primary">{topic.title}</h3>
+                      <p className="mt-1 text-sm text-text-secondary">{topic.examId ? examById.get(topic.examId)?.title : t("topics.linkedExam")}</p>
                     </div>
                     <MasteryBadge level={level} label={t(masteryKey(level))} />
                   </div>
@@ -82,7 +82,7 @@ export default async function TopicsPage({
                     <MomentumBar label={t("common.confidence")} value={topic.confidence * 10} tone={topic.confidence <= 3 ? "danger" : "cyan"} />
                     <MomentumBar label={t("common.priority")} value={topic.priority * 10} tone="violet" />
                   </div>
-                  <div className="grid gap-2 text-sm text-muted sm:grid-cols-2">
+                  <div className="grid gap-2 text-sm text-text-secondary sm:grid-cols-2">
                     <div className="rounded-2xl bg-white/[0.04] p-3">{t("common.nextReview")}: {fmtDate(topic.nextReviewAt)}</div>
                     <div className="rounded-2xl bg-white/[0.04] p-3">{t("errors.unresolved")}: {openErrors}</div>
                   </div>

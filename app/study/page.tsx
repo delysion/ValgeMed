@@ -75,8 +75,8 @@ export default async function StudyPage({ searchParams }: { searchParams: Promis
                   <div key={item.id} className="rounded-xl border border-white/10 bg-white/[0.03] p-3.5 transition hover:bg-white/[0.05]">
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
-                        <p className="truncate font-medium text-sm text-white">{subjectById.get(item.subjectId)?.name ?? t("common.subject")}</p>
-                        <p className="mt-0.5 text-xs text-muted">{fmtDate(item.startedAt)} · {humanize(item.method)}</p>
+                        <p className="truncate font-medium text-sm text-text-primary">{subjectById.get(item.subjectId)?.name ?? t("common.subject")}</p>
+                        <p className="mt-0.5 text-xs text-text-secondary">{fmtDate(item.startedAt)} · {humanize(item.method)}</p>
                       </div>
                       <Badge variant={activeMethods.has(item.method) ? "success" : "muted"} className="shrink-0 text-[10px]">{item.durationMinutes}m</Badge>
                     </div>

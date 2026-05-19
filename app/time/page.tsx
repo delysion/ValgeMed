@@ -33,7 +33,7 @@ export default async function TimePage({ searchParams }: { searchParams: Promise
               editBasePath="/time"
               deleteAction={deleteTimeBlockAction}
               columns={[
-                { header: t("common.title"), render: (block) => <span className="font-medium text-white">{block.title}</span> },
+                { header: t("common.title"), render: (block) => <span className="font-medium text-text-primary">{block.title}</span> },
                 { header: t("common.date"), render: (block) => fmtDate(block.date) },
                 { header: t("common.type"), render: (block) => humanize(block.blockType) },
                 { header: t("common.minutes"), render: (block) => `${block.actualMinutes}/${block.plannedMinutes}` },

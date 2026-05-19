@@ -25,16 +25,16 @@ export default async function SettingsPage() {
       <div className="grid gap-5 xl:grid-cols-4">
         <GlassCard tone="cyan">
           <Database className="h-5 w-5 text-cyan" />
-          <h3 className="mt-4 text-xl font-semibold text-white">{t("settings.database")}</h3>
+          <h3 className="mt-4 text-xl font-semibold text-text-primary">{t("settings.database")}</h3>
           <Badge className="mt-4" variant={dbStatus.configured ? "success" : "danger"}>
             {dbStatus.configured ? t("settings.configured") : t("settings.missingDb")}
           </Badge>
-          <p className="mt-3 text-sm text-muted">{dbStatus.provider}</p>
+          <p className="mt-3 text-sm text-text-secondary">{dbStatus.provider}</p>
         </GlassCard>
 
         <GlassCard tone="violet">
           <Download className="h-5 w-5 text-violet" />
-          <h3 className="mt-4 text-xl font-semibold text-white">{t("settings.export")}</h3>
+          <h3 className="mt-4 text-xl font-semibold text-text-primary">{t("settings.export")}</h3>
           <div className="mt-4 flex flex-wrap gap-2">
             <Button asChild size="sm">
               <a href="/api/export/json">JSON</a>
@@ -50,8 +50,8 @@ export default async function SettingsPage() {
 
         <GlassCard tone="gold">
           <Globe2 className="h-5 w-5 text-gold" />
-          <h3 className="mt-4 text-xl font-semibold text-white">{t("settings.languagePreference")}</h3>
-          <p className="mt-2 text-sm leading-6 text-muted">{t("settings.languageBody")}</p>
+          <h3 className="mt-4 text-xl font-semibold text-text-primary">{t("settings.languagePreference")}</h3>
+          <p className="mt-2 text-sm leading-6 text-text-secondary">{t("settings.languageBody")}</p>
           <div className="mt-4">
             <LanguageSelector current={locale} label={t("language.label")} />
           </div>
@@ -59,9 +59,9 @@ export default async function SettingsPage() {
 
         <GlassCard tone="emerald">
           <Shield className="h-5 w-5 text-emerald" />
-          <h3 className="mt-4 text-xl font-semibold text-white">{t("settings.privacy")}</h3>
-          <p className="mt-2 text-sm leading-6 text-muted">{session.email}</p>
-          <p className="mt-2 text-sm leading-6 text-muted">{t("settings.version")}: {packageJson.version}</p>
+          <h3 className="mt-4 text-xl font-semibold text-text-primary">{t("settings.privacy")}</h3>
+          <p className="mt-2 text-sm leading-6 text-text-secondary">{session.email}</p>
+          <p className="mt-2 text-sm leading-6 text-text-secondary">{t("settings.version")}: {packageJson.version}</p>
         </GlassCard>
       </div>
 
@@ -78,12 +78,12 @@ export default async function SettingsPage() {
 function WeightCard({ title, weights }: { title: string; weights: Record<string, number> }) {
   return (
     <GlassCard>
-      <h3 className="text-lg font-semibold text-white">{title}</h3>
+      <h3 className="text-lg font-semibold text-text-primary">{title}</h3>
       <div className="mt-4 space-y-2">
         {Object.entries(weights).map(([key, value]) => (
-          <div key={key} className="flex items-center justify-between gap-3 border-b border-white/10 pb-2 text-sm">
-            <span className="text-muted">{key}</span>
-            <span className="font-mono text-white">{value}</span>
+          <div key={key} className="flex items-center justify-between gap-3 border-b border-border pb-2 text-sm">
+            <span className="text-text-secondary">{key}</span>
+            <span className="font-mono text-text-primary">{value}</span>
           </div>
         ))}
       </div>

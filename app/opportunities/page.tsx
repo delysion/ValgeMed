@@ -66,9 +66,9 @@ export default async function OpportunitiesPage({ searchParams }: { searchParams
                 editBasePath="/opportunities"
                 deleteAction={deleteOpportunityAction}
                 columns={[
-                  { header: t("common.title"), render: (item) => <span className="font-medium text-white">{item.title}</span> },
+                  { header: t("common.title"), render: (item) => <span className="font-medium text-text-primary">{item.title}</span> },
                   { header: t("common.type"), render: (item) => <Badge variant="muted">{humanize(item.opportunityType)}</Badge> },
-                  { header: t("opportunities.deadline"), render: (item) => <span className="text-xs text-muted">{fmtDate(item.deadline)}</span> },
+                  { header: t("opportunities.deadline"), render: (item) => <span className="text-xs text-text-secondary">{fmtDate(item.deadline)}</span> },
                   { header: t("opportunities.upside"), render: (item) => <Badge variant={item.strategicUpside >= 7 ? "success" : "default"}>{item.strategicUpside}/10</Badge> },
                   { header: t("common.status"), render: (item) => <Badge variant="default">{humanize(item.status)}</Badge> },
                 ]}

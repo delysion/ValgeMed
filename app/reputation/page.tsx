@@ -66,9 +66,9 @@ export default async function ReputationPage({ searchParams }: { searchParams: P
                 editBasePath="/reputation"
                 deleteAction={deleteReputationEventAction}
                 columns={[
-                  { header: t("common.title"), render: (event) => <span className="font-medium text-white">{event.title}</span> },
+                  { header: t("common.title"), render: (event) => <span className="font-medium text-text-primary">{event.title}</span> },
                   { header: t("common.type"), render: (event) => <Badge variant="muted">{humanize(event.eventType)}</Badge> },
-                  { header: t("common.date"), render: (event) => <span className="text-xs text-muted">{fmtDate(event.eventDate)}</span> },
+                  { header: t("common.date"), render: (event) => <span className="text-xs text-text-secondary">{fmtDate(event.eventDate)}</span> },
                   { header: t("reputation.trust"), render: (event) => <Badge variant={event.impact >= 7 ? "success" : "default"}>{event.impact}/10</Badge> },
                   { header: t("common.status"), render: (event) => <Badge variant="default">{humanize(event.status)}</Badge> },
                 ]}
