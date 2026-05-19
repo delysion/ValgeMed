@@ -14,23 +14,23 @@ export function GlassCard({
   hover?: boolean;
 }) {
   const tones = {
-    default: "bg-white border-border",
-    cyan: "bg-white border-cyan/20",
-    violet: "bg-white border-violet/20",
-    gold: "bg-white border-gold/20",
-    rose: "bg-white border-rose/20",
-    emerald: "bg-white border-emerald/20",
-    danger: "bg-white border-rose/20",
+    default: "bg-bg-surface border-border",
+    cyan: "bg-bg-surface border-cyan/20",
+    violet: "bg-bg-surface border-violet/20",
+    gold: "bg-bg-surface border-gold/20",
+    rose: "bg-bg-surface border-rose/20",
+    emerald: "bg-bg-surface border-emerald/20",
+    danger: "bg-bg-surface border-rose/20",
   };
 
   const bgTones = {
     default: "",
-    cyan: "bg-gradient-to-br from-cyan-bg/50 to-white",
-    violet: "bg-gradient-to-br from-violet-bg/50 to-white",
-    gold: "bg-gradient-to-br from-gold-bg/50 to-white",
-    rose: "bg-gradient-to-br from-rose-bg/50 to-white",
-    emerald: "bg-gradient-to-br from-emerald-bg/50 to-white",
-    danger: "bg-gradient-to-br from-rose-bg/50 to-white",
+    cyan: "bg-gradient-to-br from-cyan-bg/50 to-bg-surface",
+    violet: "bg-gradient-to-br from-violet-bg/50 to-bg-surface",
+    gold: "bg-gradient-to-br from-gold-bg/50 to-bg-surface",
+    rose: "bg-gradient-to-br from-rose-bg/50 to-bg-surface",
+    emerald: "bg-gradient-to-br from-emerald-bg/50 to-bg-surface",
+    danger: "bg-gradient-to-br from-rose-bg/50 to-bg-surface",
   };
 
   return (

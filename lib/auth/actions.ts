@@ -25,18 +25,28 @@ export async function loginAction(
     };
   }
 
+  const username = String(formData.get("username") ?? "").trim();
   const password = String(formData.get("password") ?? "");
   const ownerEmail = process.env.OWNER_EMAIL ?? "owner@local";
   const passwordHash = process.env.APP_PASSWORD_HASH;
+  const appUsername = process.env.APP_USERNAME ?? "admin";
 
   if (!passwordHash) {
     return { error: "Missing APP_PASSWORD_HASH." };
   }
 
+  if (!username) {
+    return { error: "Username is required." };
+  }
+
+  if (username !== appUsername) {
+    return { error: "Invalid username or password." };
+  }
+
   const validPassword = await bcrypt.compare(password, passwordHash);
 
   if (!validPassword) {
-    return { error: "Incorrect password." };
+    return { error: "Invalid username or password." };
   }
 
   await createOwnerSession(ownerEmail);

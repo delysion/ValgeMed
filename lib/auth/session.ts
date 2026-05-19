@@ -19,7 +19,7 @@ function getSessionSecret() {
 
   if (!secret || secret.length < 32) {
     throw new Error(
-      "SESSION_SECRET mancante o troppo corto. Usa almeno 32 caratteri casuali.",
+      "SESSION_SECRET missing or too short. Use at least 32 random characters.",
     );
   }
 
@@ -28,7 +28,7 @@ function getSessionSecret() {
 
 export function validateLoginEnvironment() {
   if (!process.env.APP_PASSWORD_HASH) {
-    throw new Error("APP_PASSWORD_HASH mancante. Genera un hash bcrypt e configuralo.");
+    throw new Error("APP_PASSWORD_HASH missing. Generate a bcrypt hash and configure it.");
   }
 
   getSessionSecret();

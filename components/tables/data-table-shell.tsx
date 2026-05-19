@@ -70,8 +70,8 @@ export function DataTableShell({
   });
 
   return (
-    <div className={cn("overflow-hidden rounded-2xl border border-border", className)}>
-      <table className="w-full min-w-[680px] border-collapse text-sm">
+    <div className={cn("overflow-x-auto rounded-2xl border border-border", className)}>
+      <table className="w-full border-collapse text-sm">
         <thead className="bg-bg-subtle">
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>

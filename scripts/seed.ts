@@ -32,7 +32,7 @@ import {
 const databaseUrl = process.env.DATABASE_URL;
 
 if (!databaseUrl) {
-  console.error("DATABASE_URL mancante. Configura .env prima del seed.");
+  console.error("DATABASE_URL missing. Configure .env before seeding.");
   process.exit(1);
 }
 

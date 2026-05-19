@@ -77,6 +77,7 @@ export const en = {
   "login.title": "Enter ELISE OS",
   "login.subtitle": "Private academic command system. No public accounts. No noise.",
   "login.email": "Owner email",
+  "login.username": "Username",
   "login.password": "Password",
   "login.submit": "Unlock command center",
   "login.pending": "Verifying...",

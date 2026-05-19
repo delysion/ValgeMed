@@ -27,7 +27,7 @@ export function LoadingState({
   }
 
   return (
-    <div className={cn("rounded-xl border border-border bg-white p-5 shadow-[var(--shadow-card)]", className)}>
+    <div className={cn("rounded-xl border border-border bg-bg-surface p-5 shadow-[var(--shadow-card)]", className)}>
       {content}
     </div>
   );
@@ -35,7 +35,7 @@ export function LoadingState({
 
 export function SkeletonCard({ className }: { className?: string }) {
   return (
-    <div className={cn("rounded-xl border border-border bg-white p-4 shadow-[var(--shadow-card)]", className)}>
+    <div className={cn("rounded-xl border border-border bg-bg-surface p-4 shadow-[var(--shadow-card)]", className)}>
       <div className="skeleton-pulse h-3 w-24 rounded bg-bg-subtle" />
       <div className="skeleton-pulse mt-3 h-7 w-16 rounded bg-bg-subtle" />
       <div className="skeleton-pulse mt-2 h-3 w-32 rounded bg-bg-subtle" />
@@ -45,7 +45,7 @@ export function SkeletonCard({ className }: { className?: string }) {
 
 export function SkeletonRow({ className }: { className?: string }) {
   return (
-    <div className={cn("flex items-center gap-3 rounded-lg border border-border bg-white p-3", className)}>
+    <div className={cn("flex items-center gap-3 rounded-lg border border-border bg-bg-surface p-3", className)}>
       <div className="skeleton-pulse h-8 w-8 shrink-0 rounded-lg bg-bg-subtle" />
       <div className="flex-1 space-y-1.5">
         <div className="skeleton-pulse h-3 w-3/5 rounded bg-bg-subtle" />

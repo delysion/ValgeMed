@@ -18,7 +18,7 @@ export function SectionHeader({
   return (
     <div className={cn("flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between", className)}>
       <div className="flex items-center gap-2.5">
-        {Icon ? <Icon className="h-4 w-4 text-muted-2" /> : null}
+        {Icon ? <Icon className="h-4 w-4 text-text-muted" /> : null}
         <div>
           <h3 className="text-base font-semibold text-text-primary">{title}</h3>
           {description ? <p className="mt-0.5 text-sm text-text-secondary">{description}</p> : null}

@@ -17,7 +17,7 @@ export const DropdownMenuContent = React.forwardRef<
       ref={ref}
       sideOffset={sideOffset}
       className={cn(
-        "z-50 min-w-44 overflow-hidden rounded-lg border border-border bg-white p-1 text-text-primary shadow-lg",
+        "z-50 min-w-44 overflow-hidden rounded-lg border border-border bg-bg-surface p-1 text-text-primary shadow-lg",
         className,
       )}
       {...props}

@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 
 import { LanguageSelector } from "@/components/language-selector";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { logoutAction } from "@/lib/auth/actions";
@@ -35,6 +36,7 @@ import type { OwnerSession } from "@/lib/auth/session";
 import { getI18n } from "@/lib/i18n/server";
 import { TranslationProvider } from "@/lib/i18n/useTranslation";
 import type { TranslationKey } from "@/lib/i18n/dictionaries/en";
+import { getTheme } from "@/lib/theme/config";
 
 const navItems: Array<{ href: string; label: TranslationKey; icon: typeof Command; featured?: boolean }> = [
   { href: "/command", label: "nav.command", icon: Command, featured: true },
@@ -139,12 +141,13 @@ export async function AppShell({
   session: OwnerSession;
 }) {
   const { locale, dictionary, t } = await getI18n();
+  const theme = await getTheme();
 
   return (
     <TranslationProvider locale={locale} dictionary={dictionary}>
       <div className="min-h-screen bg-bg-page">
-        <aside className="fixed inset-y-0 left-0 z-20 hidden w-64 overflow-y-auto border-r border-border bg-white lg:block">
-          <div className="sticky top-0 z-10 border-b border-border bg-white p-4">
+        <aside className="fixed inset-y-0 left-0 z-20 hidden w-64 overflow-y-auto border-r border-border bg-bg-surface lg:block">
+          <div className="sticky top-0 z-10 border-b border-border bg-bg-surface p-4">
             <div className="flex items-center gap-3">
               <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-primary to-violet shadow-sm">
                 <Command className="h-5 w-5 text-white" />
@@ -161,7 +164,7 @@ export async function AppShell({
         </aside>
 
         <div className="lg:pl-64">
-          <header className="sticky top-0 z-30 flex min-h-14 items-center justify-between gap-3 border-b border-border bg-white/95 px-3 py-2 backdrop-blur-md sm:px-4 lg:px-6">
+          <header className="sticky top-0 z-30 flex min-h-14 items-center justify-between gap-3 border-b border-border bg-bg-surface/80 px-3 py-2 backdrop-blur-md sm:px-4 lg:px-6">
             <div className="flex min-w-0 items-center gap-2.5">
               <Sheet>
                 <SheetTrigger asChild>
@@ -171,7 +174,7 @@ export async function AppShell({
                 </SheetTrigger>
                 <SheetContent className="left-0 right-auto w-[min(90vw,300px)] border-l-0 border-r border-border">
                   <div className="mb-4">
-                    <div className="flex items-center gap-3 rounded-xl border border-border bg-white p-3 shadow-sm">
+                    <div className="flex items-center gap-3 rounded-xl border border-border bg-bg-surface p-3 shadow-sm">
                       <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-primary to-violet">
                         <Command className="h-4 w-4 text-white" />
                       </div>
@@ -192,7 +195,8 @@ export async function AppShell({
                 <p className="truncate text-sm font-medium text-text-primary">{session.email}</p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
+              <ThemeToggle theme={theme} />
               <div className="hidden sm:block">
                 <LanguageSelector current={locale} label={t("language.label")} compact />
               </div>
@@ -229,7 +233,7 @@ export function PageHeader({
   eyebrow?: string;
 }) {
   return (
-    <div className="motion-premium mb-5 flex flex-col gap-2.5 rounded-2xl border border-border bg-white p-4 shadow-[var(--shadow-card)] sm:p-6 md:flex-row md:items-end md:justify-between">
+    <div className="motion-premium mb-5 flex flex-col gap-2.5 rounded-2xl border border-border bg-bg-surface p-4 shadow-[var(--shadow-card)] sm:p-6 md:flex-row md:items-end md:justify-between">
       <div>
         {eyebrow ? (
           <p className="mb-1.5 text-[9px] font-semibold uppercase tracking-[0.16em] text-primary sm:text-[10px]">{eyebrow}</p>

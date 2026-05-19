@@ -79,6 +79,7 @@ export const et: Dictionary = {
   "login.title": "Sisene ELISE OS-i",
   "login.subtitle": "Privaatne akadeemiline juhtsüsteem. Avalikke kontosid ei ole. Müra ei ole.",
   "login.email": "Omaniku e-post",
+  "login.username": "Kasutajanimi",
   "login.password": "Parool",
   "login.submit": "Ava juhtpaneel",
   "login.pending": "Kontrollin...",

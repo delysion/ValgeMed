@@ -13,7 +13,7 @@ export function getDb(): AppDb {
   const databaseUrl = process.env.DATABASE_URL;
 
   if (!databaseUrl) {
-    throw new Error("DATABASE_URL mancante. Configura Neon Postgres prima di usare il database.");
+    throw new Error("DATABASE_URL missing. Configure Neon Postgres before using the database.");
   }
 
   if (!cachedDb) {

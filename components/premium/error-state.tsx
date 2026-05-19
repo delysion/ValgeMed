@@ -18,7 +18,7 @@ export function ErrorState({
 }) {
   return (
     <div className={cn("flex flex-col items-center gap-3 rounded-xl border border-rose/20 bg-rose-bg p-6 text-center", className)}>
-      <div className="grid h-10 w-10 place-items-center rounded-lg border border-rose/20 bg-white">
+      <div className="grid h-10 w-10 place-items-center rounded-lg border border-rose/20 bg-bg-surface">
         <AlertTriangle className="h-5 w-5 text-rose" />
       </div>
       <div>

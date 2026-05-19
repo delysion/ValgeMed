@@ -14,12 +14,13 @@ export default async function LoginPage() {
   const { t, locale } = await getI18n();
 
   return (
-    <main className="grid min-h-screen place-items-center px-4 py-10">
+    <main className="grid min-h-screen place-items-center bg-bg-page px-4 py-10">
       <LoginForm
         locale={locale}
         copy={{
           title: t("login.title"),
           subtitle: t("login.subtitle"),
+          username: t("login.username"),
           password: t("login.password"),
           submit: t("login.submit"),
           pending: t("login.pending"),
