@@ -52,8 +52,8 @@ export function getNextBestAction(input: {
       title: "Recovery + light review",
       reason:
         input.energyIntegrity !== undefined && input.energyIntegrity < 4
-          ? "Energy Integrity sotto 4/10: oggi proteggi sonno, recupero e consolidamento leggero."
-          : "Il rischio burnout e alto: oggi conviene consolidare senza forzare.",
+          ? "Energy Integrity below 4/10: protect sleep, recovery and light consolidation today."
+          : "Burnout risk is high: consolidate without forcing intensity today.",
       href: "/health",
     };
   }
@@ -66,7 +66,7 @@ export function getNextBestAction(input: {
     return {
       kind: "simulation",
       title: "Exam battle plan",
-      reason: `${examByRisk.title} ha risk level ${examByRisk.riskLevel}/10: serve simulazione o piano di battaglia.`,
+      reason: `${examByRisk.title} has risk level ${examByRisk.riskLevel}/10: needs simulation or battle plan.`,
       href: `/exams/${examByRisk.id}`,
     };
   }
@@ -85,7 +85,7 @@ export function getNextBestAction(input: {
     return {
       kind: "simulation",
       title: "Exam simulation",
-      reason: `${riskyExam.exam.title} e vicino e readiness e sotto 6/10.`,
+      reason: `${riskyExam.exam.title} is close and readiness is below 6/10.`,
       href: `/exams/${riskyExam.exam.id}`,
     };
   }
@@ -98,7 +98,7 @@ export function getNextBestAction(input: {
     return {
       kind: "error_review",
       title: "Error review mirata",
-      reason: `Errore aperto ad alta severita: ${severeOpenError.title}.`,
+      reason: `High-severity open error: ${severeOpenError.title}.`,
       href: "/errors",
     };
   }
@@ -114,7 +114,7 @@ export function getNextBestAction(input: {
     return {
       kind: "spaced_review",
       title: "Spaced review due",
-      reason: "Ci sono item in scadenza oggi o arretrati.",
+      reason: "Items are due today or overdue.",
       href: "/reviews",
     };
   }
@@ -127,7 +127,7 @@ export function getNextBestAction(input: {
     return {
       kind: "active_recall",
       title: "Active recall su topic fragile",
-      reason: `${fragileTopic.title} ha confidence <= 3.`,
+      reason: `${fragileTopic.title} has confidence <= 3.`,
       href: "/topics",
     };
   }
@@ -140,7 +140,7 @@ export function getNextBestAction(input: {
     return {
       kind: "quiz",
       title: "Converti passivo in quiz",
-      reason: "Oggi lo studio passivo sta superando troppo l'active recall.",
+      reason: "Passive study is exceeding active recall today.",
       href: "/study-sessions",
     };
   }
@@ -150,7 +150,7 @@ export function getNextBestAction(input: {
       return {
         kind: "light_consolidation",
         title: "Consolidamento leggero",
-        reason: "Energia bassa: meglio ripasso leggero e chiusura ordinata.",
+        reason: "Low energy: light review and clean closure today.",
         href: "/reviews",
       };
     }
@@ -170,7 +170,7 @@ export function getNextBestAction(input: {
     return {
       kind: "language_move",
       title: "Language move",
-      reason: `${neglectedLanguage.title} richiede una micro-sessione: Estonia integration non deve restare teorica.`,
+      reason: `${neglectedLanguage.title} needs a micro-session: Estonia integration should not stay theoretical.`,
       href: "/language",
     };
   }
@@ -185,7 +185,7 @@ export function getNextBestAction(input: {
     return {
       kind: "opportunity_capture",
       title: "Opportunity capture",
-      reason: `${deadlineOpportunity.item.title} scade tra ${deadlineOpportunity.days} giorni: definisci o completa la next action.`,
+      reason: `${deadlineOpportunity.item.title} expires in ${deadlineOpportunity.days} days: define or complete the next action.`,
       href: "/opportunities",
     };
   }
@@ -199,7 +199,7 @@ export function getNextBestAction(input: {
     return {
       kind: "reputation_signal",
       title: "Quiet reputation signal",
-      reason: "Nessun segnale recente: scegli una domanda precisa, un contributo utile o una prova di affidabilita.",
+      reason: "No recent signals: choose a precise question, a useful contribution, or a reliability proof.",
       href: "/reputation",
     };
   }
@@ -212,7 +212,7 @@ export function getNextBestAction(input: {
     return {
       kind: "life_admin",
       title: "Life admin closure",
-      reason: `${overdueLifeAdmin.title} e aperto o in scadenza: togli attrito prima che diventi rumore mentale.`,
+      reason: `${overdueLifeAdmin.title} is open or due: remove friction before it becomes mental noise.`,
       href: "/life-admin",
     };
   }
@@ -225,8 +225,8 @@ export function getNextBestAction(input: {
     kind: "priority_topic",
     title: priorityTopic ? `Topic prioritario: ${priorityTopic.title}` : "Pianifica il primo topic",
     reason: priorityTopic
-      ? "Nessun allarme immediato: scegli il topic con priorita e difficolta piu alte."
-      : "Aggiungi materie e topics per avviare il sistema operativo di studio.",
+      ? "No immediate alarm: choose the topic with highest priority and difficulty."
+      : "Add subjects and topics to activate the study operating system.",
     href: priorityTopic ? "/topics" : "/subjects",
   };
 }

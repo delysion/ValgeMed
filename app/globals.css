@@ -229,3 +229,49 @@ input[type="datetime-local"] {
     display: none;
   }
 }
+
+/* Custom scrollbar — thin, dark, invisible until hover */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(248, 250, 252, 0.08);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(248, 250, 252, 0.15);
+}
+
+/* Sidebar scrollbar: hidden by default, subtle on hover */
+aside::-webkit-scrollbar {
+  width: 4px;
+}
+
+aside::-webkit-scrollbar-thumb {
+  background: rgba(248, 250, 252, 0.04);
+}
+
+aside:hover::-webkit-scrollbar-thumb {
+  background: rgba(248, 250, 252, 0.1);
+}
+
+/* Firefox */
+* {
+  scrollbar-color: rgba(248, 250, 252, 0.08) transparent;
+  scrollbar-width: thin;
+}
+
+aside {
+  scrollbar-color: rgba(248, 250, 252, 0.04) transparent;
+}
+
+aside:hover {
+  scrollbar-color: rgba(248, 250, 252, 0.1) transparent;
+}

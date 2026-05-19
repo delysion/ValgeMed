@@ -90,12 +90,12 @@ export function calculateExamReadinessScore(input: {
   burnoutRisk: number;
 }): ScoreResult {
   const factors = [
-    factor("Completamento topics", input.topicCompletion, readinessWeights.topicCompletion),
-    factor("Active recall", input.activeRecallScore, readinessWeights.activeRecallScore),
-    factor("Quiz e simulazioni", input.quizScore, readinessWeights.quizScore),
-    factor("Errori risolti", input.errorResolution, readinessWeights.errorResolution),
-    factor("Consistenza recente", input.consistencyScore, readinessWeights.consistencyScore),
-    factor("Rischio burnout", input.burnoutRisk, readinessWeights.burnoutRisk, "negative"),
+    factor("scoring.topicCompletion", input.topicCompletion, readinessWeights.topicCompletion),
+    factor("scoring.activeRecall", input.activeRecallScore, readinessWeights.activeRecallScore),
+    factor("scoring.quizSimulations", input.quizScore, readinessWeights.quizScore),
+    factor("scoring.errorsResolved", input.errorResolution, readinessWeights.errorResolution),
+    factor("scoring.recentConsistency", input.consistencyScore, readinessWeights.consistencyScore),
+    factor("scoring.burnoutRisk", input.burnoutRisk, readinessWeights.burnoutRisk, "negative"),
   ];
 
   return {
@@ -114,18 +114,18 @@ export function calculateStudyEfficiencyScore(input: {
   fatiguePenalty: number;
 }): ScoreResult {
   const factors = [
-    factor("Qualita output", input.outputQuality, efficiencyWeights.outputQuality),
-    factor("Focus", input.focusLevel, efficiencyWeights.focusLevel),
-    factor("Quota active recall", input.activeRecallRatio, efficiencyWeights.activeRecallRatio),
-    factor("Accuratezza quiz", input.quizAccuracy, efficiencyWeights.quizAccuracy),
+    factor("scoring.outputQuality", input.outputQuality, efficiencyWeights.outputQuality),
+    factor("scoring.focus", input.focusLevel, efficiencyWeights.focusLevel),
+    factor("scoring.activeRecallRatio", input.activeRecallRatio, efficiencyWeights.activeRecallRatio),
+    factor("scoring.quizAccuracy", input.quizAccuracy, efficiencyWeights.quizAccuracy),
     factor(
-      "Penalita studio passivo",
+      "scoring.passiveStudyPenalty",
       input.passiveStudyPenalty,
       efficiencyWeights.passiveStudyPenalty,
       "negative",
     ),
     factor(
-      "Penalita fatica",
+      "scoring.fatiguePenalty",
       input.fatiguePenalty,
       efficiencyWeights.fatiguePenalty,
       "negative",
@@ -147,19 +147,19 @@ export function calculateBurnoutRisk(input: {
   lowEnergyScore: number;
 }): ScoreResult {
   const factors = [
-    factor("Sonno insufficiente", input.lowSleepScore, burnoutWeights.lowSleepScore),
-    factor("Stress", input.stressScore, burnoutWeights.stressScore),
+    factor("scoring.insufficientSleep", input.lowSleepScore, burnoutWeights.lowSleepScore),
+    factor("scoring.stress", input.stressScore, burnoutWeights.stressScore),
     factor(
-      "Accuratezza in calo",
+      "scoring.decliningAccuracy",
       input.decliningAccuracyScore,
       burnoutWeights.decliningAccuracyScore,
     ),
     factor(
-      "Minuti eccessivi",
+      "scoring.excessiveMinutes",
       input.excessiveMinutesScore,
       burnoutWeights.excessiveMinutesScore,
     ),
-    factor("Energia bassa", input.lowEnergyScore, burnoutWeights.lowEnergyScore),
+    factor("scoring.lowEnergy", input.lowEnergyScore, burnoutWeights.lowEnergyScore),
   ];
 
   return {
@@ -337,10 +337,10 @@ export function calculateTimeLeverageScore(input: {
   recoveryProtection: number;
 }): ScoreResult {
   const factors = [
-    factor("Esecuzione pianificato/reale", input.plannedExecution, 0.3),
-    factor("Leverage medio dei blocchi", input.leverageAverage, 0.3),
-    factor("Quota blocchi ad alto rendimento", input.activeBlockRatio, 0.25),
-    factor("Protezione recovery", input.recoveryProtection, 0.15),
+    factor("scoring.plannedVsActual", input.plannedExecution, 0.3),
+    factor("scoring.blockLeverage", input.leverageAverage, 0.3),
+    factor("scoring.highYieldBlocks", input.activeBlockRatio, 0.25),
+    factor("scoring.recoveryProtection", input.recoveryProtection, 0.15),
   ];
 
   return { score: weightedScore(factors), factors, note: scoreNote };
@@ -354,11 +354,11 @@ export function calculateMedicalMasteryScore(input: {
   openErrorPenalty: number;
 }): ScoreResult {
   const factors = [
-    factor("Stato topics", input.topicStatus, 0.3),
-    factor("Confidence media", input.confidence, 0.2),
-    factor("Accuratezza quiz", input.quizAccuracy, 0.2),
-    factor("Copertura active recall", input.activeRecallCoverage, 0.2),
-    factor("Penalita errori aperti", input.openErrorPenalty, -0.1, "negative"),
+    factor("scoring.topicStatus", input.topicStatus, 0.3),
+    factor("scoring.avgConfidence", input.confidence, 0.2),
+    factor("scoring.quizAccuracy", input.quizAccuracy, 0.2),
+    factor("scoring.activeRecallCoverage", input.activeRecallCoverage, 0.2),
+    factor("scoring.openErrorPenalty", input.openErrorPenalty, -0.1, "negative"),
   ];
 
   return { score: weightedScore(factors), factors, note: scoreNote };
@@ -371,10 +371,10 @@ export function calculateErrorDestructionScore(input: {
   preventionRules: number;
 }): ScoreResult {
   const factors = [
-    factor("Errori risolti", input.resolvedRatio, 0.35),
-    factor("Retest pianificati", input.retestCoverage, 0.25),
-    factor("Ricorrenze sotto controllo", input.recurrenceControl, 0.2),
-    factor("Regole di prevenzione", input.preventionRules, 0.2),
+    factor("scoring.errorsResolved", input.resolvedRatio, 0.35),
+    factor("scoring.plannedRetests", input.retestCoverage, 0.25),
+    factor("scoring.recurrenceControl", input.recurrenceControl, 0.2),
+    factor("scoring.preventionRules", input.preventionRules, 0.2),
   ];
 
   return { score: weightedScore(factors), factors, note: scoreNote };
@@ -388,11 +388,11 @@ export function calculateEnergyIntegrityScore(input: {
   movementConsistency: number;
 }): ScoreResult {
   const factors = [
-    factor("Qualita sonno", input.sleepQuality, 0.3),
-    factor("Fatica cognitiva bassa", input.lowFatigue, 0.25),
-    factor("Recovery", input.recoveryQuality, 0.2),
-    factor("Qualita alimentazione", input.foodQuality, 0.15),
-    factor("Movimento", input.movementConsistency, 0.1),
+    factor("scoring.sleepQuality", input.sleepQuality, 0.3),
+    factor("scoring.lowCognitiveFatigue", input.lowFatigue, 0.25),
+    factor("scoring.recovery", input.recoveryQuality, 0.2),
+    factor("scoring.foodQuality", input.foodQuality, 0.15),
+    factor("scoring.movement", input.movementConsistency, 0.1),
   ];
 
   return { score: weightedScore(factors), factors, note: scoreNote };
@@ -405,10 +405,10 @@ export function calculateEstoniaIntegrationScore(input: {
   adminReadiness: number;
 }): ScoreResult {
   const factors = [
-    factor("Pratica estone/terminologia", input.estonianPractice, 0.35),
-    factor("Routine Tartu", input.tartuSystems, 0.25),
-    factor("Cultura accademica", input.academicCulture, 0.2),
-    factor("Documenti e logistica", input.adminReadiness, 0.2),
+    factor("scoring.estonianPractice", input.estonianPractice, 0.35),
+    factor("scoring.tartuRoutine", input.tartuSystems, 0.25),
+    factor("scoring.academicCulture", input.academicCulture, 0.2),
+    factor("scoring.adminLogistics", input.adminReadiness, 0.2),
   ];
 
   return { score: weightedScore(factors), factors, note: scoreNote };
@@ -421,10 +421,10 @@ export function calculateReputationCapitalScore(input: {
   portfolioEvidence: number;
 }): ScoreResult {
   const factors = [
-    factor("Segnali di affidabilita/competenza", input.impactSignals, 0.35),
-    factor("Follow-up", input.followUpDiscipline, 0.2),
-    factor("Network professionale", input.contactBase, 0.2),
-    factor("Evidenze portfolio", input.portfolioEvidence, 0.25),
+    factor("scoring.reliabilitySignals", input.impactSignals, 0.35),
+    factor("scoring.followUp", input.followUpDiscipline, 0.2),
+    factor("scoring.professionalNetwork", input.contactBase, 0.2),
+    factor("scoring.portfolioEvidence", input.portfolioEvidence, 0.25),
   ];
 
   return { score: weightedScore(factors), factors, note: scoreNote };
@@ -437,10 +437,10 @@ export function calculateOpportunityCaptureScore(input: {
   strategicUpside: number;
 }): ScoreResult {
   const factors = [
-    factor("Opportunita tracciate", input.trackedOpportunities, 0.25),
-    factor("Next action definite", input.nextActions, 0.25),
-    factor("Scadenze presidiate", input.deadlineDiscipline, 0.25),
-    factor("Upside strategico", input.strategicUpside, 0.25),
+    factor("scoring.trackedOpportunities", input.trackedOpportunities, 0.25),
+    factor("scoring.definedNextActions", input.nextActions, 0.25),
+    factor("scoring.deadlineDiscipline", input.deadlineDiscipline, 0.25),
+    factor("scoring.strategicUpside", input.strategicUpside, 0.25),
   ];
 
   return { score: weightedScore(factors), factors, note: scoreNote };

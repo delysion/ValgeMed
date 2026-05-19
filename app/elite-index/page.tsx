@@ -74,7 +74,7 @@ export default async function EliteIndexPage() {
             key={item.title}
             title={item.title}
             value={item.result.score.toFixed(1)}
-            detail={item.result.factors[0]?.label}
+            detail={t(item.result.factors[0]?.label as never) ?? item.result.factors[0]?.label}
             icon={item.icon}
             tone={item.tone}
           />
