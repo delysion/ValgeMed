@@ -11,6 +11,7 @@ export const en = {
 
   "nav.command": "Command",
   "nav.dashboard": "Dashboard",
+  "nav.timeline": "Timeline",
   "nav.eliteIndex": "Elite Index",
   "nav.subjects": "Subjects",
   "nav.exams": "Exams",
@@ -31,6 +32,7 @@ export const en = {
   "nav.lifeAdmin": "Life Admin",
   "nav.strategicReview": "Strategic Review",
   "nav.portfolio": "Portfolio",
+  "nav.memory": "Memory",
   "nav.ai": "AI",
   "nav.settings": "Settings",
 
@@ -105,6 +107,12 @@ export const en = {
   "command.noLifeFriction": "No open life friction.",
   "command.oneCleanBlock": "One clean block can change the week.",
   "command.weakTopicTarget": "A weak topic is not a weakness. It is a target.",
+  "command.todayFocus": "Today Focus",
+  "command.weeklyCommand": "Weekly Command",
+  "command.signals": "Signals",
+  "command.intelligence": "Intelligence",
+  "command.examCountdown": "Exam Countdown",
+  "command.focusTimer": "Focus Timer",
 
   "dashboard.title": "Dashboard",
   "dashboard.subtitle": "Weekly trajectory, readiness, errors, reviews and energy infrastructure.",

@@ -13,6 +13,7 @@ export const et: Dictionary = {
 
   "nav.command": "Juhtpaneel",
   "nav.dashboard": "Ülevaade",
+  "nav.timeline": "Ajajoon",
   "nav.eliteIndex": "Eliitindeks",
   "nav.subjects": "Ained",
   "nav.exams": "Eksamid",
@@ -33,6 +34,7 @@ export const et: Dictionary = {
   "nav.lifeAdmin": "Elukorraldus",
   "nav.strategicReview": "Strateegiline ülevaade",
   "nav.portfolio": "Portfoolio",
+  "nav.memory": "Mälu",
   "nav.ai": "AI",
   "nav.settings": "Seaded",
 
@@ -107,6 +109,12 @@ export const et: Dictionary = {
   "command.noLifeFriction": "Avatud elulist hõõrdumist ei ole.",
   "command.oneCleanBlock": "Üks selge õpiblokk võib muuta kogu nädala.",
   "command.weakTopicTarget": "Nõrk teema ei ole nõrkus. See on sihtmärk.",
+  "command.todayFocus": "Tänane fookus",
+  "command.weeklyCommand": "Nädala juhtimine",
+  "command.signals": "Signaalid",
+  "command.intelligence": "Luure",
+  "command.examCountdown": "Eksami loendur",
+  "command.focusTimer": "Fookuse taimer",
 
   "dashboard.title": "Ülevaade",
   "dashboard.subtitle": "Nädala trajektoor, valmisolek, vead, kordamised ja energia.",

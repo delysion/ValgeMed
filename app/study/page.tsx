@@ -3,9 +3,12 @@ import { Brain, Clock, Sparkles, Zap } from "lucide-react";
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { MethodPieChart, MinutesBarChart } from "@/components/charts/study-charts";
 import { StudySessionForm } from "@/components/forms/entity-forms";
+import { CollapsiblePanel } from "@/components/premium/collapsible-panel";
+import { FocusTimer } from "@/components/premium/focus-timer";
 import { GlassCard } from "@/components/premium/glass-card";
 import { MetricCard } from "@/components/premium/metric-card";
 import { MomentumBar } from "@/components/premium/momentum-bar";
+import { SectionHeader } from "@/components/premium/section-header";
 import { Badge } from "@/components/ui/badge";
 import { requireOwnerSession } from "@/lib/auth/session";
 import { getCoreData } from "@/lib/data/queries";
@@ -43,50 +46,62 @@ export default async function StudyPage({ searchParams }: { searchParams: Promis
   return (
     <AppShell session={session}>
       <PageHeader title={t("study.title")} description={t("study.subtitle")} />
-      <div className="grid gap-5 xl:grid-cols-[420px_1fr]">
-        <StudySessionForm session={editing} subjects={data.subjects} topics={data.topics} exams={data.exams} />
-        <div className="space-y-5">
-          <div className="grid gap-4 md:grid-cols-4">
-            <MetricCard title={t("study.activeRecall")} value={activeMinutes} detail={t("common.minutes")} icon={Brain} tone="cyan" />
-            <MetricCard title={t("study.passive")} value={passiveMinutes} detail={t("common.minutes")} icon={Clock} tone="violet" />
-            <MetricCard title={t("gamification.momentum")} value={`${activeRatio.toFixed(0)}%`} detail={t("achievement.activeRecallShift")} icon={Zap} tone={activeRatio >= 55 ? "emerald" : "gold"} />
-            <MetricCard title={t("study.weeklyOutput")} value={totalMinutes} detail={t("common.protectEnergy")} icon={Sparkles} tone="rose" />
-          </div>
+      <div className="space-y-5">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <MetricCard title={t("study.activeRecall")} value={activeMinutes} detail={t("common.minutes")} icon={Brain} tone="cyan" />
+          <MetricCard title={t("study.passive")} value={passiveMinutes} detail={t("common.minutes")} icon={Clock} tone="violet" />
+          <MetricCard title={t("gamification.momentum")} value={`${activeRatio.toFixed(0)}%`} detail={t("achievement.activeRecallShift")} icon={Zap} tone={activeRatio >= 55 ? "emerald" : "gold"} />
+          <MetricCard title={t("study.weeklyOutput")} value={totalMinutes} detail={t("common.protectEnergy")} icon={Sparkles} tone="rose" />
+        </div>
 
-          <GlassCard tone="cyan">
-            <div className="mb-5 flex items-center justify-between gap-4">
-              <h3 className="text-xl font-semibold text-white">{t("study.weeklyOutput")}</h3>
-              <Badge>{activeRatio.toFixed(0)}%</Badge>
-            </div>
-            <div className="grid gap-5 xl:grid-cols-[1fr_320px]">
-              <MinutesBarChart data={dayTotals} />
-              <div className="space-y-4">
-                <MomentumBar label={t("study.activeRecall")} value={activeRatio} tone="cyan" />
-                <MomentumBar label={t("common.focus")} value={Math.min(100, data.studySessions[0]?.focusLevel ? data.studySessions[0].focusLevel * 10 : 0)} tone="violet" />
-                <MomentumBar label={t("common.output")} value={Math.min(100, data.studySessions[0]?.outputQuality ? data.studySessions[0].outputQuality * 10 : 0)} tone="emerald" />
+        <div className="grid gap-5 xl:grid-cols-[1fr_380px]">
+          <div className="space-y-5">
+            <GlassCard tone="cyan">
+              <SectionHeader title={t("study.weeklyOutput")} description={t("common.protectEnergy")} />
+              <div className="mt-5 grid gap-5 xl:grid-cols-[1fr_280px]">
+                <MinutesBarChart data={dayTotals} />
+                <div className="space-y-4">
+                  <MomentumBar label={t("study.activeRecall")} value={activeRatio} tone="cyan" />
+                  <MomentumBar label={t("common.focus")} value={Math.min(100, data.studySessions[0]?.focusLevel ? data.studySessions[0].focusLevel * 10 : 0)} tone="violet" />
+                  <MomentumBar label={t("common.output")} value={Math.min(100, data.studySessions[0]?.outputQuality ? data.studySessions[0].outputQuality * 10 : 0)} tone="emerald" />
+                </div>
               </div>
-            </div>
-          </GlassCard>
-
-          <div className="grid gap-5 xl:grid-cols-[320px_1fr]">
-            <GlassCard>
-              <h3 className="text-xl font-semibold text-white">{t("study.methodSelector")}</h3>
-              <MethodPieChart data={methodTotals} />
             </GlassCard>
+
             <GlassCard>
-              <h3 className="text-xl font-semibold text-white">{t("study.sessionHistory")}</h3>
-              <div className="mt-4 grid gap-3 md:grid-cols-2">
-                {data.studySessions.slice(0, 10).map((item) => (
-                  <div key={item.id} className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="font-medium text-white">{subjectById.get(item.subjectId)?.name ?? t("common.subject")}</p>
-                        <p className="mt-1 text-xs text-muted">{fmtDate(item.startedAt)} - {humanize(item.method)}</p>
+              <SectionHeader title={t("study.sessionHistory")} />
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                {data.studySessions.slice(0, 8).map((item) => (
+                  <div key={item.id} className="rounded-xl border border-white/10 bg-white/[0.03] p-3.5 transition hover:bg-white/[0.05]">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="truncate font-medium text-sm text-white">{subjectById.get(item.subjectId)?.name ?? t("common.subject")}</p>
+                        <p className="mt-0.5 text-xs text-muted">{fmtDate(item.startedAt)} · {humanize(item.method)}</p>
                       </div>
-                      <Badge variant={activeMethods.has(item.method) ? "success" : "muted"}>{item.durationMinutes}</Badge>
+                      <Badge variant={activeMethods.has(item.method) ? "success" : "muted"} className="shrink-0 text-[10px]">{item.durationMinutes}m</Badge>
                     </div>
                   </div>
                 ))}
+              </div>
+            </GlassCard>
+          </div>
+
+          <div className="space-y-5">
+            <GlassCard>
+              <SectionHeader title={t("study.quickStart")} />
+              <div className="mt-4">
+                <StudySessionForm session={editing} subjects={data.subjects} topics={data.topics} exams={data.exams} />
+              </div>
+            </GlassCard>
+
+            <CollapsiblePanel title={t("command.focusTimer")} defaultOpen>
+              <FocusTimer />
+            </CollapsiblePanel>
+
+            <GlassCard>
+              <SectionHeader title={t("study.methodSelector")} />
+              <div className="mt-4">
+                <MethodPieChart data={methodTotals} />
               </div>
             </GlassCard>
           </div>

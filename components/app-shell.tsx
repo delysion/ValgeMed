@@ -23,6 +23,7 @@ import {
   Radar,
   Settings,
   Target,
+  Timeline,
   UserRound,
 } from "lucide-react";
 
@@ -38,6 +39,7 @@ import type { TranslationKey } from "@/lib/i18n/dictionaries/en";
 const navItems: Array<{ href: string; label: TranslationKey; icon: typeof Command; featured?: boolean }> = [
   { href: "/command", label: "nav.command", icon: Command, featured: true },
   { href: "/dashboard", label: "nav.dashboard", icon: LayoutDashboard },
+  { href: "/timeline", label: "nav.timeline", icon: Timeline },
   { href: "/elite-index", label: "nav.eliteIndex", icon: BarChart3 },
   { href: "/subjects", label: "nav.subjects", icon: ClipboardList },
   { href: "/exams", label: "nav.exams", icon: GraduationCap },
@@ -46,6 +48,7 @@ const navItems: Array<{ href: string; label: TranslationKey; icon: typeof Comman
   { href: "/reviews", label: "nav.reviews", icon: CalendarDays },
   { href: "/errors", label: "nav.errors", icon: CircleAlert },
   { href: "/goals", label: "nav.goals", icon: Target },
+  { href: "/memory", label: "nav.memory", icon: FolderOpen },
   { href: "/identity", label: "nav.identity", icon: UserRound },
   { href: "/tartu", label: "nav.tartu", icon: MapPin },
   { href: "/time", label: "nav.time", icon: Clock },

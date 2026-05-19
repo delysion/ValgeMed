@@ -7,8 +7,8 @@ import { MetricBarChart, MethodPieChart, MinutesBarChart } from "@/components/ch
 import { GlassCard } from "@/components/premium/glass-card";
 import { MetricCard } from "@/components/premium/metric-card";
 import { MomentumBar } from "@/components/premium/momentum-bar";
+import { SectionHeader } from "@/components/premium/section-header";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireOwnerSession } from "@/lib/auth/session";
 import { getDashboardData } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server";
@@ -22,7 +22,7 @@ export default async function DashboardPage() {
   const { t } = await getI18n();
   const data = await getDashboardData();
   const burnoutRisk = buildBurnoutRiskFromLogs(data.dailyLogs, data.quizAttempts);
-  const efficiency = buildStudyEfficiency({
+  buildStudyEfficiency({
     sessions: data.studySessions,
     dailyLogs: data.dailyLogs,
     quizAttempts: data.quizAttempts,
@@ -71,7 +71,7 @@ export default async function DashboardPage() {
     <AppShell session={session}>
       <PageHeader title={t("dashboard.title")} description={t("dashboard.subtitle")} eyebrow={t("common.quietProgress")} />
 
-      <div className="grid gap-4 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <MetricCard title={t("dashboard.studyThisWeek")} value={studyMinutesThisWeek} detail={t("common.minutes")} icon={TimerReset} tone="cyan" />
         <MetricCard title={t("dashboard.dueReviews")} value={data.reviewItems.length} detail={t("reviews.subtitle")} icon={RotateCw} tone="violet" />
         <MetricCard title={t("dashboard.openErrors")} value={openErrors.length} detail={t("errors.subtitle")} icon={ShieldCheck} tone={openErrors.length > 0 ? "danger" : "emerald"} />
@@ -81,14 +81,8 @@ export default async function DashboardPage() {
       <div className="mt-5 grid gap-5 xl:grid-cols-[1.15fr_0.85fr]">
         <div className="space-y-5">
           <GlassCard tone="cyan">
-            <div className="mb-5 flex items-center justify-between gap-4">
-              <div>
-                <h3 className="text-xl font-semibold text-white">{t("dashboard.weeklyTrajectory")}</h3>
-                <p className="mt-1 text-sm text-muted">{t("common.protectEnergy")}</p>
-              </div>
-              <Badge>{efficiency.score.toFixed(1)}/10</Badge>
-            </div>
-            <div className="grid gap-5 lg:grid-cols-[1fr_340px]">
+            <SectionHeader title={t("dashboard.weeklyTrajectory")} description={t("common.protectEnergy")} />
+            <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_280px]">
               <MinutesBarChart data={minutesChart} />
               <div className="space-y-4">
                 <MomentumBar label={t("gamification.weeklyMomentum")} value={Math.min(100, studyMinutesThisWeek / 6)} tone="cyan" />
@@ -98,41 +92,35 @@ export default async function DashboardPage() {
             </div>
           </GlassCard>
 
-          <div className="grid gap-5 xl:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>{t("dashboard.examReadiness")}</CardTitle>
-                <CardDescription>{t("common.strategicSignal")}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <MetricBarChart data={readinessChart} dataKey="readiness" domain={[0, 10]} />
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle>{t("dashboard.activeVsPassive")}</CardTitle>
-                <CardDescription>{`${activeMinutes} / ${passiveMinutes}`}</CardDescription>
-              </CardHeader>
-              <CardContent>
+          <div className="grid gap-5 sm:grid-cols-2">
+            <GlassCard>
+              <SectionHeader title={t("dashboard.examReadiness")} description={t("common.strategicSignal")} />
+              <div className="mt-4">
+                {readinessChart.length > 0 ? <MetricBarChart data={readinessChart} dataKey="readiness" domain={[0, 10]} /> : <p className="text-sm text-muted">{t("common.noData")}</p>}
+              </div>
+            </GlassCard>
+            <GlassCard>
+              <SectionHeader title={t("dashboard.activeVsPassive")} description={`${activeMinutes} / ${passiveMinutes}`} />
+              <div className="mt-4">
                 {methodChart.length ? <MethodPieChart data={methodChart} /> : <p className="text-sm text-muted">{t("common.noData")}</p>}
-              </CardContent>
-            </Card>
+              </div>
+            </GlassCard>
           </div>
         </div>
 
         <div className="space-y-5">
           <GlassCard tone="gold">
-            <h3 className="text-xl font-semibold text-white">{t("dashboard.upcomingRisks")}</h3>
-            <div className="mt-4 space-y-3">
+            <SectionHeader title={t("dashboard.upcomingRisks")} />
+            <div className="mt-4 space-y-2">
               {examsWithReadiness.slice(0, 4).map((exam) => (
-                <Link key={exam.id} href={`/exams/${exam.id}`} className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.045] p-4 transition hover:bg-white/[0.07]">
-                  <div>
-                    <p className="font-medium text-white">{exam.title}</p>
-                    <p className="mt-1 text-xs text-muted">
-                      {fmtDate(exam.examDate)} {exam.examDate ? `(${differenceInCalendarDays(exam.examDate, startOfToday())})` : ""}
+                <Link key={exam.id} href={`/exams/${exam.id}`} className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-3.5 transition hover:bg-white/[0.05]">
+                  <div className="min-w-0">
+                    <p className="truncate font-medium text-sm text-white">{exam.title}</p>
+                    <p className="mt-0.5 text-xs text-muted">
+                      {fmtDate(exam.examDate)} {exam.examDate ? `· ${differenceInCalendarDays(exam.examDate, startOfToday())}d` : ""}
                     </p>
                   </div>
-                  <Badge variant={exam.liveReadiness < 5 ? "danger" : "gold"}>{exam.liveReadiness.toFixed(1)}</Badge>
+                  <Badge variant={exam.liveReadiness < 5 ? "danger" : "gold"} className="shrink-0 text-[10px]">{exam.liveReadiness.toFixed(1)}</Badge>
                 </Link>
               ))}
               {examsWithReadiness.length === 0 ? <p className="text-sm text-muted">{t("common.empty")}</p> : null}
@@ -140,15 +128,15 @@ export default async function DashboardPage() {
           </GlassCard>
 
           <GlassCard>
-            <h3 className="text-xl font-semibold text-white">{t("dashboard.weakTopics")}</h3>
-            <div className="mt-4 space-y-3">
+            <SectionHeader title={t("dashboard.weakTopics")} />
+            <div className="mt-4 space-y-2">
               {weakTopics.map((topic) => (
-                <Link key={topic.id} href="/topics" className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-4 transition hover:bg-white/[0.07]">
-                  <div>
-                    <p className="font-medium text-white">{topic.title}</p>
-                    <p className="mt-1 text-xs text-muted">{t("common.confidence")} {topic.confidence}/10</p>
+                <Link key={topic.id} href="/topics" className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-3.5 transition hover:bg-white/[0.05]">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm text-white">{topic.title}</p>
+                    <p className="mt-0.5 text-xs text-muted">{t("common.confidence")} {topic.confidence}/10</p>
                   </div>
-                  <ArrowRight className="h-4 w-4 text-muted" />
+                  <ArrowRight className="h-4 w-4 shrink-0 text-muted" />
                 </Link>
               ))}
             </div>
@@ -157,9 +145,9 @@ export default async function DashboardPage() {
           <GlassCard tone="emerald">
             <div className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-emerald" />
-              <h3 className="text-xl font-semibold text-white">{t("dashboard.recentWins")}</h3>
+              <h3 className="text-base font-semibold text-white">{t("dashboard.recentWins")}</h3>
             </div>
-            <div className="mt-4 flex flex-wrap gap-2">
+            <div className="mt-3 flex flex-wrap gap-2">
               {recentWins.length ? recentWins.map((win) => <Badge key={win} variant="success">{win}</Badge>) : <Badge variant="muted">{t("common.noData")}</Badge>}
             </div>
           </GlassCard>
