@@ -64,7 +64,45 @@ const navItems: Array<{ href: string; label: TranslationKey; icon: typeof Comman
   { href: "/settings", label: "nav.settings", icon: Settings },
 ];
 
-function Navigation({ t }: { t: (key: TranslationKey) => string }) {
+const navSections: Array<{ label: string; items: typeof navItems }> = [
+  { label: "Core", items: navItems.slice(0, 4) },
+  { label: "Study", items: navItems.slice(4, 10) },
+  { label: "Life", items: navItems.slice(10, 17) },
+  { label: "Strategy", items: navItems.slice(17) },
+];
+
+function Navigation({ t, compact = false }: { t: (key: TranslationKey) => string; compact?: boolean }) {
+  if (compact) {
+    return (
+      <nav className="grid gap-5 pb-8">
+        {navSections.map((section) => (
+          <div key={section.label}>
+            <p className="mb-1.5 text-[0.6rem] font-semibold uppercase tracking-[0.18em] text-muted-2">{section.label}</p>
+            <div className="grid gap-0.5">
+              {section.items.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={
+                      item.featured
+                        ? "group flex items-center gap-3 rounded-lg border border-cyan/15 bg-cyan/8 px-3 py-2.5 text-sm font-medium text-cyan shadow-[0_0_20px_rgba(124,175,214,0.06)] transition hover:bg-cyan/12"
+                        : "group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted transition hover:bg-white/[0.04] hover:text-white"
+                    }
+                  >
+                    <Icon className="h-4 w-4 shrink-0 transition group-hover:scale-105" />
+                    <span className="truncate">{t(item.label)}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </nav>
+    );
+  }
+
   return (
     <nav className="grid gap-1 pb-8">
       {navItems.map((item) => {
@@ -110,23 +148,23 @@ export async function AppShell({
         </aside>
 
         <div className="lg:pl-64">
-          <header className="sticky top-0 z-30 flex min-h-14 items-center justify-between gap-3 border-b border-white/[0.06] bg-background/80 px-4 py-2.5 backdrop-blur-2xl lg:px-6">
-            <div className="flex min-w-0 items-center gap-3">
+          <header className="sticky top-0 z-30 flex min-h-14 items-center justify-between gap-3 border-b border-white/[0.06] bg-background/80 px-3 py-2 backdrop-blur-2xl sm:px-4 lg:px-6">
+            <div className="flex min-w-0 items-center gap-2.5">
               <Sheet>
                 <SheetTrigger asChild>
-                  <Button variant="outline" size="icon" className="lg:hidden" aria-label={t("nav.command")}>
+                  <Button variant="outline" size="icon" className="lg:hidden h-9 w-9" aria-label="Menu">
                     <ClipboardList className="h-4 w-4" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent className="left-0 right-auto border-l-0 border-r">
-                  <div className="mb-6 rounded-xl border border-white/[0.06] bg-white/[0.03] p-4">
+                <SheetContent className="left-0 right-auto w-[min(90vw,300px)] border-l-0 border-r bg-[#0B1F33]/95">
+                  <div className="mb-4 rounded-xl border border-white/[0.06] bg-white/[0.03] p-4">
                     <p className="text-[10px] uppercase tracking-[0.16em] text-muted">{t("app.privateConsole")}</p>
                     <h2 className="mt-1.5 text-lg font-semibold text-white">{t("app.name")}</h2>
-                    <div className="mt-4">
+                    <div className="mt-3">
                       <LanguageSelector current={locale} label={t("language.label")} />
                     </div>
                   </div>
-                  <Navigation t={t} />
+                  <Navigation t={t} compact />
                 </SheetContent>
               </Sheet>
               <div className="min-w-0">
@@ -152,7 +190,7 @@ export async function AppShell({
               </form>
             </div>
           </header>
-          <main className="mx-auto w-full max-w-[1440px] px-4 py-5 sm:px-5 lg:px-6">{children}</main>
+          <main className="mx-auto w-full max-w-[1440px] px-3 py-4 sm:px-5 sm:py-5 lg:px-6">{children}</main>
         </div>
       </div>
     </TranslationProvider>
@@ -171,11 +209,11 @@ export function PageHeader({
   eyebrow?: string;
 }) {
   return (
-    <div className="motion-premium mb-5 flex flex-col gap-3 rounded-xl border border-white/[0.06] bg-white/[0.02] p-5 shadow-[var(--ring-soft)] backdrop-blur-xl md:flex-row md:items-end md:justify-between">
+    <div className="motion-premium mb-4 flex flex-col gap-2.5 rounded-xl border border-white/[0.06] bg-white/[0.02] p-4 shadow-[var(--ring-soft)] backdrop-blur-xl sm:mb-5 sm:p-5 md:flex-row md:items-end md:justify-between">
       <div>
-        {eyebrow ? <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-cyan">{eyebrow}</p> : null}
-        <h2 className="text-balance text-2xl font-semibold tracking-tight text-white md:text-3xl">{title}</h2>
-        {description ? <p className="mt-1.5 max-w-3xl text-sm leading-6 text-muted md:text-base">{description}</p> : null}
+        {eyebrow ? <p className="mb-1 text-[9px] font-semibold uppercase tracking-[0.16em] text-cyan sm:text-[10px]">{eyebrow}</p> : null}
+        <h2 className="text-balance text-xl font-semibold tracking-tight text-white sm:text-2xl md:text-3xl">{title}</h2>
+        {description ? <p className="mt-1 max-w-3xl text-xs leading-5 text-muted sm:text-sm sm:leading-6 md:text-base">{description}</p> : null}
       </div>
       {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
     </div>

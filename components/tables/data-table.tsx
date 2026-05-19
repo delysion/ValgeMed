@@ -67,41 +67,68 @@ export function DataTable({
   });
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-white/10">
-      <table className="w-full min-w-[680px] border-collapse text-sm">
-        <thead className="bg-white/[0.04]">
-          {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <th key={header.id} className="px-3 py-2 text-left font-medium text-muted">
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(header.column.columnDef.header, header.getContext())}
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody>
-          {table.getRowModel().rows.length ? (
-            table.getRowModel().rows.map((row) => (
-              <tr key={row.id} className="border-t border-white/10">
+    <div>
+      <div className="grid gap-3 md:hidden">
+        {table.getRowModel().rows.length === 0 ? (
+          <div className="rounded-3xl border border-dashed border-white/10 bg-white/[0.035] p-6 text-center text-sm text-muted">
+            {labels.empty}
+          </div>
+        ) : (
+          table.getRowModel().rows.map((row) => (
+            <article key={row.id} className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
+              <div className="space-y-2">
                 {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className="px-3 py-2 text-muted">
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
+                  <div key={cell.id}>
+                    <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-muted-2">
+                      {cell.column.columnDef.header as string}
+                    </p>
+                    <div className="mt-0.5 text-sm text-white">
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </article>
+          ))
+        )}
+      </div>
+
+      <div className="hidden overflow-x-auto rounded-2xl border border-white/10 md:block">
+        <table className="w-full min-w-[680px] border-collapse text-sm">
+          <thead className="bg-white/[0.04]">
+            {table.getHeaderGroups().map((headerGroup) => (
+              <tr key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <th key={header.id} className="px-3 py-2 text-left font-medium text-muted">
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(header.column.columnDef.header, header.getContext())}
+                  </th>
                 ))}
               </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan={columns.length} className="px-3 py-8 text-center text-muted">
-                {labels.empty}
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+            ))}
+          </thead>
+          <tbody>
+            {table.getRowModel().rows.length ? (
+              table.getRowModel().rows.map((row) => (
+                <tr key={row.id} className="border-t border-white/10">
+                  {row.getVisibleCells().map((cell) => (
+                    <td key={cell.id} className="px-3 py-2 text-muted">
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </td>
+                  ))}
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={columns.length} className="px-3 py-8 text-center text-muted">
+                  {labels.empty}
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

@@ -45,7 +45,7 @@ export default async function AiPage() {
           <p className="mt-5 text-sm leading-6 text-muted">{t("ai.warning")}</p>
           <div className="mt-6 grid gap-3 sm:grid-cols-2">
             <MetricCard title={t("language.label")} value={locale.toUpperCase()} detail={t("ai.promptRule")} icon={LockKeyhole} tone="gold" />
-            <MetricCard title={t("settings.privacy")} value="Local" detail="No automatic cloud transfer" icon={LockKeyhole} tone="emerald" />
+            <MetricCard title={t("settings.privacy")} value={t("ai.packetMode")} detail={t("ai.warning")} icon={LockKeyhole} tone="emerald" />
           </div>
         </GlassCard>
 

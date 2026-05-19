@@ -1,6 +1,7 @@
 import { Edit3, Trash2 } from "lucide-react";
 import type React from "react";
 
+import { EmptyState } from "@/components/premium/empty-state";
 import { Button } from "@/components/ui/button";
 
 export function ResourceTable<T extends { id: string }>({
@@ -11,6 +12,7 @@ export function ResourceTable<T extends { id: string }>({
   deleteAction,
   extraActions,
   labels = { actions: "Actions", empty: "No data yet.", edit: "Edit", delete: "Delete" },
+  emptyState,
 }: {
   rows: T[];
   columns: Array<{
@@ -27,14 +29,24 @@ export function ResourceTable<T extends { id: string }>({
     edit: string;
     delete: string;
   };
+  emptyState?: {
+    title: string;
+    description: string;
+    actionLabel?: string;
+    href?: string;
+  };
 }) {
   return (
     <div>
       <div className="grid gap-3 md:hidden">
         {rows.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-white/10 bg-white/[0.035] p-6 text-center text-sm text-muted">
-            {labels.empty}
-          </div>
+          emptyState ? (
+            <EmptyState title={emptyState.title} description={emptyState.description} actionLabel={emptyState.actionLabel} href={emptyState.href} />
+          ) : (
+            <div className="rounded-3xl border border-dashed border-white/10 bg-white/[0.035] p-6 text-center text-sm text-muted">
+              {labels.empty}
+            </div>
+          )
         ) : (
           rows.map((row) => (
             <article key={row.id} className="rounded-3xl border border-white/10 bg-white/[0.045] p-4 shadow-[var(--ring-soft)]">
@@ -82,8 +94,12 @@ export function ResourceTable<T extends { id: string }>({
         <tbody>
           {rows.length === 0 ? (
             <tr>
-              <td colSpan={columns.length + 1} className="px-3 py-8 text-center text-muted">
-                {labels.empty}
+              <td colSpan={columns.length + 1} className="px-3 py-8">
+                {emptyState ? (
+                  <EmptyState title={emptyState.title} description={emptyState.description} actionLabel={emptyState.actionLabel} href={emptyState.href} />
+                ) : (
+                  <p className="text-center text-muted">{labels.empty}</p>
+                )}
               </td>
             </tr>
           ) : (

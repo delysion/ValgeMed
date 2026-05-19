@@ -31,7 +31,7 @@ export default async function ExamCommandCenter({ params }: { params: Promise<{ 
   if (!exam) {
     return (
       <AppShell session={session}>
-        <PageHeader title="Exam not found" />
+        <PageHeader title={t("examRoom.notFound")} />
         <Button asChild variant="outline">
           <Link href="/exams">{t("common.back")}</Link>
         </Button>

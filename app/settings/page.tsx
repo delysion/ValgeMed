@@ -27,7 +27,7 @@ export default async function SettingsPage() {
           <Database className="h-5 w-5 text-cyan" />
           <h3 className="mt-4 text-xl font-semibold text-white">{t("settings.database")}</h3>
           <Badge className="mt-4" variant={dbStatus.configured ? "success" : "danger"}>
-            {dbStatus.configured ? "configured" : "missing DATABASE_URL"}
+            {dbStatus.configured ? t("settings.configured") : t("settings.missingDb")}
           </Badge>
           <p className="mt-3 text-sm text-muted">{dbStatus.provider}</p>
         </GlassCard>
@@ -66,10 +66,10 @@ export default async function SettingsPage() {
       </div>
 
       <div className="mt-5 grid gap-5 xl:grid-cols-4">
-        <WeightCard title="Exam readiness" weights={readinessWeights} />
-        <WeightCard title="Study efficiency" weights={efficiencyWeights} />
-        <WeightCard title="Burnout" weights={burnoutWeights} />
-        <WeightCard title="Elite Index" weights={eliteIndexWeights} />
+        <WeightCard title={t("settings.weightExam")} weights={readinessWeights} />
+        <WeightCard title={t("settings.weightEfficiency")} weights={efficiencyWeights} />
+        <WeightCard title={t("settings.weightBurnout")} weights={burnoutWeights} />
+        <WeightCard title={t("settings.weightElite")} weights={eliteIndexWeights} />
       </div>
     </AppShell>
   );

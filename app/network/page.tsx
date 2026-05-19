@@ -33,8 +33,8 @@ export default async function NetworkPage({ searchParams }: { searchParams: Prom
       <Tabs defaultValue="contacts" className="space-y-5">
         <TabsList className="bg-white/[0.04]">
           <TabsTrigger value="contacts">{t("network.title")}</TabsTrigger>
-          <TabsTrigger value="followups">Follow-ups</TabsTrigger>
-          <TabsTrigger value="pipeline">Pipeline</TabsTrigger>
+          <TabsTrigger value="followups">{t("network.followupQueue")}</TabsTrigger>
+          <TabsTrigger value="pipeline">{t("network.pipeline")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="contacts" className="space-y-5">
@@ -44,7 +44,7 @@ export default async function NetworkPage({ searchParams }: { searchParams: Prom
                 <ProfessionalContactForm contact={editing} />
               ) : (
                 <GlassCard>
-                  <SectionHeader title="Add Contact" description="Strategic network entry" />
+                  <SectionHeader title={t("network.addContact")} description={t("network.contactDesc")} />
                   <div className="mt-4">
                     <ProfessionalContactForm />
                   </div>
@@ -55,7 +55,7 @@ export default async function NetworkPage({ searchParams }: { searchParams: Prom
             <div className="space-y-5">
               {strongContacts.length > 0 && (
                 <GlassCard>
-                  <SectionHeader title="Key Contacts" description="Strongest relationships" />
+                  <SectionHeader title={t("network.keyContacts")} description={t("network.strongRelationships")} />
                   <div className="mt-4 grid gap-3 sm:grid-cols-2">
                     {strongContacts.map((contact) => (
                       <ContactCard key={contact.id} contact={contact} />
@@ -65,7 +65,7 @@ export default async function NetworkPage({ searchParams }: { searchParams: Prom
               )}
 
               <GlassCard>
-                <SectionHeader title="All Contacts" description={`${data.professionalContacts.length} total`} />
+                <SectionHeader title={t("network.allContacts")} description={`${data.professionalContacts.length} ${t("network.total")}`} />
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
                   {data.professionalContacts.map((contact) => (
                     <ContactCard key={contact.id} contact={contact} />
@@ -78,21 +78,21 @@ export default async function NetworkPage({ searchParams }: { searchParams: Prom
 
         <TabsContent value="followups">
           <GlassCard>
-            <SectionHeader title="Follow-up Queue" description={`${followUps.length} pending`} />
+            <SectionHeader title={t("network.followupQueue")} description={`${followUps.length} ${t("network.pending")}`} />
             <div className="mt-4 grid gap-2 sm:grid-cols-2">
               {followUps.map((contact) => (
                 <FollowUpItem key={contact.id} contact={contact} />
               ))}
             </div>
             {followUps.length === 0 && (
-              <p className="mt-4 text-center text-sm text-muted">No pending follow-ups.</p>
+              <p className="mt-4 text-center text-sm text-muted">{t("network.noFollowups")}</p>
             )}
           </GlassCard>
         </TabsContent>
 
         <TabsContent value="pipeline">
           <GlassCard>
-            <SectionHeader title="Opportunity Pipeline" description={t("opportunities.subtitle")} />
+            <SectionHeader title={t("network.pipeline")} description={t("opportunities.subtitle")} />
             <div className="mt-4">
               <OpportunityPipeline opportunities={data.opportunities} />
             </div>

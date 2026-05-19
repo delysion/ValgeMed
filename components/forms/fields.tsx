@@ -122,16 +122,18 @@ export function NativeSelectField({
 export function SubmitBar({
   label,
   cancelHref,
+  cancelLabel = "Cancel",
 }: {
   label: string;
   cancelHref?: string;
+  cancelLabel?: string;
 }) {
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <Button type="submit">{label}</Button>
+      <Button type="submit" className="min-h-[44px]">{label}</Button>
       {cancelHref ? (
-        <Button asChild type="button" variant="ghost">
-          <a href={cancelHref}>Cancel</a>
+        <Button asChild type="button" variant="ghost" className="min-h-[44px]">
+          <a href={cancelHref}>{cancelLabel}</a>
         </Button>
       ) : null}
     </div>

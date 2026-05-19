@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireOwnerSession } from "@/lib/auth/session";
 import { getCoreData } from "@/lib/data/queries";
+import { getI18n } from "@/lib/i18n/server";
 import { fmtDate, humanize } from "@/lib/labels";
 import { buildMedicalMasteryScore } from "@/lib/scoring/engine";
 
@@ -20,6 +21,7 @@ export default async function SubjectCommandCenterPage({
   params: Promise<{ id: string }>;
 }) {
   const session = await requireOwnerSession();
+  const { t } = await getI18n();
   const { id } = await params;
   const data = await getCoreData();
   const subject = data.subjects.find((item) => item.id === id);
@@ -56,10 +58,10 @@ export default async function SubjectCommandCenterPage({
     <AppShell session={session}>
       <PageHeader
         title={subject.name}
-        description="Subject command center: mastery, weak topics, review due, open errors and next best topic."
+        description={t("subjectCmd.description")}
         actions={
           <Button asChild variant="outline">
-            <Link href="/subjects">Back</Link>
+            <Link href="/subjects">{t("subjectCmd.back")}</Link>
           </Button>
         }
       />
@@ -69,7 +71,7 @@ export default async function SubjectCommandCenterPage({
           <div className="grid gap-3 md:grid-cols-4">
             <Card>
               <CardHeader>
-                <CardTitle>Topics</CardTitle>
+                <CardTitle>{t("subjectCmd.topics")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="font-mono text-3xl text-white">{subjectTopics.length}</p>
@@ -77,7 +79,7 @@ export default async function SubjectCommandCenterPage({
             </Card>
             <Card>
               <CardHeader>
-                <CardTitle>Reviews due</CardTitle>
+                <CardTitle>{t("subjectCmd.reviewsDue")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="font-mono text-3xl text-white">{subjectReviews.length}</p>
@@ -85,7 +87,7 @@ export default async function SubjectCommandCenterPage({
             </Card>
             <Card>
               <CardHeader>
-                <CardTitle>Open errors</CardTitle>
+                <CardTitle>{t("subjectCmd.openErrors")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="font-mono text-3xl text-white">{subjectErrors.length}</p>
@@ -93,7 +95,7 @@ export default async function SubjectCommandCenterPage({
             </Card>
             <Card>
               <CardHeader>
-                <CardTitle>Quiz avg</CardTitle>
+                <CardTitle>{t("subjectCmd.quizAvg")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="font-mono text-3xl text-white">{quizAverage.toFixed(0)}%</p>
@@ -103,8 +105,8 @@ export default async function SubjectCommandCenterPage({
 
           <Card>
             <CardHeader>
-              <CardTitle>Weak topics</CardTitle>
-              <CardDescription>{nextTopic ? `Next best topic: ${nextTopic.title}` : "Add topics to activate subject guidance."}</CardDescription>
+              <CardTitle>{t("subjectCmd.weakTopics")}</CardTitle>
+              <CardDescription>{nextTopic ? `${t("subjectCmd.nextTopic")}: ${nextTopic.title}` : t("subjectCmd.addTopics")}</CardDescription>
             </CardHeader>
             <CardContent>
               <DataTable
@@ -116,11 +118,11 @@ export default async function SubjectCommandCenterPage({
                   nextReview: fmtDate(topic.nextReviewAt),
                 }))}
                 columns={[
-                  { key: "topic", header: "Topic" },
-                  { key: "status", header: "Status" },
-                  { key: "confidence", header: "Confidence" },
-                  { key: "priority", header: "Priority" },
-                  { key: "nextReview", header: "Next review" },
+                  { key: "topic", header: t("subjectCmd.topics") },
+                  { key: "status", header: t("common.status") },
+                  { key: "confidence", header: t("common.confidence") },
+                  { key: "priority", header: t("common.priority") },
+                  { key: "nextReview", header: t("common.nextReview") },
                 ]}
               />
             </CardContent>
@@ -128,7 +130,7 @@ export default async function SubjectCommandCenterPage({
 
           <Card>
             <CardHeader>
-              <CardTitle>Open errors</CardTitle>
+              <CardTitle>{t("subjectCmd.openErrors")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               {subjectErrors.slice(0, 6).map((error) => (
@@ -140,7 +142,7 @@ export default async function SubjectCommandCenterPage({
                   <p className="mt-1 text-sm text-muted">{error.preventionRule ?? error.correction ?? error.description}</p>
                 </div>
               ))}
-              {subjectErrors.length === 0 ? <p className="text-sm text-muted">No open errors for this subject.</p> : null}
+              {subjectErrors.length === 0 ? <p className="text-sm text-muted">{t("subjectCmd.noErrors")}</p> : null}
             </CardContent>
           </Card>
         </div>
@@ -148,8 +150,8 @@ export default async function SubjectCommandCenterPage({
         <div className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Medical mastery</CardTitle>
-              <CardDescription>Local signal, not objective truth.</CardDescription>
+              <CardTitle>{t("subjectCmd.mastery")}</CardTitle>
+              <CardDescription>{t("subjectCmd.masteryNote")}</CardDescription>
             </CardHeader>
             <CardContent>
               <ScoreBreakdown result={mastery} compact />
@@ -157,24 +159,24 @@ export default async function SubjectCommandCenterPage({
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle>Subject pulse</CardTitle>
+              <CardTitle>{t("subjectCmd.pulse")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-sm text-muted">
               <div className="flex items-center justify-between border-b border-white/10 pb-2">
-                <span>Difficulty</span>
+                <span>{t("subjectCmd.difficulty")}</span>
                 <Badge variant="muted">{subject.difficulty}/10</Badge>
               </div>
               <div className="flex items-center justify-between border-b border-white/10 pb-2">
-                <span>Importance</span>
+                <span>{t("subjectCmd.importance")}</span>
                 <Badge>{subject.importance}/10</Badge>
               </div>
               <div className="flex items-center justify-between border-b border-white/10 pb-2">
-                <span>Last active recall</span>
+                <span>{t("subjectCmd.lastRecall")}</span>
                 <span>{fmtDate(lastRecall?.startedAt)}</span>
               </div>
               <div>
-                <p className="text-xs uppercase tracking-[0.12em] text-muted">Description</p>
-                <p className="mt-1">{subject.description ?? "No description."}</p>
+                <p className="text-xs uppercase tracking-[0.12em] text-muted">{t("subjectCmd.descLabel")}</p>
+                <p className="mt-1">{subject.description ?? t("subjectCmd.noDescription")}</p>
               </div>
             </CardContent>
           </Card>

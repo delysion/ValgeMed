@@ -7,11 +7,13 @@ import { SectionHeader } from "@/components/premium/section-header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { requireOwnerSession } from "@/lib/auth/session";
 import { getCoreData } from "@/lib/data/queries";
+import { getI18n } from "@/lib/i18n/server";
 
 export const dynamic = "force-dynamic";
 
 export default async function MemoryPage({ searchParams }: { searchParams: Promise<{ edit?: string; editTartu?: string }> }) {
   const session = await requireOwnerSession();
+  const { t } = await getI18n();
   const params = await searchParams;
   const data = await getCoreData();
   const editing = data.identityNotes.find((note) => note.id === params.edit);
@@ -19,20 +21,20 @@ export default async function MemoryPage({ searchParams }: { searchParams: Promi
 
   return (
     <AppShell session={session}>
-      <PageHeader title="Memory Vault" description="Private knowledge base: identity notes, Tartu insights, and strategic memory." />
+      <PageHeader title={t("memory.title")} description={t("memory.subtitle")} />
 
       <Tabs defaultValue="vault" className="space-y-5">
         <TabsList className="bg-white/[0.04]">
-          <TabsTrigger value="vault">Vault</TabsTrigger>
-          <TabsTrigger value="identity">Identity Notes</TabsTrigger>
-          <TabsTrigger value="tartu">Tartu Notes</TabsTrigger>
+          <TabsTrigger value="vault">{t("memory.vault")}</TabsTrigger>
+          <TabsTrigger value="identity">{t("memory.identityNotes")}</TabsTrigger>
+          <TabsTrigger value="tartu">{t("memory.tartuNotes")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="vault">
           <GlassCard>
-            <SectionHeader title="All Notes" description={`${data.identityNotes.length + data.tartuNotes.length} entries`} />
+            <SectionHeader title={t("memory.allNotes")} description={`${data.identityNotes.length + data.tartuNotes.length} entries`} />
             <div className="mt-5">
-              <NoteVault identityNotes={data.identityNotes} tartuNotes={data.tartuNotes} />
+              <NoteVault identityNotes={data.identityNotes} tartuNotes={[]} />
             </div>
           </GlassCard>
         </TabsContent>
@@ -40,7 +42,7 @@ export default async function MemoryPage({ searchParams }: { searchParams: Promi
         <TabsContent value="identity">
           <div className="grid gap-5 xl:grid-cols-[380px_1fr]">
             <GlassCard>
-              <SectionHeader title="Add Identity Note" description="Professional standards and personal identity" />
+              <SectionHeader title={t("memory.addIdentity")} description={t("memory.identityDesc")} />
               <div className="mt-4">
                 <IdentityNoteForm note={editing} />
               </div>
@@ -54,7 +56,7 @@ export default async function MemoryPage({ searchParams }: { searchParams: Promi
         <TabsContent value="tartu">
           <div className="grid gap-5 xl:grid-cols-[380px_1fr]">
             <GlassCard>
-              <SectionHeader title="Add Tartu Note" description="Academic life and local integration" />
+              <SectionHeader title={t("memory.addTartu")} description={t("memory.tartuDesc")} />
               <div className="mt-4">
                 <TartuNoteForm note={editingTartu} />
               </div>

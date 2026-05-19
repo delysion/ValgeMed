@@ -1,8 +1,13 @@
+import { Award, Star, Shield, TrendingUp } from "lucide-react";
+
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { ReputationEventForm } from "@/components/forms/life-forms";
+import { GlassCard } from "@/components/premium/glass-card";
+import { MetricCard } from "@/components/premium/metric-card";
+import { MomentumBar } from "@/components/premium/momentum-bar";
+import { SectionHeader } from "@/components/premium/section-header";
 import { ResourceTable } from "@/components/tables/resource-table";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { deleteReputationEventAction } from "@/lib/actions/resources";
 import { requireOwnerSession } from "@/lib/auth/session";
 import { getCoreData } from "@/lib/data/queries";
@@ -18,30 +23,59 @@ export default async function ReputationPage({ searchParams }: { searchParams: P
   const data = await getCoreData();
   const editing = data.reputationEvents.find((event) => event.id === params.edit);
 
+  const activeEvents = data.reputationEvents.filter((e) => e.status === "done" || e.status === "doing");
+  const avgImpact = activeEvents.length > 0
+    ? (activeEvents.reduce((sum, e) => sum + e.impact, 0) / activeEvents.length).toFixed(1)
+    : "-";
+  const highImpact = activeEvents.filter((e) => e.impact >= 7).length;
+
   return (
     <AppShell session={session}>
-      <PageHeader title={t("reputation.title")} description={t("reputation.subtitle")} />
-      <div className="grid gap-4 xl:grid-cols-[420px_1fr]">
-        <ReputationEventForm event={editing} />
-        <Card>
-          <CardHeader>
-            <CardTitle>{t("reputation.title")}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResourceTable
-              rows={data.reputationEvents}
-              editBasePath="/reputation"
-              deleteAction={deleteReputationEventAction}
-              columns={[
-                { header: t("common.title"), render: (event) => <span className="font-medium text-white">{event.title}</span> },
-                { header: t("common.type"), render: (event) => humanize(event.eventType) },
-                { header: t("common.date"), render: (event) => fmtDate(event.eventDate) },
-                { header: t("reputation.trust"), render: (event) => <Badge>{event.impact}/10</Badge> },
-                { header: t("common.status"), render: (event) => humanize(event.status) },
-              ]}
-            />
-          </CardContent>
-        </Card>
+      <PageHeader title={t("reputation.title")} description={t("reputation.subtitle")} eyebrow={t("nba.reputation_signal.reason")} />
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <MetricCard title={t("reputation.title")} value={data.reputationEvents.length} detail="events" icon={Award} tone="cyan" />
+        <MetricCard title={t("common.status")} value={activeEvents.length} detail="active" icon={Star} tone={activeEvents.length > 0 ? "emerald" : "gold"} />
+        <MetricCard title={t("reputation.trust")} value={avgImpact} detail="/ 10 avg" icon={Shield} tone={Number(avgImpact) >= 6 ? "emerald" : "gold"} />
+        <MetricCard title="High impact" value={highImpact} detail="≥ 7/10" icon={TrendingUp} tone={highImpact > 0 ? "violet" : "gold"} />
+      </div>
+
+      <div className="mt-5 grid gap-5 xl:grid-cols-[420px_1fr]">
+        <GlassCard>
+          <SectionHeader title={t("reputation.logEvent")} description={t("reputation.subtitle")} />
+          <div className="mt-4">
+            <ReputationEventForm event={editing} />
+          </div>
+        </GlassCard>
+
+        <div className="space-y-5">
+          <GlassCard tone="emerald">
+            <SectionHeader title={t("reputation.trust")} description={t("common.strategicSignal")} />
+            <div className="mt-5 space-y-4">
+              <MomentumBar label={t("reputation.trust")} value={(Number(avgImpact) / 10) * 100} tone="emerald" />
+              <MomentumBar label="Active" value={activeEvents.length * 20} tone="cyan" />
+              <MomentumBar label="High impact" value={highImpact * 25} tone="violet" />
+            </div>
+          </GlassCard>
+
+          <GlassCard>
+            <SectionHeader title={t("reputation.history")} description={`${data.reputationEvents.length} ${t("language.entries")}`} />
+            <div className="mt-4">
+              <ResourceTable
+                rows={data.reputationEvents.slice(0, 12)}
+                editBasePath="/reputation"
+                deleteAction={deleteReputationEventAction}
+                columns={[
+                  { header: t("common.title"), render: (event) => <span className="font-medium text-white">{event.title}</span> },
+                  { header: t("common.type"), render: (event) => <Badge variant="muted">{humanize(event.eventType)}</Badge> },
+                  { header: t("common.date"), render: (event) => <span className="text-xs text-muted">{fmtDate(event.eventDate)}</span> },
+                  { header: t("reputation.trust"), render: (event) => <Badge variant={event.impact >= 7 ? "success" : "default"}>{event.impact}/10</Badge> },
+                  { header: t("common.status"), render: (event) => <Badge variant="default">{humanize(event.status)}</Badge> },
+                ]}
+              />
+            </div>
+          </GlassCard>
+        </div>
       </div>
     </AppShell>
   );

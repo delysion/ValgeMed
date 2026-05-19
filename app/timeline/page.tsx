@@ -4,19 +4,21 @@ import { SectionHeader } from "@/components/premium/section-header";
 import { TimelineView } from "@/components/premium/timeline-view";
 import { requireOwnerSession } from "@/lib/auth/session";
 import { getCoreData } from "@/lib/data/queries";
+import { getI18n } from "@/lib/i18n/server";
 
 export const dynamic = "force-dynamic";
 
 export default async function TimelinePage() {
   const session = await requireOwnerSession();
+  const { t } = await getI18n();
   const data = await getCoreData();
 
   return (
     <AppShell session={session}>
-      <PageHeader title="Timeline" description="Unified view of study, exams, tasks, follow-ups and opportunities." />
+      <PageHeader title={t("timeline.title")} description={t("timeline.subtitle")} />
 
       <GlassCard>
-        <SectionHeader title="Next 30 Days" description="All operational events in one stream" />
+        <SectionHeader title={t("timeline.next30")} description={t("timeline.allEvents")} />
         <div className="mt-5">
           <TimelineView
             exams={data.exams}

@@ -35,12 +35,12 @@ export default async function EliteIndexPage() {
           }));
 
   const components = [
-    { title: "Medical Mastery", result: elite.medicalMastery, icon: Brain, tone: "cyan" as const },
-    { title: "Exam Readiness", result: elite.examReadiness, icon: ShieldCheck, tone: "violet" as const },
-    { title: "Time Leverage", result: elite.timeLeverage, icon: Clock, tone: "gold" as const },
-    { title: "Error Destruction", result: elite.errorDestruction, icon: Flame, tone: "rose" as const },
-    { title: "Energy Integrity", result: elite.energyIntegrity, icon: Sparkles, tone: "emerald" as const },
-    { title: "Opportunity Capture", result: elite.opportunityCapture, icon: Radar, tone: "cyan" as const },
+    { title: t("elite.medicalMastery"), result: elite.medicalMastery, icon: Brain, tone: "cyan" as const },
+    { title: t("elite.examReadiness"), result: elite.examReadiness, icon: ShieldCheck, tone: "violet" as const },
+    { title: t("elite.timeLeverage"), result: elite.timeLeverage, icon: Clock, tone: "gold" as const },
+    { title: t("elite.errorDestruction"), result: elite.errorDestruction, icon: Flame, tone: "rose" as const },
+    { title: t("elite.energyIntegrity"), result: elite.energyIntegrity, icon: Sparkles, tone: "emerald" as const },
+    { title: t("elite.opportunityCapture"), result: elite.opportunityCapture, icon: Radar, tone: "cyan" as const },
   ];
 
   return (
@@ -92,9 +92,9 @@ export default async function EliteIndexPage() {
           <h3 className="text-xl font-semibold text-white">{t("elite.improve")}</h3>
           <p className="mt-3 text-sm leading-6 text-muted">{t("elite.improveBody")}</p>
           <div className="mt-5 space-y-4">
-            <MomentumBar label="Active recall" value={elite.medicalMastery.score * 10} tone="cyan" />
-            <MomentumBar label="Recovery" value={elite.energyIntegrity.score * 10} tone="emerald" />
-            <MomentumBar label="Errors" value={elite.errorDestruction.score * 10} tone="rose" />
+            <MomentumBar label={t("elite.activeRecallBar")} value={elite.medicalMastery.score * 10} tone="cyan" />
+            <MomentumBar label={t("elite.recoveryBar")} value={elite.energyIntegrity.score * 10} tone="emerald" />
+            <MomentumBar label={t("elite.errorsBar")} value={elite.errorDestruction.score * 10} tone="rose" />
           </div>
         </GlassCard>
       </div>
