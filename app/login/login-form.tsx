@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { LockKeyhole } from "lucide-react";
+import { Command, LockKeyhole } from "lucide-react";
 
 import { LanguageSelector } from "@/components/language-selector";
 import { loginAction } from "@/lib/auth/actions";
@@ -28,15 +28,15 @@ export function LoginForm({
   const [state, action, pending] = useActionState(loginAction, {});
 
   return (
-    <Card className="motion-premium w-full max-w-md overflow-hidden rounded-[2rem] border-white/15 bg-white/[0.055]">
+    <Card className="motion-premium w-full max-w-md overflow-hidden rounded-2xl border-border shadow-lg">
       <CardHeader>
         <div className="flex items-center justify-between gap-3">
-          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl border border-cyan/25 bg-cyan/10 text-cyan">
-            <LockKeyhole className="h-5 w-5" />
+          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-violet shadow-sm">
+            <Command className="h-6 w-6 text-white" />
           </div>
           <LanguageSelector current={locale} label={copy.language} compact />
         </div>
-        <CardTitle className="text-2xl">{copy.title}</CardTitle>
+        <CardTitle className="text-2xl text-text-primary">{copy.title}</CardTitle>
         <CardDescription>{copy.subtitle}</CardDescription>
       </CardHeader>
       <CardContent>
@@ -46,7 +46,7 @@ export function LoginForm({
             <Input id="password" name="password" type="password" autoComplete="current-password" required />
           </div>
           {state.error ? (
-            <div className="rounded-md border border-red-400/20 bg-red-400/10 px-3 py-2 text-sm text-red-100">
+            <div className="rounded-md border border-rose/20 bg-rose-bg px-3 py-2 text-sm text-rose">
               {state.error}
             </div>
           ) : null}

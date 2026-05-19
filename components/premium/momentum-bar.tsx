@@ -13,12 +13,12 @@ export function MomentumBar({
 }) {
   const safe = Math.max(0, Math.min(100, value));
   const gradient = {
-    cyan: "from-cyan to-frozen-blue",
-    violet: "from-violet to-rose",
-    emerald: "from-emerald to-sea-glass",
-    gold: "from-gold to-rose",
-    rose: "from-rose to-violet",
-    danger: "from-danger to-warning",
+    cyan: "from-cyan to-blue-400",
+    violet: "from-violet to-purple-400",
+    emerald: "from-emerald to-green-400",
+    gold: "from-gold to-amber-400",
+    rose: "from-rose to-pink-400",
+    danger: "from-rose to-red-400",
   };
   const dotColor = {
     cyan: "bg-cyan",
@@ -26,33 +26,25 @@ export function MomentumBar({
     emerald: "bg-emerald",
     gold: "bg-gold",
     rose: "bg-rose",
-    danger: "bg-danger",
+    danger: "bg-rose",
   };
 
   return (
     <div className="group">
-      <div className="mb-2 flex items-center justify-between gap-3">
-        <span className="text-sm font-medium text-white">{label}</span>
-        <span className="font-mono text-xs text-muted transition-colors group-hover:text-white">{safe.toFixed(0)}%</span>
+      <div className="mb-1.5 flex items-center justify-between gap-3">
+        <span className="text-sm font-medium text-text-primary">{label}</span>
+        <span className="font-mono text-xs text-text-secondary transition-colors group-hover:text-text-primary">{safe.toFixed(0)}%</span>
       </div>
-      <div className="relative h-2 overflow-hidden rounded-full bg-white/[0.05]">
+      <div className="relative h-2 overflow-hidden rounded-full bg-bg-subtle">
         <div
           className={cn("h-full rounded-full bg-gradient-to-r transition-all duration-700 ease-out", gradient[tone])}
           style={{ width: `${safe}%` }}
         />
-        <div
-          className={cn("absolute inset-0 rounded-full opacity-0 transition-opacity duration-300 group-hover:opacity-100", gradient[tone])}
-          style={{
-            width: `${safe}%`,
-            filter: "blur(6px)",
-            transform: "translateY(1px)",
-          }}
-        />
       </div>
       {detail ? (
-        <div className="mt-2 flex items-center gap-1.5">
+        <div className="mt-1.5 flex items-center gap-1.5">
           <div className={cn("h-1 w-1 rounded-full", dotColor[tone])} />
-          <p className="text-[11px] text-muted-2">{detail}</p>
+          <p className="text-[11px] text-text-secondary">{detail}</p>
         </div>
       ) : null}
     </div>

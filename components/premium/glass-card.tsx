@@ -14,23 +14,32 @@ export function GlassCard({
   hover?: boolean;
 }) {
   const tones = {
-    default: "from-white/[0.04] to-white/[0.015]",
-    cyan: "from-cyan/6 to-white/[0.015]",
-    violet: "from-violet/6 to-white/[0.015]",
-    gold: "from-gold/6 to-white/[0.015]",
-    rose: "from-rose/6 to-white/[0.015]",
-    emerald: "from-emerald/6 to-white/[0.015]",
-    danger: "from-danger/6 to-white/[0.015]",
+    default: "bg-white border-border",
+    cyan: "bg-white border-cyan/20",
+    violet: "bg-white border-violet/20",
+    gold: "bg-white border-gold/20",
+    rose: "bg-white border-rose/20",
+    emerald: "bg-white border-emerald/20",
+    danger: "bg-white border-rose/20",
+  };
+
+  const bgTones = {
+    default: "",
+    cyan: "bg-gradient-to-br from-cyan-bg/50 to-white",
+    violet: "bg-gradient-to-br from-violet-bg/50 to-white",
+    gold: "bg-gradient-to-br from-gold-bg/50 to-white",
+    rose: "bg-gradient-to-br from-rose-bg/50 to-white",
+    emerald: "bg-gradient-to-br from-emerald-bg/50 to-white",
+    danger: "bg-gradient-to-br from-rose-bg/50 to-white",
   };
 
   return (
     <section
       className={cn(
-        "relative overflow-hidden rounded-2xl border border-white/[0.06] bg-gradient-to-br p-5 text-white shadow-[var(--shadow-glass)] backdrop-blur-2xl",
-        "before:pointer-events-none before:absolute before:-inset-px before:rounded-[inherit] before:opacity-0 before:transition-opacity before:duration-300 before:[background:linear-gradient(135deg,rgba(248,250,252,0.08),transparent_50%,rgba(248,250,252,0.02))]",
-        "after:pointer-events-none after:absolute after:inset-x-0 after:top-0 after:h-px after:bg-gradient-to-r after:from-transparent after:via-white/15 after:to-transparent",
+        "relative overflow-hidden rounded-xl shadow-[var(--shadow-card)]",
         tones[tone],
-        hover && "panel-lift glass-shine before:hover:opacity-100",
+        bgTones[tone],
+        hover && "card-hover",
         className,
       )}
     >

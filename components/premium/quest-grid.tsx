@@ -14,38 +14,38 @@ export function QuestItem({
   tone?: "cyan" | "violet" | "emerald" | "gold" | "rose";
 }) {
   const toneBorder = {
-    cyan: "border-cyan/15",
-    violet: "border-violet/15",
-    emerald: "border-emerald/15",
-    gold: "border-gold/15",
-    rose: "border-rose/15",
+    cyan: "border-cyan/20",
+    violet: "border-violet/20",
+    emerald: "border-emerald/20",
+    gold: "border-gold/20",
+    rose: "border-rose/20",
   };
   const toneIcon = {
-    cyan: "bg-cyan/10 text-cyan",
-    violet: "bg-violet/10 text-violet",
-    emerald: "bg-emerald/10 text-emerald",
-    gold: "bg-gold/10 text-gold",
-    rose: "bg-rose/10 text-rose",
+    cyan: "bg-cyan-bg text-cyan",
+    violet: "bg-violet-bg text-violet",
+    emerald: "bg-emerald-bg text-emerald",
+    gold: "bg-gold-bg text-gold",
+    rose: "bg-rose-bg text-rose",
   };
 
   return (
     <div
       className={cn(
-        "group flex items-start gap-3 rounded-lg border border-white/[0.06] bg-white/[0.02] p-3 transition-all duration-300 hover:bg-white/[0.04]",
-        complete ? "border-emerald/15 bg-emerald/[0.03]" : [toneBorder[tone]],
+        "group flex items-start gap-3 rounded-lg border border-border bg-white p-3 shadow-sm transition-all duration-200 hover:shadow-md",
+        complete ? "border-emerald/30 bg-emerald-bg" : toneBorder[tone],
       )}
     >
       <div
         className={cn(
-          "flex h-7 w-7 shrink-0 items-center justify-center rounded-md border transition-transform duration-300 group-hover:scale-105",
-          complete ? "border-emerald/15 bg-emerald/10 text-emerald" : [toneBorder[tone], toneIcon[tone]],
+          "flex h-7 w-7 shrink-0 items-center justify-center rounded-md border transition-all duration-200 group-hover:scale-105",
+          complete ? "border-emerald/30 bg-emerald-bg text-emerald" : [toneBorder[tone], toneIcon[tone]],
         )}
       >
         {complete ? <Check className="h-3.5 w-3.5" /> : <Sparkle className="h-3.5 w-3.5" />}
       </div>
       <div className="min-w-0">
-        <p className={cn("text-sm font-medium", complete ? "text-emerald" : "text-white")}>{title}</p>
-        <p className="mt-0.5 truncate text-xs text-muted">{detail}</p>
+        <p className={cn("text-sm font-medium", complete ? "text-emerald" : "text-text-primary")}>{title}</p>
+        <p className="mt-0.5 truncate text-xs text-text-secondary">{detail}</p>
       </div>
     </div>
   );

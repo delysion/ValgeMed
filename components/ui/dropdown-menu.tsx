@@ -17,7 +17,7 @@ export const DropdownMenuContent = React.forwardRef<
       ref={ref}
       sideOffset={sideOffset}
       className={cn(
-        "z-50 min-w-44 overflow-hidden rounded-lg border border-white/[0.08] bg-[#0B1F33] p-1 text-white shadow-lg",
+        "z-50 min-w-44 overflow-hidden rounded-lg border border-border bg-white p-1 text-text-primary shadow-lg",
         className,
       )}
       {...props}
@@ -33,7 +33,7 @@ export const DropdownMenuItem = React.forwardRef<
   <DropdownMenuPrimitive.Item
     ref={ref}
     className={cn(
-      "flex cursor-default select-none items-center rounded-md px-2 py-1.5 text-sm outline-none focus:bg-white/[0.05]",
+      "flex cursor-default select-none items-center rounded-md px-2 py-1.5 text-sm outline-none focus:bg-bg-subtle",
       className,
     )}
     {...props}

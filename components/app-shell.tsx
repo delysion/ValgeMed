@@ -28,7 +28,6 @@ import {
 } from "lucide-react";
 
 import { LanguageSelector } from "@/components/language-selector";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { logoutAction } from "@/lib/auth/actions";
@@ -75,9 +74,11 @@ const navSections: Array<{ label: string; items: typeof navItems }> = [
 function NavLink({
   item,
   t,
+  compact,
 }: {
   item: (typeof navItems)[number];
   t: (key: TranslationKey) => string;
+  compact?: boolean;
 }) {
   const Icon = item.icon;
   return (
@@ -85,15 +86,20 @@ function NavLink({
       href={item.href}
       className={
         item.featured
-          ? "nav-indicator group flex items-center gap-3 rounded-lg border border-cyan/15 bg-cyan/8 px-3 py-2 text-sm font-medium text-cyan shadow-[0_0_20px_rgba(124,175,214,0.06)] transition-all duration-200 hover:bg-cyan/12"
-          : "nav-indicator group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted transition-all duration-200 hover:bg-white/[0.04] hover:text-white"
+          ? "group flex items-center gap-3 rounded-lg border border-primary/20 bg-primary-soft px-3 py-2 text-sm font-medium text-primary shadow-sm transition-all duration-200 hover:bg-primary-soft/80"
+          : "group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-text-secondary transition-all duration-200 hover:bg-bg-subtle hover:text-text-primary"
       }
     >
-      <Icon className="h-4 w-4 shrink-0 transition-all duration-200 group-hover:scale-110 group-hover:[filter:drop-shadow(0_0_4px_currentColor)]" />
+      <Icon className={cn(
+        "h-4 w-4 shrink-0 transition-all duration-200 group-hover:scale-110",
+        item.featured ? "text-primary" : "text-text-muted group-hover:text-text-primary",
+      )} />
       <span className="truncate">{t(item.label)}</span>
     </Link>
   );
 }
+
+import { cn } from "@/lib/utils";
 
 function Navigation({ t, compact = false }: { t: (key: TranslationKey) => string; compact?: boolean }) {
   if (compact) {
@@ -101,14 +107,13 @@ function Navigation({ t, compact = false }: { t: (key: TranslationKey) => string
       <nav className="grid gap-5 pb-8">
         {navSections.map((section) => (
           <div key={section.label}>
-            <div className="mb-2 flex items-center gap-2">
-              <div className="h-px flex-1 bg-white/[0.04]" />
-              <span className="text-[0.6rem] font-semibold uppercase tracking-[0.18em] text-muted-2">{section.label}</span>
-              <div className="h-px flex-1 bg-white/[0.04]" />
+            <div className="mb-2 flex items-center gap-2 px-1">
+              <span className="text-[0.6rem] font-semibold uppercase tracking-[0.18em] text-text-muted">{section.label}</span>
+              <div className="h-px flex-1 bg-border" />
             </div>
             <div className="grid gap-0.5">
               {section.items.map((item) => (
-                <NavLink key={item.href} item={item} t={t} />
+                <NavLink key={item.href} item={item} t={t} compact />
               ))}
             </div>
           </div>
@@ -137,16 +142,16 @@ export async function AppShell({
 
   return (
     <TranslationProvider locale={locale} dictionary={dictionary}>
-      <div className="min-h-screen">
-        <aside className="fixed inset-y-0 left-0 z-20 hidden w-64 overflow-y-auto border-r border-white/[0.06] bg-white/[0.015] backdrop-blur-2xl lg:block">
-          <div className="sticky top-0 z-10 border-b border-white/[0.06] bg-[#071A2D]/80 p-4 backdrop-blur-2xl">
-            <div className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.02] p-3 shadow-[var(--ring-soft)]">
-              <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-cyan/20 to-violet/20 ring-1 ring-white/10">
-                <Command className="h-4 w-4 text-cyan" />
+      <div className="min-h-screen bg-bg-page">
+        <aside className="fixed inset-y-0 left-0 z-20 hidden w-64 overflow-y-auto border-r border-border bg-white lg:block">
+          <div className="sticky top-0 z-10 border-b border-border bg-white p-4">
+            <div className="flex items-center gap-3">
+              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-primary to-violet shadow-sm">
+                <Command className="h-5 w-5 text-white" />
               </div>
               <div className="min-w-0">
-                <p className="text-[9px] uppercase tracking-[0.18em] text-muted-2">{t("app.privateConsole")}</p>
-                <h1 className="truncate text-base font-semibold tracking-tight text-white">{t("app.name")}</h1>
+                <p className="text-[9px] uppercase tracking-[0.18em] text-text-muted">{t("app.privateConsole")}</p>
+                <h1 className="truncate text-base font-semibold tracking-tight text-text-primary">{t("app.name")}</h1>
               </div>
             </div>
           </div>
@@ -156,7 +161,7 @@ export async function AppShell({
         </aside>
 
         <div className="lg:pl-64">
-          <header className="sticky top-0 z-30 flex min-h-14 items-center justify-between gap-3 border-b border-white/[0.06] bg-background/80 px-3 py-2 backdrop-blur-2xl sm:px-4 lg:px-6">
+          <header className="sticky top-0 z-30 flex min-h-14 items-center justify-between gap-3 border-b border-border bg-white/95 px-3 py-2 backdrop-blur-md sm:px-4 lg:px-6">
             <div className="flex min-w-0 items-center gap-2.5">
               <Sheet>
                 <SheetTrigger asChild>
@@ -164,15 +169,15 @@ export async function AppShell({
                     <ClipboardList className="h-4 w-4" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent className="left-0 right-auto w-[min(90vw,300px)] border-l-0 border-r bg-[#071A2D]/95 backdrop-blur-2xl">
+                <SheetContent className="left-0 right-auto w-[min(90vw,300px)] border-l-0 border-r border-border">
                   <div className="mb-4">
-                    <div className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.02] p-3">
-                      <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-cyan/20 to-violet/20 ring-1 ring-white/10">
-                        <Command className="h-4 w-4 text-cyan" />
+                    <div className="flex items-center gap-3 rounded-xl border border-border bg-white p-3 shadow-sm">
+                      <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-primary to-violet">
+                        <Command className="h-4 w-4 text-white" />
                       </div>
                       <div className="min-w-0">
-                        <h2 className="text-base font-semibold text-white">{t("app.name")}</h2>
-                        <p className="text-[10px] text-muted-2">{t("app.tagline")}</p>
+                        <h2 className="text-base font-semibold text-text-primary">{t("app.name")}</h2>
+                        <p className="text-[10px] text-text-muted">{t("app.tagline")}</p>
                       </div>
                     </div>
                     <div className="mt-3">
@@ -183,8 +188,8 @@ export async function AppShell({
                 </SheetContent>
               </Sheet>
               <div className="min-w-0">
-                <p className="text-[10px] text-muted">{t("app.owner")}</p>
-                <p className="truncate text-sm font-medium text-white">{session.email}</p>
+                <p className="text-[10px] text-text-muted">{t("app.owner")}</p>
+                <p className="truncate text-sm font-medium text-text-primary">{session.email}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -224,15 +229,13 @@ export function PageHeader({
   eyebrow?: string;
 }) {
   return (
-    <div className="motion-premium mb-5 flex flex-col gap-2.5 rounded-2xl border border-white/[0.06] bg-gradient-to-br from-white/[0.04] to-white/[0.015] p-4 shadow-[var(--ring-soft)] backdrop-blur-2xl sm:p-6 md:flex-row md:items-end md:justify-between">
+    <div className="motion-premium mb-5 flex flex-col gap-2.5 rounded-2xl border border-border bg-white p-4 shadow-[var(--shadow-card)] sm:p-6 md:flex-row md:items-end md:justify-between">
       <div>
         {eyebrow ? (
-          <Badge variant="muted" className="mb-2 text-[9px] uppercase tracking-[0.16em] sm:text-[10px]">
-            {eyebrow}
-          </Badge>
+          <p className="mb-1.5 text-[9px] font-semibold uppercase tracking-[0.16em] text-primary sm:text-[10px]">{eyebrow}</p>
         ) : null}
-        <h2 className="text-balance text-xl font-semibold tracking-tight text-white sm:text-2xl md:text-3xl">{title}</h2>
-        {description ? <p className="mt-1.5 max-w-3xl text-xs leading-6 text-muted sm:text-sm sm:leading-7 md:text-base">{description}</p> : null}
+        <h2 className="text-balance text-xl font-semibold tracking-tight text-text-primary sm:text-2xl md:text-3xl">{title}</h2>
+        {description ? <p className="mt-1.5 max-w-3xl text-xs leading-6 text-text-secondary sm:text-sm sm:leading-7 md:text-base">{description}</p> : null}
       </div>
       {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
     </div>

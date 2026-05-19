@@ -15,7 +15,11 @@ import {
   YAxis,
 } from "recharts";
 
-const balticColors = ["#7CAFD6", "#8B9CBF", "#4A7C6F", "#C9A45C", "#A86B7D", "#8FBDBA"];
+const lightColors = ["#7C3AED", "#06B6D4", "#10B981", "#F59E0B", "#F43F5E", "#8B5CF6"];
+const chartGrid = "#F1F5F9";
+const chartText = "#94A3B8";
+const tooltipBg = "#FFFFFF";
+const tooltipBorder = "#E2E8F0";
 
 export function MinutesBarChart({
   data,
@@ -37,14 +41,14 @@ export function MetricBarChart({
   return (
     <ResponsiveContainer width="100%" height={220}>
       <BarChart data={data}>
-        <CartesianGrid stroke="rgba(248,250,252,0.05)" vertical={false} />
-        <XAxis dataKey="name" stroke="#94A3B8" fontSize={11} tickLine={false} axisLine={false} />
-        <YAxis stroke="#94A3B8" fontSize={11} domain={domain} tickLine={false} axisLine={false} />
+        <CartesianGrid stroke={chartGrid} vertical={false} />
+        <XAxis dataKey="name" stroke={chartText} fontSize={11} tickLine={false} axisLine={false} />
+        <YAxis stroke={chartText} fontSize={11} domain={domain} tickLine={false} axisLine={false} />
         <Tooltip
-          cursor={{ fill: "rgba(248,250,252,0.03)" }}
-          contentStyle={{ background: "rgba(11,31,51,.96)", border: "1px solid rgba(248,250,252,.1)", borderRadius: 8 }}
+          cursor={{ fill: "#F8F9FA" }}
+          contentStyle={{ background: tooltipBg, border: `1px solid ${tooltipBorder}`, borderRadius: 8, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}
         />
-        <Bar dataKey={dataKey} radius={[6, 6, 2, 2]} fill="#7CAFD6" />
+        <Bar dataKey={dataKey} radius={[6, 6, 2, 2]} fill="#7C3AED" />
       </BarChart>
     </ResponsiveContainer>
   );
@@ -60,18 +64,18 @@ export function TrendLineChart({
   return (
     <ResponsiveContainer width="100%" height={220}>
       <LineChart data={data}>
-        <CartesianGrid stroke="rgba(248,250,252,0.05)" vertical={false} />
-        <XAxis dataKey="date" stroke="#94A3B8" fontSize={11} tickLine={false} axisLine={false} />
-        <YAxis stroke="#94A3B8" fontSize={11} domain={[0, 10]} tickLine={false} axisLine={false} />
+        <CartesianGrid stroke={chartGrid} vertical={false} />
+        <XAxis dataKey="date" stroke={chartText} fontSize={11} tickLine={false} axisLine={false} />
+        <YAxis stroke={chartText} fontSize={11} domain={[0, 10]} tickLine={false} axisLine={false} />
         <Tooltip
-          contentStyle={{ background: "rgba(11,31,51,.96)", border: "1px solid rgba(248,250,252,.1)", borderRadius: 8 }}
+          contentStyle={{ background: tooltipBg, border: `1px solid ${tooltipBorder}`, borderRadius: 8, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}
         />
         {lines.map((line, index) => (
           <Line
             key={line.key}
             type="monotone"
             dataKey={line.key}
-            stroke={line.color ?? balticColors[index % balticColors.length]}
+            stroke={line.color ?? lightColors[index % lightColors.length]}
             strokeWidth={2}
             dot={false}
           />
@@ -91,11 +95,11 @@ export function MethodPieChart({
       <PieChart>
         <Pie data={data} dataKey="value" nameKey="name" innerRadius={44} outerRadius={76}>
           {data.map((entry, index) => (
-            <Cell key={entry.name} fill={balticColors[index % balticColors.length]} />
+            <Cell key={entry.name} fill={lightColors[index % lightColors.length]} />
           ))}
         </Pie>
         <Tooltip
-          contentStyle={{ background: "rgba(11,31,51,.96)", border: "1px solid rgba(248,250,252,.1)", borderRadius: 8 }}
+          contentStyle={{ background: tooltipBg, border: `1px solid ${tooltipBorder}`, borderRadius: 8, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}
         />
       </PieChart>
     </ResponsiveContainer>

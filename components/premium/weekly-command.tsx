@@ -42,9 +42,9 @@ export function WeeklyCommandPanel({
   const logDates = new Set(thisWeekLogs.map((log) => log.date));
 
   return (
-    <div className="rounded-xl border border-white/[0.06] bg-gradient-to-br from-white/[0.04] to-white/[0.015] p-5 backdrop-blur-xl">
+    <div className="rounded-xl border border-border bg-white p-5 shadow-[var(--shadow-card)]">
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-base font-semibold text-white">{t("command.weeklyCommand")}</h3>
+        <h3 className="text-base font-semibold text-text-primary">{t("command.weeklyCommand")}</h3>
         <Badge variant={trend >= 0 ? "success" : "danger"} className="text-[10px]">
           {trend >= 0 ? "+" : ""}{trend.toFixed(0)}% vs last week
         </Badge>
@@ -60,8 +60,8 @@ export function WeeklyCommandPanel({
 
           return (
             <div key={day} className="flex flex-1 flex-col items-center gap-1.5">
-              <div className={cn("h-7 w-full rounded transition", hasLog ? "bg-cyan/15" : "bg-white/[0.04]", isToday && "ring-1 ring-cyan/30")} />
-              <span className={cn("text-[10px]", isToday ? "text-cyan" : "text-muted-2")}>{day.slice(0, 2)}</span>
+              <div className={cn("h-7 w-full rounded transition", hasLog ? "bg-cyan/20" : "bg-bg-subtle", isToday && "ring-1 ring-cyan/40")} />
+              <span className={cn("text-[10px]", isToday ? "text-cyan font-medium" : "text-text-muted")}>{day.slice(0, 2)}</span>
             </div>
           );
         })}
@@ -80,8 +80,8 @@ export function WeeklyCommandPanel({
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-[10px] text-muted">{label}</p>
-      <p className="font-mono text-sm font-semibold text-white">{value}</p>
+      <p className="text-[10px] text-text-secondary">{label}</p>
+      <p className="font-mono text-sm font-semibold text-text-primary">{value}</p>
     </div>
   );
 }

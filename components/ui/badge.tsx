@@ -8,14 +8,14 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        default: "border-cyan/20 bg-cyan/10 text-cyan",
-        violet: "border-violet/20 bg-violet/10 text-violet",
-        muted: "border-white/[0.06] bg-white/[0.04] text-muted",
-        danger: "border-danger/20 bg-danger/10 text-red-200",
-        warning: "border-warning/20 bg-warning/10 text-warning",
-        success: "border-emerald/20 bg-emerald/10 text-emerald",
-        gold: "border-gold/20 bg-gold/10 text-gold",
-        rose: "border-rose/20 bg-rose/10 text-rose",
+        default: "border-cyan/20 bg-cyan-bg text-cyan",
+        violet: "border-violet/20 bg-violet-bg text-violet",
+        muted: "border-border bg-bg-subtle text-text-secondary",
+        danger: "border-rose/20 bg-rose-bg text-rose",
+        warning: "border-gold/20 bg-gold-bg text-gold",
+        success: "border-emerald/20 bg-emerald-bg text-emerald",
+        gold: "border-gold/20 bg-gold-bg text-gold",
+        rose: "border-rose/20 bg-rose-bg text-rose",
       },
     },
     defaultVariants: {

@@ -112,9 +112,9 @@ export function FocusTimer({ onComplete }: { onComplete?: (minutes: number) => v
     longBreak: "Long Break",
   };
   const ringColor = {
-    work: "var(--frozen-blue)",
-    shortBreak: "var(--emerald)",
-    longBreak: "var(--violet)",
+    work: "#06B6D4",
+    shortBreak: "#10B981",
+    longBreak: "#8B5CF6",
   };
   const radius = 72;
   const circumference = 2 * Math.PI * radius;
@@ -124,7 +124,7 @@ export function FocusTimer({ onComplete }: { onComplete?: (minutes: number) => v
     <div className="flex flex-col items-center gap-5">
       <div className="relative grid h-48 w-48 place-items-center sm:h-56 sm:w-56">
         <svg viewBox="0 0 180 180" className="absolute inset-0 h-full w-full -rotate-90">
-          <circle cx="90" cy="90" r={radius} fill="none" stroke="rgba(248,250,252,0.05)" strokeWidth="6" />
+          <circle cx="90" cy="90" r={radius} fill="none" stroke="#E2E8F0" strokeWidth="6" />
           <circle
             cx="90"
             cy="90"
@@ -141,7 +141,7 @@ export function FocusTimer({ onComplete }: { onComplete?: (minutes: number) => v
           <p className={cn("font-mono text-5xl font-semibold sm:text-6xl", modeColors[mode])}>
             {String(minutes).padStart(2, "0")}:{String(seconds).padStart(2, "0")}
           </p>
-          <p className="mt-1 text-xs font-semibold uppercase tracking-[0.14em] text-muted">{modeLabels[mode]}</p>
+          <p className="mt-1 text-xs font-semibold uppercase tracking-[0.14em] text-text-secondary">{modeLabels[mode]}</p>
         </div>
       </div>
 
@@ -162,7 +162,7 @@ export function FocusTimer({ onComplete }: { onComplete?: (minutes: number) => v
           {Array.from({ length: sessions }).map((_, i) => (
             <div key={i} className="h-1.5 w-1.5 rounded-full bg-cyan" />
           ))}
-          <span className="ml-1 text-xs text-muted">{sessions} session{sessions > 1 ? "s" : ""}</span>
+          <span className="ml-1 text-xs text-text-secondary">{sessions} session{sessions > 1 ? "s" : ""}</span>
         </div>
       ) : null}
     </div>

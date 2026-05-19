@@ -34,7 +34,7 @@ export function LanguageSelector({
   return (
     <div
       className={cn(
-        "inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.045] p-1 shadow-[0_12px_34px_rgba(0,0,0,0.25)] backdrop-blur-xl",
+        "inline-flex items-center gap-1 rounded-full border border-border bg-bg-subtle p-1",
         pending && "opacity-70",
       )}
       aria-label={label}
@@ -46,10 +46,10 @@ export function LanguageSelector({
           onClick={() => changeLanguage(locale)}
           disabled={pending}
           className={cn(
-            "rounded-full px-2.5 py-1 text-xs font-semibold tracking-[0.08em] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan/60",
+            "rounded-full px-2.5 py-1 text-xs font-semibold tracking-[0.08em] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
             current === locale
-              ? "bg-white text-midnight shadow-[0_0_24px_rgba(166,232,255,0.25)]"
-              : "text-muted hover:bg-white/[0.07] hover:text-white",
+              ? "bg-white text-text-primary shadow-sm"
+              : "text-text-muted hover:bg-white hover:text-text-secondary",
             compact && "px-2 py-0.5",
           )}
         >
