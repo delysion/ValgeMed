@@ -13,8 +13,6 @@ import {
   YAxis,
 } from "recharts";
 
-import { cn } from "@/lib/utils";
-
 const colors = ["#7C3AED", "#06B6D4", "#10B981", "#F59E0B", "#F43F5E", "#8B5CF6"];
 const gridColor = "#F1F5F9";
 const textColor = "#94A3B8";

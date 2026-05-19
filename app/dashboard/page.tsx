@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { differenceInCalendarDays, formatISO, startOfToday, subDays } from "date-fns";
 import {
-  AlertTriangle, ArrowRight, BookOpen, Brain, Clock, Flame,
-  Focus, ListChecks, RotateCw, ShieldCheck, TimerReset, TrendingUp, Zap,
+  ArrowRight, BookOpen, Brain, Clock, Flame,
+  Focus, ListChecks, RotateCw, ShieldCheck, TrendingUp, Zap,
 } from "lucide-react";
 
 import { AppShell } from "@/components/app-shell";
@@ -15,10 +15,8 @@ import {
 } from "@/components/premium/gamification";
 import { GlassCard } from "@/components/premium/glass-card";
 import { MetricCard } from "@/components/premium/metric-card";
-import { MomentumBar } from "@/components/premium/momentum-bar";
 import { SectionHeader } from "@/components/premium/section-header";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { requireOwnerSession } from "@/lib/auth/session";
 import { getDashboardData } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server";
@@ -279,12 +277,12 @@ export default async function DashboardPage() {
               <SectionHeader title="Focus Areas" description="Weak topics need attention" icon={Focus} />
               <div className="mt-4 space-y-2">
                 {weakTopics.length > 0 ? (
-                  weakTopics.slice(0, 4).map((topic) => (
+                  weakTopics.slice(0, 4).map((topic, i) => (
                     <Link
                       key={topic.id}
                       href="/topics"
                       className="flex items-center justify-between gap-3 rounded-lg border border-border bg-white p-3.5 shadow-sm transition-all duration-200 hover:shadow-md motion-safe:animate-fade-in"
-                      style={{ animationDelay: `${Math.random() * 200}ms` }}
+                      style={{ animationDelay: `${i * 80}ms` }}
                     >
                       <div className="flex items-center gap-3 min-w-0">
                         <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-rose-bg text-rose">
@@ -311,6 +309,37 @@ export default async function DashboardPage() {
                 ) : (
                   <EmptyState title="All topics strong" description="No weak topics to surface." tone="emerald" />
                 )}
+              </div>
+            </GlassCard>
+
+            {/* Recent Activity */}
+            <GlassCard>
+              <SectionHeader title="Recent Activity" description="Latest study sessions" icon={Clock} />
+              <div className="mt-4 space-y-2">
+                {data.studySessions.slice(0, 5).map((session, i) => (
+                  <div
+                    key={`${session.id}-${i}`}
+                    className="flex items-center gap-3 rounded-lg border border-border bg-white p-3 shadow-sm transition-all duration-200 motion-safe:animate-fade-in"
+                    style={{ animationDelay: `${i * 80}ms` }}
+                  >
+                    <div className={cn("flex h-7 w-7 shrink-0 items-center justify-center rounded-md", {
+                      "bg-cyan-bg text-cyan": session.method === "active_recall",
+                      "bg-violet-bg text-violet": session.method === "quiz",
+                      "bg-emerald-bg text-emerald": session.method === "simulation",
+                      "bg-rose-bg text-rose": session.method === "error_review",
+                      "bg-gold-bg text-gold": session.method === "reading" || session.method === "notes",
+                    })}>
+                      <Brain className="h-3.5 w-3.5" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium text-text-primary">{session.method.replace(/_/g, " ")}</p>
+                      <p className="text-[10px] text-text-muted">{session.durationMinutes} min</p>
+                    </div>
+                  </div>
+                ))}
+                {data.studySessions.length === 0 ? (
+                  <p className="py-4 text-center text-xs text-text-muted">No sessions yet this week</p>
+                ) : null}
               </div>
             </GlassCard>
           </div>
@@ -365,6 +394,34 @@ export default async function DashboardPage() {
                 ) : null}
               </div>
             </GlassCard>
+
+            {/* Missions */}
+            {weakTopics.length > 0 || openErrors.length > 0 ? (
+              <GlassCard tone="violet">
+                <SectionHeader title="Active Missions" description="Clear these to level up" />
+                <div className="mt-4 space-y-2">
+                  {weakTopics.slice(0, 2).map((topic) => (
+                    <MissionCard
+                      key={topic.id}
+                      title={`Master "${topic.title}"`}
+                      detail={`Confidence: ${topic.confidence}/10`}
+                      progress={(topic.confidence / 10) * 100}
+                      completed={topic.confidence >= 8}
+                      tone="violet"
+                    />
+                  ))}
+                  {openErrors.length > 0 ? (
+                    <MissionCard
+                      title="Destroy open errors"
+                      detail={`${openErrors.length} error${openErrors.length > 1 ? "s" : ""} to resolve`}
+                      progress={openErrors.length > 0 ? Math.min(100, (1 - openErrors.length / (openErrors.length + 3)) * 100) : 100}
+                      completed={false}
+                      tone="rose"
+                    />
+                  ) : null}
+                </div>
+              </GlassCard>
+            ) : null}
 
             {/* Quick Actions */}
             <GlassCard>
