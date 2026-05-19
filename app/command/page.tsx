@@ -194,7 +194,7 @@ export default async function CommandPage() {
               </div>
             </GlassCard>
 
-            <CollapsiblePanel title={t("command.studyQuests")} defaultOpen badge={<span className="rounded-md bg-white/5 px-1.5 py-0.5 font-mono text-xs text-text-secondary">{completedQuests}/{quests.length}</span>}>
+            <CollapsiblePanel title={t("command.studyQuests")} defaultOpen badge={<span className="rounded-md bg-bg-subtle px-1.5 py-0.5 font-mono text-xs text-text-secondary">{completedQuests}/{quests.length}</span>}>
               <div className="grid gap-2.5 grid-cols-1 sm:grid-cols-2">
                 {quests.map((quest) => (
                   <QuestItem key={quest.title} {...quest} />

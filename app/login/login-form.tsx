@@ -31,7 +31,7 @@ export function LoginForm({
     <div className="motion-scale-in w-full">
       {/* Brand Header */}
       <div className="mb-8 text-center">
-        <div className="mx-auto mb-5 grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-br from-primary to-violet shadow-xl shadow-primary/20">
+        <div className="mx-auto mb-5 grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-br from-primary to-violet shadow-xl shadow-primary/25">
           <Command className="h-8 w-8 text-white" />
         </div>
         <h1 className="text-3xl font-bold tracking-tight text-text-primary">{copy.title}</h1>
@@ -39,7 +39,7 @@ export function LoginForm({
       </div>
 
       {/* Login Card */}
-      <div className="rounded-2xl border border-border bg-bg-surface p-6 shadow-[var(--shadow-elevated)] sm:p-8">
+      <div className="rounded-2xl border border-border/60 bg-gradient-to-b from-bg-surface to-bg-elevated p-6 shadow-[var(--shadow-elevated)] ring-1 ring-black/[0.02] sm:p-8">
         <form action={action} className="flex flex-col gap-5">
           {/* Username Field */}
           <div className="flex flex-col gap-2">
@@ -53,7 +53,7 @@ export function LoginForm({
                 autoComplete="username"
                 required
                 className="pl-10"
-                placeholder="Enter your username"
+                placeholder="Your username"
               />
             </div>
           </div>
@@ -70,7 +70,7 @@ export function LoginForm({
                 autoComplete="current-password"
                 required
                 className="pl-10"
-                placeholder="Enter your password"
+                placeholder="Your password"
               />
             </div>
           </div>

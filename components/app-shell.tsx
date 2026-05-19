@@ -1,4 +1,3 @@
-import Link from "next/link";
 import {
   Activity,
   BarChart3,
@@ -39,6 +38,7 @@ import { TranslationProvider } from "@/lib/i18n/useTranslation";
 import type { TranslationKey } from "@/lib/i18n/dictionaries/en";
 import { getTheme } from "@/lib/theme/config";
 
+import { NavLink } from "@/components/nav-link";
 import { cn } from "@/lib/utils";
 
 const navItems: Array<{ href: string; label: TranslationKey; icon: typeof Command; featured?: boolean }> = [
@@ -76,38 +76,6 @@ const navSections: Array<{ label: string; items: typeof navItems }> = [
   { label: "Strategy", items: navItems.slice(17) },
 ];
 
-function NavLink({
-  item,
-  t,
-  compact,
-}: {
-  item: (typeof navItems)[number];
-  t: (key: TranslationKey) => string;
-  compact?: boolean;
-}) {
-  const Icon = item.icon;
-  return (
-    <Link
-      href={item.href}
-      className={cn(
-        "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
-        item.featured
-          ? "border border-primary/20 bg-primary-soft text-primary shadow-sm hover:bg-primary-soft/70 hover:shadow-md"
-          : "text-text-secondary hover:bg-bg-subtle hover:text-text-primary",
-      )}
-    >
-      <Icon className={cn(
-        "h-[18px] w-[18px] shrink-0 transition-transform duration-200 group-hover:scale-110",
-        item.featured ? "text-primary" : "text-text-muted group-hover:text-text-primary",
-      )} />
-      <span className="truncate">{t(item.label)}</span>
-      {item.featured && (
-        <span className="ml-auto flex h-1.5 w-1.5 rounded-full bg-primary" />
-      )}
-    </Link>
-  );
-}
-
 function Navigation({ t }: { t: (key: TranslationKey) => string }) {
   return (
     <nav className="grid gap-5 pb-6">
@@ -119,7 +87,14 @@ function Navigation({ t }: { t: (key: TranslationKey) => string }) {
           </div>
           <div className="grid gap-0.5">
             {section.items.map((item) => (
-              <NavLink key={item.href} item={item} t={t} />
+              <NavLink
+                key={item.href}
+                href={item.href}
+                label={item.label}
+                icon={item.icon}
+                t={t}
+                featured={item.featured}
+              />
             ))}
           </div>
         </div>
@@ -138,6 +113,8 @@ export async function AppShell({
   const { locale, dictionary, t } = await getI18n();
   const theme = await getTheme();
 
+  const displayName = session.email.split("@")[0];
+
   return (
     <TranslationProvider locale={locale} dictionary={dictionary}>
       <div className="min-h-screen bg-bg-page">
@@ -149,8 +126,8 @@ export async function AppShell({
                 <Command className="h-5 w-5 text-white" />
               </div>
               <div className="min-w-0">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-text-muted">{t("app.privateConsole")}</p>
-                <h1 className="truncate text-base font-bold tracking-tight text-text-primary">{t("app.name")}</h1>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-text-muted">{t("app.privateConsole")}</p>
+                <h1 className="truncate text-sm font-bold tracking-tight text-text-primary">{t("app.name")}</h1>
               </div>
             </div>
           </div>
@@ -176,7 +153,7 @@ export async function AppShell({
                       <Command className="h-5 w-5 text-white" />
                     </div>
                     <div className="min-w-0">
-                      <h2 className="text-base font-semibold tracking-tight text-text-primary">{t("app.name")}</h2>
+                      <h2 className="text-sm font-bold tracking-tight text-text-primary">{t("app.name")}</h2>
                       <p className="text-xs text-text-muted">{t("app.tagline")}</p>
                     </div>
                   </div>
@@ -190,7 +167,7 @@ export async function AppShell({
               </Sheet>
               <div className="min-w-0">
                 <p className="text-xs font-medium text-text-muted">{t("app.owner")}</p>
-                <p className="truncate text-sm font-semibold text-text-primary">{session.email}</p>
+                <p className="truncate text-sm font-semibold text-text-primary">{displayName}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -231,15 +208,17 @@ export function PageHeader({
   eyebrow?: string;
 }) {
   return (
-    <div className="motion-premium mb-6 flex flex-col gap-4 rounded-2xl border border-border bg-bg-surface p-5 shadow-[var(--shadow-card)] sm:p-6 md:flex-row md:items-end md:justify-between">
-      <div className="min-w-0">
-        {eyebrow ? (
-          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-primary">{eyebrow}</p>
-        ) : null}
-        <h2 className="text-balance text-2xl font-bold tracking-tight text-text-primary sm:text-3xl">{title}</h2>
-        {description ? <p className="mt-2 max-w-2xl text-sm leading-relaxed text-text-secondary">{description}</p> : null}
+    <div className="motion-premium mb-6">
+      <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+        <div className="min-w-0">
+          {eyebrow ? (
+            <p className="mb-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-primary">{eyebrow}</p>
+          ) : null}
+          <h2 className="text-balance text-2xl font-bold tracking-tight text-text-primary sm:text-3xl">{title}</h2>
+          {description ? <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-text-secondary">{description}</p> : null}
+        </div>
+        {actions ? <div className="flex flex-wrap items-center gap-2.5 shrink-0">{actions}</div> : null}
       </div>
-      {actions ? <div className="flex flex-wrap items-center gap-2.5 shrink-0">{actions}</div> : null}
     </div>
   );
 }

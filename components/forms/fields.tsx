@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { ChevronDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -118,17 +119,20 @@ export function NativeSelectField({
 }) {
   return (
     <Field label={label} description={description}>
-      <select
-        name={name}
-        defaultValue={defaultValue ?? ""}
-        className="flex h-11 w-full rounded-xl border border-border bg-bg-elevated px-4 text-sm text-text-primary shadow-[var(--shadow-inner)] outline-none transition-all duration-150 focus:border-primary/50 focus:bg-bg-surface focus:shadow-[0_0_0_3px_var(--primary-glow),var(--shadow-inner)] focus:ring-0"
-      >
-        {options.map((option) => (
-          <option key={option.value} value={option.value} className="bg-bg-surface text-text-primary">
-            {option.label}
-          </option>
-        ))}
-      </select>
+      <div className="relative">
+        <select
+          name={name}
+          defaultValue={defaultValue ?? ""}
+          className="flex h-11 w-full appearance-none rounded-xl border border-border bg-bg-elevated px-4 pr-10 text-sm text-text-primary shadow-[var(--shadow-inner)] outline-none transition-all duration-150 focus:border-primary/50 focus:bg-bg-surface focus:shadow-[0_0_0_3px_var(--primary-glow),var(--shadow-inner)] focus:ring-0"
+        >
+          {options.map((option) => (
+            <option key={option.value} value={option.value} className="bg-bg-surface text-text-primary">
+              {option.label}
+            </option>
+          ))}
+        </select>
+        <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
+      </div>
     </Field>
   );
 }

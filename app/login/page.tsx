@@ -15,13 +15,13 @@ export default async function LoginPage() {
 
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-bg-page px-4 py-10">
-      {/* Atmospheric background elements */}
+      {/* Atmospheric background */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -left-40 -top-40 h-96 w-96 rounded-full bg-primary/[0.06] blur-[120px]" />
-        <div className="absolute -bottom-40 -right-40 h-[28rem] w-[28rem] rounded-full bg-violet/[0.05] blur-[120px]" />
-        <div className="absolute left-1/2 top-1/3 h-72 w-72 -translate-x-1/2 rounded-full bg-cyan/[0.04] blur-[100px]" />
-        {/* Subtle grid pattern */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(87,70,229,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(87,70,229,0.03)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_at_center,black_20%,transparent_70%)]" />
+        <div className="absolute -left-32 -top-32 h-[32rem] w-[32rem] rounded-full bg-gradient-to-br from-primary/8 to-transparent blur-[120px]" />
+        <div className="absolute -bottom-40 -right-40 h-[36rem] w-[36rem] rounded-full bg-gradient-to-tl from-violet/6 to-transparent blur-[120px]" />
+        <div className="absolute left-1/2 top-1/4 h-64 w-64 -translate-x-1/2 rounded-full bg-cyan/5 blur-[80px]" />
+        {/* Subtle grid */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(87,70,229,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(87,70,229,0.03)_1px,transparent_1px)] bg-[size:48px_48px] [mask-image:radial-gradient(ellipse_at_center,black_15%,transparent_75%)]" />
       </div>
 
       <div className="relative z-10 w-full max-w-md">

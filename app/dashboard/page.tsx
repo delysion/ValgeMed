@@ -123,10 +123,10 @@ export default async function DashboardPage() {
     <AppShell session={session}>
       <div className="flex flex-col gap-6">
         {/* ─── HERO SECTION ─── */}
-        <section className="relative overflow-hidden rounded-2xl border border-primary/10 bg-gradient-to-br from-primary-soft via-bg-elevated to-cyan-bg/40 p-5 shadow-[var(--shadow-hero)] sm:p-7 md:p-8">
-          <div className="pointer-events-none absolute -left-20 -top-20 h-72 w-72 rounded-full bg-primary/6 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-24 -right-24 h-80 w-80 rounded-full bg-violet/5 blur-3xl" />
-          <div className="pointer-events-none absolute left-1/3 top-1/2 h-48 w-48 rounded-full bg-cyan/5 blur-3xl" />
+        <section className="relative overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-primary-soft via-white to-cyan-bg/60 p-5 shadow-[var(--shadow-hero)] sm:p-7 md:p-8">
+          <div className="pointer-events-none absolute -left-20 -top-20 h-72 w-72 rounded-full bg-primary/8 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-24 -right-24 h-80 w-80 rounded-full bg-violet/8 blur-3xl" />
+          <div className="pointer-events-none absolute left-1/3 top-1/2 h-48 w-48 rounded-full bg-cyan/8 blur-3xl" />
 
           <div className="relative flex flex-col gap-5">
             <div className="flex flex-wrap items-center gap-2">
@@ -297,7 +297,7 @@ export default async function DashboardPage() {
                           </div>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
-                          <div className="h-2 w-20 overflow-hidden rounded-full bg-bg-subtle">
+                          <div className="h-2.5 w-20 overflow-hidden rounded-full bg-bg-subtle sm:w-24">
                             <div
                               className="h-full rounded-full bg-gradient-to-r from-rose to-gold"
                               style={{ width: `${(topic.confidence / 10) * 100}%` }}

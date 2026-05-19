@@ -77,25 +77,42 @@ export default async function SettingsPage() {
 
         {/* Weight Cards */}
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
-          <WeightCard title={t("settings.weightExam")} weights={readinessWeights} />
-          <WeightCard title={t("settings.weightEfficiency")} weights={efficiencyWeights} />
-          <WeightCard title={t("settings.weightBurnout")} weights={burnoutWeights} />
-          <WeightCard title={t("settings.weightElite")} weights={eliteIndexWeights} />
+          <WeightCard title={t("settings.weightExam")} weights={readinessWeights} tone="cyan" />
+          <WeightCard title={t("settings.weightEfficiency")} weights={efficiencyWeights} tone="violet" />
+          <WeightCard title={t("settings.weightBurnout")} weights={burnoutWeights} tone="rose" />
+          <WeightCard title={t("settings.weightElite")} weights={eliteIndexWeights} tone="emerald" />
         </div>
       </div>
     </AppShell>
   );
 }
 
-function WeightCard({ title, weights }: { title: string; weights: Record<string, number> }) {
+function WeightCard({ title, weights, tone }: { title: string; weights: Record<string, number>; tone: "cyan" | "violet" | "rose" | "emerald" }) {
+  const toneBar = {
+    cyan: "bg-cyan",
+    violet: "bg-violet",
+    rose: "bg-rose",
+    emerald: "bg-emerald",
+  };
+
+  const maxWeight = Math.max(...Object.values(weights));
+
   return (
     <GlassCard>
       <h3 className="text-base font-semibold text-text-primary">{title}</h3>
-      <div className="mt-3 flex flex-col gap-2">
+      <div className="mt-3 flex flex-col gap-3">
         {Object.entries(weights).map(([key, value]) => (
-          <div key={key} className="flex items-center justify-between gap-3 rounded-lg border-b border-border pb-2 text-sm last:border-b-0 last:pb-0">
-            <span className="text-text-secondary">{key}</span>
-            <span className="font-mono text-sm font-medium text-text-primary">{value}</span>
+          <div key={key} className="flex flex-col gap-1.5">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-text-secondary">{key}</span>
+              <span className="font-mono text-sm font-medium text-text-primary">{value}</span>
+            </div>
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-bg-subtle">
+              <div
+                className={`h-full rounded-full ${toneBar[tone]}`}
+                style={{ width: `${(value / maxWeight) * 100}%` }}
+              />
+            </div>
           </div>
         ))}
       </div>
