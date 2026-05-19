@@ -20,10 +20,10 @@ export function ScoreRing({
   const circumference = 2 * Math.PI * radius;
   const dash = (safe / 10) * circumference;
   const colorByTone = {
-    cyan: "var(--cyan)",
+    cyan: "var(--frozen-blue)",
     violet: "var(--violet)",
     emerald: "var(--emerald)",
-    gold: "var(--gold)",
+    gold: "var(--muted-amber)",
     rose: "var(--rose)",
     danger: "var(--danger)",
   };
@@ -40,12 +40,12 @@ export function ScoreRing({
     xl: "text-5xl",
   };
   const glowColor = {
-    cyan: "rgba(121, 231, 255, 0.25)",
-    violet: "rgba(199, 166, 255, 0.25)",
-    emerald: "rgba(142, 240, 196, 0.25)",
-    gold: "rgba(242, 213, 138, 0.25)",
-    rose: "rgba(255, 184, 199, 0.25)",
-    danger: "rgba(255, 116, 116, 0.25)",
+    cyan: "rgba(124, 175, 214, 0.15)",
+    violet: "rgba(139, 156, 191, 0.15)",
+    emerald: "rgba(74, 124, 111, 0.15)",
+    gold: "rgba(201, 164, 92, 0.15)",
+    rose: "rgba(168, 107, 125, 0.15)",
+    danger: "rgba(139, 74, 90, 0.15)",
   };
 
   return (
@@ -57,7 +57,7 @@ export function ScoreRing({
         />
       ) : null}
       <svg viewBox="0 0 120 120" className={cn("absolute inset-0 h-full w-full -rotate-90", animated ? "ring-glow" : "")}>
-        <circle cx="60" cy="60" r={radius} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="8" />
+        <circle cx="60" cy="60" r={radius} fill="none" stroke="rgba(248,250,252,0.05)" strokeWidth="8" />
         <circle
           cx="60"
           cy="60"

@@ -23,7 +23,7 @@ export function NoteVault({ identityNotes, tartuNotes }: { identityNotes: Identi
 
   if (allNotes.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.025] p-8 text-center">
+      <div className="rounded-xl border border-dashed border-white/[0.06] bg-white/[0.02] p-8 text-center">
         <BookOpen className="mx-auto h-6 w-6 text-muted-2" />
         <p className="mt-3 text-sm text-muted">Memory vault is empty.</p>
         <p className="mt-1 text-xs text-muted-2">Add identity notes or Tartu notes to build your knowledge base.</p>
@@ -48,7 +48,7 @@ export function NoteVault({ identityNotes, tartuNotes }: { identityNotes: Identi
 
       <div className="grid gap-3 sm:grid-cols-2">
         {allNotes.map((note) => (
-          <div key={note.id} className="group rounded-xl border border-white/10 bg-white/[0.03] p-4 transition-all duration-300 hover:bg-white/[0.05]">
+          <div key={note.id} className="group rounded-xl border border-white/[0.06] bg-white/[0.02] p-4 transition-all duration-300 hover:bg-white/[0.04]">
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">

@@ -1,29 +1,42 @@
 @import "tailwindcss";
 
 :root {
-  --background: #06070b;
-  --foreground: #f7f3ee;
-  --midnight: #0a1020;
-  --graphite: #0b0d12;
-  --charcoal: #121621;
-  --panel: rgba(18, 22, 33, 0.72);
-  --panel-solid: #121621;
-  --panel-soft: rgba(255, 255, 255, 0.055);
-  --muted: #a6adba;
-  --muted-2: #737b8d;
-  --line: rgba(255, 255, 255, 0.11);
-  --line-strong: rgba(255, 255, 255, 0.18);
-  --ice: #c8e7ff;
-  --cyan: #79e7ff;
-  --violet: #c7a6ff;
-  --emerald: #8ef0c4;
-  --gold: #f2d58a;
-  --rose: #ffb8c7;
-  --danger: #ff7474;
-  --warning: #f3ba63;
-  --success: #8ef0c4;
-  --shadow-premium: 0 24px 80px rgba(0, 0, 0, 0.42);
-  --ring-soft: 0 0 0 1px rgba(255, 255, 255, 0.09), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  /* Baltic Base */
+  --background: #071A2D;
+  --foreground: #F8FAFC;
+  --midnight: #0B1F33;
+  --graphite: #111827;
+  --charcoal: #1E293B;
+  --panel: rgba(11, 31, 51, 0.72);
+  --panel-solid: #0B1F33;
+  --panel-soft: rgba(248, 250, 252, 0.045);
+  --muted: #94A3B8;
+  --muted-2: #64748B;
+  --line: rgba(248, 250, 252, 0.08);
+  --line-strong: rgba(248, 250, 252, 0.14);
+
+  /* Baltic Accents */
+  --estonian-blue: #0072CE;
+  --frozen-blue: #7CAFD6;
+  --ice: #E5EEF6;
+  --limestone: #D8D2C4;
+  --pine-green: #1F3D33;
+  --sea-glass: #8FBDBA;
+  --muted-amber: #C9A45C;
+
+  /* Semantic - muted, cold, Baltic */
+  --cyan: #7CAFD6;
+  --violet: #8B9CBF;
+  --emerald: #4A7C6F;
+  --gold: #C9A45C;
+  --rose: #A86B7D;
+  --danger: #8B4A5A;
+  --warning: #B8943A;
+  --success: #4A7C6F;
+
+  /* Shadows */
+  --shadow-premium: 0 24px 80px rgba(0, 0, 0, 0.52);
+  --ring-soft: 0 0 0 1px rgba(248, 250, 252, 0.06), inset 0 1px 0 rgba(248, 250, 252, 0.04);
 }
 
 @theme inline {
@@ -47,6 +60,12 @@
   --color-danger: var(--danger);
   --color-warning: var(--warning);
   --color-success: var(--success);
+  --color-estonian-blue: var(--estonian-blue);
+  --color-frozen-blue: var(--frozen-blue);
+  --color-limestone: var(--limestone);
+  --color-sea-glass: var(--sea-glass);
+  --color-pine-green: var(--pine-green);
+  --color-muted-amber: var(--muted-amber);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -63,9 +82,9 @@ html {
 body {
   min-height: 100%;
   background:
-    linear-gradient(118deg, rgba(121, 231, 255, 0.12) 0%, transparent 27%),
-    linear-gradient(142deg, transparent 38%, rgba(199, 166, 255, 0.11) 64%, transparent 100%),
-    linear-gradient(180deg, #06070b 0%, #090d18 42%, #08070b 100%);
+    linear-gradient(118deg, rgba(124, 175, 214, 0.06) 0%, transparent 27%),
+    linear-gradient(142deg, transparent 38%, rgba(139, 156, 191, 0.05) 64%, transparent 100%),
+    linear-gradient(180deg, #071A2D 0%, #0B1F33 42%, #0D1B2A 100%);
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }
@@ -77,14 +96,14 @@ body::before {
   z-index: -1;
   content: "";
   background:
-    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    linear-gradient(rgba(248, 250, 252, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(248, 250, 252, 0.012) 1px, transparent 1px);
   background-size: 54px 54px;
   mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.78), transparent 78%);
 }
 
 ::selection {
-  background: rgba(121, 231, 255, 0.28);
+  background: rgba(124, 175, 214, 0.22);
 }
 
 input,
@@ -171,20 +190,20 @@ input[type="datetime-local"] {
 @keyframes ring-glow {
   0%,
   100% {
-    filter: drop-shadow(0 0 6px rgba(121, 231, 255, 0.3));
+    filter: drop-shadow(0 0 6px rgba(124, 175, 214, 0.2));
   }
   50% {
-    filter: drop-shadow(0 0 16px rgba(121, 231, 255, 0.55));
+    filter: drop-shadow(0 0 16px rgba(124, 175, 214, 0.35));
   }
 }
 
 @keyframes signal-pulse {
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgba(121, 231, 255, 0);
+    box-shadow: 0 0 0 0 rgba(124, 175, 214, 0);
   }
   50% {
-    box-shadow: 0 0 20px 2px rgba(121, 231, 255, 0.12);
+    box-shadow: 0 0 20px 2px rgba(124, 175, 214, 0.08);
   }
 }
 

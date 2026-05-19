@@ -67,7 +67,7 @@ export function ReviewDashboard({
       </div>
 
       {lastReview ? (
-        <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+        <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
           <h4 className="text-sm font-semibold text-white">{t("nav.strategicReview")}</h4>
           <p className="mt-1 text-xs text-muted-2">{format(lastReview.date, "d MMMM yyyy")}</p>
           {lastReview.nextFocus ? (
@@ -118,7 +118,7 @@ function ReviewStat({
   tone?: "cyan" | "emerald" | "danger" | "warning";
 }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+    <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
       <p className="text-[10px] text-muted">{label}</p>
       <div className="mt-1 flex items-end gap-1">
         <p className="font-mono text-2xl font-semibold text-white">{value}{suffix}</p>

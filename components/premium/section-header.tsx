@@ -18,9 +18,9 @@ export function SectionHeader({
   return (
     <div className={cn("flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between", className)}>
       <div className="flex items-center gap-2.5">
-        {Icon ? <Icon className="h-5 w-5 text-muted" /> : null}
+        {Icon ? <Icon className="h-4 w-4 text-muted-2" /> : null}
         <div>
-          <h3 className="text-lg font-semibold text-white">{title}</h3>
+          <h3 className="text-base font-semibold text-white">{title}</h3>
           {description ? <p className="mt-0.5 text-sm text-muted">{description}</p> : null}
         </div>
       </div>
@@ -41,7 +41,7 @@ export function QuickAction({
   tone?: "default" | "cyan" | "violet" | "emerald" | "gold" | "rose";
 }) {
   const toneClass = {
-    default: "text-muted hover:text-white hover:bg-white/[0.06]",
+    default: "text-muted-2 hover:text-white hover:bg-white/[0.05]",
     cyan: "text-cyan hover:bg-cyan/10",
     violet: "text-violet hover:bg-violet/10",
     emerald: "text-emerald hover:bg-emerald/10",

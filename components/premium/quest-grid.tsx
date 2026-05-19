@@ -27,25 +27,18 @@ export function QuestItem({
     gold: "bg-gold/10 text-gold",
     rose: "bg-rose/10 text-rose",
   };
-  const toneGlow = {
-    cyan: "shadow-[0_0_20px_rgba(121,231,255,0.06)]",
-    violet: "shadow-[0_0_20px_rgba(199,166,255,0.06)]",
-    emerald: "shadow-[0_0_20px_rgba(142,240,196,0.06)]",
-    gold: "shadow-[0_0_20px_rgba(242,213,138,0.06)]",
-    rose: "shadow-[0_0_20px_rgba(255,184,199,0.06)]",
-  };
 
   return (
     <div
       className={cn(
-        "group flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-3.5 transition-all duration-300 hover:bg-white/[0.05]",
-        complete ? "border-emerald/20 bg-emerald/[0.04]" : [toneBorder[tone], toneGlow[tone]],
+        "group flex items-start gap-3 rounded-lg border border-white/[0.06] bg-white/[0.02] p-3 transition-all duration-300 hover:bg-white/[0.04]",
+        complete ? "border-emerald/15 bg-emerald/[0.03]" : [toneBorder[tone]],
       )}
     >
       <div
         className={cn(
-          "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border transition-transform duration-300 group-hover:scale-110",
-          complete ? "border-emerald/20 bg-emerald/10 text-emerald" : [toneBorder[tone], toneIcon[tone]],
+          "flex h-7 w-7 shrink-0 items-center justify-center rounded-md border transition-transform duration-300 group-hover:scale-105",
+          complete ? "border-emerald/15 bg-emerald/10 text-emerald" : [toneBorder[tone], toneIcon[tone]],
         )}
       >
         {complete ? <Check className="h-3.5 w-3.5" /> : <Sparkle className="h-3.5 w-3.5" />}

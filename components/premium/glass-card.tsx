@@ -12,24 +12,24 @@ export function GlassCard({
   tone?: "default" | "cyan" | "violet" | "gold" | "rose" | "emerald" | "danger";
 }) {
   const tones = {
-    default: "from-white/[0.06] to-white/[0.02]",
-    cyan: "from-cyan/8 to-white/[0.02]",
-    violet: "from-violet/8 to-white/[0.02]",
-    gold: "from-gold/8 to-white/[0.02]",
-    rose: "from-rose/8 to-white/[0.02]",
-    emerald: "from-emerald/8 to-white/[0.02]",
-    danger: "from-danger/8 to-white/[0.02]",
+    default: "from-white/[0.04] to-white/[0.015]",
+    cyan: "from-cyan/6 to-white/[0.015]",
+    violet: "from-violet/6 to-white/[0.015]",
+    gold: "from-gold/6 to-white/[0.015]",
+    rose: "from-rose/6 to-white/[0.015]",
+    emerald: "from-emerald/6 to-white/[0.015]",
+    danger: "from-danger/6 to-white/[0.015]",
   };
 
   return (
     <section
       className={cn(
-        "relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br p-5 text-white shadow-[var(--shadow-premium)] backdrop-blur-2xl",
+        "relative overflow-hidden rounded-xl border border-white/[0.06] bg-gradient-to-br p-5 text-white shadow-[var(--shadow-premium)] backdrop-blur-2xl",
         tones[tone],
         className,
       )}
     >
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
       {children}
     </section>
   );

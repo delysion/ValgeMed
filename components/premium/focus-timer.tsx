@@ -112,7 +112,7 @@ export function FocusTimer({ onComplete }: { onComplete?: (minutes: number) => v
     longBreak: "Long Break",
   };
   const ringColor = {
-    work: "var(--cyan)",
+    work: "var(--frozen-blue)",
     shortBreak: "var(--emerald)",
     longBreak: "var(--violet)",
   };
@@ -124,7 +124,7 @@ export function FocusTimer({ onComplete }: { onComplete?: (minutes: number) => v
     <div className="flex flex-col items-center gap-5">
       <div className="relative grid h-48 w-48 place-items-center sm:h-56 sm:w-56">
         <svg viewBox="0 0 180 180" className="absolute inset-0 h-full w-full -rotate-90">
-          <circle cx="90" cy="90" r={radius} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="6" />
+          <circle cx="90" cy="90" r={radius} fill="none" stroke="rgba(248,250,252,0.05)" strokeWidth="6" />
           <circle
             cx="90"
             cy="90"
@@ -160,7 +160,7 @@ export function FocusTimer({ onComplete }: { onComplete?: (minutes: number) => v
       {sessions > 0 ? (
         <div className="flex items-center gap-1.5">
           {Array.from({ length: sessions }).map((_, i) => (
-            <div key={i} className="h-2 w-2 rounded-full bg-cyan" />
+            <div key={i} className="h-1.5 w-1.5 rounded-full bg-cyan" />
           ))}
           <span className="ml-1 text-xs text-muted">{sessions} session{sessions > 1 ? "s" : ""}</span>
         </div>

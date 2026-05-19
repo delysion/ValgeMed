@@ -31,7 +31,7 @@ export function TodayFocusCard({
   const energyLevel = todayLog?.energyLevel ?? null;
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.05] to-white/[0.02] p-5 backdrop-blur-xl">
+    <div className="rounded-xl border border-white/[0.06] bg-gradient-to-br from-white/[0.04] to-white/[0.015] p-5 backdrop-blur-xl">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-base font-semibold text-white">{t("command.todayFocus")}</h3>
         <Badge variant={energyLevel != null && energyLevel >= 6 ? "success" : energyLevel != null && energyLevel >= 4 ? "warning" : "danger"}>

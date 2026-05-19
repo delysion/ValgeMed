@@ -21,7 +21,7 @@ export function CollapsiblePanel({
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
-    <div className="rounded-xl border border-white/10 bg-white/[0.02] overflow-hidden">
+    <div className="overflow-hidden rounded-xl border border-white/[0.06] bg-white/[0.02]">
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="flex w-full items-center justify-between gap-3 p-4 text-left transition hover:bg-white/[0.03]"
@@ -40,7 +40,7 @@ export function CollapsiblePanel({
       <div
         className={cn(
           "overflow-hidden transition-all duration-300",
-          isOpen ? "max-h-[2000px] border-t border-white/10" : "max-h-0",
+          isOpen ? "max-h-[2000px] border-t border-white/[0.06]" : "max-h-0",
         )}
       >
         <div className="p-4">{children}</div>

@@ -13,9 +13,9 @@ export function MomentumBar({
 }) {
   const safe = Math.max(0, Math.min(100, value));
   const gradient = {
-    cyan: "from-cyan to-ice",
+    cyan: "from-cyan to-frozen-blue",
     violet: "from-violet to-rose",
-    emerald: "from-emerald to-cyan",
+    emerald: "from-emerald to-sea-glass",
     gold: "from-gold to-rose",
     rose: "from-rose to-violet",
     danger: "from-danger to-warning",
@@ -35,7 +35,7 @@ export function MomentumBar({
         <span className="text-sm font-medium text-white">{label}</span>
         <span className="font-mono text-xs text-muted">{safe.toFixed(0)}%</span>
       </div>
-      <div className="h-2 overflow-hidden rounded-full bg-white/[0.06]">
+      <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.05]">
         <div
           className={cn("h-full rounded-full bg-gradient-to-r transition-all duration-700 ease-out", gradient[tone])}
           style={{ width: `${safe}%` }}

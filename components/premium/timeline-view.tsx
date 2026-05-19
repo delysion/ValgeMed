@@ -54,7 +54,7 @@ function buildEvents(input: {
     if (exam.examDate) {
       const diff = (exam.examDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
       if (diff >= -1 && diff <= days) {
-        events.push({ date: exam.examDate, type: "exam", title: exam.title, detail: `Exam`, tone: "gold" });
+        events.push({ date: exam.examDate, type: "exam", title: exam.title, detail: "Exam", tone: "gold" });
       }
     }
   }
@@ -150,7 +150,7 @@ export function TimelineView({
 
   if (events.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.025] p-8 text-center">
+      <div className="rounded-xl border border-dashed border-white/[0.06] bg-white/[0.02] p-8 text-center">
         <CalendarDays className="mx-auto h-6 w-6 text-muted-2" />
         <p className="mt-3 text-sm text-muted">No events in the next {days} days.</p>
       </div>
@@ -175,7 +175,7 @@ export function TimelineView({
 
   return (
     <div className="relative">
-      <div className="absolute left-3 top-0 bottom-0 w-px bg-white/10" />
+      <div className="absolute left-3 top-0 bottom-0 w-px bg-white/[0.06]" />
       <div className="space-y-1">
         {grouped.map((group) =>
           group.events.map((event, index) => {
@@ -184,14 +184,14 @@ export function TimelineView({
             const isFirst = group.events.indexOf(event) === 0;
 
             return (
-              <div key={`${event.title}-${index}`} className={cn("group flex gap-4 py-2 pl-1 transition", isPast && "opacity-50")}>
+              <div key={`${event.title}-${index}`} className={cn("group flex gap-4 py-2 pl-1 transition", isPast && "opacity-40")}>
                 <div className="relative flex flex-col items-center">
                   {isFirst ? (
-                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-background ring-1 ring-white/20">
+                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-background ring-1 ring-white/15">
                       <Icon className={cn("h-3 w-3", event.tone ? typeTones[event.type] : "text-muted-2")} />
                     </div>
                   ) : (
-                    <div className={cn("h-2 w-2 rounded-full", group.isToday ? "bg-cyan ring-2 ring-cyan/30" : "bg-white/20")} />
+                    <div className={cn("h-1.5 w-1.5 rounded-full", group.isToday ? "bg-cyan ring-2 ring-cyan/20" : "bg-white/[0.15]")} />
                   )}
                 </div>
                 <div className="min-w-0 flex-1 pb-3">

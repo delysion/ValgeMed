@@ -15,7 +15,7 @@ import {
   YAxis,
 } from "recharts";
 
-const colors = ["#79e7ff", "#c7a6ff", "#8ef0c4", "#f2d58a", "#ffb8c7", "#c8e7ff"];
+const balticColors = ["#7CAFD6", "#8B9CBF", "#4A7C6F", "#C9A45C", "#A86B7D", "#8FBDBA"];
 
 export function MinutesBarChart({
   data,
@@ -35,16 +35,16 @@ export function MetricBarChart({
   domain?: [number, number];
 }) {
   return (
-    <ResponsiveContainer width="100%" height={240}>
+    <ResponsiveContainer width="100%" height={220}>
       <BarChart data={data}>
-        <CartesianGrid stroke="rgba(255,255,255,0.07)" vertical={false} />
-        <XAxis dataKey="name" stroke="#a6adba" fontSize={11} tickLine={false} axisLine={false} />
-        <YAxis stroke="#a6adba" fontSize={11} domain={domain} tickLine={false} axisLine={false} />
+        <CartesianGrid stroke="rgba(248,250,252,0.05)" vertical={false} />
+        <XAxis dataKey="name" stroke="#94A3B8" fontSize={11} tickLine={false} axisLine={false} />
+        <YAxis stroke="#94A3B8" fontSize={11} domain={domain} tickLine={false} axisLine={false} />
         <Tooltip
-          cursor={{ fill: "rgba(255,255,255,0.04)" }}
-          contentStyle={{ background: "rgba(10,16,32,.96)", border: "1px solid rgba(255,255,255,.14)", borderRadius: 16 }}
+          cursor={{ fill: "rgba(248,250,252,0.03)" }}
+          contentStyle={{ background: "rgba(11,31,51,.96)", border: "1px solid rgba(248,250,252,.1)", borderRadius: 8 }}
         />
-        <Bar dataKey={dataKey} radius={[12, 12, 4, 4]} fill="#79e7ff" />
+        <Bar dataKey={dataKey} radius={[6, 6, 2, 2]} fill="#7CAFD6" />
       </BarChart>
     </ResponsiveContainer>
   );
@@ -58,20 +58,20 @@ export function TrendLineChart({
   lines: Array<{ key: string; color?: string }>;
 }) {
   return (
-    <ResponsiveContainer width="100%" height={240}>
+    <ResponsiveContainer width="100%" height={220}>
       <LineChart data={data}>
-        <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
-        <XAxis dataKey="date" stroke="#a6adba" fontSize={11} tickLine={false} axisLine={false} />
-        <YAxis stroke="#a6adba" fontSize={11} domain={[0, 10]} tickLine={false} axisLine={false} />
+        <CartesianGrid stroke="rgba(248,250,252,0.05)" vertical={false} />
+        <XAxis dataKey="date" stroke="#94A3B8" fontSize={11} tickLine={false} axisLine={false} />
+        <YAxis stroke="#94A3B8" fontSize={11} domain={[0, 10]} tickLine={false} axisLine={false} />
         <Tooltip
-          contentStyle={{ background: "rgba(10,16,32,.96)", border: "1px solid rgba(255,255,255,.14)", borderRadius: 16 }}
+          contentStyle={{ background: "rgba(11,31,51,.96)", border: "1px solid rgba(248,250,252,.1)", borderRadius: 8 }}
         />
         {lines.map((line, index) => (
           <Line
             key={line.key}
             type="monotone"
             dataKey={line.key}
-            stroke={line.color ?? colors[index % colors.length]}
+            stroke={line.color ?? balticColors[index % balticColors.length]}
             strokeWidth={2}
             dot={false}
           />
@@ -87,15 +87,15 @@ export function MethodPieChart({
   data: Array<{ name: string; value: number }>;
 }) {
   return (
-    <ResponsiveContainer width="100%" height={220}>
+    <ResponsiveContainer width="100%" height={200}>
       <PieChart>
-        <Pie data={data} dataKey="value" nameKey="name" innerRadius={48} outerRadius={82}>
+        <Pie data={data} dataKey="value" nameKey="name" innerRadius={44} outerRadius={76}>
           {data.map((entry, index) => (
-            <Cell key={entry.name} fill={colors[index % colors.length]} />
+            <Cell key={entry.name} fill={balticColors[index % balticColors.length]} />
           ))}
         </Pie>
         <Tooltip
-          contentStyle={{ background: "rgba(10,16,32,.96)", border: "1px solid rgba(255,255,255,.14)", borderRadius: 16 }}
+          contentStyle={{ background: "rgba(11,31,51,.96)", border: "1px solid rgba(248,250,252,.1)", borderRadius: 8 }}
         />
       </PieChart>
     </ResponsiveContainer>

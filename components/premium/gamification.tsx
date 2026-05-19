@@ -41,14 +41,14 @@ export function AchievementBadge({
   detail?: string;
 }) {
   return (
-    <div className={cn("group rounded-xl border p-3.5 transition-all duration-300", unlocked ? "border-gold/20 bg-gold/[0.06] hover:bg-gold/[0.1]" : "border-white/10 bg-white/[0.025]")}>
+    <div className={cn("group rounded-lg border p-3 transition-all duration-300", unlocked ? "border-gold/15 bg-gold/[0.04] hover:bg-gold/[0.06]" : "border-white/[0.06] bg-white/[0.02]")}>
       <div className="flex items-center gap-2">
-        <div className={cn("flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-transform duration-300 group-hover:scale-110", unlocked ? "bg-gold/10 text-gold" : "bg-white/5 text-muted-2")}>
+        <div className={cn("flex h-6 w-6 shrink-0 items-center justify-center rounded-md transition-transform duration-300 group-hover:scale-105", unlocked ? "bg-gold/10 text-gold" : "bg-white/[0.04] text-muted-2")}>
           {unlocked ? <Sparkle className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />}
         </div>
         <p className={cn("text-sm font-semibold", unlocked ? "text-white" : "text-muted")}>{title}</p>
       </div>
-      {detail ? <p className="mt-2 text-xs text-muted">{detail}</p> : null}
+      {detail ? <p className="mt-1.5 text-xs text-muted">{detail}</p> : null}
     </div>
   );
 }

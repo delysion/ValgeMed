@@ -35,20 +35,20 @@ export function MetricCard({
   };
 
   return (
-    <div className="group rounded-xl border border-white/10 bg-white/[0.03] p-4 backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/[0.05]">
+    <div className="group rounded-xl border border-white/[0.06] bg-white/[0.02] p-4 backdrop-blur-xl transition-all duration-300 hover:bg-white/[0.04]">
       <div className="flex items-center justify-between gap-2">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">{title}</p>
-        {Icon ? <Icon className={cn("h-4 w-4 shrink-0 transition-transform duration-300 group-hover:scale-110", toneIcon[tone])} /> : null}
+        <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted">{title}</p>
+        {Icon ? <Icon className={cn("h-4 w-4 shrink-0 transition-transform duration-300 group-hover:scale-105", toneIcon[tone])} /> : null}
       </div>
-      <div className="mt-3 flex items-end gap-2">
-        <p className="font-mono text-2xl font-semibold text-white">{value}</p>
+      <div className="mt-2.5 flex items-end gap-2">
+        <p className="font-mono text-xl font-semibold text-white">{value}</p>
         {trend ? (
-          <span className="rounded-md bg-white/5 px-1.5 py-0.5 text-[10px] font-medium text-muted">{trend}</span>
+          <span className="rounded bg-white/[0.04] px-1.5 py-0.5 text-[10px] font-medium text-muted">{trend}</span>
         ) : null}
       </div>
       {detail ? (
-        <div className="mt-2 flex items-center gap-1.5">
-          <div className={cn("h-1.5 w-1.5 rounded-full", toneDot[tone])} />
+        <div className="mt-1.5 flex items-center gap-1.5">
+          <div className={cn("h-1 w-1 rounded-full", toneDot[tone])} />
           <p className="text-xs leading-5 text-muted">{detail}</p>
         </div>
       ) : null}

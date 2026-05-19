@@ -26,7 +26,7 @@ export function ContactCard({ contact }: { contact: ProfessionalContact }) {
   const tone = strengthTone(contact.relationshipStrength);
 
   return (
-    <div className="group rounded-xl border border-white/10 bg-white/[0.03] p-4 backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/[0.05]">
+    <div className="group rounded-xl border border-white/[0.06] bg-white/[0.02] p-4 backdrop-blur-xl transition-all duration-300 hover:bg-white/[0.04]">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <h4 className="truncate text-sm font-semibold text-white">{contact.name}</h4>
@@ -42,7 +42,7 @@ export function ContactCard({ contact }: { contact: ProfessionalContact }) {
           {Array.from({ length: 5 }).map((_, i) => (
             <Star
               key={i}
-              className={cn("h-3 w-3", i < ((contact.relationshipStrength ?? 0) + 1) / 2 ? "text-gold" : "text-white/10")}
+              className={cn("h-3 w-3", i < ((contact.relationshipStrength ?? 0) + 1) / 2 ? "text-gold" : "text-white/[0.08]")}
               fill={i < ((contact.relationshipStrength ?? 0) + 1) / 2 ? "currentColor" : "none"}
             />
           ))}
@@ -64,7 +64,7 @@ export function FollowUpItem({ contact }: { contact: ProfessionalContact }) {
   const isOverdue = contact.nextFollowUpAt ? contact.nextFollowUpAt < new Date() : false;
 
   return (
-    <div className={cn("flex items-center gap-3 rounded-lg border p-3 transition hover:bg-white/[0.04]", isOverdue ? "border-danger/20 bg-danger/[0.03]" : "border-white/10 bg-white/[0.02]")}>
+    <div className={cn("flex items-center gap-3 rounded-lg border p-3 transition hover:bg-white/[0.03]", isOverdue ? "border-danger/15 bg-danger/[0.03]" : "border-white/[0.06] bg-white/[0.02]")}>
       <div className={cn("h-2 w-2 shrink-0 rounded-full", isOverdue ? "bg-danger" : "bg-cyan")} />
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-medium text-white">{contact.name}</p>

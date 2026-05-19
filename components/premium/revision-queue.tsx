@@ -14,7 +14,7 @@ export function RevisionQueue({ items }: { items: ReviewItem[] }) {
 
   if (active.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.025] p-8 text-center">
+      <div className="rounded-xl border border-dashed border-white/[0.06] bg-white/[0.02] p-8 text-center">
         <BookOpen className="mx-auto h-6 w-6 text-muted-2" />
         <p className="mt-3 text-sm text-muted">No review items yet.</p>
       </div>
@@ -25,7 +25,7 @@ export function RevisionQueue({ items }: { items: ReviewItem[] }) {
     <div className="space-y-4">
       {overdue.length > 0 && (
         <div>
-          <h4 className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.1em] text-danger">
+          <h4 className="mb-2 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-danger">
             <Clock className="h-3.5 w-3.5" />
             Overdue ({overdue.length})
           </h4>
@@ -39,7 +39,7 @@ export function RevisionQueue({ items }: { items: ReviewItem[] }) {
 
       {today.length > 0 && (
         <div>
-          <h4 className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.1em] text-cyan">
+          <h4 className="mb-2 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-cyan">
             <BookOpen className="h-3.5 w-3.5" />
             Due today ({today.length})
           </h4>
@@ -53,7 +53,7 @@ export function RevisionQueue({ items }: { items: ReviewItem[] }) {
 
       {upcoming.length > 0 && (
         <div>
-          <h4 className="mb-2 text-xs font-semibold uppercase tracking-[0.1em] text-muted-2">Upcoming</h4>
+          <h4 className="mb-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-2">Upcoming</h4>
           <div className="space-y-1.5">
             {upcoming.map((item) => (
               <ReviewRow key={item.id} item={item} />
@@ -67,7 +67,7 @@ export function RevisionQueue({ items }: { items: ReviewItem[] }) {
 
 function ReviewRow({ item, overdue = false }: { item: ReviewItem; overdue?: boolean }) {
   return (
-    <div className={cn("flex items-center gap-3 rounded-lg border p-3 transition hover:bg-white/[0.04]", overdue ? "border-danger/15 bg-danger/[0.03]" : "border-white/10 bg-white/[0.02]")}>
+    <div className={cn("flex items-center gap-3 rounded-lg border p-3 transition hover:bg-white/[0.03]", overdue ? "border-danger/12 bg-danger/[0.03]" : "border-white/[0.06] bg-white/[0.02]")}>
       <RotateCw className="h-3.5 w-3.5 shrink-0 text-muted-2" />
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm text-white">{item.question ?? "Review item"}</p>
