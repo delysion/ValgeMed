@@ -2,11 +2,16 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-export function Card({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  variant?: "default" | "premium";
+}
+
+export function Card({ className, variant = "default", ...props }: CardProps) {
   return (
     <div
       className={cn(
         "rounded-2xl border border-border bg-bg-surface text-text-primary shadow-[var(--shadow-card)] transition-all duration-200 hover:shadow-[var(--shadow-elevated)]",
+        variant === "premium" && "border-border/50 shadow-[var(--shadow-card)]",
         className,
       )}
       {...props}
@@ -32,7 +37,7 @@ export function CardDescription({
 }
 
 export function CardContent({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("p-5 pt-0 sm:p-6 sm:pt-0", className)} {...props} />;
+  return <div className={cn("p-5 sm:p-6", className)} {...props} />;
 }
 
 export function CardFooter({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
