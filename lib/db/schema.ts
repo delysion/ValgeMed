@@ -196,6 +196,7 @@ export const strategicReviewTypeEnum = pgEnum("strategic_review_type", [
 
 export const subjects = pgTable("subjects", {
   id: idColumn(),
+  userId: uuid("user_id").notNull(),
   name: varchar("name", { length: 160 }).notNull(),
   code: varchar("code", { length: 40 }),
   description: text("description"),
@@ -208,6 +209,7 @@ export const subjects = pgTable("subjects", {
 
 export const exams = pgTable("exams", {
   id: idColumn(),
+  userId: uuid("user_id").notNull(),
   subjectId: uuid("subject_id")
     .notNull()
     .references(() => subjects.id, { onDelete: "cascade" }),
@@ -226,6 +228,7 @@ export const exams = pgTable("exams", {
 
 export const topics = pgTable("topics", {
   id: idColumn(),
+  userId: uuid("user_id").notNull(),
   subjectId: uuid("subject_id")
     .notNull()
     .references(() => subjects.id, { onDelete: "cascade" }),
@@ -244,6 +247,7 @@ export const topics = pgTable("topics", {
 
 export const studySessions = pgTable("study_sessions", {
   id: idColumn(),
+  userId: uuid("user_id").notNull(),
   subjectId: uuid("subject_id")
     .notNull()
     .references(() => subjects.id, { onDelete: "cascade" }),
@@ -262,6 +266,7 @@ export const studySessions = pgTable("study_sessions", {
 
 export const reviewItems = pgTable("review_items", {
   id: idColumn(),
+  userId: uuid("user_id").notNull(),
   subjectId: uuid("subject_id")
     .notNull()
     .references(() => subjects.id, { onDelete: "cascade" }),
@@ -281,6 +286,7 @@ export const reviewItems = pgTable("review_items", {
 
 export const errorLogs = pgTable("error_logs", {
   id: idColumn(),
+  userId: uuid("user_id").notNull(),
   subjectId: uuid("subject_id")
     .notNull()
     .references(() => subjects.id, { onDelete: "cascade" }),
@@ -302,6 +308,7 @@ export const errorLogs = pgTable("error_logs", {
 
 export const quizAttempts = pgTable("quiz_attempts", {
   id: idColumn(),
+  userId: uuid("user_id").notNull(),
   subjectId: uuid("subject_id")
     .notNull()
     .references(() => subjects.id, { onDelete: "cascade" }),
@@ -317,6 +324,7 @@ export const quizAttempts = pgTable("quiz_attempts", {
 
 export const dailyLogs = pgTable("daily_logs", {
   id: idColumn(),
+  userId: uuid("user_id").notNull(),
   date: date("date").notNull().unique(),
   sleepHours: doublePrecision("sleep_hours"),
   energyLevel: integer("energy_level"),
@@ -333,6 +341,7 @@ export const dailyLogs = pgTable("daily_logs", {
 
 export const goals = pgTable("goals", {
   id: idColumn(),
+  userId: uuid("user_id").notNull(),
   title: varchar("title", { length: 220 }).notNull(),
   description: text("description"),
   goalType: goalTypeEnum("goal_type").default("daily").notNull(),
@@ -345,6 +354,7 @@ export const goals = pgTable("goals", {
 
 export const tasks = pgTable("tasks", {
   id: idColumn(),
+  userId: uuid("user_id").notNull(),
   title: varchar("title", { length: 220 }).notNull(),
   description: text("description"),
   dueAt: timestamp("due_at", { withTimezone: true }),
@@ -365,6 +375,7 @@ export const tasks = pgTable("tasks", {
 
 export const identityNotes = pgTable("identity_notes", {
   id: idColumn(),
+  userId: uuid("user_id").notNull(),
   title: varchar("title", { length: 220 }).notNull(),
   content: text("content").notNull(),
   category: identityCategoryEnum("category")
@@ -376,6 +387,7 @@ export const identityNotes = pgTable("identity_notes", {
 
 export const tartuNotes = pgTable("tartu_notes", {
   id: idColumn(),
+  userId: uuid("user_id").notNull(),
   title: varchar("title", { length: 220 }).notNull(),
   content: text("content").notNull(),
   category: tartuNoteCategoryEnum("category").default("tartu_life").notNull(),
@@ -387,6 +399,7 @@ export const tartuNotes = pgTable("tartu_notes", {
 
 export const timeBlocks = pgTable("time_blocks", {
   id: idColumn(),
+  userId: uuid("user_id").notNull(),
   date: date("date").notNull(),
   title: varchar("title", { length: 220 }).notNull(),
   blockType: timeBlockTypeEnum("block_type").default("study").notNull(),
@@ -401,6 +414,7 @@ export const timeBlocks = pgTable("time_blocks", {
 
 export const healthLogs = pgTable("health_logs", {
   id: idColumn(),
+  userId: uuid("user_id").notNull(),
   date: date("date").notNull().unique(),
   sleepQuality: integer("sleep_quality"),
   cognitiveFatigue: integer("cognitive_fatigue"),
@@ -415,6 +429,7 @@ export const healthLogs = pgTable("health_logs", {
 
 export const languageProgress = pgTable("language_progress", {
   id: idColumn(),
+  userId: uuid("user_id").notNull(),
   language: languageEnum("language").default("estonian").notNull(),
   title: varchar("title", { length: 220 }).notNull(),
   category: varchar("category", { length: 120 }),
@@ -429,6 +444,7 @@ export const languageProgress = pgTable("language_progress", {
 
 export const reputationEvents = pgTable("reputation_events", {
   id: idColumn(),
+  userId: uuid("user_id").notNull(),
   title: varchar("title", { length: 220 }).notNull(),
   description: text("description"),
   eventType: reputationEventTypeEnum("event_type").default("reliability_signal").notNull(),
@@ -443,6 +459,7 @@ export const reputationEvents = pgTable("reputation_events", {
 
 export const opportunities = pgTable("opportunities", {
   id: idColumn(),
+  userId: uuid("user_id").notNull(),
   title: varchar("title", { length: 220 }).notNull(),
   description: text("description"),
   opportunityType: opportunityTypeEnum("opportunity_type").default("other").notNull(),
@@ -458,6 +475,7 @@ export const opportunities = pgTable("opportunities", {
 
 export const professionalContacts = pgTable("professional_contacts", {
   id: idColumn(),
+  userId: uuid("user_id").notNull(),
   name: varchar("name", { length: 220 }).notNull(),
   role: varchar("role", { length: 160 }),
   institution: varchar("institution", { length: 220 }),
@@ -471,6 +489,7 @@ export const professionalContacts = pgTable("professional_contacts", {
 
 export const lifeAdminItems = pgTable("life_admin_items", {
   id: idColumn(),
+  userId: uuid("user_id").notNull(),
   title: varchar("title", { length: 220 }).notNull(),
   description: text("description"),
   category: lifeAdminCategoryEnum("category").default("other").notNull(),
@@ -483,6 +502,7 @@ export const lifeAdminItems = pgTable("life_admin_items", {
 
 export const portfolioItems = pgTable("portfolio_items", {
   id: idColumn(),
+  userId: uuid("user_id").notNull(),
   title: varchar("title", { length: 220 }).notNull(),
   description: text("description"),
   itemType: portfolioItemTypeEnum("item_type").default("other").notNull(),
@@ -496,6 +516,7 @@ export const portfolioItems = pgTable("portfolio_items", {
 
 export const strategicReviews = pgTable("strategic_reviews", {
   id: idColumn(),
+  userId: uuid("user_id").notNull(),
   date: date("date").notNull(),
   reviewType: strategicReviewTypeEnum("review_type").default("weekly").notNull(),
   wins: text("wins"),
@@ -509,6 +530,7 @@ export const strategicReviews = pgTable("strategic_reviews", {
 
 export const researchAreas = pgTable("research_areas", {
   id: idColumn(),
+  userId: uuid("user_id").notNull(),
   name: text("name").notNull(),
   description: text("description"),
   whatIsKnown: text("what_is_known"),
@@ -521,6 +543,7 @@ export const researchAreas = pgTable("research_areas", {
 
 export const literatureGaps = pgTable("literature_gaps", {
   id: idColumn(),
+  userId: uuid("user_id").notNull(),
   researchAreaId: uuid("research_area_id").references(() => researchAreas.id),
   title: text("title").notNull(),
   description: text("description"),
@@ -533,6 +556,7 @@ export const literatureGaps = pgTable("literature_gaps", {
 
 export const hypotheses = pgTable("hypotheses", {
   id: idColumn(),
+  userId: uuid("user_id").notNull(),
   question: text("question").notNull(),
   totalScore: integer("total_score"),
   output: text("output"),
@@ -544,6 +568,7 @@ export const hypotheses = pgTable("hypotheses", {
 
 export const manuscripts = pgTable("manuscripts", {
   id: idColumn(),
+  userId: uuid("user_id").notNull(),
   title: text("title").notNull(),
   hypothesisId: uuid("hypothesis_id").references(() => hypotheses.id),
   stage: text("stage").notNull().default("idea"),
@@ -556,6 +581,7 @@ export const manuscripts = pgTable("manuscripts", {
 
 export const methodologyRisks = pgTable("methodology_risks", {
   id: idColumn(),
+  userId: uuid("user_id").notNull(),
   manuscriptId: uuid("manuscript_id").references(() => manuscripts.id),
   hypothesisId: uuid("hypothesis_id").references(() => hypotheses.id),
   type: text("type").notNull(),
@@ -568,6 +594,7 @@ export const methodologyRisks = pgTable("methodology_risks", {
 
 export const uploads = pgTable("uploads", {
   id: idColumn(),
+  userId: uuid("user_id").notNull(),
   filename: varchar("filename", { length: 255 }).notNull(),
   originalName: varchar("original_name", { length: 255 }).notNull(),
   mimeType: varchar("mime_type", { length: 100 }).notNull(),
@@ -578,6 +605,13 @@ export const uploads = pgTable("uploads", {
   processed: boolean("processed").default(false).notNull(),
   flashcardsGenerated: integer("flashcards_generated").default(0).notNull(),
   createdAt: createdAtColumn(),
+});
+
+export const profiles = pgTable("profiles", {
+  id: uuid("id").primaryKey(),
+  displayName: text("display_name"),
+  createdAt: createdAtColumn(),
+  updatedAt: updatedAtColumn(),
 });
 
 export const schema = {
@@ -608,6 +642,7 @@ export const schema = {
   manuscripts,
   methodologyRisks,
   uploads,
+  profiles,
 };
 
 export type Subject = typeof subjects.$inferSelect;
@@ -637,3 +672,4 @@ export type Hypothesis = typeof hypotheses.$inferSelect;
 export type Manuscript = typeof manuscripts.$inferSelect;
 export type MethodologyRisk = typeof methodologyRisks.$inferSelect;
 export type Upload = typeof uploads.$inferSelect;
+export type Profile = typeof profiles.$inferSelect;
