@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 
-export const themeCookie = "elise_theme";
+export const themeCookie = "valgemed_theme";
 
 export async function getTheme(): Promise<"light" | "dark"> {
   try {

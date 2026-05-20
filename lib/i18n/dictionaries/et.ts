@@ -1,10 +1,10 @@
 import type { Dictionary } from "./en";
 
 export const et: Dictionary = {
-  "app.name": "ELISE OS",
-  "app.tagline": "Luksuslik akadeemiline juhtpaneel",
+  "app.name": "ValgeMed",
+  "app.tagline": "Vaikne käsusüsteem tõsistele arstitudengitele.",
   "app.owner": "Omanik",
-  "app.privateConsole": "Privaatne juhtsüsteem",
+  "app.privateConsole": "Privaatkäsklus",
   "app.exportJson": "JSON",
   "app.logout": "Logi välja",
   "language.label": "Keel",
@@ -76,7 +76,7 @@ export const et: Dictionary = {
   "common.quietProgress": "Vaikne areng kuhjub.",
   "common.protectEnergy": "Hoia energiat. Tõsta väljundit.",
 
-  "login.title": "Sisene ELISE OS-i",
+  "login.title": "Sisene ValgeMedi",
   "login.subtitle": "Privaatne akadeemiline juhtsüsteem. Avalikke kontosid ei ole. Müra ei ole.",
   "login.email": "Omaniku e-post",
   "login.username": "Kasutajanimi",
@@ -88,7 +88,7 @@ export const et: Dictionary = {
   "command.subtitle": "Sinu privaatne keskus õppimiseks, energiaks, mäluks ja trajektooriks.",
   "command.greeting": "Hea, et oled tagasi.",
   "command.today": "Täna",
-  "command.eliteIndex": "Elise eliitindeks",
+  "command.eliteIndex": "Eliitindeks",
   "command.todaysCommand": "Tänane käsklus",
   "command.nextBestAction": "Parim järgmine samm",
   "command.mainBottleneck": "Peamine kitsaskoht",
@@ -136,7 +136,7 @@ export const et: Dictionary = {
 
   "elite.title": "Eliitindeks",
   "elite.subtitle": "Ilus strateegiline signaal arengu, surve ja trajektoori kohta.",
-  "elite.central": "Elise eliitindeks",
+  "elite.central": "Eliitindeks",
   "elite.history": "Skoori ajalugu",
   "elite.breakdown": "Komponentide jaotus",
   "elite.improve": "Eetilised parandused",

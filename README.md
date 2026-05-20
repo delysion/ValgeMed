@@ -1,8 +1,8 @@
-# ELISE OS
+# ValgeMed
 
-Private single-user academic command system for an ambitious future medical or dental student in Tartu.
+A quiet command system for serious medical students.
 
-ELISE OS is not a SaaS. It has no public registration, billing, social features, scraping, email integration, or automatic AI cloud workflow. It is a private console for study, exams, memory, active recall, errors, energy, burnout prevention, Tartu integration, opportunities, reputation, portfolio, and long-term academic trajectory.
+ValgeMed is not a SaaS. It has no public registration, billing, social features, scraping, email integration, or automatic AI cloud workflow. It is a private console for study, exams, memory, active recall, errors, energy, burnout prevention, Tartu integration, opportunities, reputation, portfolio, and long-term academic trajectory.
 
 ## Stack
 
@@ -96,7 +96,7 @@ If `APP_PASSWORD_HASH` or `SESSION_SECRET` are missing, login shows a clear conf
 
 ## Bilingual UI
 
-ELISE OS supports:
+ValgeMed supports:
 
 - English (`en`) as the default language.
 - Estonian (`et`) as the secondary language.
@@ -120,7 +120,7 @@ Language can be changed from:
 - the mobile navigation drawer,
 - the Settings page.
 
-The selected language is persisted in the `elise_language` cookie and mirrored to `localStorage` as a fallback. Server-rendered pages read the cookie first, so protected routes render in the selected language without a client-side flash.
+The selected language is persisted in the `valgemed_language` cookie and mirrored to `localStorage` as a fallback. Server-rendered pages read the cookie first, so protected routes render in the selected language without a client-side flash.
 
 ## AI Governance
 
@@ -163,7 +163,7 @@ Medical and scientific terminology may remain in English or Latin where appropri
 - `/elite-index` with central score, history, components, and ethical suggestions.
 - `/exams` and `/exams/[id]` as exam cards and Exam Battle Room.
 - `/topics`, `/errors`, `/study`, `/health`, `/language`, `/opportunities`, `/reputation`, `/portfolio`, and `/ai` redesigned around state, risk, progress, and next move.
-- Local scoring engine: Exam Readiness, Study Efficiency, Burnout Risk, Time Leverage, Medical Mastery, Error Destruction, Energy Integrity, Estonia Integration, Reputation Capital, Opportunity Capture, and Elise Elite Index.
+- Local scoring engine: Exam Readiness, Study Efficiency, Burnout Risk, Time Leverage, Medical Mastery, Error Destruction, Energy Integrity, Estonia Integration, Reputation Capital, Opportunity Capture, and Elite Index.
 - Non-AI next best action engine.
 - Elegant gamification: Elise Elite Index, mastery badges, study quests, achievements, command streak, momentum, and error destruction states.
 - Export JSON/CSV for study, goals, identity, life, and elite modules.

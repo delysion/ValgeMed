@@ -1,8 +1,8 @@
 export const en = {
-  "app.name": "ELISE OS",
-  "app.tagline": "Luxury academic command center",
+  "app.name": "ValgeMed",
+  "app.tagline": "A quiet command system for serious medical students.",
   "app.owner": "Owner",
-  "app.privateConsole": "Private command system",
+  "app.privateConsole": "Private Command",
   "app.exportJson": "JSON",
   "app.logout": "Logout",
   "language.label": "Language",
@@ -74,7 +74,7 @@ export const en = {
   "common.quietProgress": "Quiet progress compounds.",
   "common.protectEnergy": "Protect energy. Upgrade output.",
 
-  "login.title": "Enter ELISE OS",
+  "login.title": "Enter ValgeMed",
   "login.subtitle": "Private academic command system. No public accounts. No noise.",
   "login.email": "Owner email",
   "login.username": "Username",
@@ -86,7 +86,7 @@ export const en = {
   "command.subtitle": "Your private cockpit for study, energy, memory and trajectory.",
   "command.greeting": "Good to see you back.",
   "command.today": "Today",
-  "command.eliteIndex": "Elise Elite Index",
+  "command.eliteIndex": "Elite Index",
   "command.todaysCommand": "Today's Command",
   "command.nextBestAction": "Next Best Action",
   "command.mainBottleneck": "Main bottleneck",
@@ -134,7 +134,7 @@ export const en = {
 
   "elite.title": "Elite Index",
   "elite.subtitle": "A beautiful strategic signal for progress, pressure and trajectory.",
-  "elite.central": "Elise Elite Index",
+  "elite.central": "Elite Index",
   "elite.history": "Score history",
   "elite.breakdown": "Component breakdown",
   "elite.improve": "Ethical upgrades",

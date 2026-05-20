@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ELISE OS",
-  description: "Private academic command system for medicine and dentistry.",
+  title: "ValgeMed",
+  description: "A quiet command system for serious medical students.",
 };
 
 export default async function RootLayout({

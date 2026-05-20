@@ -3,7 +3,7 @@ export const languages = ["en", "et"] as const;
 export type Locale = (typeof languages)[number];
 
 export const defaultLocale: Locale = "en";
-export const languageCookie = "elise_language";
+export const languageCookie = "valgemed_language";
 
 export const languageLabels: Record<Locale, string> = {
   en: "English",
