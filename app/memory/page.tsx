@@ -5,14 +5,14 @@ import { GlassCard } from "@/components/premium/glass-card";
 import { NoteVault } from "@/components/premium/note-vault";
 import { SectionHeader } from "@/components/premium/section-header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { requireOwnerSession } from "@/lib/auth/session";
+import { requireUser } from "@/lib/auth/supabase";
 import { getCoreData } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server";
 
 export const dynamic = "force-dynamic";
 
 export default async function MemoryPage({ searchParams }: { searchParams: Promise<{ edit?: string; editTartu?: string }> }) {
-  const session = await requireOwnerSession();
+  const user = await requireUser();
   const { t } = await getI18n();
   const params = await searchParams;
   const data = await getCoreData();
@@ -20,7 +20,7 @@ export default async function MemoryPage({ searchParams }: { searchParams: Promi
   const editingTartu = data.tartuNotes.find((note) => note.id === params.editTartu);
 
   return (
-    <AppShell session={session}>
+    <AppShell user={user}>
       <PageHeader title={t("memory.title")} description={t("memory.subtitle")} />
 
       <Tabs defaultValue="vault" className="space-y-5">

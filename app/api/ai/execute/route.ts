@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ollamaChat } from "@/lib/ai/ollama";
-import { requireOwnerSession } from "@/lib/auth/session";
+import { requireUser } from "@/lib/auth/supabase";
 
 export async function POST(request: NextRequest) {
   let locale = "en";
   try {
-    await requireOwnerSession();
+    await requireUser();
 
     const body = await request.json();
     const { tool, input, locale: reqLocale = "en" } = body as {

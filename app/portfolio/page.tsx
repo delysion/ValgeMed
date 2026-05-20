@@ -9,7 +9,7 @@ import { SectionHeader } from "@/components/premium/section-header";
 import { ResourceTable } from "@/components/tables/resource-table";
 import { Badge } from "@/components/ui/badge";
 import { deletePortfolioItemAction } from "@/lib/actions/resources";
-import { requireOwnerSession } from "@/lib/auth/session";
+import { requireUser } from "@/lib/auth/supabase";
 import { getCoreData } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server";
 import { fmtDate, humanize } from "@/lib/labels";
@@ -17,7 +17,7 @@ import { fmtDate, humanize } from "@/lib/labels";
 export const dynamic = "force-dynamic";
 
 export default async function PortfolioPage({ searchParams }: { searchParams: Promise<{ edit?: string }> }) {
-  const session = await requireOwnerSession();
+  const user = await requireUser();
   const { t } = await getI18n();
   const params = await searchParams;
   const data = await getCoreData();
@@ -30,7 +30,7 @@ export default async function PortfolioPage({ searchParams }: { searchParams: Pr
   const researchItems = data.portfolioItems.filter((item) => item.itemType === "project" || item.itemType === "presentation").length;
 
   return (
-    <AppShell session={session}>
+    <AppShell user={user}>
       <PageHeader title={t("portfolio.title")} description={t("portfolio.subtitle")} eyebrow={t("achievement.researchSeed")} />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

@@ -5,14 +5,14 @@ import { GlassCard } from "@/components/premium/glass-card";
 import { OpportunityPipeline } from "@/components/premium/opportunity-pipeline";
 import { SectionHeader } from "@/components/premium/section-header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { requireOwnerSession } from "@/lib/auth/session";
+import { requireUser } from "@/lib/auth/supabase";
 import { getCoreData } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server";
 
 export const dynamic = "force-dynamic";
 
 export default async function NetworkPage({ searchParams }: { searchParams: Promise<{ edit?: string }> }) {
-  const session = await requireOwnerSession();
+  const user = await requireUser();
   const { t } = await getI18n();
   const params = await searchParams;
   const data = await getCoreData();
@@ -27,7 +27,7 @@ export default async function NetworkPage({ searchParams }: { searchParams: Prom
     .sort((a, b) => (b.relationshipStrength ?? 0) - (a.relationshipStrength ?? 0));
 
   return (
-    <AppShell session={session}>
+    <AppShell user={user}>
       <PageHeader title={t("network.title")} description={t("network.subtitle")} />
 
       <Tabs defaultValue="contacts" className="space-y-5">

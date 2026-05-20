@@ -1,9 +1,9 @@
-import { requireOwnerSession } from "@/lib/auth/session";
+import { requireUser } from "@/lib/auth/supabase";
 import { getCoreData } from "@/lib/data/queries";
 import { buildCsvExport } from "@/lib/export/serialize";
 
 export async function GET() {
-  await requireOwnerSession();
+  await requireUser();
   const data = await getCoreData();
 
   return new Response(buildCsvExport(data), {

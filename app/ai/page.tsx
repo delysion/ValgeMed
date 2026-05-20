@@ -10,14 +10,14 @@ import { AiToolCard } from "@/components/ai-tool-card";
 import { AiFlashcardGenerator } from "@/components/ai-flashcard-generator";
 import { FileUploadZone } from "@/components/file-upload-zone";
 import { GlassCard } from "@/components/premium/glass-card";
-import { requireOwnerSession } from "@/lib/auth/session";
+import { requireUser } from "@/lib/auth/supabase";
 import { getI18n } from "@/lib/i18n/server";
 import { getCoreData } from "@/lib/data/queries";
 
 export const dynamic = "force-dynamic";
 
 export default async function AiPage() {
-  const session = await requireOwnerSession();
+  const user = await requireUser();
   const { t, locale } = await getI18n();
   const data = await getCoreData();
 
@@ -62,7 +62,7 @@ export default async function AiPage() {
     : `System summary:\nSubjects: ${subjectsSummary}\nTopics: ${topicsSummary}\nOpen errors: ${errorsSummary}\nDue reviews: ${reviewsDue}\nExams: ${examsSummary}`;
 
   return (
-    <AppShell session={session}>
+    <AppShell user={user}>
       <PageHeader
         title={t("ai.title")}
         description={t("ai.subtitle")}

@@ -10,7 +10,7 @@ import { SectionHeader } from "@/components/premium/section-header";
 import { ResourceTable } from "@/components/tables/resource-table";
 import { Badge } from "@/components/ui/badge";
 import { deleteHealthLogAction } from "@/lib/actions/resources";
-import { requireOwnerSession } from "@/lib/auth/session";
+import { requireUser } from "@/lib/auth/supabase";
 import { getCoreData } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server";
 import { fmtDate } from "@/lib/labels";
@@ -18,7 +18,7 @@ import { fmtDate } from "@/lib/labels";
 export const dynamic = "force-dynamic";
 
 export default async function HealthPage({ searchParams }: { searchParams: Promise<{ edit?: string }> }) {
-  const session = await requireOwnerSession();
+  const user = await requireUser();
   const { t } = await getI18n();
   const params = await searchParams;
   const data = await getCoreData();
@@ -36,7 +36,7 @@ export default async function HealthPage({ searchParams }: { searchParams: Promi
     : "-";
 
   return (
-    <AppShell session={session}>
+    <AppShell user={user}>
       <PageHeader title={t("health.title")} description={t("health.subtitle")} eyebrow={t("common.protectEnergy")} />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

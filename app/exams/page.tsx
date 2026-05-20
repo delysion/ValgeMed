@@ -10,7 +10,7 @@ import { RiskBadge } from "@/components/premium/gamification";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { requireOwnerSession } from "@/lib/auth/session";
+import { requireUser } from "@/lib/auth/supabase";
 import { getCoreData } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server";
 import { fmtDate, humanize } from "@/lib/labels";
@@ -19,7 +19,7 @@ import { buildExamReadiness } from "@/lib/scoring/engine";
 export const dynamic = "force-dynamic";
 
 export default async function ExamsPage({ searchParams }: { searchParams: Promise<{ edit?: string }> }) {
-  const session = await requireOwnerSession();
+  const user = await requireUser();
   const { t } = await getI18n();
   const params = await searchParams;
   const data = await getCoreData();
@@ -43,7 +43,7 @@ export default async function ExamsPage({ searchParams }: { searchParams: Promis
   });
 
   return (
-    <AppShell session={session}>
+    <AppShell user={user}>
       <PageHeader title={t("exams.title")} description={t("exams.subtitle")} />
       <div className="grid gap-5 xl:grid-cols-[420px_1fr]">
         <ExamForm exam={editing} subjects={data.subjects} t={t as (key: string) => string} />

@@ -7,7 +7,7 @@ import { MetricCard } from "@/components/premium/metric-card";
 import { MomentumBar } from "@/components/premium/momentum-bar";
 import { ScoreRing } from "@/components/premium/score-ring";
 import { ScoreBreakdown } from "@/components/score-breakdown";
-import { requireOwnerSession } from "@/lib/auth/session";
+import { requireUser } from "@/lib/auth/supabase";
 import { getCoreData } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server";
 import { buildEliteIndex } from "@/lib/scoring/engine";
@@ -15,7 +15,7 @@ import { buildEliteIndex } from "@/lib/scoring/engine";
 export const dynamic = "force-dynamic";
 
 export default async function EliteIndexPage() {
-  const session = await requireOwnerSession();
+  const user = await requireUser();
   const { t } = await getI18n();
   const data = await getCoreData();
   const elite = buildEliteIndex(data);
@@ -44,7 +44,7 @@ export default async function EliteIndexPage() {
   ];
 
   return (
-    <AppShell session={session}>
+    <AppShell user={user}>
       <PageHeader title={t("elite.title")} description={t("elite.subtitle")} eyebrow={t("common.strategicSignal")} />
 
       <div className="grid gap-5 xl:grid-cols-[0.9fr_1.1fr]">

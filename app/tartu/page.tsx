@@ -4,7 +4,7 @@ import { ResourceTable } from "@/components/tables/resource-table";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { deleteTartuNoteAction } from "@/lib/actions/resources";
-import { requireOwnerSession } from "@/lib/auth/session";
+import { requireUser } from "@/lib/auth/supabase";
 import { getCoreData } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server";
 import { humanize } from "@/lib/labels";
@@ -12,14 +12,14 @@ import { humanize } from "@/lib/labels";
 export const dynamic = "force-dynamic";
 
 export default async function TartuPage({ searchParams }: { searchParams: Promise<{ edit?: string }> }) {
-  const session = await requireOwnerSession();
+  const user = await requireUser();
   const { t } = await getI18n();
   const params = await searchParams;
   const data = await getCoreData();
   const editing = data.tartuNotes.find((note) => note.id === params.edit);
 
   return (
-    <AppShell session={session}>
+    <AppShell user={user}>
       <PageHeader title={t("tartu.title")} description={t("tartu.subtitle")} />
       <div className="grid gap-4 xl:grid-cols-[420px_1fr]">
         <TartuNoteForm note={editing} />

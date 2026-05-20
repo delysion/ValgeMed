@@ -4,7 +4,7 @@ import { AppShell, PageHeader } from "@/components/app-shell";
 import { GlassCard } from "@/components/premium/glass-card";
 import { SectionHeader } from "@/components/premium/section-header";
 import { Button } from "@/components/ui/button";
-import { requireOwnerSession } from "@/lib/auth/session";
+import { requireUser } from "@/lib/auth/supabase";
 import { getI18n } from "@/lib/i18n/server";
 import { LanguageSelector } from "@/components/language-selector";
 import { OnboardingReplayButton } from "@/components/onboarding-replay-button";
@@ -12,11 +12,11 @@ import { OnboardingReplayButton } from "@/components/onboarding-replay-button";
 export const dynamic = "force-dynamic";
 
 export default async function SettingsPage() {
-  const session = await requireOwnerSession();
+  const user = await requireUser();
   const { t, locale } = await getI18n();
 
   return (
-    <AppShell session={session}>
+    <AppShell user={user}>
       <PageHeader title={t("settings.title")} description={t("settings.subtitle")} />
 
       <div className="flex flex-col gap-5">

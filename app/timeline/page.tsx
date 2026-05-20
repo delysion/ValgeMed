@@ -2,19 +2,19 @@ import { AppShell, PageHeader } from "@/components/app-shell";
 import { GlassCard } from "@/components/premium/glass-card";
 import { SectionHeader } from "@/components/premium/section-header";
 import { TimelineView } from "@/components/premium/timeline-view";
-import { requireOwnerSession } from "@/lib/auth/session";
+import { requireUser } from "@/lib/auth/supabase";
 import { getCoreData } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server";
 
 export const dynamic = "force-dynamic";
 
 export default async function TimelinePage() {
-  const session = await requireOwnerSession();
+  const user = await requireUser();
   const { t } = await getI18n();
   const data = await getCoreData();
 
   return (
-    <AppShell session={session}>
+    <AppShell user={user}>
       <PageHeader title={t("timeline.title")} description={t("timeline.subtitle")} />
 
       <GlassCard>

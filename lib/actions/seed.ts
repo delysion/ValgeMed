@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireOwnerSession } from "@/lib/auth/session";
+import { requireUser } from "@/lib/auth/supabase";
 import { getDb } from "@/lib/db";
 import { subjects, topics, reviewItems, studySessions, dailyLogs } from "@/lib/db/schema";
 import { getNextReviewSchedule } from "@/lib/scheduling/reviews";
@@ -40,7 +40,7 @@ export async function seedSampleDataAction(locale: Locale = "en"): Promise<SeedR
   const msg = getSeedMsg(locale);
 
   try {
-    await requireOwnerSession();
+    await requireUser();
     const db = getDb();
     const today = startOfToday();
 

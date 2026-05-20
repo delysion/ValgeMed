@@ -24,7 +24,7 @@ import { WeeklyCommandPanel } from "@/components/premium/weekly-command";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { requireOwnerSession } from "@/lib/auth/session";
+import { requireUser } from "@/lib/auth/supabase";
 import { getCoreData } from "@/lib/data/queries";
 import { fmtDate } from "@/lib/labels";
 import { getI18n } from "@/lib/i18n/server";
@@ -74,7 +74,7 @@ export function CommandPageSkeleton() {
 }
 
 export default async function CommandPage() {
-  const session = await requireOwnerSession();
+  const user = await requireUser();
   const { t, locale } = await getI18n();
   const data = await getCoreData();
   const today = startOfToday();
@@ -204,7 +204,7 @@ export default async function CommandPage() {
   const scoreTone = eliteScore >= 7 ? "emerald" : eliteScore >= 5 ? "violet" : eliteScore >= 3 ? "gold" : "rose";
 
   return (
-    <AppShell session={session}>
+    <AppShell user={user}>
       <PageHeader
         eyebrow={t("common.systemAwake")}
         title={t("command.title")}

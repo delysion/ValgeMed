@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ResourceTable } from "@/components/tables/resource-table";
 import { deleteSubjectAction } from "@/lib/actions/resources";
-import { requireOwnerSession } from "@/lib/auth/session";
+import { requireUser } from "@/lib/auth/supabase";
 import { getCoreData } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server";
 
@@ -17,14 +17,14 @@ export default async function SubjectsPage({
 }: {
   searchParams: Promise<{ edit?: string }>;
 }) {
-  const session = await requireOwnerSession();
+  const user = await requireUser();
   const { t } = await getI18n();
   const params = await searchParams;
   const data = await getCoreData();
   const editing = data.subjects.find((subject) => subject.id === params.edit);
 
   return (
-    <AppShell session={session}>
+    <AppShell user={user}>
       <PageHeader
         title={t("nav.subjects")}
         description={t("topics.subtitle")}

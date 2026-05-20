@@ -13,7 +13,7 @@ import { ScoreBreakdown } from "@/components/score-breakdown";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { deleteQuizAttemptAction } from "@/lib/actions/resources";
-import { requireOwnerSession } from "@/lib/auth/session";
+import { requireUser } from "@/lib/auth/supabase";
 import { getCoreData } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server";
 import { fmtDate, humanize } from "@/lib/labels";
@@ -22,7 +22,7 @@ import { buildExamReadiness } from "@/lib/scoring/engine";
 export const dynamic = "force-dynamic";
 
 export default async function ExamCommandCenter({ params }: { params: Promise<{ id: string }> }) {
-  const session = await requireOwnerSession();
+  const user = await requireUser();
   const { t } = await getI18n();
   const { id } = await params;
   const data = await getCoreData();
@@ -30,7 +30,7 @@ export default async function ExamCommandCenter({ params }: { params: Promise<{ 
 
   if (!exam) {
     return (
-      <AppShell session={session}>
+      <AppShell user={user}>
         <PageHeader title={t("examRoom.notFound")} />
         <Button asChild variant="outline">
           <Link href="/exams">{t("common.back")}</Link>
@@ -66,7 +66,7 @@ export default async function ExamCommandCenter({ params }: { params: Promise<{ 
   const confidenceAverage = examTopics.length === 0 ? 0 : examTopics.reduce((sum, topic) => sum + topic.confidence, 0) / examTopics.length;
 
   return (
-    <AppShell session={session}>
+    <AppShell user={user}>
       <PageHeader
         eyebrow={t("examRoom.title")}
         title={exam.title}

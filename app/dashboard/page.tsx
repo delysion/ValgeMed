@@ -20,7 +20,7 @@ import { ScoreRing } from "@/components/premium/score-ring";
 import { SectionHeader } from "@/components/premium/section-header";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { requireOwnerSession } from "@/lib/auth/session";
+import { requireUser } from "@/lib/auth/supabase";
 import { getDashboardData } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server";
 import { fmtDate } from "@/lib/labels";
@@ -89,7 +89,7 @@ export function DashboardPageSkeleton() {
 }
 
 export default async function DashboardPage() {
-  const session = await requireOwnerSession();
+  const user = await requireUser();
   const { t } = await getI18n();
   const data = await getDashboardData();
 
@@ -170,7 +170,7 @@ export default async function DashboardPage() {
   ];
 
   return (
-    <AppShell session={session}>
+    <AppShell user={user}>
       <div className="flex flex-col gap-6">
         {/* ─── HERO SECTION ─── */}
         <section className="relative overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-primary-soft/80 via-bg-surface to-cyan-bg/40 p-5 shadow-[var(--shadow-hero)] sm:p-7 md:p-8">

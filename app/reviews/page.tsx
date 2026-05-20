@@ -11,7 +11,7 @@ import {
   deleteReviewItemAction,
   markReviewItemReviewedAction,
 } from "@/lib/actions/resources";
-import { requireOwnerSession } from "@/lib/auth/session";
+import { requireUser } from "@/lib/auth/supabase";
 import { getCoreData } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server";
 import { fmtDate, humanize } from "@/lib/labels";
@@ -23,7 +23,7 @@ export default async function ReviewsPage({
 }: {
   searchParams: Promise<{ edit?: string }>;
 }) {
-  const session = await requireOwnerSession();
+  const user = await requireUser();
   const { t } = await getI18n();
   const params = await searchParams;
   const data = await getCoreData();
@@ -35,7 +35,7 @@ export default async function ReviewsPage({
   const overdue = activeItems.filter((item) => isBefore(item.dueAt, today));
 
   return (
-    <AppShell session={session}>
+    <AppShell user={user}>
       <PageHeader title={t("reviews.title")} description={t("reviews.subtitle")} />
       <div className="grid gap-4 xl:grid-cols-[460px_1fr]">
         <ReviewItemForm item={editing} subjects={data.subjects} topics={data.topics} t={t as (key: string) => string} />

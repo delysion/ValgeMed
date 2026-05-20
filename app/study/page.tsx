@@ -10,7 +10,7 @@ import { MetricCard } from "@/components/premium/metric-card";
 import { MomentumBar } from "@/components/premium/momentum-bar";
 import { SectionHeader } from "@/components/premium/section-header";
 import { Badge } from "@/components/ui/badge";
-import { requireOwnerSession } from "@/lib/auth/session";
+import { requireUser } from "@/lib/auth/supabase";
 import { getCoreData } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server";
 import { fmtDate, humanize } from "@/lib/labels";
@@ -18,7 +18,7 @@ import { fmtDate, humanize } from "@/lib/labels";
 export const dynamic = "force-dynamic";
 
 export default async function StudyPage({ searchParams }: { searchParams: Promise<{ edit?: string }> }) {
-  const session = await requireOwnerSession();
+  const user = await requireUser();
   const { t } = await getI18n();
   const params = await searchParams;
   const data = await getCoreData();
@@ -44,7 +44,7 @@ export default async function StudyPage({ searchParams }: { searchParams: Promis
   ).map(([name, minutes]) => ({ name, minutes })).slice(-14);
 
   return (
-    <AppShell session={session}>
+    <AppShell user={user}>
       <PageHeader title={t("study.title")} description={t("study.subtitle")} />
       <div className="space-y-5">
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

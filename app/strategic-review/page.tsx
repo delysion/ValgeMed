@@ -4,7 +4,7 @@ import { ResourceTable } from "@/components/tables/resource-table";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { deleteStrategicReviewAction } from "@/lib/actions/resources";
-import { requireOwnerSession } from "@/lib/auth/session";
+import { requireUser } from "@/lib/auth/supabase";
 import { getCoreData } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server";
 import { fmtDate, humanize } from "@/lib/labels";
@@ -12,14 +12,14 @@ import { fmtDate, humanize } from "@/lib/labels";
 export const dynamic = "force-dynamic";
 
 export default async function StrategicReviewPage({ searchParams }: { searchParams: Promise<{ edit?: string }> }) {
-  const session = await requireOwnerSession();
+  const user = await requireUser();
   const { t } = await getI18n();
   const params = await searchParams;
   const data = await getCoreData();
   const editing = data.strategicReviews.find((review) => review.id === params.edit);
 
   return (
-    <AppShell session={session}>
+    <AppShell user={user}>
       <PageHeader title={t("strategic.title")} description={t("strategic.subtitle")} />
       <div className="grid gap-4 xl:grid-cols-[420px_1fr]">
         <StrategicReviewForm review={editing} />

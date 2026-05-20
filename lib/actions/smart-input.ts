@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { parseUserIntent, generateReviewItemsFromText, type ParsedStudyIntent } from "@/lib/ai/ollama";
-import { requireOwnerSession } from "@/lib/auth/session";
+import { requireUser } from "@/lib/auth/supabase";
 import { getDb } from "@/lib/db";
 import { subjects, topics, studySessions, reviewItems } from "@/lib/db/schema";
 import { getNextReviewSchedule } from "@/lib/scheduling/reviews";
@@ -123,7 +123,7 @@ export async function processSmartInputAction(input: string, locale: Locale = "e
   const msg = getMsg(locale);
 
   try {
-    await requireOwnerSession();
+    await requireUser();
 
     const parsed: ParsedStudyIntent = await parseUserIntent(input);
 
@@ -296,7 +296,7 @@ export async function generateFlashcardsFromTextAction(
   const msg = getMsg(locale);
 
   try {
-    await requireOwnerSession();
+    await requireUser();
 
     const items = await generateReviewItemsFromText(text, subject, topic);
 

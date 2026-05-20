@@ -3,7 +3,7 @@ import { IdentityNoteForm } from "@/components/forms/entity-forms";
 import { ResourceTable } from "@/components/tables/resource-table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { deleteIdentityNoteAction } from "@/lib/actions/resources";
-import { requireOwnerSession } from "@/lib/auth/session";
+import { requireUser } from "@/lib/auth/supabase";
 import { getCoreData } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server";
 import { humanize } from "@/lib/labels";
@@ -11,14 +11,14 @@ import { humanize } from "@/lib/labels";
 export const dynamic = "force-dynamic";
 
 export default async function IdentityPage({ searchParams }: { searchParams: Promise<{ editNote?: string }> }) {
-  const session = await requireOwnerSession();
+  const user = await requireUser();
   const { t } = await getI18n();
   const params = await searchParams;
   const data = await getCoreData();
   const editing = data.identityNotes.find((note) => note.id === params.editNote);
 
   return (
-    <AppShell session={session}>
+    <AppShell user={user}>
       <PageHeader title={t("nav.identity")} description={t("portfolio.subtitle")} />
       <div className="grid gap-4 xl:grid-cols-[420px_1fr]">
         <IdentityNoteForm note={editing} t={t as (key: string) => string} />

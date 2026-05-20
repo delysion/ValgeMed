@@ -9,7 +9,7 @@ import {
   deleteIdentityNoteAction,
   deleteTaskAction,
 } from "@/lib/actions/resources";
-import { requireOwnerSession } from "@/lib/auth/session";
+import { requireUser } from "@/lib/auth/supabase";
 import { getCoreData } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server";
 import { fmtDate, humanize } from "@/lib/labels";
@@ -21,7 +21,7 @@ export default async function GoalsPage({
 }: {
   searchParams: Promise<{ editGoal?: string; editTask?: string; editNote?: string }>;
 }) {
-  const session = await requireOwnerSession();
+  const user = await requireUser();
   const { t } = await getI18n();
   const params = await searchParams;
   const data = await getCoreData();
@@ -30,7 +30,7 @@ export default async function GoalsPage({
   const editingNote = data.identityNotes.find((note) => note.id === params.editNote);
 
   return (
-    <AppShell session={session}>
+    <AppShell user={user}>
       <PageHeader title={t("nav.goals")} description={t("strategic.subtitle")} />
       <Tabs defaultValue="goals">
         <TabsList>

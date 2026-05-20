@@ -8,7 +8,7 @@ import { MetricCard } from "@/components/premium/metric-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { deleteErrorLogAction, toggleErrorResolvedAction } from "@/lib/actions/resources";
-import { requireOwnerSession } from "@/lib/auth/session";
+import { requireUser } from "@/lib/auth/supabase";
 import { getCoreData } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server";
 import { fmtDate, humanize } from "@/lib/labels";
@@ -16,7 +16,7 @@ import { fmtDate, humanize } from "@/lib/labels";
 export const dynamic = "force-dynamic";
 
 export default async function ErrorsPage({ searchParams }: { searchParams: Promise<{ edit?: string }> }) {
-  const session = await requireOwnerSession();
+  const user = await requireUser();
   const { t } = await getI18n();
   const params = await searchParams;
   const data = await getCoreData();
@@ -28,7 +28,7 @@ export default async function ErrorsPage({ searchParams }: { searchParams: Promi
   const retestDue = open.filter((error) => error.retestAt && isBefore(error.retestAt, startOfToday()));
 
   return (
-    <AppShell session={session}>
+    <AppShell user={user}>
       <PageHeader title={t("errors.title")} description={t("errors.subtitle")} />
       <div className="grid gap-4 md:grid-cols-4">
         <MetricCard title={t("errors.unresolved")} value={open.length} icon={ShieldAlert} tone={open.length > 0 ? "danger" : "emerald"} />

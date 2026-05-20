@@ -7,7 +7,7 @@ import { DataTable } from "@/components/tables/data-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { requireOwnerSession } from "@/lib/auth/session";
+import { requireUser } from "@/lib/auth/supabase";
 import { getCoreData } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server";
 import { fmtDate, humanize } from "@/lib/labels";
@@ -20,7 +20,7 @@ export default async function SubjectCommandCenterPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const session = await requireOwnerSession();
+  const user = await requireUser();
   const { t } = await getI18n();
   const { id } = await params;
   const data = await getCoreData();
@@ -55,7 +55,7 @@ export default async function SubjectCommandCenterPage({
     .sort((a, b) => b.startedAt.getTime() - a.startedAt.getTime())[0];
 
   return (
-    <AppShell session={session}>
+    <AppShell user={user}>
       <PageHeader
         title={subject.name}
         description={t("subjectCmd.description")}

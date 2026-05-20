@@ -5,7 +5,7 @@ import { ResourceTable } from "@/components/tables/resource-table";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { deleteDailyLogAction } from "@/lib/actions/resources";
-import { requireOwnerSession } from "@/lib/auth/session";
+import { requireUser } from "@/lib/auth/supabase";
 import { getCoreData } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server";
 import { fmtDate } from "@/lib/labels";
@@ -17,7 +17,7 @@ export default async function DailyLogPage({
 }: {
   searchParams: Promise<{ edit?: string }>;
 }) {
-  const session = await requireOwnerSession();
+  const user = await requireUser();
   const { t } = await getI18n();
   const params = await searchParams;
   const data = await getCoreData();
@@ -35,7 +35,7 @@ export default async function DailyLogPage({
     }));
 
   return (
-    <AppShell session={session}>
+    <AppShell user={user}>
       <PageHeader title={t("nav.dailyLog")} description={t("health.subtitle")} />
       <div className="grid gap-4 xl:grid-cols-[460px_1fr]">
         <DailyLogForm log={editing} t={t as (key: string) => string} />

@@ -1,15 +1,15 @@
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { requireOwnerSession } from "@/lib/auth/session";
+import { requireUser } from "@/lib/auth/supabase";
 
 export const dynamic = "force-dynamic";
 
 export default async function ImportExportPage() {
-  const session = await requireOwnerSession();
+  const user = await requireUser();
 
   return (
-    <AppShell session={session}>
+    <AppShell user={user}>
       <PageHeader title="Import / Export" description="Local data export. Import is create-only and remains on the roadmap to avoid accidental overwrites." />
       <div className="grid gap-4 md:grid-cols-2">
         <Card>

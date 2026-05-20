@@ -10,7 +10,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { logoutAction } from "@/lib/auth/actions";
-import type { OwnerSession } from "@/lib/auth/session";
+import type { User } from "@supabase/supabase-js";
 import { getI18n } from "@/lib/i18n/server";
 import { TranslationProvider } from "@/lib/i18n/useTranslation";
 import { getTheme } from "@/lib/theme/config";
@@ -19,15 +19,15 @@ import { Navigation } from "./navigation";
 
 export async function AppShell({
   children,
-  session,
+  user,
 }: {
   children: React.ReactNode;
-  session: OwnerSession;
+  user: User;
 }) {
   const { locale, dictionary, t } = await getI18n();
   const theme = await getTheme();
 
-  const displayName = session.email.split("@")[0];
+  const displayName = (user.email ?? "").split("@")[0];
 
   return (
     <TranslationProvider locale={locale} dictionary={dictionary}>

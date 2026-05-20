@@ -8,7 +8,7 @@ import { MomentumBar } from "@/components/premium/momentum-bar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { deleteTopicAction } from "@/lib/actions/resources";
-import { requireOwnerSession } from "@/lib/auth/session";
+import { requireUser } from "@/lib/auth/supabase";
 import { getCoreData } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server";
 import { fmtDate, humanize } from "@/lib/labels";
@@ -20,7 +20,7 @@ export default async function TopicsPage({
 }: {
   searchParams: Promise<{ edit?: string; subject?: string; status?: string; priority?: string }>;
 }) {
-  const session = await requireOwnerSession();
+  const user = await requireUser();
   const { t } = await getI18n();
   const params = await searchParams;
   const data = await getCoreData();
@@ -35,7 +35,7 @@ export default async function TopicsPage({
   });
 
   return (
-    <AppShell session={session}>
+    <AppShell user={user}>
       <PageHeader title={t("topics.title")} description={t("topics.subtitle")} />
       <div className="grid gap-5 xl:grid-cols-[420px_1fr]">
         <TopicForm topic={editing} subjects={data.subjects} exams={data.exams} t={t as (key: string) => string} />
