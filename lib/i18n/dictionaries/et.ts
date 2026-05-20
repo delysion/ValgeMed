@@ -372,7 +372,7 @@ export const et: Dictionary = {
   "settings.weightExam": "Eksamivalmidus",
   "settings.weightEfficiency": "Õppimise efektiivsus",
   "settings.weightBurnout": "Läbipõlemine",
-  "settings.weightElite": "Elise indeks",
+  "settings.weightElite": "Eliitindeks",
 
   "subjectCmd.title": "Õppeaine juhtimiskeskus",
   "subjectCmd.description": "Meisterlikkus, nõrgad teemad, ülevaatus, lahtised vead ja järgmine parim teema.",
