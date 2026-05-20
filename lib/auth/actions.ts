@@ -30,18 +30,20 @@ export async function loginAction(
     const password = String(formData.get("password") ?? "");
     const ownerEmail = process.env.OWNER_EMAIL ?? "owner@local";
     const passwordHash = process.env.APP_PASSWORD_HASH;
-    const appUsername = process.env.APP_USERNAME ?? "admin";
+    const appUsername = process.env.APP_USERNAME;
 
     if (!passwordHash) {
       return { error: "Missing APP_PASSWORD_HASH." };
     }
 
-    if (!username) {
-      return { error: "Username is required." };
-    }
+    if (appUsername) {
+      if (!username) {
+        return { error: "Username is required." };
+      }
 
-    if (username !== appUsername) {
-      return { error: "Invalid credentials." };
+      if (username !== appUsername) {
+        return { error: "Invalid credentials." };
+      }
     }
 
     const validPassword = await bcrypt.compare(password, passwordHash);

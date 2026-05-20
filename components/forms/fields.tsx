@@ -1,4 +1,7 @@
+"use client";
+
 import type { ReactNode } from "react";
+import { useFormStatus } from "react-dom";
 import { ChevronDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -11,12 +14,16 @@ export function Field({
   label,
   children,
   description,
+  helper,
+  error,
   className,
   required,
 }: {
   label: string;
   children: ReactNode;
   description?: string;
+  helper?: string;
+  error?: string;
   className?: string;
   required?: boolean;
 }) {
@@ -26,8 +33,10 @@ export function Field({
         {label}
         {required ? <span className="ml-1 text-rose" title="Required">*</span> : null}
       </Label>
+      {helper ? <p className="text-xs text-text-muted">{helper}</p> : null}
       {children}
       {description ? <p className="text-xs leading-relaxed text-text-muted">{description}</p> : null}
+      {error ? <p className="text-xs leading-relaxed text-rose" role="alert">{error}</p> : null}
     </div>
   );
 }
@@ -52,6 +61,8 @@ export function TextField({
   defaultValue,
   placeholder,
   description,
+  helper,
+  error,
   type = "text",
   min,
   max,
@@ -62,13 +73,15 @@ export function TextField({
   defaultValue?: string | number | null;
   placeholder?: string;
   description?: string;
+  helper?: string;
+  error?: string;
   type?: string;
   min?: number;
   max?: number;
   required?: boolean;
 }) {
   return (
-    <Field label={label} description={description} required={required}>
+    <Field label={label} description={description} helper={helper} error={error} required={required}>
       <Input
         name={name}
         type={type}
@@ -77,6 +90,7 @@ export function TextField({
         required={required}
         placeholder={placeholder}
         defaultValue={defaultValue ?? ""}
+        aria-invalid={error ? true : undefined}
       />
     </Field>
   );
@@ -88,6 +102,8 @@ export function TextAreaField({
   defaultValue,
   placeholder,
   description,
+  helper,
+  error,
   className,
 }: {
   label: string;
@@ -95,11 +111,18 @@ export function TextAreaField({
   defaultValue?: string | null;
   placeholder?: string;
   description?: string;
+  helper?: string;
+  error?: string;
   className?: string;
 }) {
   return (
-    <Field label={label} description={description} className={className}>
-      <Textarea name={name} placeholder={placeholder} defaultValue={defaultValue ?? ""} />
+    <Field label={label} description={description} helper={helper} error={error} className={className}>
+      <Textarea
+        name={name}
+        placeholder={placeholder}
+        defaultValue={defaultValue ?? ""}
+        aria-invalid={error ? true : undefined}
+      />
     </Field>
   );
 }
@@ -110,19 +133,24 @@ export function NativeSelectField({
   options,
   defaultValue,
   description,
+  helper,
+  error,
 }: {
   label: string;
   name: string;
   options: Array<{ label: string; value: string }>;
   defaultValue?: string | null;
   description?: string;
+  helper?: string;
+  error?: string;
 }) {
   return (
-    <Field label={label} description={description}>
+    <Field label={label} description={description} helper={helper} error={error}>
       <div className="relative">
         <select
           name={name}
           defaultValue={defaultValue ?? ""}
+          aria-invalid={error ? true : undefined}
           className="flex h-11 w-full appearance-none rounded-xl border border-border bg-bg-elevated px-4 pr-10 text-sm text-text-primary shadow-[var(--shadow-inner)] outline-none transition-all duration-150 focus:border-primary/50 focus:bg-bg-surface focus:shadow-[0_0_0_3px_var(--primary-glow),var(--shadow-inner)] focus:ring-0"
         >
           {options.map((option) => (
@@ -139,16 +167,29 @@ export function NativeSelectField({
 
 export function SubmitBar({
   label,
+  pendingLabel,
   cancelHref,
   cancelLabel = "Cancel",
 }: {
   label: string;
+  pendingLabel?: string;
   cancelHref?: string;
   cancelLabel?: string;
 }) {
+  const { pending } = useFormStatus();
+
   return (
     <div className="flex flex-wrap items-center gap-3 pt-6">
-      <Button type="submit" className="min-h-[44px] min-w-[140px] rounded-xl">{label}</Button>
+      <Button type="submit" className="min-h-[44px] min-w-[140px] rounded-xl" disabled={pending}>
+        {pending && pendingLabel ? (
+          <span className="flex items-center gap-2">
+            <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+            {pendingLabel}
+          </span>
+        ) : (
+          label
+        )}
+      </Button>
       {cancelHref ? (
         <Button asChild type="button" variant="ghost" className="min-h-[44px] rounded-xl">
           <a href={cancelHref}>{cancelLabel}</a>

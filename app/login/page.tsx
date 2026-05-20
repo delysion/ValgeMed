@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
+import { Command } from "lucide-react";
 
-import { LoginForm } from "@/app/login/login-form";
+import { LoginForm } from "./login-form";
 import { getOwnerSession } from "@/lib/auth/session";
-import { getI18n } from "@/lib/i18n/server";
 
 export default async function LoginPage() {
   const session = await getOwnerSession();
@@ -11,33 +11,23 @@ export default async function LoginPage() {
     redirect("/command");
   }
 
-  const { t, locale } = await getI18n();
-
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-bg-page px-4 py-10">
-      {/* Atmospheric background */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -left-32 -top-32 h-[32rem] w-[32rem] rounded-full bg-gradient-to-br from-primary/8 to-transparent blur-[120px]" />
-        <div className="absolute -bottom-40 -right-40 h-[36rem] w-[36rem] rounded-full bg-gradient-to-tl from-violet/6 to-transparent blur-[120px]" />
-        <div className="absolute left-1/2 top-1/4 h-64 w-64 -translate-x-1/2 rounded-full bg-cyan/5 blur-[80px]" />
-        {/* Subtle grid */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(87,70,229,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(87,70,229,0.03)_1px,transparent_1px)] bg-[size:48px_48px] [mask-image:radial-gradient(ellipse_at_center,black_15%,transparent_75%)]" />
+    <div className="flex min-h-screen items-center justify-center bg-bg-page p-4">
+      <div className="absolute inset-0 bg-gradient-to-br from-bg-page via-primary-soft/5 to-bg-page" />
+      <div className="relative w-full max-w-md">
+        <div className="mb-8 text-center motion-premium">
+          <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-primary to-violet shadow-hero">
+            <Command className="h-7 w-7 text-white" />
+          </div>
+          <h1 className="text-2xl font-bold tracking-tight text-text-primary">ValgeMed</h1>
+          <p className="mt-1 text-sm text-text-secondary">
+            A quiet command system for serious medical students.
+          </p>
+        </div>
+        <div className="rounded-2xl border border-border/50 bg-bg-surface p-6 shadow-premium motion-stagger-1">
+          <LoginForm />
+        </div>
       </div>
-
-      <div className="relative z-10 w-full max-w-md">
-        <LoginForm
-          locale={locale}
-          copy={{
-            title: t("login.title"),
-            subtitle: t("login.subtitle"),
-            username: t("login.username"),
-            password: t("login.password"),
-            submit: t("login.submit"),
-            pending: t("login.pending"),
-            language: t("language.label"),
-          }}
-        />
-      </div>
-    </main>
+    </div>
   );
 }
