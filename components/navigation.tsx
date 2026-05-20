@@ -114,17 +114,21 @@ const sections: NavSection[] = [
   },
 ];
 
+function getInitialSection(): string | null {
+  if (typeof window === "undefined") return null;
+  const saved = getCookie(COOKIE_NAME);
+  return saved || "command";
+}
+
 export function Navigation() {
   const { t } = useTranslation();
   const [openSection, setOpenSection] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    const saved = getInitialSection();
+    setOpenSection(saved);
     setMounted(true);
-    const saved = getCookie(COOKIE_NAME);
-    if (saved) {
-      setOpenSection(saved);
-    }
   }, []);
 
   const toggleSection = (labelKey: string) => {
