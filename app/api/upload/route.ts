@@ -4,6 +4,7 @@ import { join } from "path";
 import { randomUUID } from "crypto";
 import { getDb } from "@/lib/db";
 import { uploads } from "@/lib/db/schema";
+import { requireAuthUserId } from "@/lib/db/auth";
 
 export async function POST(request: NextRequest) {
   try {
@@ -55,9 +56,11 @@ export async function POST(request: NextRequest) {
     }
 
     const db = getDb();
+    const userId = await requireAuthUserId();
     const [upload] = await db
       .insert(uploads)
       .values({
+        userId,
         filename: uniqueName,
         originalName: file.name,
         mimeType: file.type || `application/${ext}`,

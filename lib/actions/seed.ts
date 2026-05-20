@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireUser } from "@/lib/auth/supabase";
+import { requireAuthUserId } from "@/lib/db/auth";
 import { getDb } from "@/lib/db";
 import { subjects, topics, reviewItems, studySessions, dailyLogs } from "@/lib/db/schema";
 import { getNextReviewSchedule } from "@/lib/scheduling/reviews";
@@ -40,7 +40,7 @@ export async function seedSampleDataAction(locale: Locale = "en"): Promise<SeedR
   const msg = getSeedMsg(locale);
 
   try {
-    await requireUser();
+    const userId = await requireAuthUserId();
     const db = getDb();
     const today = startOfToday();
 
@@ -54,37 +54,37 @@ export async function seedSampleDataAction(locale: Locale = "en"): Promise<SeedR
 
     const [biochimica] = await db
       .insert(subjects)
-      .values({ name: "Biochemistry", description: "General and metabolic biochemistry" })
+      .values({ userId, name: "Biochemistry", description: "General and metabolic biochemistry" })
       .returning();
 
     const [anatomia] = await db
       .insert(subjects)
-      .values({ name: "Anatomy", description: "Human body anatomy" })
+      .values({ userId, name: "Anatomy", description: "Human body anatomy" })
       .returning();
 
     const [fisiologia] = await db
       .insert(subjects)
-      .values({ name: "Physiology", description: "Physiology of body systems" })
+      .values({ userId, name: "Physiology", description: "Physiology of body systems" })
       .returning();
 
     const [mitocondri] = await db
       .insert(topics)
-      .values({ subjectId: biochimica.id, title: "Mitochondria", description: "Structure and function of mitochondria" })
+      .values({ userId, subjectId: biochimica.id, title: "Mitochondria", description: "Structure and function of mitochondria" })
       .returning();
 
     const [glicolisi] = await db
       .insert(topics)
-      .values({ subjectId: biochimica.id, title: "Glycolysis", description: "Glycolytic pathway" })
+      .values({ userId, subjectId: biochimica.id, title: "Glycolysis", description: "Glycolytic pathway" })
       .returning();
 
     const [cuore] = await db
       .insert(topics)
-      .values({ subjectId: anatomia.id, title: "Heart", description: "Heart anatomy" })
+      .values({ userId, subjectId: anatomia.id, title: "Heart", description: "Heart anatomy" })
       .returning();
 
     const [SistemaNervoso] = await db
       .insert(topics)
-      .values({ subjectId: fisiologia.id, title: "Nervous System", description: "Neurophysiology" })
+      .values({ userId, subjectId: fisiologia.id, title: "Nervous System", description: "Neurophysiology" })
       .returning();
 
     const reviewData = [
@@ -99,6 +99,7 @@ export async function seedSampleDataAction(locale: Locale = "en"): Promise<SeedR
     for (const item of reviewData) {
       const nextSchedule = getNextReviewSchedule(3, 1, 0);
       await db.insert(reviewItems).values({
+        userId,
         subjectId: item.subjectId,
         topicId: item.topicId,
         question: item.question,
@@ -110,6 +111,7 @@ export async function seedSampleDataAction(locale: Locale = "en"): Promise<SeedR
 
     const session1 = new Date(today.getTime() - 2 * 24 * 60 * 60 * 1000);
     await db.insert(studySessions).values({
+      userId,
       subjectId: biochimica.id,
       topicId: mitocondri.id,
       startedAt: session1,
@@ -120,6 +122,7 @@ export async function seedSampleDataAction(locale: Locale = "en"): Promise<SeedR
 
     const session2 = new Date(today.getTime() - 1 * 24 * 60 * 60 * 1000);
     await db.insert(studySessions).values({
+      userId,
       subjectId: anatomia.id,
       topicId: cuore.id,
       startedAt: session2,
@@ -129,6 +132,7 @@ export async function seedSampleDataAction(locale: Locale = "en"): Promise<SeedR
     });
 
     await db.insert(dailyLogs).values({
+      userId,
       date: formatISO(today, { representation: "date" }),
       activeRecallMinutes: 45,
       passiveStudyMinutes: 20,
