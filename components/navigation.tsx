@@ -122,12 +122,11 @@ function getInitialSection(): string | null {
 
 export function Navigation() {
   const { t } = useTranslation();
-  const [openSection, setOpenSection] = useState<string | null>(null);
+  const [openSection, setOpenSection] = useState<string | null>(() => getInitialSection());
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const saved = getInitialSection();
-    setOpenSection(saved);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- mounting flag is intentional
     setMounted(true);
   }, []);
 
@@ -142,7 +141,7 @@ export function Navigation() {
   if (!mounted) return null;
 
   return (
-    <nav className="grid gap-1 pb-6">
+    <nav className="grid gap-1 pb-6" aria-label="Main navigation">
       {sections.map((section) => {
         const isOpen = openSection === section.labelKey;
         return (
@@ -150,7 +149,8 @@ export function Navigation() {
             <button
               type="button"
               onClick={() => toggleSection(section.labelKey)}
-              className="flex w-full items-center gap-2 px-3 py-2 text-xs font-bold uppercase tracking-[0.12em] text-text-muted hover:text-text-primary transition-colors"
+              aria-expanded={isOpen}
+              className="flex w-full items-center gap-2 px-3 py-2 text-[11px] font-bold uppercase tracking-[0.12em] text-text-muted hover:text-text-primary transition-colors duration-150 rounded-lg hover:bg-bg-subtle/50"
             >
               <span className="flex-1 text-left">{t(section.labelKey)}</span>
               <ChevronDown
@@ -161,7 +161,7 @@ export function Navigation() {
               />
             </button>
             {isOpen && (
-              <div className="grid gap-0.5 px-1">
+              <div className="grid gap-0.5 px-1 mt-0.5 mb-1">
                 {section.items.map((item) => (
                   <NavLink
                     key={item.href}

@@ -29,8 +29,14 @@ export async function getI18n() {
   return {
     locale,
     dictionary,
-    t(key: TranslationKey) {
-      return dictionary[key] ?? en[key] ?? key;
+    t(key: TranslationKey, params?: Record<string, string | number>): string {
+      let text = dictionary[key] ?? en[key] ?? key;
+      if (params) {
+        for (const [k, v] of Object.entries(params)) {
+          text = text.replaceAll(`{${k}}`, String(v));
+        }
+      }
+      return text;
     },
   };
 }

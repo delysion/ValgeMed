@@ -3,7 +3,7 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: "default" | "premium";
+  variant?: "default" | "premium" | "gradient" | "glass";
 }
 
 export function Card({ className, variant = "default", ...props }: CardProps) {
@@ -11,7 +11,9 @@ export function Card({ className, variant = "default", ...props }: CardProps) {
     <div
       className={cn(
         "rounded-2xl border border-border bg-bg-surface text-text-primary shadow-[var(--shadow-card)] transition-all duration-200 hover:shadow-[var(--shadow-elevated)]",
-        variant === "premium" && "border-border/50 shadow-[var(--shadow-card)]",
+        variant === "premium" && "border-border/50 bg-gradient-to-br from-bg-surface via-bg-surface to-bg-subtle/50 backdrop-blur-sm",
+        variant === "gradient" && "border-primary/15 bg-gradient-to-br from-primary-soft/60 via-bg-surface to-violet-bg/30",
+        variant === "glass" && "border-border/40 bg-bg-surface/70 backdrop-blur-xl",
         className,
       )}
       {...props}

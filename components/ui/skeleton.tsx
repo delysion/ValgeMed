@@ -8,7 +8,7 @@ export function Skeleton({ className, variant = "rectangular", ...props }: Skele
   return (
     <div
       className={cn(
-        "skeleton-shimmer rounded-md",
+        "skeleton-shimmer rounded-md bg-gradient-to-r from-bg-subtle via-bg-elevated to-bg-subtle",
         variant === "circular" && "rounded-full",
         variant === "text" && "h-4 w-full rounded",
         className

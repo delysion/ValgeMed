@@ -24,16 +24,16 @@ export function EmptyState({
   action,
   actionLabel,
   href,
-  variant = "no-data",
+  variant: _variant = "no-data",
   tone,
   className,
 }: EmptyStateProps) {
   const toneBg = {
-    cyan: "text-cyan bg-cyan-bg border-cyan/15",
-    violet: "text-violet bg-violet-bg border-violet/15",
-    emerald: "text-emerald bg-emerald-bg border-emerald/15",
-    gold: "text-gold bg-gold-bg border-gold/15",
-    rose: "text-rose bg-rose-bg border-rose/15",
+    cyan: "text-cyan bg-gradient-to-br from-cyan-bg to-cyan/10 border-cyan/20",
+    violet: "text-violet bg-gradient-to-br from-violet-bg to-violet/10 border-violet/20",
+    emerald: "text-emerald bg-gradient-to-br from-emerald-bg to-emerald/10 border-emerald/20",
+    gold: "text-gold bg-gradient-to-br from-gold-bg to-gold/10 border-gold/20",
+    rose: "text-rose bg-gradient-to-br from-rose-bg to-rose/10 border-rose/20",
   };
 
   const effectiveAction = action ?? (actionLabel && href ? { label: actionLabel, href } : undefined);
@@ -41,23 +41,25 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-bg-subtle px-6 py-12 text-center",
+        "flex flex-col items-center justify-center rounded-2xl border border-dashed border-border-strong bg-gradient-to-br from-bg-subtle/50 to-bg-subtle/20 px-6 py-14 text-center",
         className
       )}
     >
       <div className="ping-dot">
         {tone ? (
-          <div className={cn("mx-auto grid h-12 w-12 place-items-center rounded-2xl border", toneBg[tone])}>
-            <Icon className="h-6 w-6" aria-hidden="true" />
+          <div className={cn("mx-auto grid h-14 w-14 place-items-center rounded-2xl border shadow-sm", toneBg[tone])}>
+            <Icon className="h-7 w-7" aria-hidden="true" />
           </div>
         ) : (
-          <Icon className="mx-auto h-12 w-12 text-text-muted-2" aria-hidden="true" />
+          <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl border border-border bg-gradient-to-br from-bg-surface to-bg-subtle/30 shadow-sm">
+            <Icon className="h-7 w-7 text-text-muted-2" aria-hidden="true" />
+          </div>
         )}
       </div>
-      <h3 className="mt-4 text-lg font-semibold text-text-primary">{title}</h3>
-      <p className="mt-1.5 max-w-sm text-sm text-text-secondary">{description}</p>
+      <h3 className="mt-5 text-lg font-semibold text-text-primary">{title}</h3>
+      <p className="mt-2 max-w-sm text-sm leading-relaxed text-text-secondary">{description}</p>
       {effectiveAction ? (
-        <Button asChild className="mt-5" size="sm">
+        <Button asChild className="mt-6" size="sm">
           <Link href={effectiveAction.href}>{effectiveAction.label}</Link>
         </Button>
       ) : null}

@@ -33,7 +33,7 @@ export function SignalTile({
   };
 
   return (
-    <div className="flex items-center gap-3 rounded-lg border border-border bg-white p-3 shadow-sm transition hover:shadow-md">
+    <div className="flex items-center gap-3 rounded-lg border border-border bg-gradient-to-r from-bg-surface to-bg-subtle/30 p-3 shadow-sm transition hover:shadow-md">
       {Icon ? (
         <div className={cn("flex h-7 w-7 shrink-0 items-center justify-center rounded-md", toneBg[tone])}>
           <Icon className="h-3.5 w-3.5" />

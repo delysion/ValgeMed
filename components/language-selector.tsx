@@ -48,8 +48,8 @@ export function LanguageSelector({
           className={cn(
             "rounded-full px-2.5 py-1 text-xs font-semibold tracking-[0.08em] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
             current === locale
-              ? "bg-white text-text-primary shadow-sm"
-              : "text-text-muted hover:bg-white hover:text-text-secondary",
+              ? "bg-gradient-to-br from-bg-surface to-bg-subtle/40 text-text-primary shadow-sm"
+              : "text-text-muted hover:bg-gradient-to-br hover:from-bg-surface hover:to-bg-subtle/40 hover:text-text-secondary",
             compact && "px-2 py-0.5",
           )}
         >

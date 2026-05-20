@@ -16,10 +16,10 @@ import {
 } from "recharts";
 
 const lightColors = ["#7C3AED", "#06B6D4", "#10B981", "#F59E0B", "#F43F5E", "#8B5CF6"];
-const chartGrid = "#F1F5F9";
+const chartGrid = "#E8E4DB";
 const chartText = "#94A3B8";
-const tooltipBg = "#FFFFFF";
-const tooltipBorder = "#E2E8F0";
+const tooltipBg = "#FAF8F5";
+const tooltipBorder = "#D0CBC2";
 
 export function MinutesBarChart({
   data,

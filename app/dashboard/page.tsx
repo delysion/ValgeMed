@@ -60,7 +60,7 @@ export const dynamic = "force-dynamic";
 export function DashboardPageSkeleton() {
   return (
     <div className="motion-premium flex flex-col gap-6">
-      <div className="relative overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-primary-soft via-white to-cyan-bg/60 p-5 sm:p-7 md:p-8">
+      <div className="relative overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-primary-soft/80 via-bg-surface to-cyan-bg/40 p-5 sm:p-7 md:p-8">
         <div className="flex flex-wrap items-center gap-6">
           <Skeleton variant="circular" className="h-36 w-36" />
           <div className="flex-1 space-y-3">
@@ -173,40 +173,38 @@ export default async function DashboardPage() {
     <AppShell session={session}>
       <div className="flex flex-col gap-6">
         {/* ─── HERO SECTION ─── */}
-        <section className="relative overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-primary-soft via-white to-cyan-bg/60 p-5 shadow-[var(--shadow-hero)] sm:p-7 md:p-8">
-          <div className="pointer-events-none absolute -left-20 -top-20 h-72 w-72 rounded-full bg-primary/8 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-24 -right-24 h-80 w-80 rounded-full bg-violet/8 blur-3xl" />
-          <div className="pointer-events-none absolute left-1/3 top-1/2 h-48 w-48 rounded-full bg-cyan/8 blur-3xl" />
+        <section className="relative overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-primary-soft/80 via-bg-surface to-cyan-bg/40 p-5 shadow-[var(--shadow-hero)] sm:p-7 md:p-8">
+          <div className="pointer-events-none absolute -left-20 -top-20 h-72 w-72 rounded-full bg-primary/8 blur-[80px]" />
+          <div className="pointer-events-none absolute -bottom-24 -right-24 h-80 w-80 rounded-full bg-violet/6 blur-[80px]" />
+          <div className="pointer-events-none absolute left-1/3 top-1/2 h-48 w-48 rounded-full bg-cyan/6 blur-[60px]" />
 
           <div className="relative flex flex-col gap-5">
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="violet">{fmtDate(new Date())}</Badge>
               {streak > 0 ? (
                 <Badge variant="gold" className="gap-1">
-                  <Zap className="h-3 w-3" /> {streak}-day streak
+                  <Zap className="h-3 w-3" /> {t("dashboard.streakBadge", { streak })}
                 </Badge>
               ) : null}
               {lowData ? (
-                <Badge variant="warning">Getting started</Badge>
+                <Badge variant="warning">{t("dashboard.gettingStarted")}</Badge>
               ) : null}
             </div>
 
             <div className="flex flex-wrap items-center gap-4 sm:gap-6 lg:gap-8">
               <ScoreRing
                 score={eliteScore}
-                label="Elite Index"
+                label={t("elite.title")}
                 size="lg"
                 tone={scoreTone as "emerald" | "violet" | "gold" | "rose"}
                 animated
               />
               <div className="min-w-0 flex-1">
                 <h2 className="text-balance text-3xl font-bold tracking-tight text-text-primary sm:text-4xl">
-                  Command Center
+                  {t("dashboard.heroTitle")}
                 </h2>
                 <p className="mt-2 max-w-xl text-sm leading-relaxed text-text-secondary sm:text-base">
-                  {lowData
-                    ? "Your system is quiet. Add subjects, topics, and sessions to bring the dashboard alive."
-                    : "Weekly trajectory, readiness, errors, reviews and energy infrastructure."}
+                  {t("dashboard.heroDescription")}
                 </p>
               </div>
             </div>
@@ -218,18 +216,18 @@ export default async function DashboardPage() {
                 xp={xp}
                 xpToNext={xpToNext}
                 streak={streak}
-                className="min-w-[200px] flex-1 border-primary/15 bg-white/60 backdrop-blur-sm shadow-sm"
+                className="min-w-[200px] flex-1 border-primary/15 bg-bg-surface/70 backdrop-blur-sm shadow-sm"
               />
               {dueReviews > 0 ? (
                 <div className="flex items-center gap-2 rounded-xl border border-violet/20 bg-violet-bg/60 px-3.5 py-2.5 shadow-sm">
                   <RotateCw className="h-4 w-4 text-violet" />
-                  <span className="text-xs font-semibold text-text-primary">{dueReviews} due reviews</span>
+                  <span className="text-xs font-semibold text-text-primary">{t("dashboard.dueReviewsCount", { count: dueReviews })}</span>
                 </div>
               ) : null}
               {openErrors.length > 0 ? (
                 <div className="flex items-center gap-2 rounded-xl border border-rose/20 bg-rose-bg/60 px-3.5 py-2.5 shadow-sm">
                   <ShieldCheck className="h-4 w-4 text-rose" />
-                  <span className="text-xs font-semibold text-text-primary">{openErrors.length} open errors</span>
+                  <span className="text-xs font-semibold text-text-primary">{t("dashboard.openErrorsCount", { count: openErrors.length })}</span>
                 </div>
               ) : null}
             </div>
@@ -280,9 +278,9 @@ export default async function DashboardPage() {
             tone={burnoutRisk.score >= 7 ? "rose" : burnoutRisk.score >= 4 ? "gold" : "emerald"}
           />
           <MetricCard
-            title="Energy"
+            title={t("dashboard.energyLabel")}
             value={energyLevel !== null ? `${energyLevel}/10` : "--"}
-            detail={energyLevel !== null && energyLevel >= 7 ? "High" : energyLevel !== null && energyLevel >= 4 ? "Moderate" : energyLevel !== null ? "Low" : "Log today"}
+            detail={energyLevel !== null && energyLevel >= 7 ? t("dashboard.energyHigh") : energyLevel !== null && energyLevel >= 4 ? t("dashboard.energyModerate") : energyLevel !== null ? t("dashboard.energyLow") : t("dashboard.energyLogToday")}
             icon={Zap}
             tone={energyLevel !== null && energyLevel >= 7 ? "emerald" : energyLevel !== null && energyLevel >= 4 ? "gold" : "rose"}
           />
@@ -296,8 +294,8 @@ export default async function DashboardPage() {
             <GlassCard tone="cyan" padded={false}>
               <div className="p-5 sm:p-6">
                 <SectionHeader
-                  title="Weekly Activity"
-                  description="Study minutes over the last days"
+                  title={t("dashboard.weeklyActivity")}
+                  description={t("dashboard.weeklyActivityDesc")}
                   icon={TrendingUp}
                 />
                 <div className="mt-5">
@@ -305,8 +303,8 @@ export default async function DashboardPage() {
                     <ActivityAreaChart data={minutesChart} dataKey="minutes" color="#7C3AED" height={220} />
                   ) : (
                     <EmptyState
-                      title="No study data yet"
-                      description="Log a study session to see your activity chart light up."
+                      title={t("dashboard.noStudyDataTitle")}
+                      description={t("dashboard.noStudyDataDesc")}
                       tone="cyan"
                     />
                   )}
@@ -323,7 +321,7 @@ export default async function DashboardPage() {
                     {readinessChart.length > 0 ? (
                       <MetricBarChart data={readinessChart} dataKey="readiness" domain={[0, 10]} />
                     ) : (
-                      <EmptyState title="No exams tracked" description="Add an exam to see readiness." tone="violet" />
+                      <EmptyState title={t("dashboard.noExamsTitle")} description={t("dashboard.noExamsDesc")} tone="violet" />
                     )}
                   </div>
                 </div>
@@ -335,7 +333,7 @@ export default async function DashboardPage() {
                     {methodChart.length ? (
                       <MethodPieChart data={methodChart} />
                     ) : (
-                      <EmptyState title="No study methods" description="Start studying to see the split." tone="emerald" />
+                      <EmptyState title={t("dashboard.noMethodsTitle")} description={t("dashboard.noMethodsDesc")} tone="emerald" />
                     )}
                   </div>
                 </div>
@@ -345,18 +343,18 @@ export default async function DashboardPage() {
             {/* Next Actions / Weak Topics */}
             <GlassCard padded={false}>
               <div className="p-5 sm:p-6">
-                <SectionHeader title="Focus Areas" description="Weak topics need attention" icon={Focus} />
+                <SectionHeader title={t("dashboard.focusAreas")} description={t("dashboard.focusAreasDesc")} icon={Focus} />
                 <div className="mt-4 flex flex-col gap-2">
                   {weakTopics.length > 0 ? (
                     weakTopics.slice(0, 4).map((topic, i) => (
                       <Link
                         key={topic.id}
                         href="/topics"
-                        className="flex items-center justify-between gap-3 rounded-xl border border-border bg-bg-elevated p-3.5 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-[1px] motion-safe:fade-in"
+                        className="flex items-center justify-between gap-3 rounded-xl border border-border bg-gradient-to-r from-bg-surface to-bg-subtle/30 p-3.5 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-[1px] motion-safe:fade-in"
                         style={{ animationDelay: `${i * 80}ms` }}
                       >
                         <div className="flex items-center gap-3 min-w-0">
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-rose-bg text-rose">
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-rose-bg to-rose/10 text-rose">
                             <Brain className="h-4 w-4" />
                           </div>
                           <div className="min-w-0">
@@ -378,7 +376,7 @@ export default async function DashboardPage() {
                       </Link>
                     ))
                   ) : (
-                    <EmptyState title="All topics strong" description="No weak topics to surface." tone="emerald" />
+                    <EmptyState title={t("dashboard.topicsStrongTitle")} description={t("dashboard.topicsStrongDesc")} tone="emerald" />
                   )}
                 </div>
               </div>
@@ -387,20 +385,20 @@ export default async function DashboardPage() {
             {/* Recent Activity */}
             <GlassCard padded={false}>
               <div className="p-5 sm:p-6">
-                <SectionHeader title="Recent Activity" description="Latest study sessions" icon={Clock} />
+                <SectionHeader title={t("dashboard.recentActivity")} description={t("dashboard.recentActivityDesc")} icon={Clock} />
                 <div className="mt-4 flex flex-col gap-2">
                   {data.studySessions.slice(0, 5).map((session, i) => (
                     <div
                       key={`${session.id}-${i}`}
-                      className="flex items-center gap-3 rounded-xl border border-border bg-bg-elevated p-3 shadow-sm transition-all duration-200 motion-safe:fade-in"
+                      className="flex items-center gap-3 rounded-xl border border-border bg-gradient-to-r from-bg-surface to-bg-subtle/30 p-3 shadow-sm transition-all duration-200 motion-safe:fade-in"
                       style={{ animationDelay: `${i * 80}ms` }}
                     >
                       <div className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-lg", {
-                        "bg-cyan-bg text-cyan": session.method === "active_recall",
-                        "bg-violet-bg text-violet": session.method === "quiz",
-                        "bg-emerald-bg text-emerald": session.method === "simulation",
-                        "bg-rose-bg text-rose": session.method === "error_review",
-                        "bg-gold-bg text-gold": session.method === "reading" || session.method === "notes",
+                        "bg-gradient-to-br from-cyan-bg to-cyan/10 text-cyan": session.method === "active_recall",
+                        "bg-gradient-to-br from-violet-bg to-violet/10 text-violet": session.method === "quiz",
+                        "bg-gradient-to-br from-emerald-bg to-emerald/10 text-emerald": session.method === "simulation",
+                        "bg-gradient-to-br from-rose-bg to-rose/10 text-rose": session.method === "error_review",
+                        "bg-gradient-to-br from-gold-bg to-gold/10 text-gold": session.method === "reading" || session.method === "notes",
                       })}>
                         <Brain className="h-4 w-4" />
                       </div>
@@ -411,7 +409,7 @@ export default async function DashboardPage() {
                     </div>
                   ))}
                   {data.studySessions.length === 0 ? (
-                    <p className="py-6 text-center text-sm text-text-muted">No sessions yet this week</p>
+                    <p className="py-6 text-center text-sm text-text-muted">{t("dashboard.noSessions")}</p>
                   ) : null}
                 </div>
               </div>
@@ -434,8 +432,8 @@ export default async function DashboardPage() {
             {/* Momentum */}
             <MomentumCard
               score={eliteScore}
-              label="Momentum Score"
-              subtitle={eliteScore >= 7 ? "Strong momentum" : eliteScore >= 4 ? "Building" : "Low momentum"}
+              label={t("dashboard.momentumScore")}
+              subtitle={eliteScore >= 7 ? t("dashboard.momentumStrong") : eliteScore >= 4 ? t("dashboard.momentumBuilding") : t("dashboard.momentumLow")}
               tone={eliteScore >= 7 ? "emerald" : eliteScore >= 4 ? "violet" : "gold"}
             />
 
@@ -448,7 +446,7 @@ export default async function DashboardPage() {
                     <Link
                       key={exam.id}
                       href={`/exams/${exam.id}`}
-                      className="flex items-center justify-between gap-3 rounded-xl border border-border bg-bg-elevated p-3.5 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-[1px] motion-safe:fade-in"
+                      className="flex items-center justify-between gap-3 rounded-xl border border-border bg-gradient-to-r from-bg-surface to-gold-bg/20 p-3.5 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-[1px] motion-safe:fade-in"
                     >
                       <div className="min-w-0">
                         <p className="truncate text-sm font-semibold text-text-primary">{exam.title}</p>
@@ -475,13 +473,13 @@ export default async function DashboardPage() {
             {weakTopics.length > 0 || openErrors.length > 0 ? (
               <GlassCard tone="violet" padded={false}>
                 <div className="p-5 sm:p-6">
-                  <SectionHeader title="Active Missions" description="Clear these to level up" />
+                  <SectionHeader title={t("dashboard.activeMissions")} description={t("dashboard.missionsDesc")} />
                   <div className="mt-4 flex flex-col gap-2">
                     {weakTopics.slice(0, 2).map((topic) => (
                       <MissionCard
                         key={topic.id}
-                        title={`Master "${topic.title}"`}
-                        detail={`Confidence: ${topic.confidence}/10`}
+                        title={t("dashboard.masterMission", { title: topic.title })}
+                        detail={t("dashboard.confidenceDetail", { confidence: topic.confidence })}
                         progress={(topic.confidence / 10) * 100}
                         completed={topic.confidence >= 8}
                         tone="violet"
@@ -489,8 +487,8 @@ export default async function DashboardPage() {
                     ))}
                     {openErrors.length > 0 ? (
                       <MissionCard
-                        title="Destroy open errors"
-                        detail={`${openErrors.length} error${openErrors.length > 1 ? "s" : ""} to resolve`}
+                        title={t("dashboard.destroyErrorsMission")}
+                        detail={t("dashboard.errorsToResolve", { count: openErrors.length })}
                         progress={openErrors.length > 0 ? Math.min(100, (1 - openErrors.length / (openErrors.length + 3)) * 100) : 100}
                         completed={false}
                         tone="rose"
@@ -504,12 +502,12 @@ export default async function DashboardPage() {
             {/* Quick Actions */}
             <GlassCard padded={false}>
               <div className="p-5 sm:p-6">
-                <SectionHeader title="Quick Actions" />
+                <SectionHeader title={t("dashboard.quickActions")} />
                 <div className="mt-4 grid grid-cols-2 gap-2.5">
-                  <QuickActionButton href="/study" icon={BookOpen} label="Study" tone="violet" />
-                  <QuickActionButton href="/reviews" icon={ListChecks} label="Reviews" tone="cyan" />
-                  <QuickActionButton href="/errors" icon={ShieldCheck} label="Errors" tone="rose" />
-                  <QuickActionButton href="/daily-log" icon={Focus} label="Daily Log" tone="emerald" />
+                  <QuickActionButton href="/study" icon={BookOpen} label={t("dashboard.quickActionStudy")} tone="violet" />
+                  <QuickActionButton href="/reviews" icon={ListChecks} label={t("dashboard.quickActionReviews")} tone="cyan" />
+                  <QuickActionButton href="/errors" icon={ShieldCheck} label={t("dashboard.quickActionErrors")} tone="rose" />
+                  <QuickActionButton href="/daily-log" icon={Focus} label={t("dashboard.quickActionDailyLog")} tone="emerald" />
                 </div>
               </div>
             </GlassCard>
@@ -532,16 +530,16 @@ function QuickActionButton({
   tone: "violet" | "cyan" | "rose" | "emerald";
 }) {
   const toneClasses = {
-    violet: "border-violet/25 hover:bg-violet-bg hover:border-violet/40 text-violet",
-    cyan: "border-cyan/25 hover:bg-cyan-bg hover:border-cyan/40 text-cyan",
-    rose: "border-rose/25 hover:bg-rose-bg hover:border-rose/40 text-rose",
-    emerald: "border-emerald/25 hover:bg-emerald-bg hover:border-emerald/40 text-emerald",
+    violet: "border-violet/25 hover:bg-gradient-to-br hover:from-violet-bg hover:to-violet/8 hover:border-violet/40 text-violet",
+    cyan: "border-cyan/25 hover:bg-gradient-to-br hover:from-cyan-bg hover:to-cyan/8 hover:border-cyan/40 text-cyan",
+    rose: "border-rose/25 hover:bg-gradient-to-br hover:from-rose-bg hover:to-rose/8 hover:border-rose/40 text-rose",
+    emerald: "border-emerald/25 hover:bg-gradient-to-br hover:from-emerald-bg hover:to-emerald/8 hover:border-emerald/40 text-emerald",
   };
   return (
     <Link
       href={href}
       className={cn(
-        "flex items-center gap-2 rounded-xl border border-border bg-bg-elevated px-3.5 py-3 text-xs font-semibold transition-all duration-200 hover:shadow-md hover:-translate-y-[1px]",
+        "flex items-center gap-2 rounded-xl border border-border bg-gradient-to-br from-bg-surface to-bg-subtle/30 px-3.5 py-3 text-xs font-semibold transition-all duration-200 hover:shadow-md hover:-translate-y-[1px]",
         toneClasses[tone],
       )}
     >

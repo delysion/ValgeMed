@@ -42,19 +42,19 @@ export function AchievementBadge({
 }) {
   return (
     <div className={cn(
-      "group rounded-lg border p-3 transition-all duration-200 card-hover",
-      unlocked ? "border-gold/20 bg-gold-bg" : "border-border bg-bg-surface dark:bg-bg-elevated",
+      "group rounded-xl border p-3.5 transition-all duration-200 card-hover",
+      unlocked ? "border-gold/25 bg-gradient-to-br from-gold-bg via-gold-bg to-gold/8 shadow-sm shadow-gold/10" : "border-border/60 bg-gradient-to-br from-bg-surface to-bg-subtle/20",
     )}>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2.5">
         <div className={cn(
-          "flex h-6 w-6 shrink-0 items-center justify-center rounded-md transition-all duration-200 group-hover:scale-105",
-          unlocked ? "bg-gold/20 text-gold" : "bg-bg-subtle text-text-muted",
+          "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-all duration-200 group-hover:scale-105",
+          unlocked ? "bg-gradient-to-br from-gold/25 to-gold/10 text-gold shadow-sm shadow-gold/20" : "bg-bg-subtle text-text-muted",
         )}>
-          {unlocked ? <Sparkle className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />}
+          {unlocked ? <Sparkle className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
         </div>
         <p className={cn("text-sm font-semibold", unlocked ? "text-text-primary" : "text-text-muted")}>{title}</p>
       </div>
-      {detail ? <p className="mt-1.5 text-xs text-text-secondary">{detail}</p> : null}
+      {detail ? <p className="mt-1.5 text-xs leading-relaxed text-text-secondary">{detail}</p> : null}
     </div>
   );
 }
@@ -102,26 +102,26 @@ export function LevelBadge({
   const pct = Math.round((xp / xpToNext) * 100);
 
   return (
-    <div className={cn("flex items-center gap-3 rounded-lg bg-bg-surface dark:bg-bg-elevated p-3 shadow-sm border border-border", className)}>
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-violet text-white text-sm font-bold shadow-sm">
+    <div className={cn("flex items-center gap-3 rounded-xl bg-gradient-to-br from-bg-surface via-bg-surface to-bg-subtle/30 p-3 shadow-sm border border-border/60", className)}>
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary via-primary-ring to-violet text-white text-sm font-bold shadow-md shadow-primary/25">
         {level}
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           <p className="text-sm font-semibold text-text-primary">Lv.{level} {levelLabel}</p>
           {streak > 0 ? (
-            <span className="flex items-center gap-0.5 text-[11px] font-medium text-gold">
+            <span className="flex items-center gap-0.5 text-xs font-medium text-gold">
               <Zap className="h-3 w-3" /> {streak}
             </span>
           ) : null}
         </div>
-        <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-bg-subtle">
+        <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-bg-subtle">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-primary to-violet transition-all duration-500 progress-fill"
+            className="h-full rounded-full bg-gradient-to-r from-primary via-primary-ring to-violet transition-all duration-500 progress-fill"
             style={{ width: `${pct}%` }}
           />
         </div>
-        <p className="mt-0.5 text-[10px] text-text-muted">{xp}/{xpToNext} XP to next level</p>
+        <p className="mt-0.5 text-[11px] text-text-muted">{xp}/{xpToNext} XP to next level</p>
       </div>
     </div>
   );
@@ -146,24 +146,24 @@ export function LevelCard({
 }) {
   const pct = Math.round((xp / xpToNext) * 100);
   return (
-    <div className={cn("rounded-xl border border-border bg-bg-surface dark:bg-bg-elevated p-5 shadow-[var(--shadow-card)]", className)}>
-      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-text-muted">Your Level</p>
+    <div className={cn("rounded-xl border border-border/60 bg-gradient-to-br from-bg-surface via-bg-surface to-primary-soft/20 p-5 shadow-[var(--shadow-card)]", className)}>
+      <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-text-muted">Your Level</p>
       <div className="mt-3 flex items-center gap-4">
-        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-violet text-white text-xl font-bold shadow-md">
+        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary via-primary-ring to-violet text-white text-xl font-bold shadow-lg shadow-primary/30">
           {level}
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-base font-semibold text-text-primary">Level {level} — {levelLabel}</p>
           <div className="mt-2 h-2 overflow-hidden rounded-full bg-bg-subtle">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-primary to-violet progress-fill"
+              className="h-full rounded-full bg-gradient-to-r from-primary via-primary-ring to-violet progress-fill"
               style={{ width: `${pct}%` }}
             />
           </div>
-          <div className="mt-1 flex items-center justify-between">
-            <p className="text-[11px] text-text-muted">{xp} / {xpToNext} XP</p>
+          <div className="mt-1.5 flex items-center justify-between">
+            <p className="text-xs text-text-muted">{xp} / {xpToNext} XP</p>
             {streak > 0 ? (
-              <span className="flex items-center gap-0.5 text-[11px] font-medium text-gold">
+              <span className="flex items-center gap-0.5 text-xs font-medium text-gold">
                 <Flame className="h-3 w-3" /> {streak} day streak
               </span>
             ) : null}
@@ -203,18 +203,25 @@ export function MomentumCard({
     gold: "text-gold",
     rose: "text-rose",
   };
+  const bgMap = {
+    cyan: "from-cyan-bg/50 to-bg-surface",
+    violet: "from-violet-bg/50 to-bg-surface",
+    emerald: "from-emerald-bg/50 to-bg-surface",
+    gold: "from-gold-bg/50 to-bg-surface",
+    rose: "from-rose-bg/50 to-bg-surface",
+  };
 
   const radius = 32;
   const circumference = 2 * Math.PI * radius;
   const dash = (safe / 10) * circumference;
 
   return (
-    <div className={cn("rounded-xl border border-border bg-bg-surface dark:bg-bg-elevated p-5 shadow-[var(--shadow-card)] card-hover", className)}>
+    <div className={cn("rounded-xl border border-border bg-gradient-to-br p-5 shadow-[var(--shadow-card)] card-hover", bgMap[tone], className)}>
       <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-text-muted">{label}</p>
       <div className="mt-3 flex items-center gap-4">
         <div className="relative h-20 w-20 shrink-0">
           <svg viewBox="0 0 80 80" className="h-full w-full -rotate-90">
-            <circle cx="40" cy="40" r={radius} fill="none" stroke="#E2E8F0" strokeWidth="6" />
+            <circle cx="40" cy="40" r={radius} fill="none" stroke="var(--border-light)" strokeWidth="6" opacity="0.5" />
             <circle
               cx="40"
               cy="40"
@@ -262,12 +269,12 @@ export function DailyStreakCard({
 }) {
   const pct = longestStreak && longestStreak > 0 ? Math.round((streak / longestStreak) * 100) : streak > 0 ? 100 : 0;
   return (
-    <div className={cn("rounded-xl border border-border bg-bg-surface dark:bg-bg-elevated p-5 shadow-[var(--shadow-card)] card-hover", className)}>
+    <div className={cn("rounded-xl border border-border bg-gradient-to-br from-gold-bg/30 via-bg-surface to-bg-surface p-5 shadow-[var(--shadow-card)] card-hover", className)}>
       <div className="flex items-center justify-between">
         <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-text-muted">Daily Streak</p>
         {streak > 0 ? (
           <div className="flex items-center gap-1">
-            <Flame className="h-4 w-4 text-gold" />
+            <Flame className="h-4 w-4 text-gold drop-shadow-sm" />
             <span className="font-mono text-lg font-bold text-gold">{streak}</span>
           </div>
         ) : (
@@ -276,7 +283,7 @@ export function DailyStreakCard({
       </div>
       <div className="mt-3 h-2 overflow-hidden rounded-full bg-bg-subtle">
         <div
-          className="h-full rounded-full bg-gradient-to-r from-gold to-amber-400 transition-all duration-700"
+          className="h-full rounded-full bg-gradient-to-r from-gold via-amber-400 to-gold transition-all duration-700"
           style={{ width: `${pct}%` }}
         />
       </div>
@@ -309,7 +316,7 @@ export function SystemHealthCard({
   ];
 
   return (
-    <div className={cn("rounded-xl border border-border bg-bg-surface dark:bg-bg-elevated p-5 shadow-[var(--shadow-card)]", className)}>
+    <div className={cn("rounded-xl border border-border bg-gradient-to-br from-bg-surface via-bg-surface to-bg-subtle/20 p-5 shadow-[var(--shadow-card)]", className)}>
       <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-text-muted">System Health</p>
       <div className="mt-4 space-y-3">
         {metrics.map((m) => (
@@ -327,9 +334,9 @@ export function SystemHealthCard({
             <div className="h-1.5 overflow-hidden rounded-full bg-bg-subtle">
               <div
                 className={cn("h-full rounded-full transition-all duration-700", {
-                  "bg-emerald": m.tone === "emerald",
-                  "bg-gold": m.tone === "gold",
-                  "bg-rose": m.tone === "rose",
+                  "bg-gradient-to-r from-emerald to-green-400": m.tone === "emerald",
+                  "bg-gradient-to-r from-gold to-amber-400": m.tone === "gold",
+                  "bg-gradient-to-r from-rose to-pink-400": m.tone === "rose",
                 })}
                 style={{ width: `${(m.value / 10) * 100}%` }}
               />
@@ -368,14 +375,14 @@ export function MissionCard({
   return (
     <div className={cn(
       "rounded-lg border p-3.5 transition-all duration-200 card-hover",
-      completed ? "border-emerald/20 bg-emerald-bg" : "border-border bg-bg-surface dark:bg-bg-elevated",
+      completed ? "border-emerald/25 bg-gradient-to-br from-emerald-bg to-emerald/8" : "border-border bg-gradient-to-br from-bg-surface to-bg-subtle/20",
       !completed && toneBorder[tone],
       className,
     )}>
       <div className="flex items-start gap-3">
         <div className={cn(
           "flex h-7 w-7 shrink-0 items-center justify-center rounded-md transition-all",
-          completed ? "bg-emerald/20 text-emerald" : "bg-bg-subtle text-text-muted",
+          completed ? "bg-gradient-to-br from-emerald/25 to-emerald/10 text-emerald shadow-sm shadow-emerald/20" : "bg-bg-subtle text-text-muted",
         )}>
           {completed ? <Sparkle className="h-3.5 w-3.5" /> : <TrendingUp className="h-3.5 w-3.5" />}
         </div>
@@ -386,11 +393,11 @@ export function MissionCard({
             <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-bg-subtle">
               <div
                 className={cn("h-full rounded-full transition-all duration-700", {
-                  "bg-cyan": tone === "cyan",
-                  "bg-violet": tone === "violet",
-                  "bg-emerald": tone === "emerald",
-                  "bg-gold": tone === "gold",
-                  "bg-rose": tone === "rose",
+                  "bg-gradient-to-r from-cyan to-blue-400": tone === "cyan",
+                  "bg-gradient-to-r from-violet to-purple-400": tone === "violet",
+                  "bg-gradient-to-r from-emerald to-green-400": tone === "emerald",
+                  "bg-gradient-to-r from-gold to-amber-400": tone === "gold",
+                  "bg-gradient-to-r from-rose to-pink-400": tone === "rose",
                 })}
                 style={{ width: `${pct}%` }}
               />
@@ -443,9 +450,9 @@ export function GamificationDashboard({
   return (
     <div className="space-y-6">
       {/* Level + Streak + XP */}
-      <div className="rounded-2xl border border-border bg-bg-surface dark:bg-bg-elevated p-5 shadow-[var(--shadow-card)]">
+      <div className="rounded-2xl border border-border bg-gradient-to-br from-primary-soft/30 via-bg-surface to-bg-surface p-5 shadow-[var(--shadow-card)]">
         <div className="flex items-center gap-4">
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-cyan text-white text-xl font-bold shadow-md">
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary via-primary-ring to-cyan text-white text-xl font-bold shadow-lg shadow-primary/30">
             {level}
           </div>
           <div className="min-w-0 flex-1">
@@ -454,7 +461,7 @@ export function GamificationDashboard({
             </p>
             <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-bg-subtle">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-primary to-cyan progress-fill"
+                className="h-full rounded-full bg-gradient-to-r from-primary via-primary-ring to-cyan progress-fill"
                 style={{ width: `${xpPct}%` }}
               />
             </div>
@@ -471,11 +478,11 @@ export function GamificationDashboard({
       </div>
 
       {/* Badge Grid */}
-      <div className="rounded-2xl border border-border bg-bg-surface dark:bg-bg-elevated p-5 shadow-[var(--shadow-card)]">
+      <div className="rounded-2xl border border-border bg-gradient-to-br from-bg-surface via-bg-surface to-gold-bg/20 p-5 shadow-[var(--shadow-card)]">
         <div className="flex items-center gap-2 mb-4">
-          <Trophy className="h-4 w-4 text-gold" />
+          <Trophy className="h-4 w-4 text-gold drop-shadow-sm" />
           <p className="text-sm font-semibold text-text-primary">Badges</p>
-          <span className="rounded-md bg-bg-subtle px-1.5 py-0.5 font-mono text-[11px] text-text-muted">
+          <span className="rounded-md bg-gradient-to-br from-bg-subtle to-border/30 px-1.5 py-0.5 font-mono text-[11px] text-text-muted">
             {badges.filter((b) => b.unlocked).length}/{badges.length}
           </span>
         </div>
@@ -486,13 +493,13 @@ export function GamificationDashboard({
               className={cn(
                 "flex flex-col items-center gap-1.5 rounded-xl border p-3 text-center transition-all",
                 badge.unlocked
-                  ? "border-gold/20 bg-gold-bg"
+                  ? "border-gold/25 bg-gradient-to-br from-gold-bg to-gold/8 shadow-sm shadow-gold/10"
                   : "border-border opacity-30"
               )}
             >
               <div className={cn(
                 "grid h-8 w-8 place-items-center rounded-lg",
-                badge.unlocked ? "bg-gold/20 text-gold" : "bg-bg-subtle text-text-muted"
+                badge.unlocked ? "bg-gradient-to-br from-gold/25 to-gold/10 text-gold shadow-sm" : "bg-bg-subtle text-text-muted"
               )}>
                 {badge.unlocked ? (
                   <badge.icon className="h-4 w-4" />
@@ -507,9 +514,9 @@ export function GamificationDashboard({
       </div>
 
       {/* Missions */}
-      <div className="rounded-2xl border border-border bg-bg-surface dark:bg-bg-elevated p-5 shadow-[var(--shadow-card)]">
+      <div className="rounded-2xl border border-border bg-gradient-to-br from-bg-surface via-bg-surface to-primary-soft/15 p-5 shadow-[var(--shadow-card)]">
         <div className="flex items-center gap-2 mb-4">
-          <Target className="h-4 w-4 text-primary" />
+          <Target className="h-4 w-4 text-primary drop-shadow-sm" />
           <p className="text-sm font-semibold text-text-primary">Missions</p>
         </div>
         <div className="space-y-3">
@@ -530,7 +537,7 @@ export function GamificationDashboard({
                   <div
                     className={cn(
                       "h-full rounded-full transition-all duration-700",
-                      complete ? "bg-emerald" : "bg-primary"
+                      complete ? "bg-gradient-to-r from-emerald to-green-400" : "bg-gradient-to-r from-primary to-primary-ring"
                     )}
                     style={{ width: `${pct}%` }}
                   />
@@ -543,5 +550,3 @@ export function GamificationDashboard({
     </div>
   );
 }
-
-

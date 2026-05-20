@@ -40,48 +40,64 @@ export function ScoreRing({
     xl: "text-5xl",
   };
   const borderTone = {
-    cyan: "border-cyan/20",
-    violet: "border-violet/20",
-    emerald: "border-emerald/20",
-    gold: "border-gold/20",
-    rose: "border-rose/20",
-    danger: "border-rose/20",
+    cyan: "border-cyan/25",
+    violet: "border-violet/25",
+    emerald: "border-emerald/25",
+    gold: "border-gold/25",
+    rose: "border-rose/25",
+    danger: "border-rose/25",
+  };
+  const bgTone = {
+    cyan: "from-cyan-bg/60 to-bg-surface",
+    violet: "from-violet-bg/60 to-bg-surface",
+    emerald: "from-emerald-bg/60 to-bg-surface",
+    gold: "from-gold-bg/60 to-bg-surface",
+    rose: "from-rose-bg/60 to-bg-surface",
+    danger: "from-rose-bg/60 to-bg-surface",
   };
 
   return (
     <div
       className={cn(
-        "relative grid place-items-center rounded-full border bg-bg-surface dark:bg-bg-elevated shadow-[var(--shadow-hero)]",
+        "relative grid place-items-center rounded-full border bg-gradient-to-br shadow-[var(--shadow-hero)]",
         sizeClass[size],
         borderTone[tone],
+        bgTone[tone],
       )}
       aria-label={`${label}: ${safe.toFixed(1)} out of 10`}
     >
       {animated ? (
         <div
-          className="absolute -inset-4 rounded-full blur-3xl"
-          style={{ background: `radial-gradient(circle, ${colorByTone[tone]}20 0%, transparent 70%)` }}
+          className="absolute -inset-6 rounded-full blur-[40px] opacity-60"
+          style={{ background: `radial-gradient(circle, ${colorByTone[tone]}30 0%, transparent 70%)` }}
         />
       ) : null}
       <svg viewBox="0 0 120 120" className={cn("absolute inset-0 h-full w-full -rotate-90 p-2")}>
-        <circle cx="60" cy="60" r={radius} fill="none" stroke="#E2E8F0" strokeWidth="8" />
+        <defs>
+          <linearGradient id={`ring-grad-${tone}`} x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor={colorByTone[tone]} stopOpacity="0.8" />
+            <stop offset="100%" stopColor={colorByTone[tone]} stopOpacity="1" />
+          </linearGradient>
+        </defs>
+        <circle cx="60" cy="60" r={radius} fill="none" stroke="var(--border-light)" strokeWidth="8" opacity="0.5" />
         <circle
           cx="60"
           cy="60"
           r={radius}
           fill="none"
-          stroke={colorByTone[tone]}
+          stroke={`url(#ring-grad-${tone})`}
           strokeDasharray={animated ? `${dash} ${circumference - dash}` : `${circumference * 0.01} ${circumference * 0.99}`}
           strokeLinecap="round"
           strokeWidth="8"
           className={cn(animated && "progress-fill")}
           style={animated ? { strokeDasharray: `${dash} ${circumference - dash}` } : undefined}
+          filter="drop-shadow(0 0 6px currentColor)"
         />
       </svg>
       <div className="relative text-center">
-        <div className={cn("font-mono font-semibold text-text-primary", textSize[size])}>{safe.toFixed(1)}</div>
-        <div className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-text-secondary">{label}</div>
-        {caption ? <div className="mt-1.5 text-[11px] leading-snug text-text-muted">{caption}</div> : null}
+        <div className={cn("font-mono font-bold text-text-primary tracking-tight drop-shadow-sm", textSize[size])}>{safe.toFixed(1)}</div>
+        <div className="mt-0.5 text-[11px] font-bold uppercase tracking-[0.12em] text-text-secondary">{label}</div>
+        {caption ? <div className="mt-1.5 text-xs leading-snug text-text-muted">{caption}</div> : null}
       </div>
     </div>
   );

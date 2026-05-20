@@ -17,16 +17,16 @@ export function ErrorState({
   className?: string;
 }) {
   return (
-    <div className={cn("flex flex-col items-center gap-3 rounded-xl border border-rose/20 bg-rose-bg p-6 text-center", className)}>
-      <div className="grid h-10 w-10 place-items-center rounded-lg border border-rose/20 bg-bg-surface">
-        <AlertTriangle className="h-5 w-5 text-rose" />
+    <div className={cn("flex flex-col items-center gap-3 rounded-2xl border border-rose/20 bg-rose-bg/50 p-8 text-center", className)}>
+      <div className="grid h-12 w-12 place-items-center rounded-xl border border-rose/20 bg-bg-surface shadow-sm">
+        <AlertTriangle className="h-6 w-6 text-rose" aria-hidden="true" />
       </div>
       <div>
-        <h3 className="text-sm font-semibold text-text-primary">{title}</h3>
-        <p className="mt-1 text-xs leading-5 text-text-secondary">{description}</p>
+        <h3 className="text-base font-semibold text-text-primary">{title}</h3>
+        <p className="mt-1.5 max-w-sm text-sm leading-relaxed text-text-secondary">{description}</p>
       </div>
       {onRetry ? (
-        <Button variant="outline" size="sm" onClick={onRetry}>
+        <Button variant="outline" size="sm" className="mt-2" onClick={onRetry}>
           {retryLabel}
         </Button>
       ) : null}

@@ -32,14 +32,14 @@ export async function AppShell({
   return (
     <TranslationProvider locale={locale} dictionary={dictionary}>
       <div className="min-h-screen bg-bg-page">
-        <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-white focus:outline-none">
+        <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-xl focus:bg-gradient-to-br focus:from-primary focus:to-primary-ring focus:px-4 focus:py-2 focus:text-white focus:outline-none focus:shadow-lg">
           Skip to main content
         </a>
         {/* Desktop Sidebar */}
-        <aside className="fixed inset-y-0 left-0 z-20 hidden w-64 overflow-y-auto border-r border-border bg-bg-surface lg:block">
-          <div className="sticky top-0 z-10 border-b border-border bg-bg-page/80 backdrop-blur-xl p-5">
+        <aside className="fixed inset-y-0 left-0 z-20 hidden w-64 overflow-y-auto border-r border-border bg-gradient-to-b from-bg-surface via-bg-surface to-bg-page/90 backdrop-blur-sm lg:block">
+          <div className="sticky top-0 z-10 border-b border-border bg-gradient-to-r from-bg-page/80 to-bg-surface/80 backdrop-blur-xl p-5">
             <div className="flex items-center gap-3">
-              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-primary to-violet shadow-md shadow-primary/20">
+              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-primary via-primary-ring to-violet shadow-md shadow-primary/25">
                 <Command className="h-5 w-5 text-white" />
               </div>
               <div className="min-w-0">
@@ -56,17 +56,15 @@ export async function AppShell({
         {/* Main Content Area */}
         <div className="lg:pl-64">
           {/* Mobile + Desktop Header */}
-          <header className="sticky top-0 z-30 flex min-h-16 items-center justify-between gap-3 border-b border-border bg-bg-surface/85 px-4 py-2.5 backdrop-blur-xl sm:px-5 lg:px-8">
+          <header className="sticky top-0 z-30 flex min-h-16 items-center justify-between gap-3 border-b border-border bg-gradient-to-r from-bg-surface/90 via-bg-surface/95 to-bg-subtle/30 px-4 py-2.5 backdrop-blur-xl sm:px-6 lg:px-8">
             <div className="flex min-w-0 items-center gap-3">
               <Sheet>
-                <SheetTrigger asChild>
-                  <Button variant="outline" size="icon" className="h-10 w-10 rounded-xl lg:hidden" aria-label="Menu">
-                    <Menu className="h-5 w-5" />
-                  </Button>
+                <SheetTrigger className="h-10 w-10 rounded-xl border border-border bg-gradient-to-br from-bg-elevated to-bg-subtle/30 p-0 hover:bg-bg-subtle active:scale-[0.97] lg:hidden" aria-label="Open navigation menu">
+                  <Menu className="h-5 w-5" />
                 </SheetTrigger>
-                <SheetContent className="left-0 right-auto w-[min(88vw,300px)] border-r border-l-0 border-border bg-bg-surface p-0 sm:max-w-sm">
-                  <div className="flex items-center gap-3 border-b border-border bg-bg-page/80 p-4">
-                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-primary to-violet shadow-sm">
+                <SheetContent className="left-0 right-auto w-[min(88vw,300px)] border-r border-l-0 border-border bg-gradient-to-b from-bg-surface to-bg-page p-0 sm:max-w-sm">
+                  <div className="flex items-center gap-3 border-b border-border bg-gradient-to-r from-bg-page/80 to-bg-surface/80 p-4">
+                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-primary via-primary-ring to-violet shadow-sm">
                       <Command className="h-5 w-5 text-white" />
                     </div>
                     <div className="min-w-0">
@@ -92,14 +90,14 @@ export async function AppShell({
               <div className="hidden sm:block">
                 <LanguageSelector current={locale} label={t("language.label")} compact />
               </div>
-              <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex gap-1.5 rounded-lg">
+              <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex gap-1.5 rounded-xl">
                 <a href="/api/export/json" aria-label={t("app.exportJson")}>
                   <FileDown className="h-4 w-4" />
                   {t("app.exportJson")}
                 </a>
               </Button>
               <form action={logoutAction}>
-                <Button type="submit" variant="outline" size="sm" className="rounded-lg gap-1.5">
+                <Button type="submit" variant="outline" size="sm" className="rounded-xl gap-1.5">
                   <LogOut className="h-4 w-4" />
                   <span className="hidden sm:inline">{t("app.logout")}</span>
                 </Button>

@@ -42,7 +42,7 @@ export function WeeklyCommandPanel({
   const logDates = new Set(thisWeekLogs.map((log) => log.date));
 
   return (
-    <div className="rounded-xl border border-border bg-white p-5 shadow-[var(--shadow-card)]">
+    <div className="rounded-xl border border-border bg-gradient-to-br from-bg-surface via-bg-surface to-cyan-bg/20 p-5 shadow-[var(--shadow-card)]">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-base font-semibold text-text-primary">{t("command.weeklyCommand")}</h3>
         <Badge variant={trend >= 0 ? "success" : "danger"} className="text-[10px]">

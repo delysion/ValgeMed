@@ -43,9 +43,9 @@ export function CommandGreeting({
   const scoreTone = eliteScore >= 7 ? "emerald" : eliteScore >= 5 ? "violet" : eliteScore >= 3 ? "gold" : "rose";
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-primary/10 bg-gradient-to-br from-primary-soft via-bg-elevated to-cyan-bg/40 p-5 shadow-[var(--shadow-hero)] sm:p-7 md:p-8 lg:p-10">
-      <div className="pointer-events-none absolute -left-20 -top-20 h-64 w-64 rounded-full bg-primary/6 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-violet/5 blur-3xl" />
+    <div className="relative overflow-hidden rounded-2xl border border-primary/12 bg-gradient-to-br from-primary-soft/70 via-bg-elevated to-cyan-bg/30 p-5 shadow-[var(--shadow-hero)] sm:p-7 md:p-8 lg:p-10">
+      <div className="pointer-events-none absolute -left-20 -top-20 h-64 w-64 rounded-full bg-primary/6 blur-[80px]" />
+      <div className="pointer-events-none absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-violet/5 blur-[80px]" />
 
       <div className="relative grid gap-6 lg:grid-cols-[1fr_220px]">
         <div className="flex flex-col justify-between gap-5">

@@ -26,16 +26,23 @@ export function TranslationProvider({
 }
 
 export function useTranslation() {
-  const context = useContext(TranslationContext);
+  const ctx = useContext(TranslationContext);
 
-  if (!context) {
+  if (!ctx) {
     throw new Error("useTranslation must be used inside TranslationProvider.");
   }
 
-  return {
-    locale: context.locale,
-    t(key: TranslationKey) {
-      return context.dictionary[key] ?? key;
-    },
-  };
+  const { locale, dictionary } = ctx;
+
+  function t(key: TranslationKey, params?: Record<string, string | number>): string {
+    let text = dictionary[key] ?? key;
+    if (params) {
+      for (const [k, v] of Object.entries(params)) {
+        text = text.replaceAll(`{${k}}`, String(v));
+      }
+    }
+    return text;
+  }
+
+  return { locale, t };
 }

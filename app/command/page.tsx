@@ -2,18 +2,16 @@ import Link from "next/link";
 import { differenceInCalendarDays, formatISO, startOfToday, subDays } from "date-fns";
 import {
   ArrowRight, BookOpen, Brain, CalendarClock, Clock, Compass,
-  Flame, Languages, Lightbulb, Radar, ShieldCheck, Sparkles, Target, Zap,
+  Flame, Languages, Lightbulb, Radar, ShieldCheck, Target, Zap,
 } from "lucide-react";
 
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { DailyLogForm } from "@/components/forms/entity-forms";
 import { AchievementBadge, GamificationDashboard } from "@/components/premium/gamification";
-import { CommandGreeting } from "@/components/premium/command-greeting";
 import { CollapsiblePanel } from "@/components/premium/collapsible-panel";
 import { ExamCountdown } from "@/components/premium/exam-countdown";
 import { FocusTimer } from "@/components/premium/focus-timer";
 import { GlassCard } from "@/components/premium/glass-card";
-import { LoadingState } from "@/components/premium/loading-state";
 import { MetricCard } from "@/components/premium/metric-card";
 import { MomentumBar } from "@/components/premium/momentum-bar";
 import { QuestItem } from "@/components/premium/quest-grid";
@@ -32,6 +30,9 @@ import { fmtDate } from "@/lib/labels";
 import { getI18n } from "@/lib/i18n/server";
 import { buildBurnoutRiskFromLogs, buildEliteIndex, buildExamReadiness } from "@/lib/scoring/engine";
 import { getNextBestAction } from "@/lib/scoring/next-best-action";
+import { SmartInputWrapper } from "@/components/smart-input-wrapper";
+import { OnboardingWrapper } from "@/components/onboarding-wrapper";
+import { QuickActions } from "@/components/quick-actions";
 
 export const dynamic = "force-dynamic";
 
@@ -259,6 +260,15 @@ export default async function CommandPage() {
             </div>
           </GlassCard>
         ) : null}
+
+        {/* Smart Input - New AI-powered input */}
+        <SmartInputWrapper />
+
+        {/* Quick Actions for users with data */}
+        <QuickActions hasData={!lowData} />
+
+        {/* Onboarding for new users */}
+        {lowData ? <OnboardingWrapper /> : null}
 
         {/* ─── (2) Today's Command card ─── */}
         <GlassCard tone="primary">

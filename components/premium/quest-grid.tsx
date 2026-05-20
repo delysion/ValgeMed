@@ -31,7 +31,7 @@ export function QuestItem({
   return (
     <div
       className={cn(
-        "group flex items-start gap-3 rounded-lg border border-border bg-white p-3 shadow-sm transition-all duration-200 hover:shadow-md",
+        "group flex items-start gap-3 rounded-lg border border-border bg-gradient-to-r from-bg-surface to-bg-subtle/30 p-3 shadow-sm transition-all duration-200 hover:shadow-md",
         complete ? "border-emerald/30 bg-emerald-bg" : toneBorder[tone],
       )}
     >

@@ -1,67 +1,67 @@
 @import "tailwindcss";
 
 :root {
-  /* ValgeMed Light — warm Nordic clinical, premium & intentional */
-  --bg-page: #F5F3EE;
-  --bg-surface: #FDFCF9;
-  --bg-subtle: #EFECE5;
-  --bg-elevated: #FFFFFF;
-  --text-primary: #0D0D1A;
-  --text-secondary: #3D3D50;
-  --text-muted: #6B6B7B;
-  --text-muted-2: #A8A49C;
-  --border: #D8D4CC;
-  --border-light: #E8E5DD;
-  --border-strong: #C2BDB4;
+  /* ValgeMed Light — Rich Nordic Clinical with Warm Depth */
+  --bg-page: #F0EDE6;
+  --bg-surface: #FAF8F5;
+  --bg-subtle: #E8E4DB;
+  --bg-elevated: #F8F5F0;
+  --text-primary: #0A0A18;
+  --text-secondary: #2D2D42;
+  --text-muted: #5A5A6E;
+  --text-muted-2: #9A968E;
+  --border: #D0CBC2;
+  --border-light: #E0DCD4;
+  --border-strong: #B8B2A8;
 
-  /* Primary — Deep Indigo with warmth */
-  --primary: #5040D0;
-  --primary-soft: #EAE6FD;
-  --primary-ring: #7B6BF0;
-  --primary-glow: rgba(80, 64, 208, 0.14);
+  /* Primary — Deep Indigo with Rich Warmth */
+  --primary: #4A38C8;
+  --primary-soft: #E8E4FC;
+  --primary-ring: #6B58E8;
+  --primary-glow: rgba(74, 56, 200, 0.18);
 
-  /* Accents — richer, more saturated, warm-cool balanced */
-  --cyan: #0B6E85;
-  --cyan-bg: #DFF5FA;
-  --violet: #6425D0;
-  --violet-bg: #ECE6FD;
-  --emerald: #036B4F;
-  --emerald-bg: #CCFAE5;
-  --gold: #A34D08;
-  --gold-bg: #FDF0C0;
-  --rose: #B01038;
-  --rose-bg: #FDE0E4;
-  --danger: #D02020;
-  --danger-bg: #FDF0F0;
-  --warning: #A34D08;
-  --success: #036B4F;
+  /* Accents — Vibrant, Contextual, Rich */
+  --cyan: #087590;
+  --cyan-bg: #D8F2FA;
+  --violet: #5C20C8;
+  --violet-bg: #E8E0FC;
+  --emerald: #006848;
+  --emerald-bg: #C0F8D8;
+  --gold: #9A4400;
+  --gold-bg: #FCE8B0;
+  --rose: #A80830;
+  --rose-bg: #FCD8E0;
+  --danger: #C81818;
+  --danger-bg: #FCE8E8;
+  --warning: #9A4400;
+  --success: #006848;
 
-  /* Shadows — layered depth system */
-  --shadow-card: 0 1px 2px rgba(13, 13, 26, 0.05), 0 3px 12px rgba(13, 13, 26, 0.07);
-  --shadow-elevated: 0 4px 8px rgba(13, 13, 26, 0.07), 0 14px 36px rgba(13, 13, 26, 0.09);
-  --shadow-premium: 0 8px 20px rgba(13, 13, 26, 0.09), 0 28px 64px rgba(13, 13, 26, 0.11);
-  --shadow-hero: 0 14px 44px rgba(80, 64, 208, 0.12), 0 4px 18px rgba(80, 64, 208, 0.07);
-  --shadow-inner: inset 0 1px 3px rgba(13, 13, 26, 0.06);
-  --ring-soft: 0 0 0 1px rgba(13, 13, 26, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  /* Shadows — Layered Depth with Warm Tint */
+  --shadow-card: 0 1px 3px rgba(10, 10, 24, 0.06), 0 4px 16px rgba(10, 10, 24, 0.08);
+  --shadow-elevated: 0 6px 12px rgba(10, 10, 24, 0.08), 0 18px 40px rgba(10, 10, 24, 0.10);
+  --shadow-premium: 0 12px 24px rgba(10, 10, 24, 0.10), 0 32px 72px rgba(10, 10, 24, 0.12);
+  --shadow-hero: 0 16px 48px rgba(74, 56, 200, 0.14), 0 6px 20px rgba(74, 56, 200, 0.08);
+  --shadow-inner: inset 0 2px 4px rgba(10, 10, 24, 0.07);
+  --ring-soft: 0 0 0 1px rgba(10, 10, 24, 0.07), inset 0 1px 0 rgba(255, 255, 255, 0.96);
 
   /* Surface overlay for modals */
-  --overlay: rgba(13, 13, 26, 0.40);
+  --overlay: rgba(10, 10, 24, 0.45);
 
   /* Typography scale */
-  --tracking-tight: -0.025em;
+  --tracking-tight: -0.028em;
   --tracking-normal: 0em;
-  --tracking-wide: 0.04em;
-  --tracking-wider: 0.08em;
-  --tracking-widest: 0.12em;
+  --tracking-wide: 0.045em;
+  --tracking-wider: 0.085em;
+  --tracking-widest: 0.13em;
 }
 
 .dark {
-  /* ValgeMed Dark — Nordic clinical cockpit with atmospheric depth */
-  --bg-page: #070B12;
-  --bg-surface: #0F1520;
-  --bg-subtle: #161C2A;
-  --bg-elevated: #1C2338;
-  --text-primary: #E4E8F0;
+  /* ValgeMed Dark — Rich Nordic Cockpit with Atmospheric Depth */
+  --bg-page: #060A14;
+  --bg-surface: #0E1422;
+  --bg-subtle: #151C2E;
+  --bg-elevated: #1A2238;
+  --text-primary: #E8ECF4;
   --text-secondary: #8A9AB8;
   --text-muted: #687890;
   --text-muted-2: #3E4A60;
@@ -69,37 +69,37 @@
   --border-light: #171E30;
   --border-strong: #283050;
 
-  /* Primary — steel indigo, clinical, professional */
-  --primary: #7090F0;
-  --primary-soft: #141835;
-  --primary-ring: #90A4F8;
-  --primary-glow: rgba(112, 144, 240, 0.16);
+  /* Primary — Steel Indigo with Glow */
+  --primary: #7898F8;
+  --primary-soft: #141838;
+  --primary-ring: #98B0FF;
+  --primary-glow: rgba(120, 152, 248, 0.18);
 
-  /* Accents — muted, clinical, nordic */
-  --cyan: #60C8D8;
-  --cyan-bg: #082028;
-  --violet: #90A0D8;
-  --violet-bg: #161A30;
-  --emerald: #60BC9E;
-  --emerald-bg: #082820;
-  --gold: #D8A450;
-  --gold-bg: #281C0C;
-  --rose: #D87080;
-  --rose-bg: #281018;
-  --danger: #E47878;
-  --danger-bg: #280C0C;
-  --warning: #D8A450;
-  --success: #60BC9E;
+  /* Accents — Rich, Glowing, Nordic */
+  --cyan: #58D0E8;
+  --cyan-bg: #0A2530;
+  --violet: #98A8E8;
+  --violet-bg: #181E38;
+  --emerald: #58C8A0;
+  --emerald-bg: #0A3028;
+  --gold: #E0A848;
+  --gold-bg: #301E0A;
+  --rose: #E07888;
+  --rose-bg: #301018;
+  --danger: #F08080;
+  --danger-bg: #300A0A;
+  --warning: #E0A848;
+  --success: #58C8A0;
 
-  /* Shadows — atmospheric glow with depth */
-  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.35), 0 4px 14px rgba(0, 0, 0, 0.25);
-  --shadow-elevated: 0 8px 28px rgba(0, 0, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.30);
-  --shadow-premium: 0 22px 56px rgba(0, 0, 0, 0.55), 0 4px 14px rgba(0, 0, 0, 0.38);
-  --shadow-hero: 0 28px 72px rgba(112, 144, 240, 0.14), 0 8px 28px rgba(112, 144, 240, 0.07);
-  --shadow-inner: inset 0 1px 3px rgba(0, 0, 0, 0.32);
-  --ring-soft: 0 0 0 1px rgba(255, 255, 255, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  /* Shadows — Atmospheric Glow with Rich Depth */
+  --shadow-card: 0 2px 4px rgba(0, 0, 0, 0.40), 0 6px 18px rgba(0, 0, 0, 0.28);
+  --shadow-elevated: 0 10px 32px rgba(0, 0, 0, 0.50), 0 4px 10px rgba(0, 0, 0, 0.35);
+  --shadow-premium: 0 28px 64px rgba(0, 0, 0, 0.60), 0 6px 18px rgba(0, 0, 0, 0.42);
+  --shadow-hero: 0 32px 80px rgba(120, 152, 248, 0.16), 0 10px 32px rgba(120, 152, 248, 0.08);
+  --shadow-inner: inset 0 2px 4px rgba(0, 0, 0, 0.36);
+  --ring-soft: 0 0 0 1px rgba(255, 255, 255, 0.07), inset 0 1px 0 rgba(255, 255, 255, 0.04);
 
-  --overlay: rgba(0, 0, 0, 0.65);
+  --overlay: rgba(0, 0, 0, 0.70);
 }
 
 @theme inline {
@@ -162,11 +162,11 @@ body {
 }
 
 ::selection {
-  background: rgba(80, 64, 208, 0.20);
+  background: rgba(74, 56, 200, 0.22);
 }
 
 .dark ::selection {
-  background: rgba(144, 164, 248, 0.28);
+  background: rgba(152, 168, 232, 0.30);
 }
 
 input,
@@ -348,7 +348,13 @@ select {
   to { opacity: 0; transform: translateY(-8px); }
 }
 
-/* Scrollbar — refined */
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Scrollbar — Refined */
 ::-webkit-scrollbar {
   width: 7px;
   height: 7px;
@@ -359,38 +365,38 @@ select {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(13, 13, 26, 0.14);
+  background: rgba(10, 10, 24, 0.16);
   border-radius: 4px;
   border: 2px solid transparent;
   background-clip: padding-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(13, 13, 26, 0.26);
+  background: rgba(10, 10, 24, 0.28);
   border: 2px solid transparent;
   background-clip: padding-box;
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.14);
   border: 2px solid transparent;
   background-clip: padding-box;
 }
 
 .dark ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.24);
   border: 2px solid transparent;
   background-clip: padding-box;
 }
 
 /* Firefox */
 * {
-  scrollbar-color: rgba(13, 13, 26, 0.14) transparent;
+  scrollbar-color: rgba(10, 10, 24, 0.16) transparent;
   scrollbar-width: thin;
 }
 
 .dark * {
-  scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+  scrollbar-color: rgba(255, 255, 255, 0.14) transparent;
 }
 
 @utility text-balance {
@@ -418,7 +424,7 @@ select {
   animation: skeleton-shimmer 2s ease-in-out infinite;
 }
 
-/* Focus ring — accessible, visible, premium */
+/* Focus ring — Accessible, Visible, Premium */
 @utility focus-ring {
   outline: none;
   &:focus-visible {
@@ -439,4 +445,48 @@ select {
 /* Text balance for headings */
 @utility text-pretty {
   text-wrap: pretty;
+}
+
+/* Gradient utilities */
+@utility gradient-primary {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--violet) 100%);
+}
+
+@utility gradient-surface {
+  background: linear-gradient(180deg, var(--bg-surface) 0%, var(--bg-page) 100%);
+}
+
+@utility gradient-glow {
+  background: radial-gradient(ellipse at center, var(--primary-glow) 0%, transparent 70%);
+}
+
+/* Glass effect */
+@utility glass {
+  background: color-mix(in srgb, var(--bg-surface) 80%, transparent);
+  backdrop-filter: blur(12px) saturate(1.2);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+}
+
+@utility glass-strong {
+  background: color-mix(in srgb, var(--bg-surface) 90%, transparent);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+}
+
+/* Noise texture overlay */
+@utility noise {
+  position: relative;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0.02;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    pointer-events: none;
+    border-radius: inherit;
+  }
+}
+
+.dark .noise::before {
+  opacity: 0.03;
 }

@@ -19,12 +19,12 @@ export function SectionHeader({
     <div className={cn("flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between", className)}>
       <div className="flex items-start gap-3 min-w-0">
         {Icon ? (
-          <div className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-            <Icon className="h-4 w-4" />
+          <div className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-primary/15 bg-gradient-to-br from-primary-soft to-primary/8 text-primary shadow-sm shadow-primary/10">
+            <Icon className="h-[18px] w-[18px]" />
           </div>
         ) : null}
         <div className="min-w-0">
-          <h3 className="text-xl font-semibold tracking-tight text-text-primary sm:text-2xl">{title}</h3>
+          <h3 className="text-lg font-semibold tracking-tight text-text-primary sm:text-xl">{title}</h3>
           {description ? <p className="mt-1 text-sm leading-relaxed text-text-secondary">{description}</p> : null}
         </div>
       </div>
@@ -45,18 +45,18 @@ export function QuickAction({
   tone?: "default" | "cyan" | "violet" | "emerald" | "gold" | "rose";
 }) {
   const toneClass = {
-    default: "text-text-muted hover:text-text-primary hover:bg-bg-subtle",
-    cyan: "text-cyan hover:bg-cyan/10",
-    violet: "text-violet hover:bg-violet/10",
-    emerald: "text-emerald hover:bg-emerald/10",
-    gold: "text-gold hover:bg-gold/10",
-    rose: "text-rose hover:bg-rose/10",
+    default: "text-text-muted hover:text-text-primary hover:bg-gradient-to-br hover:from-bg-subtle hover:to-border/20",
+    cyan: "text-cyan hover:bg-gradient-to-br hover:from-cyan-bg hover:to-cyan/8",
+    violet: "text-violet hover:bg-gradient-to-br hover:from-violet-bg hover:to-violet/8",
+    emerald: "text-emerald hover:bg-gradient-to-br hover:from-emerald-bg hover:to-emerald/8",
+    gold: "text-gold hover:bg-gradient-to-br hover:from-gold-bg hover:to-gold/8",
+    rose: "text-rose hover:bg-gradient-to-br hover:from-rose-bg hover:to-rose/8",
   };
 
   return (
     <button
       onClick={onClick}
-      className={cn("flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition", toneClass[tone])}
+      className={cn("flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-150 hover:shadow-sm", toneClass[tone])}
     >
       <Icon className="h-4 w-4" />
       <span>{label}</span>

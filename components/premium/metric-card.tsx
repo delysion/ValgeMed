@@ -30,13 +30,31 @@ export function MetricCard({
 }: MetricCardProps) {
   const displayLabel = label ?? title;
 
-  const toneIcon = {
-    cyan: "text-cyan bg-cyan-bg border-cyan/15",
-    violet: "text-violet bg-violet-bg border-violet/15",
-    emerald: "text-emerald bg-emerald-bg border-emerald/15",
-    gold: "text-gold bg-gold-bg border-gold/15",
-    rose: "text-rose bg-rose-bg border-rose/15",
-    danger: "text-rose bg-rose-bg border-rose/15",
+  const toneStyles = {
+    cyan: {
+      icon: "text-cyan bg-gradient-to-br from-cyan-bg to-cyan/10 border-cyan/15",
+      glow: "shadow-[0_0_20px_rgba(8,117,144,0.08)]",
+    },
+    violet: {
+      icon: "text-violet bg-gradient-to-br from-violet-bg to-violet/10 border-violet/15",
+      glow: "shadow-[0_0_20px_rgba(92,32,200,0.08)]",
+    },
+    emerald: {
+      icon: "text-emerald bg-gradient-to-br from-emerald-bg to-emerald/10 border-emerald/15",
+      glow: "shadow-[0_0_20px_rgba(0,104,72,0.08)]",
+    },
+    gold: {
+      icon: "text-gold bg-gradient-to-br from-gold-bg to-gold/10 border-gold/15",
+      glow: "shadow-[0_0_20px_rgba(154,68,0,0.08)]",
+    },
+    rose: {
+      icon: "text-rose bg-gradient-to-br from-rose-bg to-rose/10 border-rose/15",
+      glow: "shadow-[0_0_20px_rgba(168,8,48,0.08)]",
+    },
+    danger: {
+      icon: "text-rose bg-gradient-to-br from-rose-bg to-rose/10 border-rose/15",
+      glow: "shadow-[0_0_20px_rgba(168,8,48,0.08)]",
+    },
   };
 
   const isNewTrend = trend === "up" || trend === "down" || trend === "stable";
@@ -44,7 +62,8 @@ export function MetricCard({
   return (
     <div
       className={cn(
-        "flex items-center gap-4 rounded-2xl border border-border/50 bg-bg-surface p-4 sm:flex-col sm:items-start sm:gap-2 sm:p-5 card-hover",
+        "flex items-center gap-4 rounded-2xl border border-border/60 bg-gradient-to-br from-bg-surface via-bg-surface to-bg-subtle/20 p-4 shadow-[var(--shadow-card)] transition-all duration-200 hover:shadow-[var(--shadow-elevated)] hover:-translate-y-[2px] sm:flex-col sm:items-start sm:gap-2.5 sm:p-5",
+        tone && toneStyles[tone]?.glow,
         className
       )}
       {...props}
@@ -52,12 +71,12 @@ export function MetricCard({
       {Icon ? (
         <div
           className={cn(
-            "grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary-soft",
-            tone && toneIcon[tone],
+            "grid h-10 w-10 shrink-0 place-items-center rounded-xl border",
+            tone ? toneStyles[tone]?.icon : "bg-gradient-to-br from-primary-soft to-primary/10 border-primary/15",
             iconClassName
           )}
         >
-          <Icon className={cn("h-5 w-5 text-primary", tone && toneIcon[tone]?.split(" ")[0])} />
+          <Icon className={cn("h-5 w-5", tone ? toneStyles[tone]?.icon.split(" ")[0] : "text-primary")} />
         </div>
       ) : null}
       <div className="min-w-0 sm:mt-1">
@@ -82,7 +101,7 @@ export function MetricCard({
                 {trendValue}
               </span>
             ) : (
-              <span className="rounded-md bg-bg-subtle px-1.5 py-0.5 text-[10px] font-semibold text-text-secondary">
+              <span className="rounded-md bg-gradient-to-br from-bg-subtle to-border/30 px-1.5 py-0.5 text-[10px] font-semibold text-text-secondary">
                 {trend}
               </span>
             )

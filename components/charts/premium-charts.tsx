@@ -14,13 +14,13 @@ import {
 } from "recharts";
 
 const colors = ["#7C3AED", "#06B6D4", "#10B981", "#F59E0B", "#F43F5E", "#8B5CF6"];
-const gridColor = "#F1F5F9";
+const gridColor = "#E8E4DB";
 const textColor = "#94A3B8";
 const tooltipStyle = {
-  background: "#FFFFFF",
-  border: "1px solid #E2E8F0",
+  background: "#FAF8F5",
+  border: "1px solid #D0CBC2",
   borderRadius: 8,
-  boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+  boxShadow: "0 4px 16px rgba(10,10,24,0.10)",
 };
 
 export function ActivityAreaChart({

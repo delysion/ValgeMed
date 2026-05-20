@@ -14,7 +14,7 @@ export function RevisionQueue({ items }: { items: ReviewItem[] }) {
 
   if (active.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-border bg-white p-8 text-center">
+      <div className="rounded-xl border border-dashed border-border bg-gradient-to-br from-bg-surface to-bg-subtle/30 p-8 text-center">
         <BookOpen className="mx-auto h-6 w-6 text-text-muted" />
         <p className="mt-3 text-sm text-text-secondary">No review items yet.</p>
       </div>
@@ -69,7 +69,7 @@ function ReviewRow({ item, overdue = false }: { item: ReviewItem; overdue?: bool
   return (
     <div className={cn(
       "flex items-center gap-3 rounded-lg border p-3 transition hover:shadow-sm",
-      overdue ? "border-rose/20 bg-rose-bg" : "border-border bg-white",
+      overdue ? "border-rose/20 bg-gradient-to-br from-rose-bg to-rose/8" : "border-border bg-gradient-to-r from-bg-surface to-bg-subtle/30",
     )}>
       <RotateCw className="h-3.5 w-3.5 shrink-0 text-text-muted" />
       <div className="min-w-0 flex-1">

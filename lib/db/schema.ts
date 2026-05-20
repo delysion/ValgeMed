@@ -566,6 +566,20 @@ export const methodologyRisks = pgTable("methodology_risks", {
   createdAt: createdAtColumn(),
 });
 
+export const uploads = pgTable("uploads", {
+  id: idColumn(),
+  filename: varchar("filename", { length: 255 }).notNull(),
+  originalName: varchar("original_name", { length: 255 }).notNull(),
+  mimeType: varchar("mime_type", { length: 100 }).notNull(),
+  sizeBytes: integer("size_bytes").notNull(),
+  extractedText: text("extracted_text"),
+  subjectId: uuid("subject_id").references(() => subjects.id, { onDelete: "set null" }),
+  topicId: uuid("topic_id").references(() => topics.id, { onDelete: "set null" }),
+  processed: boolean("processed").default(false).notNull(),
+  flashcardsGenerated: integer("flashcards_generated").default(0).notNull(),
+  createdAt: createdAtColumn(),
+});
+
 export const schema = {
   subjects,
   exams,
@@ -593,6 +607,7 @@ export const schema = {
   hypotheses,
   manuscripts,
   methodologyRisks,
+  uploads,
 };
 
 export type Subject = typeof subjects.$inferSelect;
@@ -621,3 +636,4 @@ export type LiteratureGap = typeof literatureGaps.$inferSelect;
 export type Hypothesis = typeof hypotheses.$inferSelect;
 export type Manuscript = typeof manuscripts.$inferSelect;
 export type MethodologyRisk = typeof methodologyRisks.$inferSelect;
+export type Upload = typeof uploads.$inferSelect;

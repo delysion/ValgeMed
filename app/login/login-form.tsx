@@ -14,7 +14,7 @@ export function LoginForm() {
   return (
     <form action={action} className="flex flex-col gap-5">
       <div className="flex flex-col gap-2">
-        <Label htmlFor="username" className="text-sm font-medium text-text-secondary">
+        <Label htmlFor="username" className="text-sm font-medium">
           Username
         </Label>
         <Input
@@ -23,12 +23,13 @@ export function LoginForm() {
           type="text"
           autoComplete="username"
           required
-          placeholder="Enter your username..."
+          placeholder="Enter your username…"
+          spellCheck={false}
         />
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="password" className="text-sm font-medium text-text-secondary">
+        <Label htmlFor="password" className="text-sm font-medium">
           Password
         </Label>
         <Input
@@ -37,13 +38,13 @@ export function LoginForm() {
           type="password"
           autoComplete="current-password"
           required
-          placeholder="Enter your password..."
+          placeholder="Enter your password…"
         />
       </div>
 
       {state.error ? (
-        <div className="flex items-start gap-2.5 rounded-xl border border-rose/20 bg-rose-bg px-4 py-3 text-sm text-rose">
-          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+        <div className="flex items-start gap-2.5 rounded-xl border border-rose/20 bg-rose-bg/50 px-4 py-3 text-sm text-rose" role="alert">
+          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
           <span>{state.error}</span>
         </div>
       ) : null}
@@ -52,7 +53,7 @@ export function LoginForm() {
         {pending ? (
           <span className="flex items-center gap-2">
             <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-            Entering ValgeMed...
+            Entering ValgeMed…
           </span>
         ) : (
           <>

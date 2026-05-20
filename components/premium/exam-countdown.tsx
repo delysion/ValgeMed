@@ -11,7 +11,7 @@ export function ExamCountdown({ exam }: { exam: Exam }) {
   const isWarning = daysLeft <= 14;
 
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-border bg-white p-4 shadow-sm">
+    <div className="flex items-center gap-3 rounded-xl border border-border bg-gradient-to-r from-bg-surface to-bg-subtle/30 p-4 shadow-sm">
       <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${isUrgent ? "bg-rose-bg text-rose" : isWarning ? "bg-gold-bg text-gold" : "bg-cyan-bg text-cyan"}`}>
         <CalendarClock className="h-5 w-5" />
       </div>

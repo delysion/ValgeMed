@@ -41,7 +41,7 @@ export function SignalCard({
     <Tag
       href={href}
       className={cn(
-        "group relative overflow-hidden rounded-xl border border-border bg-white p-4 shadow-[var(--shadow-card)] transition-all duration-200 card-hover",
+        "group relative overflow-hidden rounded-xl border border-border bg-gradient-to-br from-bg-surface to-bg-subtle/20 p-4 shadow-[var(--shadow-card)] transition-all duration-200 card-hover",
         toneBorder[tone],
       )}
     >
