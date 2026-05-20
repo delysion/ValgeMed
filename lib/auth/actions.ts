@@ -45,12 +45,8 @@ export async function loginAction(
     }
 
     const validPassword = await bcrypt.compare(password, passwordHash);
-    console.log("[DEBUG] passwordHash:", passwordHash.substring(0, 20) + "...");
-    console.log("[DEBUG] passwordHash length:", passwordHash.length);
-    console.log("[DEBUG] validPassword:", validPassword);
-
     if (!validPassword) {
-      return { error: "Password incorrect. Hash length: " + passwordHash.length };
+      return { error: "Invalid credentials." };
     }
 
     await createOwnerSession(ownerEmail);
