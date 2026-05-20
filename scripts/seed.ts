@@ -38,6 +38,8 @@ if (!databaseUrl) {
 
 const db = drizzle(neon(databaseUrl), { schema });
 
+const SEED_USER_ID = "seed-user-00000000-0000-0000-0000-000000000001";
+
 await db.delete(identityNotes);
 await db.delete(strategicReviews);
 await db.delete(portfolioItems);
@@ -64,6 +66,7 @@ const [anatomy, chemistry] = await db
   .insert(subjects)
   .values([
     {
+      userId: SEED_USER_ID,
       name: "Human Anatomy",
       code: "MED-ANAT",
       description: "Gross anatomy, bones, vessels, nerves.",
@@ -72,6 +75,7 @@ const [anatomy, chemistry] = await db
       importance: 10,
     },
     {
+      userId: SEED_USER_ID,
       name: "Medical Chemistry",
       code: "MED-CHEM",
       description: "Foundations for biochemistry and physiology.",
@@ -80,6 +84,7 @@ const [anatomy, chemistry] = await db
       importance: 8,
     },
     {
+      userId: SEED_USER_ID,
       name: "Biochemistry",
       code: "MED-BIOCHEM",
       description: "Metabolism, enzymes, molecular foundations.",
@@ -88,6 +93,7 @@ const [anatomy, chemistry] = await db
       importance: 9,
     },
     {
+      userId: SEED_USER_ID,
       name: "Histology",
       code: "MED-HIST",
       description: "Tissue recognition and microscopic structure.",
@@ -96,6 +102,7 @@ const [anatomy, chemistry] = await db
       importance: 8,
     },
     {
+      userId: SEED_USER_ID,
       name: "Physiology",
       code: "MED-PHYS",
       description: "Systems physiology and mechanisms.",
@@ -104,6 +111,7 @@ const [anatomy, chemistry] = await db
       importance: 10,
     },
     {
+      userId: SEED_USER_ID,
       name: "Dental Anatomy",
       code: "DENT-ANAT",
       description: "Tooth morphology, occlusion foundations, dental terminology.",
@@ -112,6 +120,7 @@ const [anatomy, chemistry] = await db
       importance: 9,
     },
     {
+      userId: SEED_USER_ID,
       name: "Latin Medical Terminology",
       code: "LAT-MED",
       description: "Latin terms for anatomy and clinical vocabulary.",
@@ -120,6 +129,7 @@ const [anatomy, chemistry] = await db
       importance: 7,
     },
     {
+      userId: SEED_USER_ID,
       name: "Estonian for Clinical Life",
       code: "EST-A1",
       description: "Language layer for Tartu life and future patients.",
@@ -134,6 +144,7 @@ const [anatomyExam, chemistryExam] = await db
   .insert(exams)
   .values([
     {
+      userId: SEED_USER_ID,
       subjectId: anatomy.id,
       title: "Anatomy practical block exam",
       examDate: addDays(new Date(), 28),
@@ -145,6 +156,7 @@ const [anatomyExam, chemistryExam] = await db
       notes: "Prioritize spatial recall and error retesting.",
     },
     {
+      userId: SEED_USER_ID,
       subjectId: chemistry.id,
       title: "Chemistry written exam",
       examDate: addDays(new Date(), 42),
@@ -161,6 +173,7 @@ const [brachialPlexus, skullBase, acidBase] = await db
   .insert(topics)
   .values([
     {
+      userId: SEED_USER_ID,
       subjectId: anatomy.id,
       examId: anatomyExam.id,
       title: "Brachial plexus",
@@ -172,6 +185,7 @@ const [brachialPlexus, skullBase, acidBase] = await db
       nextReviewAt: addDays(new Date(), 1),
     },
     {
+      userId: SEED_USER_ID,
       subjectId: anatomy.id,
       examId: anatomyExam.id,
       title: "Skull base foramina",
@@ -182,6 +196,7 @@ const [brachialPlexus, skullBase, acidBase] = await db
       nextReviewAt: new Date(),
     },
     {
+      userId: SEED_USER_ID,
       subjectId: chemistry.id,
       examId: chemistryExam.id,
       title: "Acid-base buffers",
@@ -197,6 +212,7 @@ const [brachialPlexus, skullBase, acidBase] = await db
 
 await db.insert(studySessions).values([
   {
+    userId: SEED_USER_ID,
     subjectId: anatomy.id,
     topicId: brachialPlexus.id,
     examId: anatomyExam.id,
@@ -209,6 +225,7 @@ await db.insert(studySessions).values([
     notes: "Blank page recall and nerve branch map.",
   },
   {
+    userId: SEED_USER_ID,
     subjectId: chemistry.id,
     topicId: acidBase.id,
     examId: chemistryExam.id,
@@ -220,6 +237,7 @@ await db.insert(studySessions).values([
     outputQuality: 7,
   },
   {
+    userId: SEED_USER_ID,
     subjectId: anatomy.id,
     topicId: skullBase.id,
     examId: anatomyExam.id,
@@ -234,6 +252,7 @@ await db.insert(studySessions).values([
 
 await db.insert(reviewItems).values([
   {
+    userId: SEED_USER_ID,
     subjectId: anatomy.id,
     topicId: brachialPlexus.id,
     question: "Draw the brachial plexus from roots to terminal branches.",
@@ -244,6 +263,7 @@ await db.insert(reviewItems).values([
     dueAt: new Date(),
   },
   {
+    userId: SEED_USER_ID,
     subjectId: chemistry.id,
     topicId: acidBase.id,
     question: "Explain Henderson-Hasselbalch without looking.",
@@ -257,6 +277,7 @@ await db.insert(reviewItems).values([
 
 await db.insert(errorLogs).values([
   {
+    userId: SEED_USER_ID,
     subjectId: anatomy.id,
     topicId: skullBase.id,
     examId: anatomyExam.id,
@@ -274,6 +295,7 @@ await db.insert(errorLogs).values([
 
 await db.insert(quizAttempts).values([
   {
+    userId: SEED_USER_ID,
     subjectId: anatomy.id,
     topicId: brachialPlexus.id,
     examId: anatomyExam.id,
@@ -283,6 +305,7 @@ await db.insert(quizAttempts).values([
     scorePercent: 75,
   },
   {
+    userId: SEED_USER_ID,
     subjectId: chemistry.id,
     topicId: acidBase.id,
     examId: chemistryExam.id,
@@ -295,6 +318,7 @@ await db.insert(quizAttempts).values([
 
 await db.insert(dailyLogs).values([
   {
+    userId: SEED_USER_ID,
     date: formatISO(subDays(new Date(), 2), { representation: "date" }),
     sleepHours: 7.5,
     energyLevel: 7,
@@ -306,6 +330,7 @@ await db.insert(dailyLogs).values([
     movementDone: true,
   },
   {
+    userId: SEED_USER_ID,
     date: formatISO(subDays(new Date(), 1), { representation: "date" }),
     sleepHours: 6.5,
     energyLevel: 6,
@@ -317,6 +342,7 @@ await db.insert(dailyLogs).values([
     movementDone: false,
   },
   {
+    userId: SEED_USER_ID,
     date: formatISO(new Date(), { representation: "date" }),
     sleepHours: 7,
     energyLevel: 6,
@@ -332,6 +358,7 @@ await db.insert(dailyLogs).values([
 
 await db.insert(goals).values([
   {
+    userId: SEED_USER_ID,
     title: "Build anatomy recall base",
     description: "Daily blank-page recall for high-yield anatomy structures.",
     goalType: "weekly",
@@ -340,6 +367,7 @@ await db.insert(goals).values([
     priority: 9,
   },
   {
+    userId: SEED_USER_ID,
     title: "Protect sleep baseline",
     description: "Keep sleep above 7h during exam build-up.",
     goalType: "health",
@@ -350,6 +378,7 @@ await db.insert(goals).values([
 
 await db.insert(tasks).values([
   {
+    userId: SEED_USER_ID,
     title: "Create skull base error cards",
     dueAt: addDays(new Date(), 1),
     status: "todo",
@@ -362,6 +391,7 @@ await db.insert(tasks).values([
 
 await db.insert(identityNotes).values([
   {
+    userId: SEED_USER_ID,
     title: "Professional standard",
     content:
       "I train like a future clinician: precise, calm, evidence-aware, and kind to my nervous system.",
@@ -371,6 +401,7 @@ await db.insert(identityNotes).values([
 
 await db.insert(tartuNotes).values([
   {
+    userId: SEED_USER_ID,
     title: "Tartu academic culture",
     content: "Track quiet competence: precise questions, prepared seminars, reliable follow-through.",
     category: "academic_culture",
@@ -378,6 +409,7 @@ await db.insert(tartuNotes).values([
     status: "doing",
   },
   {
+    userId: SEED_USER_ID,
     title: "Estonian micro-routine",
     content: "Ten minutes per day: patient-facing phrases, university vocabulary, pronunciation.",
     category: "estonian",
@@ -388,6 +420,7 @@ await db.insert(tartuNotes).values([
 
 await db.insert(timeBlocks).values([
   {
+    userId: SEED_USER_ID,
     date: formatISO(new Date(), { representation: "date" }),
     title: "Skull base recall block",
     blockType: "study",
@@ -398,6 +431,7 @@ await db.insert(timeBlocks).values([
     notes: "High-value weak topic block.",
   },
   {
+    userId: SEED_USER_ID,
     date: formatISO(new Date(), { representation: "date" }),
     title: "Recovery walk",
     blockType: "recovery",
@@ -410,6 +444,7 @@ await db.insert(timeBlocks).values([
 
 await db.insert(healthLogs).values([
   {
+    userId: SEED_USER_ID,
     date: formatISO(new Date(), { representation: "date" }),
     sleepQuality: 7,
     cognitiveFatigue: 4,
@@ -423,6 +458,7 @@ await db.insert(healthLogs).values([
 
 await db.insert(languageProgress).values([
   {
+    userId: SEED_USER_ID,
     language: "estonian",
     title: "Clinical greetings and university phrases",
     category: "medical terminology",
@@ -432,6 +468,7 @@ await db.insert(languageProgress).values([
     nextPracticeAt: new Date(),
   },
   {
+    userId: SEED_USER_ID,
     language: "latin",
     title: "Cranial bone terms",
     category: "anatomy",
@@ -444,6 +481,7 @@ await db.insert(languageProgress).values([
 
 await db.insert(reputationEvents).values([
   {
+    userId: SEED_USER_ID,
     title: "Precise anatomy question after seminar",
     description: "Asked one prepared question linking foramina to cranial nerve function.",
     eventType: "precise_question_after_lecture",
@@ -455,6 +493,7 @@ await db.insert(reputationEvents).values([
 
 await db.insert(opportunities).values([
   {
+    userId: SEED_USER_ID,
     title: "Anatomy lab assistant shadowing",
     description: "Potential way to build competence and visibility through quiet reliability.",
     opportunityType: "shadowing",
@@ -469,6 +508,7 @@ await db.insert(opportunities).values([
 
 await db.insert(professionalContacts).values([
   {
+    userId: SEED_USER_ID,
     name: "Academic advisor",
     role: "Advisor",
     institution: "University of Tartu",
@@ -480,6 +520,7 @@ await db.insert(professionalContacts).values([
 
 await db.insert(lifeAdminItems).values([
   {
+    userId: SEED_USER_ID,
     title: "Collect Tartu arrival documents",
     description: "Keep admission, housing, insurance and ID documents in one checklist.",
     category: "documents",
@@ -491,6 +532,7 @@ await db.insert(lifeAdminItems).values([
 
 await db.insert(portfolioItems).values([
   {
+    userId: SEED_USER_ID,
     title: "Anatomy recall map sample",
     description: "Keep a before/after evidence item for spatial recall improvement.",
     itemType: "reflection",
@@ -502,6 +544,7 @@ await db.insert(portfolioItems).values([
 
 await db.insert(strategicReviews).values([
   {
+    userId: SEED_USER_ID,
     date: formatISO(new Date(), { representation: "date" }),
     reviewType: "weekly",
     wins: "Active recall blocks started; error log is concrete.",

@@ -1,7 +1,7 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
-export function createClient() {
+export async function createClient() {
   const cookieStore = await cookies();
 
   return createServerClient(
@@ -19,9 +19,9 @@ export function createClient() {
             // Server component - ignore
           }
         },
-        remove(name: string, options: CookieOptions) {
+        remove(name: string) {
           try {
-            cookieStore.delete(name, options);
+            cookieStore.delete(name);
           } catch {
             // Server component - ignore
           }

@@ -66,7 +66,7 @@ function getMsg(locale: Locale) {
   return messages[locale] || messages.en;
 }
 
-async function findOrCreateSubject(subjectName: string): Promise<string> {
+async function findOrCreateSubject(userId: string, subjectName: string): Promise<string> {
   const db = getDb();
   const normalizedName = subjectName.trim();
 
@@ -83,6 +83,7 @@ async function findOrCreateSubject(subjectName: string): Promise<string> {
     const [newSubject] = await db
       .insert(subjects)
       .values({
+        userId,
         name: normalizedName,
         description: `Materia: ${normalizedName}`,
       })
@@ -91,7 +92,7 @@ async function findOrCreateSubject(subjectName: string): Promise<string> {
   return newSubject.id;
 }
 
-async function findOrCreateTopic(subjectId: string, topicName: string): Promise<string | null> {
+async function findOrCreateTopic(userId: string, subjectId: string, topicName: string): Promise<string | null> {
   if (!topicName) return null;
 
   const db = getDb();
@@ -110,6 +111,7 @@ async function findOrCreateTopic(subjectId: string, topicName: string): Promise<
   const [newTopic] = await db
     .insert(topics)
     .values({
+      userId,
       subjectId,
       title: normalizedName,
       description: `Topic: ${normalizedName}`,
@@ -123,7 +125,7 @@ export async function processSmartInputAction(input: string, locale: Locale = "e
   const msg = getMsg(locale);
 
   try {
-    await requireUser();
+    const user = await requireUser();
 
     const parsed: ParsedStudyIntent = await parseUserIntent(input);
 
@@ -145,12 +147,13 @@ export async function processSmartInputAction(input: string, locale: Locale = "e
           };
         }
 
-        const subjectId = await findOrCreateSubject(parsed.subject);
-        const topicId = parsed.topic ? await findOrCreateTopic(subjectId, parsed.topic) : null;
+        const subjectId = await findOrCreateSubject(user.id, parsed.subject);
+        const topicId = parsed.topic ? await findOrCreateTopic(user.id, subjectId, parsed.topic) : null;
         const durationMinutes = parsed.durationMinutes || 60;
         const startedAt = new Date();
 
         await getDb().insert(studySessions).values({
+          userId: user.id,
           subjectId,
           topicId: topicId || undefined,
           startedAt,
@@ -193,12 +196,13 @@ export async function processSmartInputAction(input: string, locale: Locale = "e
           };
         }
 
-        const subjectId = await findOrCreateSubject(parsed.subject);
-        const topicId = parsed.topic ? await findOrCreateTopic(subjectId, parsed.topic) : null;
+        const subjectId = await findOrCreateSubject(user.id, parsed.subject);
+        const topicId = parsed.topic ? await findOrCreateTopic(user.id, subjectId, parsed.topic) : null;
 
         const nextSchedule = getNextReviewSchedule(3, 1, 0);
 
         await getDb().insert(reviewItems).values({
+          userId: user.id,
           subjectId,
           topicId: topicId ?? undefined,
           question: parsed.question,
@@ -232,7 +236,7 @@ export async function processSmartInputAction(input: string, locale: Locale = "e
           };
         }
 
-        await findOrCreateSubject(parsed.subject);
+        await findOrCreateSubject(user.id, parsed.subject);
 
         revalidatePath("/subjects");
         revalidatePath("/dashboard");
@@ -255,8 +259,8 @@ export async function processSmartInputAction(input: string, locale: Locale = "e
           };
         }
 
-        const subjectId = await findOrCreateSubject(parsed.subject);
-        await findOrCreateTopic(subjectId, parsed.topic);
+        const subjectId = await findOrCreateSubject(user.id, parsed.subject);
+        await findOrCreateTopic(user.id, subjectId, parsed.topic);
 
         revalidatePath("/topics");
         revalidatePath("/dashboard");
@@ -296,7 +300,7 @@ export async function generateFlashcardsFromTextAction(
   const msg = getMsg(locale);
 
   try {
-    await requireUser();
+    const user = await requireUser();
 
     const items = await generateReviewItemsFromText(text, subject, topic);
 
@@ -316,12 +320,13 @@ export async function generateFlashcardsFromTextAction(
       };
     }
 
-    const subjectId = await findOrCreateSubject(subject);
-    const topicId = topic ? await findOrCreateTopic(subjectId, topic) : null;
+    const subjectId = await findOrCreateSubject(user.id, subject);
+    const topicId = topic ? await findOrCreateTopic(user.id, subjectId, topic) : null;
 
     for (const item of items) {
       const nextSchedule = getNextReviewSchedule(3, 1, 0);
       await getDb().insert(reviewItems).values({
+        userId: user.id,
         subjectId,
         topicId: topicId ?? undefined,
         question: item.question,
