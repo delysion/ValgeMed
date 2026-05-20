@@ -67,9 +67,9 @@ export function ReviewDashboard({
       </div>
 
       {lastReview ? (
-        <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
-          <h4 className="text-sm font-semibold text-white">{t("nav.strategicReview")}</h4>
-          <p className="mt-1 text-xs text-muted-2">{format(lastReview.date, "d MMMM yyyy")}</p>
+        <div className="rounded-xl border border-border bg-bg-subtle p-4">
+          <h4 className="text-sm font-semibold text-text-primary">{t("nav.strategicReview")}</h4>
+          <p className="mt-1 text-xs text-text-muted">{format(lastReview.date, "d MMMM yyyy")}</p>
           {lastReview.nextFocus ? (
             <div className="mt-3 rounded-lg border border-violet/15 bg-violet/[0.04] p-3">
               <p className="text-xs font-medium text-violet">{t("common.nextAction")}</p>

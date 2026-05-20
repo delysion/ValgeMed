@@ -150,9 +150,9 @@ export function TimelineView({
 
   if (events.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-white/[0.06] bg-white/[0.02] p-8 text-center">
-        <CalendarDays className="mx-auto h-6 w-6 text-muted-2" />
-        <p className="mt-3 text-sm text-muted">No events in the next {days} days.</p>
+      <div className="rounded-xl border border-dashed border-border bg-bg-subtle p-8 text-center">
+        <CalendarDays className="mx-auto h-6 w-6 text-text-muted" />
+        <p className="mt-3 text-sm text-text-secondary">No events in the next {days} days.</p>
       </div>
     );
   }
@@ -175,7 +175,7 @@ export function TimelineView({
 
   return (
     <div className="relative">
-      <div className="absolute left-3 top-0 bottom-0 w-px bg-white/[0.06]" />
+      <div className="absolute left-3 top-0 bottom-0 w-px bg-border" />
       <div className="space-y-1">
         {grouped.map((group) =>
           group.events.map((event, index) => {
@@ -187,21 +187,21 @@ export function TimelineView({
               <div key={`${event.title}-${index}`} className={cn("group flex gap-4 py-2 pl-1 transition", isPast && "opacity-40")}>
                 <div className="relative flex flex-col items-center">
                   {isFirst ? (
-                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-background ring-1 ring-white/15">
-                      <Icon className={cn("h-3 w-3", event.tone ? typeTones[event.type] : "text-muted-2")} />
+                    <div className="flex h-6 w-6 items-center justify-center rounded-full bg-bg-surface ring-1 ring-border">
+                      <Icon className={cn("h-3 w-3", event.tone ? typeTones[event.type] : "text-text-muted")} />
                     </div>
                   ) : (
-                    <div className={cn("h-1.5 w-1.5 rounded-full", group.isToday ? "bg-cyan ring-2 ring-cyan/20" : "bg-white/[0.15]")} />
+                    <div className={cn("h-1.5 w-1.5 rounded-full", group.isToday ? "bg-cyan ring-2 ring-cyan/20" : "bg-border")} />
                   )}
                 </div>
                 <div className="min-w-0 flex-1 pb-3">
                   {isFirst ? (
-                    <p className={cn("mb-1 text-xs font-semibold uppercase tracking-[0.1em]", group.isToday ? "text-cyan" : "text-muted-2")}>
+                    <p className={cn("mb-1 text-xs font-semibold uppercase tracking-[0.1em]", group.isToday ? "text-cyan" : "text-text-muted")}>
                       {group.label}
                     </p>
                   ) : null}
                   <div className="flex items-center gap-2">
-                    <p className="truncate text-sm font-medium text-white">{event.title}</p>
+                    <p className="truncate text-sm font-medium text-text-primary">{event.title}</p>
                     {event.detail ? <Badge variant="muted" className="shrink-0 text-[10px]">{event.detail}</Badge> : null}
                   </div>
                 </div>

@@ -5,14 +5,14 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-semibold transition-all duration-150 active:scale-[0.97] touch-action:manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-page disabled:pointer-events-none disabled:opacity-50 select-none",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-semibold transition-all duration-150 active:scale-[0.97] touch-action:manipulation select-none outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-bg-page disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
         default:
-          "bg-primary text-white shadow-[0_1px_2px_rgba(0,0,0,0.1)] hover:bg-[#4d3fd9] hover:shadow-[0_4px_16px_rgba(87,70,229,0.30)] hover:-translate-y-[1px] active:translate-y-0 active:scale-[0.97]",
+          "bg-primary text-white shadow-[0_1px_3px_rgba(80,64,208,0.25)] hover:bg-primary-ring hover:shadow-[0_4px_20px_rgba(80,64,208,0.20)] hover:-translate-y-[1px] active:translate-y-0 active:scale-[0.97]",
         destructive: "border border-rose/25 bg-rose-bg text-rose hover:bg-rose/10 hover:border-rose/40 hover:-translate-y-[1px] active:translate-y-0 active:scale-[0.97]",
-        outline: "border border-border-strong bg-bg-elevated text-text-secondary hover:bg-bg-subtle hover:text-text-primary hover:border-border hover:-translate-y-[1px] active:translate-y-0 active:scale-[0.97]",
+        outline: "border border-border-strong bg-bg-elevated text-text-secondary hover:bg-bg-subtle hover:text-text-primary hover:border-border hover:shadow-sm hover:-translate-y-[1px] active:translate-y-0 active:scale-[0.97]",
         ghost: "text-text-secondary hover:bg-bg-subtle hover:text-text-primary active:scale-[0.97]",
         muted: "bg-bg-subtle text-text-secondary hover:bg-border hover:text-text-primary active:scale-[0.97]",
         gold: "border border-gold/25 bg-gold-bg text-gold hover:bg-gold/10 hover:border-gold/40 hover:-translate-y-[1px] active:translate-y-0 active:scale-[0.97]",
