@@ -9,9 +9,13 @@ import { et } from "@/lib/i18n/dictionaries/et";
 const dictionaries = { en, et } as const;
 
 export async function getLocale(): Promise<Locale> {
-  const cookieStore = await cookies();
-  const value = cookieStore.get(languageCookie)?.value;
-  return isLocale(value) ? value : defaultLocale;
+  try {
+    const cookieStore = await cookies();
+    const value = cookieStore.get(languageCookie)?.value;
+    return isLocale(value) ? value : defaultLocale;
+  } catch {
+    return defaultLocale;
+  }
 }
 
 export function getDictionary(locale: Locale) {

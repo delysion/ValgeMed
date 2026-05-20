@@ -86,8 +86,12 @@ export async function clearOwnerSession() {
 }
 
 export async function getOwnerSession() {
-  const cookieStore = await cookies();
-  return decryptSession(cookieStore.get(SESSION_COOKIE)?.value);
+  try {
+    const cookieStore = await cookies();
+    return decryptSession(cookieStore.get(SESSION_COOKIE)?.value);
+  } catch {
+    return null;
+  }
 }
 
 export async function requireOwnerSession() {
