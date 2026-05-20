@@ -41,13 +41,13 @@ export async function loginAction(
     }
 
     if (username !== appUsername) {
-      return { error: "Invalid username or password." };
+      return { error: `Username mismatch. Expected: ${appUsername}, Got: ${username}` };
     }
 
     const validPassword = await bcrypt.compare(password, passwordHash);
 
     if (!validPassword) {
-      return { error: "Invalid username or password." };
+      return { error: "Password incorrect." };
     }
 
     await createOwnerSession(ownerEmail);
