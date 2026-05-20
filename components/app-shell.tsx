@@ -32,6 +32,9 @@ export async function AppShell({
   return (
     <TranslationProvider locale={locale} dictionary={dictionary}>
       <div className="min-h-screen bg-bg-page">
+        <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-white focus:outline-none">
+          Skip to main content
+        </a>
         {/* Desktop Sidebar */}
         <aside className="fixed inset-y-0 left-0 z-20 hidden w-64 overflow-y-auto border-r border-border bg-bg-surface lg:block">
           <div className="sticky top-0 z-10 border-b border-border bg-bg-page/80 backdrop-blur-xl p-5">
@@ -103,7 +106,7 @@ export async function AppShell({
               </form>
             </div>
           </header>
-          <main className="mx-auto w-full max-w-[1440px] px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-8">{children}</main>
+          <main id="main-content" className="mx-auto w-full max-w-[1440px] px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-8">{children}</main>
         </div>
       </div>
     </TranslationProvider>

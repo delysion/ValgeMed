@@ -1,123 +1,177 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import {
-  Activity,
-  BarChart3,
+  AlertTriangle,
+  Beaker,
+  BookMarked,
+  BookOpen,
   Bot,
   Brain,
-  CalendarDays,
-  CircleAlert,
+  Briefcase,
+  CalendarCheck,
+  ChevronDown,
   ClipboardList,
   Clock,
   Command,
-  Compass,
-  FileDown,
-  FolderOpen,
+  FileText,
+  FlaskConical,
   GraduationCap,
-  Handshake,
-  HeartPulse,
+  Heart,
   Languages,
   LayoutDashboard,
-  LogOut,
+  Lightbulb,
   MapPin,
-  Menu,
-  Network,
+  NotebookPen,
   Radar,
   Settings,
+  Star,
   Target,
-  Timeline,
-  UserRound,
+  Timer,
+  Trophy,
+  User,
+  Users,
 } from "lucide-react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import type { TranslationKey } from "@/lib/i18n/dictionaries/en";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 import { cn } from "@/lib/utils";
+import { NavLink } from "./nav-link";
 
-const navItems: Array<{ href: string; label: TranslationKey; icon: typeof Command; featured?: boolean }> = [
-  { href: "/command", label: "nav.command", icon: Command, featured: true },
-  { href: "/dashboard", label: "nav.dashboard", icon: LayoutDashboard },
-  { href: "/timeline", label: "nav.timeline", icon: Timeline },
-  { href: "/elite-index", label: "nav.eliteIndex", icon: BarChart3 },
-  { href: "/subjects", label: "nav.subjects", icon: ClipboardList },
-  { href: "/exams", label: "nav.exams", icon: GraduationCap },
-  { href: "/topics", label: "nav.topics", icon: Brain },
-  { href: "/study", label: "nav.study", icon: Activity },
-  { href: "/reviews", label: "nav.reviews", icon: CalendarDays },
-  { href: "/errors", label: "nav.errors", icon: CircleAlert },
-  { href: "/goals", label: "nav.goals", icon: Target },
-  { href: "/memory", label: "nav.memory", icon: FolderOpen },
-  { href: "/identity", label: "nav.identity", icon: UserRound },
-  { href: "/tartu", label: "nav.tartu", icon: MapPin },
-  { href: "/time", label: "nav.time", icon: Clock },
-  { href: "/health", label: "nav.health", icon: HeartPulse },
-  { href: "/language", label: "nav.language", icon: Languages },
-  { href: "/opportunities", label: "nav.opportunities", icon: Radar },
-  { href: "/reputation", label: "nav.reputation", icon: Handshake },
-  { href: "/network", label: "nav.network", icon: Network },
-  { href: "/life-admin", label: "nav.lifeAdmin", icon: Compass },
-  { href: "/strategic-review", label: "nav.strategicReview", icon: BarChart3 },
-  { href: "/portfolio", label: "nav.portfolio", icon: FolderOpen },
-  { href: "/ai", label: "nav.ai", icon: Bot },
-  { href: "/settings", label: "nav.settings", icon: Settings },
-];
+const COOKIE_NAME = "valgemed_nav";
+const COOKIE_DAYS = 365;
 
-const navSections: Array<{ label: string; items: typeof navItems }> = [
-  { label: "Core", items: navItems.slice(0, 4) },
-  { label: "Study", items: navItems.slice(4, 10) },
-  { label: "Life", items: navItems.slice(10, 17) },
-  { label: "Strategy", items: navItems.slice(17) },
+function getCookie(name: string): string | undefined {
+  if (typeof document === "undefined") return undefined;
+  const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+  return match ? decodeURIComponent(match[1]) : undefined;
+}
+
+function setCookie(name: string, value: string) {
+  if (typeof document === "undefined") return;
+  const d = new Date();
+  d.setTime(d.getTime() + COOKIE_DAYS * 24 * 60 * 60 * 1000);
+  document.cookie = `${name}=${encodeURIComponent(value)};expires=${d.toUTCString()};path=/;SameSite=Lax`;
+}
+
+interface NavSection {
+  labelKey: TranslationKey;
+  items: Array<{ href: string; label: TranslationKey; icon: React.ComponentType<{ className?: string }> }>;
+}
+
+const sections: NavSection[] = [
+  {
+    labelKey: "nav.sectionCommand",
+    items: [
+      { href: "/command", label: "nav.command", icon: Command },
+      { href: "/dashboard", label: "nav.dashboard", icon: LayoutDashboard },
+      { href: "/elite-index", label: "nav.eliteIndex", icon: Trophy },
+      { href: "/strategic-review", label: "nav.strategicReview", icon: CalendarCheck },
+    ],
+  },
+  {
+    labelKey: "nav.sectionStudy",
+    items: [
+      { href: "/subjects", label: "nav.subjects", icon: BookOpen },
+      { href: "/exams", label: "nav.exams", icon: GraduationCap },
+      { href: "/topics", label: "nav.topics", icon: Lightbulb },
+      { href: "/study", label: "nav.study", icon: Clock },
+      { href: "/reviews", label: "nav.reviews", icon: Brain },
+      { href: "/errors", label: "nav.errors", icon: AlertTriangle },
+    ],
+  },
+  {
+    labelKey: "nav.sectionResearch",
+    items: [
+      { href: "/research", label: "nav.researchCommand", icon: FlaskConical },
+      { href: "/research/literature", label: "nav.literatureMap", icon: BookMarked },
+      { href: "/research/hypotheses", label: "nav.hypothesisEngine", icon: Beaker },
+      { href: "/research/manuscripts", label: "nav.manuscriptPipeline", icon: FileText },
+    ],
+  },
+  {
+    labelKey: "nav.sectionLife",
+    items: [
+      { href: "/goals", label: "nav.goals", icon: Target },
+      { href: "/memory", label: "nav.memory", icon: NotebookPen },
+      { href: "/identity", label: "nav.identity", icon: User },
+      { href: "/tartu", label: "nav.tartu", icon: MapPin },
+      { href: "/time", label: "nav.time", icon: Timer },
+      { href: "/health", label: "nav.health", icon: Heart },
+      { href: "/language", label: "nav.language", icon: Languages },
+    ],
+  },
+  {
+    labelKey: "nav.sectionStrategy",
+    items: [
+      { href: "/opportunities", label: "nav.opportunities", icon: Radar },
+      { href: "/reputation", label: "nav.reputation", icon: Star },
+      { href: "/network", label: "nav.network", icon: Users },
+      { href: "/life-admin", label: "nav.lifeAdmin", icon: ClipboardList },
+      { href: "/portfolio", label: "nav.portfolio", icon: Briefcase },
+      { href: "/ai", label: "nav.ai", icon: Bot },
+      { href: "/settings", label: "nav.settings", icon: Settings },
+    ],
+  },
 ];
 
 export function Navigation() {
   const { t } = useTranslation();
-  const pathname = usePathname();
+  const [openSection, setOpenSection] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const saved = getCookie(COOKIE_NAME);
+    if (saved) {
+      setOpenSection(saved);
+    }
+  }, []);
+
+  const toggleSection = (labelKey: string) => {
+    setOpenSection((prev) => {
+      const next = prev === labelKey ? null : labelKey;
+      setCookie(COOKIE_NAME, next ?? "");
+      return next;
+    });
+  };
+
+  if (!mounted) return null;
 
   return (
-    <nav className="grid gap-5 pb-6">
-      {navSections.map((section) => (
-        <div key={section.label}>
-          <div className="mb-2 flex items-center gap-2 px-1">
-            <span className="text-xs font-bold uppercase tracking-[0.12em] text-text-muted">{section.label}</span>
-            <div className="h-px flex-1 bg-border-light" />
+    <nav className="grid gap-1 pb-6">
+      {sections.map((section) => {
+        const isOpen = openSection === section.labelKey;
+        return (
+          <div key={section.labelKey}>
+            <button
+              type="button"
+              onClick={() => toggleSection(section.labelKey)}
+              className="flex w-full items-center gap-2 px-3 py-2 text-xs font-bold uppercase tracking-[0.12em] text-text-muted hover:text-text-primary transition-colors"
+            >
+              <span className="flex-1 text-left">{t(section.labelKey)}</span>
+              <ChevronDown
+                className={cn(
+                  "h-3.5 w-3.5 shrink-0 transition-transform duration-200",
+                  isOpen && "rotate-180",
+                )}
+              />
+            </button>
+            {isOpen && (
+              <div className="grid gap-0.5 px-1">
+                {section.items.map((item) => (
+                  <NavLink
+                    key={item.href}
+                    href={item.href}
+                    label={item.label}
+                    icon={item.icon}
+                    t={t}
+                  />
+                ))}
+              </div>
+            )}
           </div>
-          <div className="grid gap-0.5">
-            {section.items.map((item) => {
-              const Icon = item.icon;
-              const isActive = pathname === item.href || (item.href !== "/command" && pathname?.startsWith(item.href + "/"));
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  prefetch
-                  className={cn(
-                    "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
-                    isActive
-                      ? "bg-primary text-white shadow-sm shadow-primary/20"
-                      : item.featured
-                        ? "border border-primary/20 bg-primary-soft text-primary shadow-sm hover:bg-primary-soft/70 hover:shadow-md"
-                        : "text-text-secondary hover:bg-bg-subtle hover:text-text-primary",
-                    "active:scale-[0.98]",
-                  )}
-                >
-                  <Icon className={cn(
-                    "h-[18px] w-[18px] shrink-0 transition-transform duration-200 group-hover:scale-110",
-                    isActive
-                      ? "text-white"
-                      : item.featured
-                        ? "text-primary"
-                        : "text-text-muted group-hover:text-text-primary",
-                  )} />
-                  <span className="truncate">{t(item.label)}</span>
-                  {item.featured && !isActive && (
-                    <span className="ml-auto flex h-1.5 w-1.5 rounded-full bg-primary" />
-                  )}
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-      ))}
+        );
+      })}
     </nav>
   );
 }
