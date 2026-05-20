@@ -2,7 +2,7 @@ import Link from "next/link";
 import { differenceInCalendarDays, formatISO, startOfToday, subDays } from "date-fns";
 import {
   ArrowRight, BookOpen, Brain, Clock, Flame,
-  Focus, ListChecks, RotateCw, ShieldCheck, TrendingUp, Zap,
+  Focus, ListChecks, RotateCw, ShieldCheck, Sparkles, TrendingUp, Zap,
 } from "lucide-react";
 
 import { AppShell } from "@/components/app-shell";
@@ -10,13 +10,16 @@ import { ActivityAreaChart } from "@/components/charts/premium-charts";
 import { MetricBarChart, MethodPieChart } from "@/components/charts/study-charts";
 import { EmptyState } from "@/components/premium/empty-state";
 import {
-  computeLevel, DailyStreakCard, LevelCard, MissionCard, MomentumCard,
+  computeLevel, DailyStreakCard, GamificationDashboard, LevelCard, MissionCard, MomentumCard,
   SystemHealthCard,
 } from "@/components/premium/gamification";
 import { GlassCard } from "@/components/premium/glass-card";
+import { LoadingState } from "@/components/premium/loading-state";
 import { MetricCard } from "@/components/premium/metric-card";
+import { ScoreRing } from "@/components/premium/score-ring";
 import { SectionHeader } from "@/components/premium/section-header";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { requireOwnerSession } from "@/lib/auth/session";
 import { getDashboardData } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server";
@@ -53,6 +56,37 @@ function longestStreak(dates: string[]) {
 }
 
 export const dynamic = "force-dynamic";
+
+export function DashboardPageSkeleton() {
+  return (
+    <div className="motion-premium flex flex-col gap-6">
+      <div className="relative overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-primary-soft via-white to-cyan-bg/60 p-5 sm:p-7 md:p-8">
+        <div className="flex flex-wrap items-center gap-6">
+          <Skeleton variant="circular" className="h-36 w-36" />
+          <div className="flex-1 space-y-3">
+            <Skeleton variant="text" className="h-8 w-56" />
+            <Skeleton variant="text" className="h-4 w-40" />
+            <Skeleton variant="text" className="h-4 w-32" />
+          </div>
+        </div>
+        <div className="mt-6 grid gap-3 sm:grid-cols-3">
+          <Skeleton variant="text" className="h-14 w-full rounded-xl" />
+          <Skeleton variant="text" className="h-14 w-full rounded-xl" />
+          <Skeleton variant="text" className="h-14 w-full rounded-xl" />
+        </div>
+      </div>
+      <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <div key={i} className="rounded-2xl border border-border bg-bg-surface p-5">
+            <Skeleton variant="text" className="h-3 w-24" />
+            <Skeleton variant="text" className="mt-3 h-6 w-36" />
+            <Skeleton variant="text" className="mt-2 h-3 w-44" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default async function DashboardPage() {
   const session = await requireOwnerSession();
@@ -119,6 +153,22 @@ export default async function DashboardPage() {
   const stressLevel = todayLog?.stressLevel ?? null;
   const systemMomentum = Math.min(10, studyMinutesThisWeek / 60);
 
+  const scoreTone = eliteScore >= 7 ? "emerald" : eliteScore >= 5 ? "violet" : eliteScore >= 3 ? "gold" : "rose";
+  const dashboardBadges = [
+    { id: "study-machine", name: "Study Machine", description: "10+ hours studied this week", icon: BookOpen, unlocked: studyMinutesThisWeek >= 600 },
+    { id: "active-learner", name: "Active Learner", description: "70%+ active study ratio", icon: Brain, unlocked: activeRatio >= 70 },
+    { id: "error-free", name: "Error Free", description: "Zero open errors", icon: ShieldCheck, unlocked: openErrors.length === 0 },
+    { id: "review-master", name: "Review Master", description: "All reviews completed", icon: ListChecks, unlocked: dueReviews === 0 },
+    { id: "streak-warrior", name: "Streak Warrior", description: "7-day command streak", icon: Flame, unlocked: streak >= 7 },
+    { id: "balanced", name: "Balanced", description: "Low burnout risk", icon: Zap, unlocked: burnoutRisk.score < 4 },
+  ];
+  const dashboardMissions = [
+    { id: "study-hours", name: "Reach 10h study this week", current: Math.min(studyMinutesThisWeek, 600), target: 600 },
+    { id: "clear-reviews", name: "Clear all due reviews", current: dueReviews === 0 ? 1 : 0, target: 1 },
+    { id: "fix-errors", name: "Resolve open errors", current: openErrors.length === 0 ? 1 : 0, target: 1 },
+    { id: "build-streak", name: "Build a 7-day streak", current: Math.min(streak, 7), target: 7 },
+  ];
+
   return (
     <AppShell session={session}>
       <div className="flex flex-col gap-6">
@@ -141,15 +191,24 @@ export default async function DashboardPage() {
               ) : null}
             </div>
 
-            <div>
-              <h2 className="text-balance text-3xl font-bold tracking-tight text-text-primary sm:text-4xl">
-                Command Center
-              </h2>
-              <p className="mt-2 max-w-xl text-sm leading-relaxed text-text-secondary sm:text-base">
-                {lowData
-                  ? "Your system is quiet. Add subjects, topics, and sessions to bring the dashboard alive."
-                  : "Weekly trajectory, readiness, errors, reviews and energy infrastructure."}
-              </p>
+            <div className="flex flex-wrap items-center gap-4 sm:gap-6 lg:gap-8">
+              <ScoreRing
+                score={eliteScore}
+                label="Elite Index"
+                size="lg"
+                tone={scoreTone as "emerald" | "violet" | "gold" | "rose"}
+                animated
+              />
+              <div className="min-w-0 flex-1">
+                <h2 className="text-balance text-3xl font-bold tracking-tight text-text-primary sm:text-4xl">
+                  Command Center
+                </h2>
+                <p className="mt-2 max-w-xl text-sm leading-relaxed text-text-secondary sm:text-base">
+                  {lowData
+                    ? "Your system is quiet. Add subjects, topics, and sessions to bring the dashboard alive."
+                    : "Weekly trajectory, readiness, errors, reviews and energy infrastructure."}
+                </p>
+              </div>
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
@@ -176,6 +235,17 @@ export default async function DashboardPage() {
             </div>
           </div>
         </section>
+
+        {/* ─── GAMIFICATION DASHBOARD ─── */}
+        <GamificationDashboard
+          eliteIndex={eliteScore}
+          level={level}
+          xp={xp}
+          xpToNextLevel={xpToNext}
+          streak={streak}
+          badges={dashboardBadges}
+          missions={dashboardMissions}
+        />
 
         {/* ─── STAT ROW — responsive grid ─── */}
         <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
