@@ -41,7 +41,7 @@ export default async function GoalsPage({
 
         <TabsContent value="goals">
           <div className="grid gap-4 xl:grid-cols-[420px_1fr]">
-            <GoalForm goal={editingGoal} />
+            <GoalForm goal={editingGoal} t={t as (key: string) => string} />
             <Card>
               <CardHeader>
                 <CardTitle>{t("nav.goals")}</CardTitle>
@@ -67,7 +67,7 @@ export default async function GoalsPage({
 
         <TabsContent value="tasks">
           <div className="grid gap-4 xl:grid-cols-[420px_1fr]">
-            <TaskForm task={editingTask} subjects={data.subjects} exams={data.exams} topics={data.topics} />
+            <TaskForm task={editingTask} subjects={data.subjects} exams={data.exams} topics={data.topics} t={t as (key: string) => string} />
             <Card>
               <CardHeader>
                 <CardTitle>{t("common.nextAction")}</CardTitle>
@@ -92,7 +92,7 @@ export default async function GoalsPage({
 
         <TabsContent value="identity">
           <div className="grid gap-4 xl:grid-cols-[420px_1fr]">
-            <IdentityNoteForm note={editingNote} cancelHref="/goals" />
+            <IdentityNoteForm note={editingNote} cancelHref="/goals" t={t as (key: string) => string} />
             <Card>
               <CardHeader>
                 <CardTitle>{t("nav.identity")}</CardTitle>

@@ -38,7 +38,7 @@ export default async function DailyLogPage({
     <AppShell session={session}>
       <PageHeader title={t("nav.dailyLog")} description={t("health.subtitle")} />
       <div className="grid gap-4 xl:grid-cols-[460px_1fr]">
-        <DailyLogForm log={editing} />
+        <DailyLogForm log={editing} t={t as (key: string) => string} />
         <div className="space-y-4">
           <Card>
             <CardHeader>

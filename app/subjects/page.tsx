@@ -30,7 +30,7 @@ export default async function SubjectsPage({
         description={t("topics.subtitle")}
       />
       <div className="grid gap-4 xl:grid-cols-[420px_1fr]">
-        <SubjectForm subject={editing} />
+        <SubjectForm subject={editing} t={t as (key: string) => string} />
         <Card>
           <CardHeader>
             <CardTitle>{t("nav.subjects")}</CardTitle>

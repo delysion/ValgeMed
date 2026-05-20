@@ -46,7 +46,7 @@ export default async function ExamsPage({ searchParams }: { searchParams: Promis
     <AppShell session={session}>
       <PageHeader title={t("exams.title")} description={t("exams.subtitle")} />
       <div className="grid gap-5 xl:grid-cols-[420px_1fr]">
-        <ExamForm exam={editing} subjects={data.subjects} />
+        <ExamForm exam={editing} subjects={data.subjects} t={t as (key: string) => string} />
         <div className="grid gap-4 md:grid-cols-2">
           {examRows.map((exam) => {
             const daysLeft = exam.examDate ? differenceInCalendarDays(exam.examDate, today) : null;

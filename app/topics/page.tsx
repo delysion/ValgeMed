@@ -38,7 +38,7 @@ export default async function TopicsPage({
     <AppShell session={session}>
       <PageHeader title={t("topics.title")} description={t("topics.subtitle")} />
       <div className="grid gap-5 xl:grid-cols-[420px_1fr]">
-        <TopicForm topic={editing} subjects={data.subjects} exams={data.exams} />
+        <TopicForm topic={editing} subjects={data.subjects} exams={data.exams} t={t as (key: string) => string} />
         <div className="space-y-5">
           <GlassCard>
             <form className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">

@@ -18,6 +18,7 @@ export function Field({
   error,
   className,
   required,
+  requiredLabel = "Required",
 }: {
   label: string;
   children: ReactNode;
@@ -26,12 +27,13 @@ export function Field({
   error?: string;
   className?: string;
   required?: boolean;
+  requiredLabel?: string;
 }) {
   return (
     <div className={cn("flex flex-col gap-2", className)}>
       <Label className="text-sm font-medium text-text-secondary">
         {label}
-        {required ? <span className="ml-1 text-rose" title="Required">*</span> : null}
+        {required ? <span className="ml-1 text-rose" title={requiredLabel}>*</span> : null}
       </Label>
       {helper ? <p className="text-xs text-text-muted">{helper}</p> : null}
       {children}
@@ -49,7 +51,7 @@ export function FieldGrid({
   className?: string;
 }) {
   return (
-    <div className={cn("grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4", className)}>
+    <div className={cn("grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3", className)}>
       {children}
     </div>
   );

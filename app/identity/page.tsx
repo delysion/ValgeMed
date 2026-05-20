@@ -21,7 +21,7 @@ export default async function IdentityPage({ searchParams }: { searchParams: Pro
     <AppShell session={session}>
       <PageHeader title={t("nav.identity")} description={t("portfolio.subtitle")} />
       <div className="grid gap-4 xl:grid-cols-[420px_1fr]">
-        <IdentityNoteForm note={editing} />
+        <IdentityNoteForm note={editing} t={t as (key: string) => string} />
         <Card>
           <CardHeader>
             <CardTitle>{t("nav.identity")}</CardTitle>

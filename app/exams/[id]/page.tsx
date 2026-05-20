@@ -169,7 +169,7 @@ export default async function ExamCommandCenter({ params }: { params: Promise<{ 
         </div>
 
         <div className="space-y-5">
-          <QuizAttemptForm subjects={data.subjects} topics={data.topics} exams={data.exams} examId={exam.id} />
+          <QuizAttemptForm subjects={data.subjects} topics={data.topics} exams={data.exams} examId={exam.id} t={t as (key: string) => string} />
           <GlassCard tone="emerald">
             <h3 className="text-xl font-semibold text-text-primary">{t("examRoom.simulation")}</h3>
             <div className="mt-4 space-y-3">

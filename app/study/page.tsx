@@ -90,7 +90,7 @@ export default async function StudyPage({ searchParams }: { searchParams: Promis
             <GlassCard>
               <SectionHeader title={t("study.quickStart")} />
               <div className="mt-4">
-                <StudySessionForm session={editing} subjects={data.subjects} topics={data.topics} exams={data.exams} />
+                <StudySessionForm session={editing} subjects={data.subjects} topics={data.topics} exams={data.exams} t={t as (key: string) => string} />
               </div>
             </GlassCard>
 

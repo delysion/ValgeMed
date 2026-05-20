@@ -44,7 +44,7 @@ export default async function MemoryPage({ searchParams }: { searchParams: Promi
             <GlassCard>
               <SectionHeader title={t("memory.addIdentity")} description={t("memory.identityDesc")} />
               <div className="mt-4">
-                <IdentityNoteForm note={editing} />
+                <IdentityNoteForm note={editing} t={t as (key: string) => string} />
               </div>
             </GlassCard>
             <GlassCard>

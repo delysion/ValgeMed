@@ -38,7 +38,7 @@ export default async function ReviewsPage({
     <AppShell session={session}>
       <PageHeader title={t("reviews.title")} description={t("reviews.subtitle")} />
       <div className="grid gap-4 xl:grid-cols-[460px_1fr]">
-        <ReviewItemForm item={editing} subjects={data.subjects} topics={data.topics} />
+        <ReviewItemForm item={editing} subjects={data.subjects} topics={data.topics} t={t as (key: string) => string} />
         <div className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <Card>

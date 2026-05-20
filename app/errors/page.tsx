@@ -38,7 +38,7 @@ export default async function ErrorsPage({ searchParams }: { searchParams: Promi
       </div>
 
       <div className="mt-5 grid gap-5 xl:grid-cols-[420px_1fr]">
-        <ErrorLogForm error={editing} subjects={data.subjects} topics={data.topics} exams={data.exams} />
+        <ErrorLogForm error={editing} subjects={data.subjects} topics={data.topics} exams={data.exams} t={t as (key: string) => string} />
         <div className="grid gap-4 md:grid-cols-2">
           {data.errorLogs.map((error) => (
             <GlassCard key={error.id} tone={error.resolved ? "emerald" : error.severity >= 7 ? "danger" : "rose"} className={error.resolved ? "opacity-80" : undefined}>

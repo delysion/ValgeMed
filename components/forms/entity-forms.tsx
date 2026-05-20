@@ -59,6 +59,8 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 
+type TFunc = (key: string) => string;
+
 function relationOptions<T extends { id: string; title?: string; name?: string }>(
   rows: T[],
   emptyLabel = "None",
@@ -92,23 +94,23 @@ function FormCard({
   );
 }
 
-export function SubjectForm({ subject }: { subject?: Subject }) {
+export function SubjectForm({ subject, t }: { subject?: Subject; t: TFunc }) {
   return (
     <FormCard
-      title={subject ? "Edit Subject" : "New Subject"}
-      description="Difficulty and importance shape how the system prioritizes your study time."
+      title={subject ? t("form.subject.editTitle") : t("form.subject.createTitle")}
+      description={t("form.subject.description")}
     >
       <form action={subject ? updateSubjectAction : createSubjectAction} className="space-y-5">
         {subject ? <input type="hidden" name="id" value={subject.id} /> : null}
         <FieldGrid>
-          <TextField label="Subject name" name="name" defaultValue={subject?.name} required placeholder="e.g. Gross Anatomy..." description="The name you will see everywhere." />
-          <TextField label="Course code" name="code" defaultValue={subject?.code} placeholder="e.g. AR-101..." description="Optional identifier for your records." />
-          <TextField label="Theme color" name="color" defaultValue={subject?.color ?? "#5746E5"} description="Used to visually identify this subject in charts and lists." />
-          <TextField label="Difficulty (0–10)" name="difficulty" type="number" min={0} max={10} defaultValue={subject?.difficulty ?? 5} description="How hard is this material for you personally?" />
-          <TextField label="Importance (0–10)" name="importance" type="number" min={0} max={10} defaultValue={subject?.importance ?? 5} description="How critical is this subject for your goals?" />
+          <TextField label={t("form.subject.nameLabel")} name="name" defaultValue={subject?.name} required placeholder={t("form.subject.namePlaceholder")} description={t("form.subject.nameDescription")} />
+          <TextField label={t("form.subject.codeLabel")} name="code" defaultValue={subject?.code} placeholder={t("form.subject.codePlaceholder")} description={t("form.subject.codeDescription")} />
+          <TextField label={t("form.subject.colorLabel")} name="color" defaultValue={subject?.color ?? "#5746E5"} description={t("form.subject.colorDescription")} />
+          <TextField label={t("form.subject.difficultyLabel")} name="difficulty" type="number" min={0} max={10} defaultValue={subject?.difficulty ?? 5} description={t("form.subject.difficultyDescription")} />
+          <TextField label={t("form.subject.importanceLabel")} name="importance" type="number" min={0} max={10} defaultValue={subject?.importance ?? 5} description={t("form.subject.importanceDescription")} />
         </FieldGrid>
-        <TextAreaField label="Description & notes" name="description" defaultValue={subject?.description} placeholder="What this subject covers, key themes, exam weight, or personal strategy notes…" description="Anything that helps you remember why this subject matters." />
-        <SubmitBar label={subject ? "Save Subject" : "Create Subject"} pendingLabel={subject ? "Saving Changes..." : "Creating Subject..."} cancelHref={subject ? "/subjects" : undefined} />
+        <TextAreaField label={t("form.subject.notesLabel")} name="description" defaultValue={subject?.description} placeholder={t("form.subject.notesPlaceholder")} description={t("form.subject.notesDescription")} />
+        <SubmitBar label={subject ? t("form.subject.editSubmit") : t("form.subject.createSubmit")} pendingLabel={subject ? t("form.subject.editPending") : t("form.subject.createPending")} cancelHref={subject ? "/subjects" : undefined} cancelLabel={t("common.cancel")} />
       </form>
     </FormCard>
   );
@@ -117,28 +119,30 @@ export function SubjectForm({ subject }: { subject?: Subject }) {
 export function ExamForm({
   exam,
   subjects,
+  t,
 }: {
   exam?: Exam;
   subjects: Subject[];
+  t: TFunc;
 }) {
   return (
     <FormCard
-      title={exam ? "Edit Exam" : "New Exam"}
-      description="Every exam becomes a command center with topics, errors, quizzes and a battle plan."
+      title={exam ? t("form.exam.editTitle") : t("form.exam.createTitle")}
+      description={t("form.exam.description")}
     >
       <form action={exam ? updateExamAction : createExamAction} className="space-y-5">
         {exam ? <input type="hidden" name="id" value={exam.id} /> : null}
         <FieldGrid>
-          <NativeSelectField label="Subject" name="subjectId" options={relationOptions(subjects, "Select a subject")} defaultValue={exam?.subjectId} description="Which subject does this exam belong to?" />
-          <TextField label="Exam title" name="title" defaultValue={exam?.title} required placeholder="e.g. Pharmacology Final..." description="A clear name you will recognize under pressure." />
-          <TextField label="Exam date" name="examDate" type="date" defaultValue={dateValue(exam?.examDate)} description="Used to calculate urgency and countdown." />
-          <TextField label="ECTS credits" name="ects" type="number" defaultValue={exam?.ects ?? ""} description="Credit points if applicable." />
-          <NativeSelectField label="Exam format" name="format" options={optionize(examFormats)} defaultValue={exam?.format ?? "unknown"} description="Oral, written, practical, or mixed." />
-          <TextField label="Difficulty (0–10)" name="difficulty" type="number" min={0} max={10} defaultValue={exam?.difficulty ?? 5} description="How hard is the exam content?" />
-          <TextField label="Importance (0–10)" name="importance" type="number" min={0} max={10} defaultValue={exam?.importance ?? 5} description="How much does this exam affect your trajectory?" />
+          <NativeSelectField label={t("form.exam.subjectLabel")} name="subjectId" options={relationOptions(subjects, t("form.exam.subjectEmpty"))} defaultValue={exam?.subjectId} description={t("form.exam.subjectDescription")} />
+          <TextField label={t("form.exam.titleLabel")} name="title" defaultValue={exam?.title} required placeholder={t("form.exam.titlePlaceholder")} description={t("form.exam.titleDescription")} />
+          <TextField label={t("form.exam.dateLabel")} name="examDate" type="date" defaultValue={dateValue(exam?.examDate)} description={t("form.exam.dateDescription")} />
+          <TextField label={t("form.exam.creditsLabel")} name="ects" type="number" defaultValue={exam?.ects ?? ""} description={t("form.exam.creditsDescription")} />
+          <NativeSelectField label={t("form.exam.formatLabel")} name="format" options={optionize(examFormats)} defaultValue={exam?.format ?? "unknown"} description={t("form.exam.formatDescription")} />
+          <TextField label={t("form.exam.difficultyLabel")} name="difficulty" type="number" min={0} max={10} defaultValue={exam?.difficulty ?? 5} description={t("form.exam.difficultyDescription")} />
+          <TextField label={t("form.exam.importanceLabel")} name="importance" type="number" min={0} max={10} defaultValue={exam?.importance ?? 5} description={t("form.exam.importanceDescription")} />
         </FieldGrid>
-        <TextAreaField label="Notes & strategy" name="notes" defaultValue={exam?.notes} placeholder="Format details, special rules, professor preferences, or your personal preparation strategy…" description="Anything that might affect how you prepare." />
-        <SubmitBar label={exam ? "Save Exam" : "Create Exam"} pendingLabel={exam ? "Saving Changes..." : "Creating Exam..."} cancelHref={exam ? "/exams" : undefined} />
+        <TextAreaField label={t("form.exam.notesLabel")} name="notes" defaultValue={exam?.notes} placeholder={t("form.exam.notesPlaceholder")} description={t("form.exam.notesDescription")} />
+        <SubmitBar label={exam ? t("form.exam.editSubmit") : t("form.exam.createSubmit")} pendingLabel={exam ? t("form.exam.editPending") : t("form.exam.createPending")} cancelHref={exam ? "/exams" : undefined} cancelLabel={t("common.cancel")} />
       </form>
     </FormCard>
   );
@@ -148,31 +152,33 @@ export function TopicForm({
   topic,
   subjects,
   exams,
+  t,
 }: {
   topic?: Topic;
   subjects: Subject[];
   exams: Exam[];
+  t: TFunc;
 }) {
   return (
     <FormCard
-      title={topic ? "Edit Topic" : "New Topic"}
-      description="Confidence and priority guide how the system schedules your recall and revision."
+      title={topic ? t("form.topic.editTitle") : t("form.topic.createTitle")}
+      description={t("form.topic.description")}
     >
       <form action={topic ? updateTopicAction : createTopicAction} className="space-y-5">
         {topic ? <input type="hidden" name="id" value={topic.id} /> : null}
         <FieldGrid>
-          <NativeSelectField label="Subject" name="subjectId" options={relationOptions(subjects, "Select a subject")} defaultValue={topic?.subjectId} description="Organizes topics by subject." />
-          <NativeSelectField label="Linked exam" name="examId" options={relationOptions(exams, "None")} defaultValue={topic?.examId} description="Connects this topic to an exam for readiness tracking." />
-          <TextField label="Topic title" name="title" defaultValue={topic?.title} required placeholder="e.g. Cardiac Cycle..." description="A specific, actionable name you will recognize." />
-          <NativeSelectField label="Status" name="status" options={optionize(topicStatuses)} defaultValue={topic?.status ?? "not_started"} description="Where are you in the learning process?" />
-          <TextField label="Difficulty (0–10)" name="difficulty" type="number" min={0} max={10} defaultValue={topic?.difficulty ?? 5} description="How hard is this material?" />
-          <TextField label="Priority (0–10)" name="priority" type="number" min={0} max={10} defaultValue={topic?.priority ?? 5} description="How urgent is this topic right now?" />
-          <TextField label="Confidence (0–10)" name="confidence" type="number" min={0} max={10} defaultValue={topic?.confidence ?? 0} description="How well do you know this today? Be honest." />
-          <TextField label="Last studied" name="lastStudiedAt" type="date" defaultValue={dateValue(topic?.lastStudiedAt)} description="When did you last review this topic?" />
-          <TextField label="Next review" name="nextReviewAt" type="date" defaultValue={dateValue(topic?.nextReviewAt)} description="When should you review this next?" />
+          <NativeSelectField label={t("form.topic.subjectLabel")} name="subjectId" options={relationOptions(subjects, t("form.topic.subjectEmpty"))} defaultValue={topic?.subjectId} description={t("form.topic.subjectDescription")} />
+          <NativeSelectField label={t("form.topic.examLabel")} name="examId" options={relationOptions(exams, t("form.topic.examEmpty"))} defaultValue={topic?.examId} description={t("form.topic.examDescription")} />
+          <TextField label={t("form.topic.titleLabel")} name="title" defaultValue={topic?.title} required placeholder={t("form.topic.titlePlaceholder")} description={t("form.topic.titleDescription")} />
+          <NativeSelectField label={t("form.topic.statusLabel")} name="status" options={optionize(topicStatuses)} defaultValue={topic?.status ?? "not_started"} description={t("form.topic.statusDescription")} />
+          <TextField label={t("form.topic.difficultyLabel")} name="difficulty" type="number" min={0} max={10} defaultValue={topic?.difficulty ?? 5} description={t("form.topic.difficultyDescription")} />
+          <TextField label={t("form.topic.priorityLabel")} name="priority" type="number" min={0} max={10} defaultValue={topic?.priority ?? 5} description={t("form.topic.priorityDescription")} />
+          <TextField label={t("form.topic.confidenceLabel")} name="confidence" type="number" min={0} max={10} defaultValue={topic?.confidence ?? 0} description={t("form.topic.confidenceDescription")} />
+          <TextField label={t("form.topic.lastStudiedLabel")} name="lastStudiedAt" type="date" defaultValue={dateValue(topic?.lastStudiedAt)} description={t("form.topic.lastStudiedDescription")} />
+          <TextField label={t("form.topic.nextReviewLabel")} name="nextReviewAt" type="date" defaultValue={dateValue(topic?.nextReviewAt)} description={t("form.topic.nextReviewDescription")} />
         </FieldGrid>
-        <TextAreaField label="Description & key concepts" name="description" defaultValue={topic?.description} placeholder="Key concepts, subtopics, equations to memorize, or common traps…" description="A quick reference for future you." />
-        <SubmitBar label={topic ? "Save Topic" : "Create Topic"} pendingLabel={topic ? "Saving Changes..." : "Creating Topic..."} cancelHref={topic ? "/topics" : undefined} />
+        <TextAreaField label={t("form.topic.notesLabel")} name="description" defaultValue={topic?.description} placeholder={t("form.topic.notesPlaceholder")} description={t("form.topic.notesDescription")} />
+        <SubmitBar label={topic ? t("form.topic.editSubmit") : t("form.topic.createSubmit")} pendingLabel={topic ? t("form.topic.editPending") : t("form.topic.createPending")} cancelHref={topic ? "/topics" : undefined} cancelLabel={t("common.cancel")} />
       </form>
     </FormCard>
   );
@@ -183,33 +189,35 @@ export function StudySessionForm({
   subjects,
   topics,
   exams,
+  t,
 }: {
   session?: StudySession;
   subjects: Subject[];
   topics: Topic[];
   exams: Exam[];
+  t: TFunc;
 }) {
   return (
     <FormCard
-      title={session ? "Edit Session" : "New Session"}
-      description="Track method, focus, energy and output. Quality beats quantity every time."
+      title={session ? t("form.studySession.editTitle") : t("form.studySession.createTitle")}
+      description={t("form.studySession.description")}
     >
       <form action={session ? updateStudySessionAction : createStudySessionAction} className="space-y-5">
         {session ? <input type="hidden" name="id" value={session.id} /> : null}
         <FieldGrid>
-          <NativeSelectField label="Subject" name="subjectId" options={relationOptions(subjects, "Select a subject")} defaultValue={session?.subjectId} description="What subject were you studying?" />
-          <NativeSelectField label="Topic" name="topicId" options={relationOptions(topics, "None")} defaultValue={session?.topicId} description="Which specific topic?" />
-          <NativeSelectField label="Exam" name="examId" options={relationOptions(exams, "None")} defaultValue={session?.examId} description="Link to an exam if relevant." />
-          <TextField label="Start time" name="startedAt" type="datetime-local" defaultValue={dateTimeValue(session?.startedAt) || dateTimeValue(new Date())} required description="When did the session begin?" />
-          <TextField label="End time" name="endedAt" type="datetime-local" defaultValue={dateTimeValue(session?.endedAt)} description="When did it finish?" />
-          <TextField label="Duration (minutes)" name="durationMinutes" type="number" defaultValue={session?.durationMinutes ?? 50} required description="How long did you study?" />
-          <NativeSelectField label="Study method" name="method" options={optionize(studyMethods)} defaultValue={session?.method ?? "mixed"} description="Active recall is highest yield." />
-          <TextField label="Focus level (0–10)" name="focusLevel" type="number" min={0} max={10} defaultValue={session?.focusLevel ?? 7} description="How focused were you, honestly?" />
-          <TextField label="Energy level (0–10)" name="energyLevel" type="number" min={0} max={10} defaultValue={session?.energyLevel ?? 7} description="How did you feel physically and mentally?" />
-          <TextField label="Output quality (0–10)" name="outputQuality" type="number" min={0} max={10} defaultValue={session?.outputQuality ?? 7} description="How much did you actually learn and retain?" />
+          <NativeSelectField label={t("form.studySession.subjectLabel")} name="subjectId" options={relationOptions(subjects, t("form.studySession.subjectEmpty"))} defaultValue={session?.subjectId} description={t("form.studySession.subjectDescription")} />
+          <NativeSelectField label={t("form.studySession.topicLabel")} name="topicId" options={relationOptions(topics, t("form.studySession.topicEmpty"))} defaultValue={session?.topicId} description={t("form.studySession.topicDescription")} />
+          <NativeSelectField label={t("form.studySession.examLabel")} name="examId" options={relationOptions(exams, t("form.studySession.examEmpty"))} defaultValue={session?.examId} description={t("form.studySession.examDescription")} />
+          <TextField label={t("form.studySession.startLabel")} name="startedAt" type="datetime-local" defaultValue={dateTimeValue(session?.startedAt) || dateTimeValue(new Date())} required description={t("form.studySession.startDescription")} />
+          <TextField label={t("form.studySession.endLabel")} name="endedAt" type="datetime-local" defaultValue={dateTimeValue(session?.endedAt)} description={t("form.studySession.endDescription")} />
+          <TextField label={t("form.studySession.durationLabel")} name="durationMinutes" type="number" defaultValue={session?.durationMinutes ?? 50} required description={t("form.studySession.durationDescription")} />
+          <NativeSelectField label={t("form.studySession.methodLabel")} name="method" options={optionize(studyMethods)} defaultValue={session?.method ?? "mixed"} description={t("form.studySession.methodDescription")} />
+          <TextField label={t("form.studySession.focusLabel")} name="focusLevel" type="number" min={0} max={10} defaultValue={session?.focusLevel ?? 7} description={t("form.studySession.focusDescription")} />
+          <TextField label={t("form.studySession.energyLabel")} name="energyLevel" type="number" min={0} max={10} defaultValue={session?.energyLevel ?? 7} description={t("form.studySession.energyDescription")} />
+          <TextField label={t("form.studySession.outputLabel")} name="outputQuality" type="number" min={0} max={10} defaultValue={session?.outputQuality ?? 7} description={t("form.studySession.outputDescription")} />
         </FieldGrid>
-        <TextAreaField label="Session notes" name="notes" defaultValue={session?.notes} placeholder="What worked, what didn't, key insights, or what to review next time…" description="These notes become your personal playbook." />
-        <SubmitBar label={session ? "Save Session" : "Log Session"} pendingLabel={session ? "Saving Changes..." : "Logging Session..."} cancelHref={session ? "/study-sessions" : undefined} />
+        <TextAreaField label={t("form.studySession.notesLabel")} name="notes" defaultValue={session?.notes} placeholder={t("form.studySession.notesPlaceholder")} description={t("form.studySession.notesDescription")} />
+        <SubmitBar label={session ? t("form.studySession.editSubmit") : t("form.studySession.createSubmit")} pendingLabel={session ? t("form.studySession.editPending") : t("form.studySession.createPending")} cancelHref={session ? "/study-sessions" : undefined} cancelLabel={t("common.cancel")} />
       </form>
     </FormCard>
   );
@@ -219,33 +227,35 @@ export function ReviewItemForm({
   item,
   subjects,
   topics,
+  t,
 }: {
   item?: ReviewItem;
   subjects: Subject[];
   topics: Topic[];
+  t: TFunc;
 }) {
   return (
     <FormCard
-      title={item ? "Edit Review Item" : "New Review Item"}
-      description="Open questions and flashcards stay local, no AI or external cloud."
+      title={item ? t("form.reviewItem.editTitle") : t("form.reviewItem.createTitle")}
+      description={t("form.reviewItem.description")}
     >
       <form action={item ? updateReviewItemAction : createReviewItemAction} className="space-y-3">
         {item ? <input type="hidden" name="id" value={item.id} /> : null}
         <input type="hidden" name="isActive" value="false" />
         <FieldGrid>
-          <NativeSelectField label="Subject" name="subjectId" options={relationOptions(subjects, "Select")} defaultValue={item?.subjectId} />
-          <NativeSelectField label="Topic" name="topicId" options={relationOptions(topics)} defaultValue={item?.topicId} />
-          <NativeSelectField label="Type" name="reviewType" options={optionize(reviewTypes)} defaultValue={item?.reviewType ?? "flashcard"} />
-          <TextField label="Confidence" name="confidence" type="number" min={0} max={10} defaultValue={item?.confidence ?? 0} description="0–10 scale." />
-          <TextField label="Interval days" name="intervalDays" type="number" defaultValue={item?.intervalDays ?? 1} description="Days between reviews." />
-          <TextField label="Due" name="dueAt" type="date" defaultValue={dateValue(item?.dueAt) || dateValue(new Date())} />
+          <NativeSelectField label={t("form.reviewItem.subjectLabel")} name="subjectId" options={relationOptions(subjects, t("form.reviewItem.subjectEmpty"))} defaultValue={item?.subjectId} />
+          <NativeSelectField label={t("form.reviewItem.topicLabel")} name="topicId" options={relationOptions(topics)} defaultValue={item?.topicId} />
+          <NativeSelectField label={t("form.reviewItem.typeLabel")} name="reviewType" options={optionize(reviewTypes)} defaultValue={item?.reviewType ?? "flashcard"} />
+          <TextField label={t("form.reviewItem.confidenceLabel")} name="confidence" type="number" min={0} max={10} defaultValue={item?.confidence ?? 0} description={t("form.reviewItem.confidenceDescription")} />
+          <TextField label={t("form.reviewItem.intervalLabel")} name="intervalDays" type="number" defaultValue={item?.intervalDays ?? 1} description={t("form.reviewItem.intervalDescription")} />
+          <TextField label={t("form.reviewItem.dueLabel")} name="dueAt" type="date" defaultValue={dateValue(item?.dueAt) || dateValue(new Date())} />
         </FieldGrid>
-        <TextAreaField label="Question" name="question" defaultValue={item?.question} placeholder="What does the heart's conduction system consist of?..." />
-        <TextAreaField label="Answer" name="answer" defaultValue={item?.answer} placeholder="SA node, AV node, Bundle of His, Purkinje fibers..." />
-        <Field label="Active">
+        <TextAreaField label={t("form.reviewItem.questionLabel")} name="question" defaultValue={item?.question} placeholder={t("form.reviewItem.questionPlaceholder")} />
+        <TextAreaField label={t("form.reviewItem.answerLabel")} name="answer" defaultValue={item?.answer} placeholder={t("form.reviewItem.answerPlaceholder")} />
+        <Field label={t("form.reviewItem.activeLabel")}>
           <Input type="checkbox" name="isActive" defaultChecked={item?.isActive ?? true} className="h-4 w-4" />
         </Field>
-        <SubmitBar label={item ? "Save Item" : "Create Item"} pendingLabel={item ? "Saving Changes..." : "Creating Item..."} cancelHref={item ? "/reviews" : undefined} />
+        <SubmitBar label={item ? t("form.reviewItem.editSubmit") : t("form.reviewItem.createSubmit")} pendingLabel={item ? t("form.reviewItem.editPending") : t("form.reviewItem.createPending")} cancelHref={item ? "/reviews" : undefined} cancelLabel={t("common.cancel")} />
       </form>
     </FormCard>
   );
@@ -256,38 +266,40 @@ export function ErrorLogForm({
   subjects,
   topics,
   exams,
+  t,
 }: {
   error?: ErrorLog;
   subjects: Subject[];
   topics: Topic[];
   exams: Exam[];
+  t: TFunc;
 }) {
   return (
     <FormCard
-      title={error ? "Edit Error" : "Log an Error"}
-      description="Errors become prevention rules. Every mistake is data for the system."
+      title={error ? t("form.errorLog.editTitle") : t("form.errorLog.createTitle")}
+      description={t("form.errorLog.description")}
     >
       <form action={error ? updateErrorLogAction : createErrorLogAction} className="space-y-5">
         {error ? <input type="hidden" name="id" value={error.id} /> : null}
         <input type="hidden" name="resolved" value="false" />
         <FieldGrid>
-          <NativeSelectField label="Subject" name="subjectId" options={relationOptions(subjects, "Select a subject")} defaultValue={error?.subjectId} description="Which subject was this error in?" />
-          <NativeSelectField label="Topic" name="topicId" options={relationOptions(topics, "None")} defaultValue={error?.topicId} description="Narrow down to a specific topic." />
-          <NativeSelectField label="Exam" name="examId" options={relationOptions(exams, "None")} defaultValue={error?.examId} description="Was this related to a specific exam?" />
-          <TextField label="Error title" name="title" defaultValue={error?.title} required placeholder="e.g. Confused systole with diastole..." description="A short, clear description of the mistake." />
-          <NativeSelectField label="Error type" name="errorType" options={optionize(errorTypes)} defaultValue={error?.errorType ?? "other"} description="Categorize to spot patterns." />
-          <TextField label="Retest date" name="retestAt" type="date" defaultValue={dateValue(error?.retestAt)} description="When will you test yourself on this again?" />
-          <TextField label="Severity (0–10)" name="severity" type="number" min={0} max={10} defaultValue={error?.severity ?? 5} description="How serious is this gap in knowledge?" />
-          <TextField label="Recurrences" name="recurrenceCount" type="number" min={0} defaultValue={error?.recurrenceCount ?? 0} description="How many times has this same error happened?" />
+          <NativeSelectField label={t("form.errorLog.subjectLabel")} name="subjectId" options={relationOptions(subjects, t("form.errorLog.subjectEmpty"))} defaultValue={error?.subjectId} description={t("form.errorLog.subjectDescription")} />
+          <NativeSelectField label={t("form.errorLog.topicLabel")} name="topicId" options={relationOptions(topics, t("form.errorLog.topicEmpty"))} defaultValue={error?.topicId} description={t("form.errorLog.topicDescription")} />
+          <NativeSelectField label={t("form.errorLog.examLabel")} name="examId" options={relationOptions(exams, t("form.errorLog.examEmpty"))} defaultValue={error?.examId} description={t("form.errorLog.examDescription")} />
+          <TextField label={t("form.errorLog.titleLabel")} name="title" defaultValue={error?.title} required placeholder={t("form.errorLog.titlePlaceholder")} description={t("form.errorLog.titleDescription")} />
+          <NativeSelectField label={t("form.errorLog.typeLabel")} name="errorType" options={optionize(errorTypes)} defaultValue={error?.errorType ?? "other"} description={t("form.errorLog.typeDescription")} />
+          <TextField label={t("form.errorLog.retestLabel")} name="retestAt" type="date" defaultValue={dateValue(error?.retestAt)} description={t("form.errorLog.retestDescription")} />
+          <TextField label={t("form.errorLog.severityLabel")} name="severity" type="number" min={0} max={10} defaultValue={error?.severity ?? 5} description={t("form.errorLog.severityDescription")} />
+          <TextField label={t("form.errorLog.recurrencesLabel")} name="recurrenceCount" type="number" min={0} defaultValue={error?.recurrenceCount ?? 0} description={t("form.errorLog.recurrencesDescription")} />
         </FieldGrid>
-        <TextAreaField label="What went wrong?" name="description" defaultValue={error?.description} placeholder="Describe the mistake clearly. What did you answer? What was correct?" description="Be specific. Future you will thank present you." />
-        <TextAreaField label="Why did it happen?" name="cause" defaultValue={error?.cause} placeholder="Misunderstanding? Rushed? Forgot a key fact? Confused two similar concepts?" description="Understanding the root cause prevents recurrence." />
-        <TextAreaField label="The correct understanding" name="correction" defaultValue={error?.correction} placeholder="Write out the correct answer or approach in your own words." description="Teaching yourself the right way cements the correction." />
-        <TextAreaField label="Prevention rule" name="preventionRule" defaultValue={error?.preventionRule} placeholder="e.g. Always trace the conduction pathway before answering." description="A simple rule that would have prevented this error." />
-        <Field label="Resolved">
+        <TextAreaField label={t("form.errorLog.whatLabel")} name="description" defaultValue={error?.description} placeholder={t("form.errorLog.whatPlaceholder")} description={t("form.errorLog.whatDescription")} />
+        <TextAreaField label={t("form.errorLog.whyLabel")} name="cause" defaultValue={error?.cause} placeholder={t("form.errorLog.whyPlaceholder")} description={t("form.errorLog.whyDescription")} />
+        <TextAreaField label={t("form.errorLog.correctionLabel")} name="correction" defaultValue={error?.correction} placeholder={t("form.errorLog.correctionPlaceholder")} description={t("form.errorLog.correctionDescription")} />
+        <TextAreaField label={t("form.errorLog.preventionLabel")} name="preventionRule" defaultValue={error?.preventionRule} placeholder={t("form.errorLog.preventionPlaceholder")} description={t("form.errorLog.preventionDescription")} />
+        <Field label={t("form.errorLog.resolvedLabel")}>
           <Input type="checkbox" name="resolved" defaultChecked={error?.resolved ?? false} className="h-5 w-5 rounded-md" />
         </Field>
-        <SubmitBar label={error ? "Save Error" : "Log Error & Learn"} pendingLabel={error ? "Saving Changes..." : "Logging Error..."} cancelHref={error ? "/errors" : undefined} />
+        <SubmitBar label={error ? t("form.errorLog.editSubmit") : t("form.errorLog.createSubmit")} pendingLabel={error ? t("form.errorLog.editPending") : t("form.errorLog.createPending")} cancelHref={error ? "/errors" : undefined} cancelLabel={t("common.cancel")} />
       </form>
     </FormCard>
   );
@@ -298,73 +310,75 @@ export function QuizAttemptForm({
   topics,
   exams,
   examId,
+  t,
 }: {
   subjects: Subject[];
   topics: Topic[];
   exams: Exam[];
   examId?: string;
+  t: TFunc;
 }) {
   return (
-    <FormCard title="New Quiz Attempt" description="Track real accuracy. Feelings of familiarity are not evidence of knowledge.">
+    <FormCard title={t("form.quizAttempt.title")} description={t("form.quizAttempt.description")}>
       <form action={createQuizAttemptAction} className="space-y-5">
         <FieldGrid>
-          <NativeSelectField label="Subject" name="subjectId" options={relationOptions(subjects, "Select a subject")} defaultValue={exams.find((exam) => exam.id === examId)?.subjectId} description="Which subject was tested?" />
-          <NativeSelectField label="Topic" name="topicId" options={relationOptions(topics, "None")} description="Which specific topic, if any?" />
-          <NativeSelectField label="Exam" name="examId" options={relationOptions(exams, "None")} defaultValue={examId} description="Preparing for a specific exam?" />
-          <TextField label="Date" name="date" type="date" defaultValue={formatISO(new Date(), { representation: "date" })} description="When did you take this quiz?" />
-          <TextField label="Total questions" name="totalQuestions" type="number" defaultValue={20} description="How many questions were on the quiz?" />
-          <TextField label="Correct answers" name="correctAnswers" type="number" defaultValue={0} description="How many did you answer correctly? Be honest." />
+          <NativeSelectField label={t("form.quizAttempt.subjectLabel")} name="subjectId" options={relationOptions(subjects, t("form.quizAttempt.subjectEmpty"))} defaultValue={exams.find((exam) => exam.id === examId)?.subjectId} description={t("form.quizAttempt.subjectDescription")} />
+          <NativeSelectField label={t("form.quizAttempt.topicLabel")} name="topicId" options={relationOptions(topics, t("form.quizAttempt.topicEmpty"))} description={t("form.quizAttempt.topicDescription")} />
+          <NativeSelectField label={t("form.quizAttempt.examLabel")} name="examId" options={relationOptions(exams, t("form.quizAttempt.examEmpty"))} defaultValue={examId} description={t("form.quizAttempt.examDescription")} />
+          <TextField label={t("form.quizAttempt.dateLabel")} name="date" type="date" defaultValue={formatISO(new Date(), { representation: "date" })} description={t("form.quizAttempt.dateDescription")} />
+          <TextField label={t("form.quizAttempt.totalLabel")} name="totalQuestions" type="number" defaultValue={20} description={t("form.quizAttempt.totalDescription")} />
+          <TextField label={t("form.quizAttempt.correctLabel")} name="correctAnswers" type="number" defaultValue={0} description={t("form.quizAttempt.correctDescription")} />
         </FieldGrid>
-        <TextAreaField label="Reflections" name="notes" placeholder="Which topics were hardest? What patterns did you notice? What will you review before the next attempt?" description="These reflections guide your next study session." />
-        <SubmitBar label="Record Quiz Result" pendingLabel="Recording Result..." />
+        <TextAreaField label={t("form.quizAttempt.reflectionsLabel")} name="notes" placeholder={t("form.quizAttempt.reflectionsPlaceholder")} description={t("form.quizAttempt.reflectionsDescription")} />
+        <SubmitBar label={t("form.quizAttempt.submit")} pendingLabel={t("form.quizAttempt.pending")} />
       </form>
     </FormCard>
   );
 }
 
-export function DailyLogForm({ log, compact = false }: { log?: DailyLog | null; compact?: boolean }) {
+export function DailyLogForm({ log, compact = false, t }: { log?: DailyLog | null; compact?: boolean; t: TFunc }) {
   return (
     <FormCard
-      title={log ? "Update Daily Log" : "Daily Log"}
-      description="Sleep, energy and stress shape the plan. These are not decorative details."
+      title={log?.id ? t("form.dailyLog.editTitle") : t("form.dailyLog.createTitle")}
+      description={t("form.dailyLog.description")}
     >
       <form action={log?.id ? updateDailyLogAction : upsertDailyLogAction} className="space-y-5">
         {log?.id ? <input type="hidden" name="id" value={log.id} /> : null}
         <input type="hidden" name="movementDone" value="false" />
         <FieldGrid className={compact ? "xl:grid-cols-3" : undefined}>
-          <TextField label="Date" name="date" type="date" defaultValue={log?.date ?? formatISO(new Date(), { representation: "date" })} description="Which day is this log for?" />
-          <TextField label="Sleep (hours)" name="sleepHours" type="number" defaultValue={log?.sleepHours ?? ""} placeholder="e.g. 7.5" description="Total hours of sleep last night." />
-          <TextField label="Energy (0–10)" name="energyLevel" type="number" min={0} max={10} defaultValue={log?.energyLevel ?? ""} description="How energetic did you feel today?" />
-          <TextField label="Stress (0–10)" name="stressLevel" type="number" min={0} max={10} defaultValue={log?.stressLevel ?? ""} description="How stressed or overwhelmed did you feel?" />
-          <TextField label="Mood (0–10)" name="moodLevel" type="number" min={0} max={10} defaultValue={log?.moodLevel ?? ""} description="Overall emotional state today." />
-          <TextField label="Total study (min)" name="studyMinutes" type="number" defaultValue={log?.studyMinutes ?? 0} description="All study time combined." />
-          <TextField label="Active recall (min)" name="activeRecallMinutes" type="number" defaultValue={log?.activeRecallMinutes ?? 0} description="Time spent on active recall specifically." />
-          <TextField label="Passive study (min)" name="passiveStudyMinutes" type="number" defaultValue={log?.passiveStudyMinutes ?? 0} description="Reading, notes, videos without active testing." />
+          <TextField label={t("form.dailyLog.dateLabel")} name="date" type="date" defaultValue={log?.date ?? formatISO(new Date(), { representation: "date" })} description={t("form.dailyLog.dateDescription")} />
+          <TextField label={t("form.dailyLog.sleepLabel")} name="sleepHours" type="number" defaultValue={log?.sleepHours ?? ""} placeholder={t("form.dailyLog.sleepPlaceholder")} description={t("form.dailyLog.sleepDescription")} />
+          <TextField label={t("form.dailyLog.energyLabel")} name="energyLevel" type="number" min={0} max={10} defaultValue={log?.energyLevel ?? ""} description={t("form.dailyLog.energyDescription")} />
+          <TextField label={t("form.dailyLog.stressLabel")} name="stressLevel" type="number" min={0} max={10} defaultValue={log?.stressLevel ?? ""} description={t("form.dailyLog.stressDescription")} />
+          <TextField label={t("form.dailyLog.moodLabel")} name="moodLevel" type="number" min={0} max={10} defaultValue={log?.moodLevel ?? ""} description={t("form.dailyLog.moodDescription")} />
+          <TextField label={t("form.dailyLog.studyLabel")} name="studyMinutes" type="number" defaultValue={log?.studyMinutes ?? 0} description={t("form.dailyLog.studyDescription")} />
+          <TextField label={t("form.dailyLog.activeLabel")} name="activeRecallMinutes" type="number" defaultValue={log?.activeRecallMinutes ?? 0} description={t("form.dailyLog.activeDescription")} />
+          <TextField label={t("form.dailyLog.passiveLabel")} name="passiveStudyMinutes" type="number" defaultValue={log?.passiveStudyMinutes ?? 0} description={t("form.dailyLog.passiveDescription")} />
         </FieldGrid>
-        <Field label="Did you move today?">
+        <Field label={t("form.dailyLog.movedLabel")}>
           <Input type="checkbox" name="movementDone" defaultChecked={log?.movementDone ?? false} className="h-5 w-5 rounded-md" />
         </Field>
-        <TextAreaField label="Daily reflections" name="notes" defaultValue={log?.notes} placeholder="How was today? What affected your focus? What will you do differently tomorrow?" description="Short reflections compound into long-term self-awareness." />
-        <SubmitBar label={log?.id ? "Save Log" : "Log Today"} pendingLabel={log?.id ? "Saving Changes..." : "Logging Today..."} cancelHref={log?.id ? "/daily-log" : undefined} />
+        <TextAreaField label={t("form.dailyLog.reflectionsLabel")} name="notes" defaultValue={log?.notes} placeholder={t("form.dailyLog.reflectionsPlaceholder")} description={t("form.dailyLog.reflectionsDescription")} />
+        <SubmitBar label={log?.id ? t("form.dailyLog.editSubmit") : t("form.dailyLog.createSubmit")} pendingLabel={log?.id ? t("form.dailyLog.editPending") : t("form.dailyLog.createPending")} cancelHref={log?.id ? "/daily-log" : undefined} cancelLabel={t("common.cancel")} />
       </form>
     </FormCard>
   );
 }
 
-export function GoalForm({ goal }: { goal?: Goal }) {
+export function GoalForm({ goal, t }: { goal?: Goal; t: TFunc }) {
   return (
-    <FormCard title={goal ? "Edit Goal" : "New Goal"} description="Academic, health and professional identity goals that shape your trajectory.">
+    <FormCard title={goal ? t("form.goal.editTitle") : t("form.goal.createTitle")} description={t("form.goal.description")}>
       <form action={goal ? updateGoalAction : createGoalAction} className="space-y-5">
         {goal ? <input type="hidden" name="id" value={goal.id} /> : null}
         <FieldGrid>
-          <TextField label="Goal title" name="title" defaultValue={goal?.title} required placeholder="e.g. Master ECG interpretation..." description="A specific, measurable goal you can act on." />
-          <NativeSelectField label="Goal type" name="goalType" options={optionize(goalTypes)} defaultValue={goal?.goalType ?? "daily"} description="Daily, weekly, semester, or career goal?" />
-          <TextField label="Target date" name="targetDate" type="date" defaultValue={goal?.targetDate ?? ""} description="When do you want to achieve this by?" />
-          <NativeSelectField label="Status" name="status" options={optionize(goalStatuses)} defaultValue={goal?.status ?? "active"} description="Is this currently active or on hold?" />
-          <TextField label="Priority (0–10)" name="priority" type="number" min={0} max={10} defaultValue={goal?.priority ?? 5} description="How does this compare to your other goals?" />
+          <TextField label={t("form.goal.titleLabel")} name="title" defaultValue={goal?.title} required placeholder={t("form.goal.titlePlaceholder")} description={t("form.goal.titleDescription")} />
+          <NativeSelectField label={t("form.goal.typeLabel")} name="goalType" options={optionize(goalTypes)} defaultValue={goal?.goalType ?? "daily"} description={t("form.goal.typeDescription")} />
+          <TextField label={t("form.goal.targetLabel")} name="targetDate" type="date" defaultValue={goal?.targetDate ?? ""} description={t("form.goal.targetDescription")} />
+          <NativeSelectField label={t("form.goal.statusLabel")} name="status" options={optionize(goalStatuses)} defaultValue={goal?.status ?? "active"} description={t("form.goal.statusDescription")} />
+          <TextField label={t("form.goal.priorityLabel")} name="priority" type="number" min={0} max={10} defaultValue={goal?.priority ?? 5} description={t("form.goal.priorityDescription")} />
         </FieldGrid>
-        <TextAreaField label="What does success look like?" name="description" defaultValue={goal?.description} placeholder="Describe the goal in detail. How will you know when you have achieved it? What are the milestones?" description="Specificity increases commitment and clarity." />
-        <SubmitBar label={goal ? "Save Goal" : "Set Goal"} pendingLabel={goal ? "Saving Changes..." : "Setting Goal..."} cancelHref={goal ? "/goals" : undefined} />
+        <TextAreaField label={t("form.goal.successLabel")} name="description" defaultValue={goal?.description} placeholder={t("form.goal.successPlaceholder")} description={t("form.goal.successDescription")} />
+        <SubmitBar label={goal ? t("form.goal.editSubmit") : t("form.goal.createSubmit")} pendingLabel={goal ? t("form.goal.editPending") : t("form.goal.createPending")} cancelHref={goal ? "/goals" : undefined} cancelLabel={t("common.cancel")} />
       </form>
     </FormCard>
   );
@@ -375,27 +389,29 @@ export function TaskForm({
   subjects,
   exams,
   topics,
+  t,
 }: {
   task?: Task;
   subjects: Subject[];
   exams: Exam[];
   topics: Topic[];
+  t: TFunc;
 }) {
   return (
-    <FormCard title={task ? "Edit Task" : "New Task"} description="Concrete actions linked to your subjects, exams, and topics.">
+    <FormCard title={task ? t("form.task.editTitle") : t("form.task.createTitle")} description={t("form.task.description")}>
       <form action={task ? updateTaskAction : createTaskAction} className="space-y-5">
         {task ? <input type="hidden" name="id" value={task.id} /> : null}
         <FieldGrid>
-          <TextField label="Task title" name="title" defaultValue={task?.title} required placeholder="e.g. Review pharmacology flashcards..." description="A clear, actionable next step." />
-          <TextField label="Due date" name="dueAt" type="date" defaultValue={dateValue(task?.dueAt)} description="When does this need to be done?" />
-          <NativeSelectField label="Status" name="status" options={optionize(taskStatuses)} defaultValue={task?.status ?? "todo"} description="Current progress on this task." />
-          <TextField label="Priority (0–10)" name="priority" type="number" min={0} max={10} defaultValue={task?.priority ?? 5} description="How urgent is this compared to other tasks?" />
-          <NativeSelectField label="Subject" name="relatedSubjectId" options={relationOptions(subjects, "None")} defaultValue={task?.relatedSubjectId} description="Which subject is this task for?" />
-          <NativeSelectField label="Exam" name="relatedExamId" options={relationOptions(exams, "None")} defaultValue={task?.relatedExamId} description="Is this preparing for a specific exam?" />
-          <NativeSelectField label="Topic" name="relatedTopicId" options={relationOptions(topics, "None")} defaultValue={task?.relatedTopicId} description="Which topic does this task cover?" />
+          <TextField label={t("form.task.titleLabel")} name="title" defaultValue={task?.title} required placeholder={t("form.task.titlePlaceholder")} description={t("form.task.titleDescription")} />
+          <TextField label={t("form.task.dueLabel")} name="dueAt" type="date" defaultValue={dateValue(task?.dueAt)} description={t("form.task.dueDescription")} />
+          <NativeSelectField label={t("form.task.statusLabel")} name="status" options={optionize(taskStatuses)} defaultValue={task?.status ?? "todo"} description={t("form.task.statusDescription")} />
+          <TextField label={t("form.task.priorityLabel")} name="priority" type="number" min={0} max={10} defaultValue={task?.priority ?? 5} description={t("form.task.priorityDescription")} />
+          <NativeSelectField label={t("form.task.subjectLabel")} name="relatedSubjectId" options={relationOptions(subjects, t("form.task.subjectEmpty"))} defaultValue={task?.relatedSubjectId} description={t("form.task.subjectDescription")} />
+          <NativeSelectField label={t("form.task.examLabel")} name="relatedExamId" options={relationOptions(exams, t("form.task.examEmpty"))} defaultValue={task?.relatedExamId} description={t("form.task.examDescription")} />
+          <NativeSelectField label={t("form.task.topicLabel")} name="relatedTopicId" options={relationOptions(topics, t("form.task.topicEmpty"))} defaultValue={task?.relatedTopicId} description={t("form.task.topicDescription")} />
         </FieldGrid>
-        <TextAreaField label="Details & resources" name="description" defaultValue={task?.description} placeholder="Additional context, resources, specific steps, or why this task matters…" description="Notes that help you pick this up quickly later." />
-        <SubmitBar label={task ? "Save Task" : "Add Task"} pendingLabel={task ? "Saving Changes..." : "Adding Task..."} cancelHref={task ? "/goals" : undefined} />
+        <TextAreaField label={t("form.task.detailsLabel")} name="description" defaultValue={task?.description} placeholder={t("form.task.detailsPlaceholder")} description={t("form.task.detailsDescription")} />
+        <SubmitBar label={task ? t("form.task.editSubmit") : t("form.task.createSubmit")} pendingLabel={task ? t("form.task.editPending") : t("form.task.createPending")} cancelHref={task ? "/goals" : undefined} cancelLabel={t("common.cancel")} />
       </form>
     </FormCard>
   );
@@ -404,20 +420,22 @@ export function TaskForm({
 export function IdentityNoteForm({
   note,
   cancelHref = "/identity",
+  t,
 }: {
   note?: IdentityNote;
   cancelHref?: string;
+  t: TFunc;
 }) {
   return (
-    <FormCard title={note ? "Edit Identity Note" : "Identity Note"} description="Personal standards and identity as a future professional. This is your compass.">
+    <FormCard title={note ? t("form.identityNote.editTitle") : t("form.identityNote.createTitle")} description={t("form.identityNote.description")}>
       <form action={note ? updateIdentityNoteAction : createIdentityNoteAction} className="space-y-5">
         {note ? <input type="hidden" name="id" value={note.id} /> : null}
         <FieldGrid>
-          <TextField label="Note title" name="title" defaultValue={note?.title} required placeholder="e.g. My clinical philosophy..." description="A theme or principle you want to remember." />
-          <NativeSelectField label="Category" name="category" options={optionize(identityCategories)} defaultValue={note?.category ?? "professional_identity"} description="What area of your identity does this touch?" />
+          <TextField label={t("form.identityNote.titleLabel")} name="title" defaultValue={note?.title} required placeholder={t("form.identityNote.titlePlaceholder")} description={t("form.identityNote.titleDescription")} />
+          <NativeSelectField label={t("form.identityNote.categoryLabel")} name="category" options={optionize(identityCategories)} defaultValue={note?.category ?? "professional_identity"} description={t("form.identityNote.categoryDescription")} />
         </FieldGrid>
-        <TextAreaField label="Your note" name="content" defaultValue={note?.content} placeholder="What kind of doctor or dentist do you want to become? What principles will guide your decisions under pressure?" description="Write honestly. This is private and for your future self." />
-        <SubmitBar label={note ? "Save Note" : "Create Note"} pendingLabel={note ? "Saving Changes..." : "Creating Note..."} cancelHref={note ? cancelHref : undefined} />
+        <TextAreaField label={t("form.identityNote.noteLabel")} name="content" defaultValue={note?.content} placeholder={t("form.identityNote.notePlaceholder")} description={t("form.identityNote.noteDescription")} />
+        <SubmitBar label={note ? t("form.identityNote.editSubmit") : t("form.identityNote.createSubmit")} pendingLabel={note ? t("form.identityNote.editPending") : t("form.identityNote.createPending")} cancelHref={note ? cancelHref : undefined} cancelLabel={t("common.cancel")} />
       </form>
     </FormCard>
   );

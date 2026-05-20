@@ -362,7 +362,7 @@ export default async function CommandPage() {
               <FocusTimer />
             </CollapsiblePanel>
 
-            <DailyLogForm log={todayLog} compact />
+            <DailyLogForm log={todayLog} compact t={t as (key: string) => string} />
           </div>
 
           <div className="flex flex-col gap-5">
