@@ -1,24 +1,31 @@
 import Link from "next/link";
 import { differenceInCalendarDays, formatISO, startOfToday, subDays } from "date-fns";
-import { ArrowRight, BookOpen, Brain, CalendarClock, Flame, Languages, Radar, ShieldCheck, Sparkles, Target, Zap } from "lucide-react";
+import {
+  ArrowRight, BookOpen, Brain, CalendarClock, Clock, Compass,
+  Flame, Languages, Lightbulb, Radar, ShieldCheck, Sparkles, Target, Zap,
+} from "lucide-react";
 
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { DailyLogForm } from "@/components/forms/entity-forms";
-import { AchievementBadge } from "@/components/premium/gamification";
+import { AchievementBadge, GamificationDashboard } from "@/components/premium/gamification";
 import { CommandGreeting } from "@/components/premium/command-greeting";
 import { CollapsiblePanel } from "@/components/premium/collapsible-panel";
 import { ExamCountdown } from "@/components/premium/exam-countdown";
 import { FocusTimer } from "@/components/premium/focus-timer";
 import { GlassCard } from "@/components/premium/glass-card";
+import { LoadingState } from "@/components/premium/loading-state";
 import { MetricCard } from "@/components/premium/metric-card";
 import { MomentumBar } from "@/components/premium/momentum-bar";
 import { QuestItem } from "@/components/premium/quest-grid";
 import { RevisionQueue } from "@/components/premium/revision-queue";
+import { ScoreRing } from "@/components/premium/score-ring";
 import { SectionHeader } from "@/components/premium/section-header";
 import { SignalTile } from "@/components/premium/signal-panel";
 import { TodayFocusCard } from "@/components/premium/today-focus";
 import { WeeklyCommandPanel } from "@/components/premium/weekly-command";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { requireOwnerSession } from "@/lib/auth/session";
 import { getCoreData } from "@/lib/data/queries";
 import { fmtDate } from "@/lib/labels";
@@ -39,6 +46,30 @@ function commandStreak(dates: string[]) {
   }
 
   return streak;
+}
+
+export function CommandPageSkeleton() {
+  return (
+    <div className="motion-premium flex flex-col gap-5">
+      <div className="flex flex-wrap items-center gap-6">
+        <Skeleton variant="circular" className="h-40 w-40" />
+        <div className="flex-1 space-y-3">
+          <Skeleton variant="text" className="h-8 w-56" />
+          <Skeleton variant="text" className="h-4 w-40" />
+          <Skeleton variant="text" className="h-4 w-32" />
+        </div>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="rounded-2xl border border-border bg-bg-surface p-5">
+            <Skeleton variant="text" className="h-3 w-24" />
+            <Skeleton variant="text" className="mt-3 h-6 w-36" />
+            <Skeleton variant="text" className="mt-2 h-3 w-44" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 export default async function CommandPage() {
@@ -139,6 +170,38 @@ export default async function CommandPage() {
 
   const completedQuests = quests.filter((q) => q.complete).length;
 
+  const timeLeverage = Math.round(activeRatio);
+
+  const gamificationBadges = [
+    { id: "error-destroyer", name: "Error Destroyer", description: "Destroy your first recurring error", icon: ShieldCheck, unlocked: destroyedErrors > 0 },
+    { id: "language-learner", name: "Polyglot Spark", description: "30+ min language study today", icon: Languages, unlocked: languageMinutes >= 30 },
+    { id: "active-recalls", name: "Recall Engine", description: "30+ min active recall today", icon: Brain, unlocked: activeMinutesToday >= 30 },
+    { id: "review-clear", name: "Zero Inbox", description: "All due reviews completed", icon: BookOpen, unlocked: dueReviews.length === 0 },
+    { id: "energy-guardian", name: "Energy Guardian", description: "Energy integrity score 6+", icon: Zap, unlocked: elite.energyIntegrity.score >= 6 },
+    { id: "streak-starter", name: "Streak Ignited", description: "3-day command streak", icon: Flame, unlocked: streak >= 3 },
+  ];
+
+  const gamificationMissions = [
+    { id: "active-recall", name: "Hit 30 min active recall today", current: Math.min(activeMinutesToday, 30), target: 30 },
+    { id: "clear-reviews", name: "Clear all due reviews", current: dueReviews.length === 0 ? 1 : 0, target: 1 },
+    { id: "destroy-errors", name: "Resolve open errors", current: destroyedErrors, target: destroyedErrors + recurringErrors > 0 ? destroyedErrors + recurringErrors : 1 },
+    { id: "language-block", name: "30 min language immersion", current: Math.min(languageMinutes, 30), target: 30 },
+  ];
+
+  const strategicRules = [
+    "One focused block beats scattered hours.",
+    "Review before adding. Master before moving.",
+    "Energy is your primary weapon. Protect it.",
+    "Patterns over memorization. Errors are patterns.",
+    "Quality sleep repairs more than last-minute cramming.",
+    "Active recall creates durable memories. Passive reading does not.",
+    "The exam is not the enemy. Unpreparedness is.",
+  ];
+  const ruleOfTheDay = strategicRules[new Date().getDay()];
+
+  const eliteScore = elite.eliteIndex.score;
+  const scoreTone = eliteScore >= 7 ? "emerald" : eliteScore >= 5 ? "violet" : eliteScore >= 3 ? "gold" : "rose";
+
   return (
     <AppShell session={session}>
       <PageHeader
@@ -156,17 +219,35 @@ export default async function CommandPage() {
       />
 
       <div className="motion-premium flex flex-col gap-5">
-        <CommandGreeting
-          greeting={t("command.greeting")}
-          dateLabel={dateFormatter.format(today)}
-          streak={streak}
-          eliteScore={elite.eliteIndex.score}
-          eliteLabel={elite.eliteIndex.label}
-          nextAction={nextAction}
-          t={t}
-          lowData={lowData}
-        />
+        {/* ─── (1) Greeting + ScoreRing at top ─── */}
+        <div className="flex flex-wrap items-center gap-4 sm:gap-6 lg:gap-8">
+          <ScoreRing
+            score={eliteScore}
+            label={t("command.eliteIndex")}
+            caption={elite.eliteIndex.label}
+            size="lg"
+            tone={scoreTone as "emerald" | "violet" | "gold" | "rose"}
+            animated
+          />
+          <div className="min-w-0 flex-1">
+            <h2 className="text-balance text-2xl font-bold tracking-tight text-text-primary sm:text-3xl">
+              {t("command.greeting")}
+            </h2>
+            <p className="mt-1.5 text-sm text-text-secondary">{dateFormatter.format(today)}</p>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              {streak > 0 ? (
+                <Badge variant="gold" className="gap-1">
+                  <Flame className="h-3 w-3" /> {streak}-day streak
+                </Badge>
+              ) : null}
+              {lowData ? (
+                <Badge variant="warning">{t("command.lowDataTitle")}</Badge>
+              ) : null}
+            </div>
+          </div>
+        </div>
 
+        {/* Low data warning */}
         {lowData ? (
           <GlassCard tone="gold">
             <div className="flex items-start gap-3">
@@ -179,20 +260,91 @@ export default async function CommandPage() {
           </GlassCard>
         ) : null}
 
+        {/* ─── (2) Today's Command card ─── */}
+        <GlassCard tone="primary">
+          <SectionHeader title={t("command.battlePlan")} description={t("command.oneCleanBlock")} icon={Target} />
+          <div className="mt-4">
+            <MomentumBar label={t("gamification.todayMomentum")} value={Math.max(activeRatio, todayLog ? 45 : 0)} tone="cyan" detail={`${t("study.activeRecall")}: ${activeMinutesToday} min`} />
+            <div className="mt-3">
+              <MomentumBar label={t("gamification.recoveryBalance")} value={elite.energyIntegrity.score * 10} tone="emerald" detail={t("health.warning")} />
+            </div>
+            <div className="mt-3">
+              <MomentumBar label={t("gamification.readinessTrend")} value={elite.examReadiness.score * 10} tone="violet" detail={t("common.strategicSignal")} />
+            </div>
+          </div>
+        </GlassCard>
+
+        {/* ─── (3) Next Best Action card ─── */}
+        <GlassCard tone="cyan">
+          <SectionHeader title={t("command.nextBestAction")} description="Highest-leverage move right now" icon={Compass} />
+          <div className="mt-4">
+            <div className="flex items-center justify-between gap-4">
+              <div className="min-w-0">
+                <p className="text-lg font-bold text-text-primary">{t(`nba.${nextAction.kind}.title` as never)}</p>
+                <p className="mt-1 text-sm text-text-secondary">{t(`nba.${nextAction.kind}.reason` as never)}</p>
+              </div>
+              <Button asChild className="shrink-0 rounded-xl">
+                <Link href={nextAction.href}>
+                  {t("common.open")}
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </GlassCard>
+
+        {/* ─── (4) Signal grid (3-col on desktop) ─── */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <MetricCard
+            title={t("command.examAtRisk")}
+            value={riskyExam ? riskyExam.title : t("command.noCriticalExam")}
+            detail={riskyExam
+              ? `${t("exams.readiness")} ${riskyExam.liveReadiness.toFixed(1)}/10 · ${differenceInCalendarDays(riskyExam.examDate as Date, today)}d`
+              : t("common.quietProgress")}
+            icon={CalendarClock}
+            tone={riskyExam && riskyExam.liveReadiness < 5 ? "danger" : "gold"}
+          />
+          <MetricCard
+            title={t("command.energySignal")}
+            value={elite.energyIntegrity.score.toFixed(1)}
+            detail={elite.energyIntegrity.score < 4 ? "Critical — recover today" : elite.energyIntegrity.score < 6 ? "Moderate — guard it" : "Strong — deploy it"}
+            icon={Zap}
+            tone={elite.energyIntegrity.score < 4 ? "danger" : elite.energyIntegrity.score < 6 ? "gold" : "emerald"}
+          />
+          <MetricCard
+            title="Time Leverage"
+            value={`${timeLeverage}%`}
+            detail={`${activeMinutesToday}m active / ${passiveMinutesToday}m passive`}
+            icon={Clock}
+            tone={timeLeverage >= 70 ? "emerald" : timeLeverage >= 40 ? "gold" : "rose"}
+          />
+        </div>
+
+        {/* ─── (5) Gamification section ─── */}
+        <GamificationDashboard
+          eliteIndex={eliteScore}
+          level={1}
+          xp={0}
+          xpToNextLevel={100}
+          streak={streak}
+          badges={gamificationBadges}
+          missions={gamificationMissions}
+        />
+
+        {/* ─── (6) Strategic Rule of the Day ─── */}
+        <GlassCard tone="emerald">
+          <SectionHeader title="Strategic Rule of the Day" icon={Lightbulb} />
+          <p className="mt-4 text-base font-medium italic text-text-primary leading-relaxed">
+            &ldquo;{ruleOfTheDay}&rdquo;
+          </p>
+        </GlassCard>
+
+        {/* ─── Existing content: 2-col layout ─── */}
         <div className="grid gap-5 lg:grid-cols-3">
           <div className="flex flex-col gap-5 lg:col-span-2">
             <TodayFocusCard todayLog={todayLog} todaySessions={todaySessions} todayTasks={todayTasks} t={t as (key: string) => string} />
 
             <WeeklyCommandPanel dailyLogs={data.dailyLogs} studySessions={data.studySessions} t={t as (key: string) => string} />
-
-            <GlassCard>
-              <SectionHeader title={t("command.battlePlan")} description={t("command.oneCleanBlock")} icon={Sparkles} />
-              <div className="mt-5 flex flex-col gap-4">
-                <MomentumBar label={t("gamification.todayMomentum")} value={Math.max(activeRatio, todayLog ? 45 : 0)} tone="cyan" detail={`${t("study.activeRecall")}: ${activeMinutesToday} min`} />
-                <MomentumBar label={t("gamification.recoveryBalance")} value={elite.energyIntegrity.score * 10} tone="emerald" detail={t("health.warning")} />
-                <MomentumBar label={t("gamification.readinessTrend")} value={elite.examReadiness.score * 10} tone="violet" detail={t("common.strategicSignal")} />
-              </div>
-            </GlassCard>
 
             <CollapsiblePanel title={t("command.studyQuests")} defaultOpen badge={<span className="rounded-md bg-bg-subtle px-1.5 py-0.5 font-mono text-xs text-text-secondary">{completedQuests}/{quests.length}</span>}>
               <div className="grid gap-2.5 grid-cols-1 sm:grid-cols-2">
