@@ -6,7 +6,7 @@ import { defaultLocale, isLocale, languageCookie, type Locale } from "@/lib/i18n
 import { en, type TranslationKey } from "@/lib/i18n/dictionaries/en";
 import { et } from "@/lib/i18n/dictionaries/et";
 
-const dictionaries = { en, et } as const;
+export const dictionaries = { en, et } as const;
 
 export async function getLocale(): Promise<Locale> {
   try {

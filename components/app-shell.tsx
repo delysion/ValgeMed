@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { logoutAction } from "@/lib/auth/actions";
 import type { User } from "@supabase/supabase-js";
-import { getI18n } from "@/lib/i18n/server";
+import { getI18n, dictionaries } from "@/lib/i18n/server";
 import { TranslationProvider } from "@/lib/i18n/useTranslation";
 import { getTheme } from "@/lib/theme/config";
 
@@ -30,7 +30,7 @@ export async function AppShell({
   const displayName = (user.email ?? "").split("@")[0];
 
   return (
-    <TranslationProvider locale={locale} dictionary={dictionary}>
+    <TranslationProvider locale={locale} dictionary={dictionary} dictionaries={dictionaries}>
       <div className="min-h-screen bg-bg-page">
         <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-xl focus:bg-gradient-to-br focus:from-primary focus:to-primary-ring focus:px-4 focus:py-2 focus:text-white focus:outline-none focus:shadow-lg">
           Skip to main content
@@ -73,7 +73,7 @@ export async function AppShell({
                     </div>
                   </div>
                   <div className="p-4">
-                    <LanguageSelector current={locale} label={t("language.label")} />
+                    <LanguageSelector label={t("language.label")} />
                   </div>
                   <div className="overflow-y-auto px-3 pb-6">
                   <Navigation />
@@ -88,7 +88,7 @@ export async function AppShell({
             <div className="flex items-center gap-2">
               <ThemeToggle theme={theme} />
               <div className="hidden sm:block">
-                <LanguageSelector current={locale} label={t("language.label")} compact />
+                <LanguageSelector label={t("language.label")} compact />
               </div>
               <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex gap-1.5 rounded-xl">
                 <a href="/api/export/json" aria-label={t("app.exportJson")}>

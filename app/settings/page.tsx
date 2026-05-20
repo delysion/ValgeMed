@@ -25,7 +25,7 @@ export default async function SettingsPage() {
           <SectionHeader title={t("settings.languagePreference")} icon={RefreshCw} />
           <p className="mt-2 text-sm text-text-secondary">{t("settings.languageBody")}</p>
           <div className="mt-4">
-            <LanguageSelector current={locale} />
+            <LanguageSelector />
           </div>
         </GlassCard>
 
