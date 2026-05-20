@@ -44,7 +44,11 @@ export async function loginAction(
       return { error: `Username mismatch. Expected: ${appUsername}, Got: ${username}` };
     }
 
+    console.log("[AUTH] Username check:", username === appUsername);
+    console.log("[AUTH] Hash length:", passwordHash.length);
+    console.log("[AUTH] Password length:", password.length);
     const validPassword = await bcrypt.compare(password, passwordHash);
+    console.log("[AUTH] Password valid:", validPassword);
     if (!validPassword) {
       return { error: "Invalid credentials." };
     }
