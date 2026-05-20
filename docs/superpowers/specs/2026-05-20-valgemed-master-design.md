@@ -52,11 +52,11 @@ blood red        →  solo rischio urgente
 **Cosa EVITARE:**
 - generic SaaS gradients
 - cheerful colors
-- childish gamification
 - motivational fluff
 - productivity-bro aesthetic
 - mascots
 - purple-on-white startup look
+- cartoon/childish visual style (anche con gamification, il tone resta clinico)
 
 ---
 
@@ -174,16 +174,49 @@ Skip-to-main-content nascosto, primo elemento focusabile.
 
 ---
 
-## 4. Gamification — Segnali Strategici, Non Vanity
+## 4. Gamification Layer
 
-**RIMOSSO:** Level 1-100, XP bar, daily streak counter, achievement badge gamificati, mission progress bar.
+Tutti i dati guidati da metriche reali del database. Nessun numero fittizio.
 
-**MANTENUTO:**
-- **Elite Index Score Ring** — visualizzazione circolare animata del punteggio composito. Colore primario. Non e vanity: e un segnale diagnostico.
-- **Error Destruction Counter** — "87 errors destroyed." Non e un badge: e una metrica clinica.
-- **Readiness indicators** — color-coded (danger/warning/success) su exam readiness, burnout risk, energy integrity. Segnali, non ricompense.
+### 4.1 Elite Index Score Ring
+Visualizzazione circolare animata del punteggio composito. Colore primario con glow. Animazione `progress-fill` su mount (1200ms). Posizionato nel dashboard hero e nella /command page.
 
-**Principio:** Ogni elemento visivo deve rispondere a "cosa devo fare ora?" non a "quanto sono bravo?".
+### 4.2 Level System (1-100)
+Livello calcolato dall'Elite Index. Formula: `Math.floor(EliteIndex / 10)` o simile, deterministica. XP bar con progresso verso il prossimo livello. Stile: barra sottile primary con label numerica. Posizionato nel dashboard hero.
+
+### 4.3 Daily Streak
+Counter di giorni consecutivi con attivita registrata (studio, review, errori). Visualizzazione: numero grande + label "day streak". Posizionato nel dashboard hero.
+
+### 4.4 Achievement Badges
+Sbloccati a milestone reali, calcolate dai dati:
+- **Error Destroyer:** 100 errori distrutti
+- **Iron Streak:** 30 giorni consecutivi
+- **Polymath:** 10 materie con readiness > 70%
+- **Deep Worker:** 100 ore di deep work
+- **Tartu Native:** livello lingua estone raggiunto
+- **Recovery Master:** 30 giorni di sleep score > 80%
+- **Opportunity Hunter:** 5 opportunita catturate
+
+Visualizzazione: griglia di badge nel componente gamification. Sbloccati = pieni con icona, bloccati = silhouette muted.
+
+### 4.5 Mission Progress
+Missioni attive con percentuale completamento. Esempi:
+- "Destroy 50 errors this month" (X/50)
+- "Maintain 7-day review streak"
+- "Achieve 80% readiness on [Exam Name]"
+- "Complete 20 Estonian vocabulary sessions"
+
+### 4.6 Stile Visivo
+- Professionale, clinico, mai cartoon
+- Badge: cerchi o esagoni con icone lucide minimali
+- Colori: primary (violet), cyan, emerald, gold — palette dark mode esistente
+- Nessuna animazione "pop" o "bounce" infantile
+- Il tone resta: "This is a strategic signal, not a reward."
+
+### 4.7 Posizionamento
+- **Dashboard hero:** Score Ring + Level + XP + Streak
+- **Command page:** Score Ring + Mission progress + Next Best Action
+- **Badge display:** componente `gamification.tsx` standalone, accessibile da /dashboard e /elite-index
 
 ---
 
@@ -209,9 +242,11 @@ Frasi guida:
 Il centro dell'app. Deve rispondere: "What is the highest-return move now?"
 
 Sezioni:
-- Elite Index score ring
+- Elite Index score ring + Level badge
+- Daily Streak counter
 - Today's Command
 - Next Best Action
+- Mission progress (quest attive)
 - Highest-risk exam
 - Weakness to destroy
 - Energy warning
@@ -226,6 +261,7 @@ Tone: sobrio, immediato, actionable. Zero clutter.
 
 ### 6.2 /dashboard
 Overview strategica settimanale:
+- **Hero card:** Elite Index Score Ring + Level + XP bar + Daily Streak
 - Today's Command (cross-link a /command)
 - Exam Readiness overview
 - Due Reviews counter
@@ -233,6 +269,7 @@ Overview strategica settimanale:
 - Active vs Passive Study ratio
 - Burnout Risk indicator
 - Weekly Study Quality chart
+- **Gamification row:** Achievement badges griglia + Mission progress
 - Weak Topics list
 - Recent Activity log
 
@@ -563,12 +600,14 @@ MetricCard: layout orizzontale a `< sm`. Tabelle: card-list a `< md`. Form: sing
 | `components/premium/loading-state.tsx` | Skeleton wrapper |
 | `components/premium/section-header.tsx` | Tipografia, icon fix |
 | `components/premium/command-greeting.tsx` | Nuova microcopy, dark tone |
+| `components/premium/gamification.tsx` | Level, XP, streak, badge grid, mission progress |
+| `components/premium/score-ring.tsx` | Animazione progress-fill, glow dark mode |
 
 ### Fase 5: Command + Dashboard
 | File | Azione |
 |------|--------|
-| `app/command/page.tsx` | Riduzione noise, focal point, new microcopy, skeleton |
-| `app/dashboard/page.tsx` | Ripulire gamification, allineare a dark cockpit, skeleton |
+| `app/command/page.tsx` | Riduzione noise, focal point, gamification, skeleton |
+| `app/dashboard/page.tsx` | Hero con gamification, metric cards, charts, skeleton |
 
 ### Fase 6: Forms & Microcopy
 | File | Azione |
@@ -580,7 +619,6 @@ MetricCard: layout orizzontale a `< sm`. Tabelle: card-list a `< md`. Form: sing
 
 ### Fase 7: Cleanup & Verifica
 - Rimozione stringhe italiane
-- Rimozione elementi gamification (level/XP/streak/badge infantili)
 - Mobile responsive sweep
 - Accessibilita sweep
 - `pnpm build && pnpm typecheck && pnpm lint && pnpm test`
@@ -601,10 +639,10 @@ MetricCard: layout orizzontale a `< sm`. Tabelle: card-list a `< md`. Form: sing
 - [ ] Tablet (768): good proportions
 - [ ] Desktop (1024, 1280, 1440): allineato
 - [ ] Login: premium dark experience
-- [ ] /command e la pagina piu importante, con focal point chiaro
-- [ ] Nessun elemento gamification infantile (level, XP, streak, badge vanity)
-- [ ] Elite Index score ring presente
-- [ ] Error destruction counter presente
+- [ ] /command e la pagina piu importante, con focal point chiaro e gamification integrata
+- [ ] Elite Index score ring + Level + XP + Streak presenti e funzionanti con dati reali
+- [ ] Achievement badges visualizzati (sbloccati e bloccati)
+- [ ] Mission progress calcolato da dati reali
 - [ ] Microcopy allineato al tone: "Readiness is not confidence." etc.
 - [ ] Skeleton loading su data-heavy pages
 - [ ] Skip link, aria-labels, focus visible funzionanti
