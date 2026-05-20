@@ -32,11 +32,6 @@ export async function loginAction(
     const passwordHash = process.env.APP_PASSWORD_HASH;
     const appUsername = process.env.APP_USERNAME ?? "admin";
 
-    console.log("[LOGIN DEBUG] username:", username);
-    console.log("[LOGIN DEBUG] appUsername:", appUsername);
-    console.log("[LOGIN DEBUG] passwordHash exists:", !!passwordHash);
-    console.log("[LOGIN DEBUG] passwordHash length:", passwordHash?.length);
-
     if (!passwordHash) {
       return { error: "Missing APP_PASSWORD_HASH." };
     }
@@ -46,12 +41,10 @@ export async function loginAction(
     }
 
     if (username !== appUsername) {
-      console.log("[LOGIN DEBUG] Username mismatch!");
       return { error: "Invalid username or password." };
     }
 
     const validPassword = await bcrypt.compare(password, passwordHash);
-    console.log("[LOGIN DEBUG] validPassword:", validPassword);
 
     if (!validPassword) {
       return { error: "Invalid username or password." };
@@ -59,7 +52,6 @@ export async function loginAction(
 
     await createOwnerSession(ownerEmail);
   } catch (error) {
-    console.error("[LOGIN ERROR]", error);
     return {
       error: error instanceof Error ? error.message : "Login failed.",
     };
