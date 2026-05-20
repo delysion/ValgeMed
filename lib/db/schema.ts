@@ -507,6 +507,65 @@ export const strategicReviews = pgTable("strategic_reviews", {
   updatedAt: updatedAtColumn(),
 });
 
+export const researchAreas = pgTable("research_areas", {
+  id: idColumn(),
+  name: text("name").notNull(),
+  description: text("description"),
+  whatIsKnown: text("what_is_known"),
+  whatIsUnknown: text("what_is_unknown"),
+  isControversial: text("is_controversial"),
+  methodologicallyWeak: text("methodologically_weak"),
+  createdAt: createdAtColumn(),
+  updatedAt: updatedAtColumn(),
+});
+
+export const literatureGaps = pgTable("literature_gaps", {
+  id: idColumn(),
+  researchAreaId: uuid("research_area_id").references(() => researchAreas.id),
+  title: text("title").notNull(),
+  description: text("description"),
+  priority: integer("priority").default(0),
+  publishableForStudent: boolean("publishable_for_student").default(false),
+  status: text("status").default("identified"),
+  createdAt: createdAtColumn(),
+  updatedAt: updatedAtColumn(),
+});
+
+export const hypotheses = pgTable("hypotheses", {
+  id: idColumn(),
+  question: text("question").notNull(),
+  totalScore: integer("total_score"),
+  output: text("output"),
+  status: text("status").default("draft"),
+  notes: text("notes"),
+  createdAt: createdAtColumn(),
+  updatedAt: updatedAtColumn(),
+});
+
+export const manuscripts = pgTable("manuscripts", {
+  id: idColumn(),
+  title: text("title").notNull(),
+  hypothesisId: uuid("hypothesis_id").references(() => hypotheses.id),
+  stage: text("stage").notNull().default("idea"),
+  journal: text("journal"),
+  deadline: timestamp("deadline"),
+  notes: text("notes"),
+  createdAt: createdAtColumn(),
+  updatedAt: updatedAtColumn(),
+});
+
+export const methodologyRisks = pgTable("methodology_risks", {
+  id: idColumn(),
+  manuscriptId: uuid("manuscript_id").references(() => manuscripts.id),
+  hypothesisId: uuid("hypothesis_id").references(() => hypotheses.id),
+  type: text("type").notNull(),
+  description: text("description"),
+  severity: text("severity").default("medium"),
+  mitigated: boolean("mitigated").default(false),
+  mitigationNotes: text("mitigation_notes"),
+  createdAt: createdAtColumn(),
+});
+
 export const schema = {
   subjects,
   exams,
@@ -529,6 +588,11 @@ export const schema = {
   lifeAdminItems,
   portfolioItems,
   strategicReviews,
+  researchAreas,
+  literatureGaps,
+  hypotheses,
+  manuscripts,
+  methodologyRisks,
 };
 
 export type Subject = typeof subjects.$inferSelect;
@@ -552,3 +616,8 @@ export type ProfessionalContact = typeof professionalContacts.$inferSelect;
 export type LifeAdminItem = typeof lifeAdminItems.$inferSelect;
 export type PortfolioItem = typeof portfolioItems.$inferSelect;
 export type StrategicReview = typeof strategicReviews.$inferSelect;
+export type ResearchArea = typeof researchAreas.$inferSelect;
+export type LiteratureGap = typeof literatureGaps.$inferSelect;
+export type Hypothesis = typeof hypotheses.$inferSelect;
+export type Manuscript = typeof manuscripts.$inferSelect;
+export type MethodologyRisk = typeof methodologyRisks.$inferSelect;
