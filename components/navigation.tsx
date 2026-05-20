@@ -31,6 +31,7 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { TranslationKey } from "@/lib/i18n/dictionaries/en";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 import { cn } from "@/lib/utils";
 
 const navItems: Array<{ href: string; label: TranslationKey; icon: typeof Command; featured?: boolean }> = [
@@ -68,7 +69,8 @@ const navSections: Array<{ label: string; items: typeof navItems }> = [
   { label: "Strategy", items: navItems.slice(17) },
 ];
 
-export function Navigation({ t }: { t: (key: TranslationKey) => string }) {
+export function Navigation() {
+  const { t } = useTranslation();
   const pathname = usePathname();
 
   return (

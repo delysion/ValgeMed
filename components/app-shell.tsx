@@ -46,7 +46,7 @@ export async function AppShell({
             </div>
           </div>
           <div className="p-3 pt-3">
-            <Navigation t={t} />
+            <Navigation />
           </div>
         </aside>
 
@@ -75,8 +75,8 @@ export async function AppShell({
                     <LanguageSelector current={locale} label={t("language.label")} />
                   </div>
                   <div className="overflow-y-auto px-3 pb-6">
-                    <Navigation t={t} />
-                  </div>
+                  <Navigation />
+                </div>
                 </SheetContent>
               </Sheet>
               <div className="min-w-0">
