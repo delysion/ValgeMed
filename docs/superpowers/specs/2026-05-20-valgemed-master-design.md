@@ -11,10 +11,15 @@
 ## 0. Identita
 
 **Non stiamo costruendo:**
-study planner, Notion template, flashcard clone, habit tracker, motivational app, AI chatbot generico.
+study planner, Notion template, flashcard clone, habit tracker, motivational app, AI chatbot generico, un altro Elicit, un altro Benchling, un altro paper summarizer.
 
 **Stiamo costruendo:**
-Un private command cockpit per tempo, studio, memoria, esami, active recall, error destruction, salute, energia, burnout prevention, lingua estone, integrazione Tartu, reputazione accademica, opportunita, contatti professionali, life administration, traiettoria a lungo termine.
+Un private command cockpit per tempo, studio, memoria, esami, active recall, error destruction, salute, energia, burnout prevention, lingua estone, integrazione Tartu, reputazione accademica, ricerca medica, opportunita, contatti professionali, life administration, traiettoria a lungo termine.
+
+Non sostituisce i tool esistenti — li orchestra.
+Elicit trova paper, ValgeMed decide cosa leggere.
+Zotero conserva fonti, ValgeMed decide quale gap contare.
+Notion gestisce note, ValgeMed decide quale ipotesi e matura.
 
 **Formula madre:**
 Capture → Diagnose → Command → Execute → Review → Compound
@@ -153,6 +158,9 @@ Command, Dashboard, Elite Index, Strategic Review
 **Study:**
 Subjects, Exams, Topics, Study, Reviews, Errors
 
+**Research:**
+Research Command, Literature Map, Hypothesis Engine, Manuscript Pipeline
+
 **Life:**
 Goals, Memory, Identity, Tartu, Time, Health, Language
 
@@ -251,6 +259,7 @@ Sezioni:
 - Weakness to destroy
 - Energy warning
 - Time leverage today
+- Research opportunity alert
 - Opportunity to capture
 - Reputation move
 - Language move
@@ -305,6 +314,61 @@ Error Destruction table:
 - Retest date
 - Resolved/Unresolved
 - Cause, Correction, Prevention Rule, Retest
+
+### 6.6 /research (NUOVO — Research Command)
+Private research operating system. Single-user, zero cloud AI obbligatoria.
+
+**Research Command (/research):**
+- Highest-return research move
+- Main project at risk
+- Paper to read this week
+- Gap to validate
+- Methodological risk alert
+- Dataset/admin blocker
+- Collaboration move
+- Writing block
+- Ethics/GDPR warning
+- Publication next action
+
+**Literature Map (/research/literature):**
+- Research area map (cosa sappiamo / cosa non sappiamo)
+- Controversial findings tracker
+- Methodologically weak papers flagged
+- Gap inventory con priority score
+- "Publishable for a student" assessment
+
+**Hypothesis Engine (/research/hypotheses):**
+- Research Question Scoring (0-10):
+  - Novelty, Clinical relevance, Feasibility
+  - Data availability, Ethics complexity
+  - Supervisor fit, Publication probability
+  - Time-to-output, Strategic value
+- Output: Kill / Park / Refine / Execute / Publish
+- Hypothesis tracker con stato e next action
+
+**Methodology Risk Detector (sub-sezione):**
+- Selection bias flag
+- Confounding risk
+- Underpowered sample warning
+- Wrong endpoint alert
+- Unclear inclusion criteria
+- Weak control group
+- Retrospective limitation
+- Data leakage risk
+- p-hacking risk
+- AI hallucination risk (se AI usata)
+
+**Manuscript Pipeline (/research/manuscripts):**
+- Idea > RQ > Protocol > Ethics > Data Collection > Analysis > Draft > Co-author Review > Journal Selection > Submission > Revision > Publication
+- Stato corrente per ogni manuscript
+- Deadline e next action
+- Reviewer response tracking
+
+**Ethics/GDPR Layer (integrato):**
+- GDPR checklist per progetto
+- Consent form templates
+- Data handling audit trail
+- Disclaimer: "Research workflow support only. No diagnosis. No treatment advice. No patient-specific recommendation. No clinical decision support."
 
 ### 6.6 /subjects, /topics
 CRUD standard per materie e argomenti.
@@ -577,7 +641,7 @@ MetricCard: layout orizzontale a `< sm`. Tabelle: card-list a `< md`. Form: sing
 ### Fase 2: Design System Foundation
 | File | Azione |
 |------|--------|
-| `app/globals.css` | Skeleton animation, rimozione gamification CSS |
+| `app/globals.css` | Skeleton animation, toast animation |
 | `components/ui/skeleton.tsx` | NUOVO |
 | `components/ui/button.tsx` | Focus migliorato, rimuovere variante warm |
 | `components/ui/badge.tsx` | Sizing consistente, outline variant |
@@ -587,7 +651,7 @@ MetricCard: layout orizzontale a `< sm`. Tabelle: card-list a `< md`. Form: sing
 ### Fase 3: Navigazione Collassabile
 | File | Azione |
 |------|--------|
-| `components/navigation.tsx` | 4 sezioni accordion, cookie persist |
+| `components/navigation.tsx` | 5 sezioni accordion (Command, Study, Research, Life, Strategy), cookie persist |
 | `components/nav-link.tsx` | Active state rifinito |
 | `components/app-shell.tsx` | Skip link, mobile fix, page padding |
 
@@ -603,11 +667,16 @@ MetricCard: layout orizzontale a `< sm`. Tabelle: card-list a `< md`. Form: sing
 | `components/premium/gamification.tsx` | Level, XP, streak, badge grid, mission progress |
 | `components/premium/score-ring.tsx` | Animazione progress-fill, glow dark mode |
 
-### Fase 5: Command + Dashboard
+### Fase 5: Command + Dashboard + Research
 | File | Azione |
 |------|--------|
 | `app/command/page.tsx` | Riduzione noise, focal point, gamification, skeleton |
 | `app/dashboard/page.tsx` | Hero con gamification, metric cards, charts, skeleton |
+| `app/research/page.tsx` | NUOVO — Research Command page |
+| `app/research/literature/page.tsx` | NUOVO — Literature Map |
+| `app/research/hypotheses/page.tsx` | NUOVO — Hypothesis Engine + scoring |
+| `app/research/manuscripts/page.tsx` | NUOVO — Manuscript Pipeline |
+| `lib/db/schema.ts` | Tabelle: research_areas, literature_gaps, hypotheses, manuscripts, methodology_risks |
 
 ### Fase 6: Forms & Microcopy
 | File | Azione |
@@ -648,3 +717,9 @@ MetricCard: layout orizzontale a `< sm`. Tabelle: card-list a `< md`. Form: sing
 - [ ] Skip link, aria-labels, focus visible funzionanti
 - [ ] No stringhe italiane nel codice
 - [ ] AI module `/ai` con 5 modalita documentate
+- [ ] Research section: /research, /research/literature, /research/hypotheses, /research/manuscripts funzionanti
+- [ ] Research Question Scoring (0-10) funzionante con output Kill/Park/Refine/Execute/Publish
+- [ ] Manuscript Pipeline con tracking stato (12 fasi)
+- [ ] Methodology Risk Detector con checklist bias visibile
+- [ ] GDPR/ethics disclaimer presente su tutte le pagine research
+- [ ] DB schema esteso con tabelle research (research_areas, literature_gaps, hypotheses, manuscripts, methodology_risks)
