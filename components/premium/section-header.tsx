@@ -24,7 +24,7 @@ export function SectionHeader({
           </div>
         ) : null}
         <div className="min-w-0">
-          <h3 className="text-lg font-bold tracking-tight text-text-primary">{title}</h3>
+          <h3 className="text-xl font-semibold tracking-tight text-text-primary sm:text-2xl">{title}</h3>
           {description ? <p className="mt-1 text-sm leading-relaxed text-text-secondary">{description}</p> : null}
         </div>
       </div>

@@ -1,22 +1,35 @@
+import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
+interface MetricCardProps extends React.HTMLAttributes<HTMLDivElement> {
+  icon?: LucideIcon;
+  label?: string;
+  title?: string;
+  value: string | number;
+  detail?: string;
+  iconClassName?: string;
+  trend?: "up" | "down" | "stable" | string;
+  trendValue?: string;
+  tone?: "cyan" | "violet" | "emerald" | "gold" | "rose" | "danger";
+}
+
 export function MetricCard({
+  icon: Icon,
+  label,
   title,
   value,
   detail,
-  icon: Icon,
-  tone = "cyan",
+  className,
+  iconClassName,
   trend,
-}: {
-  title: string;
-  value: string | number;
-  detail?: string;
-  icon?: LucideIcon;
-  tone?: "cyan" | "violet" | "emerald" | "gold" | "rose" | "danger";
-  trend?: string;
-}) {
+  trendValue,
+  tone,
+  ...props
+}: MetricCardProps) {
+  const displayLabel = label ?? title;
+
   const toneIcon = {
     cyan: "text-cyan bg-cyan-bg border-cyan/15",
     violet: "text-violet bg-violet-bg border-violet/15",
@@ -25,40 +38,57 @@ export function MetricCard({
     rose: "text-rose bg-rose-bg border-rose/15",
     danger: "text-rose bg-rose-bg border-rose/15",
   };
-  const toneBorder = {
-    cyan: "border-cyan/20",
-    violet: "border-violet/20",
-    emerald: "border-emerald/20",
-    gold: "border-gold/20",
-    rose: "border-rose/20",
-    danger: "border-rose/20",
-  };
+
+  const isNewTrend = trend === "up" || trend === "down" || trend === "stable";
 
   return (
     <div
       className={cn(
-        "group relative overflow-hidden rounded-2xl border bg-bg-elevated p-4 shadow-[var(--shadow-card)] transition-all duration-200 hover:shadow-[var(--shadow-elevated)] hover:-translate-y-[2px] sm:p-5",
-        toneBorder[tone],
+        "flex items-center gap-4 rounded-2xl border border-border/50 bg-bg-surface p-4 sm:flex-col sm:items-start sm:gap-2 sm:p-5 card-hover",
+        className
       )}
+      {...props}
     >
-      <div className="flex items-center gap-3 sm:block">
-        {Icon ? (
-          <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border transition-transform duration-200 group-hover:scale-110 sm:mb-3 sm:h-9 sm:w-9", toneIcon[tone])}>
-            <Icon className="h-5 w-5 sm:h-4 sm:w-4" />
-          </div>
+      {Icon ? (
+        <div
+          className={cn(
+            "grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary-soft",
+            tone && toneIcon[tone],
+            iconClassName
+          )}
+        >
+          <Icon className={cn("h-5 w-5 text-primary", tone && toneIcon[tone]?.split(" ")[0])} />
+        </div>
+      ) : null}
+      <div className="min-w-0 sm:mt-1">
+        {displayLabel ? (
+          <p className="text-xs font-medium text-text-muted uppercase tracking-[0.08em]">{displayLabel}</p>
         ) : null}
-        <div className="min-w-0 flex-1">
-          <p className="text-xs font-medium text-text-secondary">{title}</p>
-          <div className="mt-0.5 flex items-baseline gap-2 sm:mt-1">
-            <p className="text-xl font-bold tracking-tight text-text-primary sm:text-2xl">{value}</p>
-            {trend ? (
-              <span className="rounded-md bg-bg-subtle px-1.5 py-0.5 text-[10px] font-semibold text-text-secondary">{trend}</span>
-            ) : null}
-          </div>
-          {detail ? (
-            <p className="mt-1 text-xs leading-relaxed text-text-muted">{detail}</p>
+        <div className="flex items-baseline gap-1.5">
+          <p className="text-xl font-bold tabular-nums text-text-primary sm:text-2xl">{value}</p>
+          {trend ? (
+            isNewTrend ? (
+              <span
+                className={cn(
+                  "flex items-center gap-0.5 text-xs font-medium",
+                  trend === "up" && "text-emerald",
+                  trend === "down" && "text-danger",
+                  trend === "stable" && "text-text-muted"
+                )}
+              >
+                {trend === "up" && <TrendingUp className="h-3 w-3" />}
+                {trend === "down" && <TrendingDown className="h-3 w-3" />}
+                {trend === "stable" && <Minus className="h-3 w-3" />}
+                {trendValue}
+              </span>
+            ) : (
+              <span className="rounded-md bg-bg-subtle px-1.5 py-0.5 text-[10px] font-semibold text-text-secondary">
+                {trend}
+              </span>
+            )
           ) : null}
         </div>
+        {detail ? <p className="mt-1 text-xs leading-relaxed text-text-muted">{detail}</p> : null}
       </div>
     </div>
   );

@@ -92,7 +92,7 @@ export const en = {
 
   "command.title": "Command",
   "command.subtitle": "Your private cockpit for study, energy, memory and trajectory.",
-  "command.greeting": "Good to see you back.",
+  "command.greeting": "Good morning. Here is your command.",
   "command.today": "Today",
   "command.eliteIndex": "Elite Index",
   "command.todaysCommand": "Today's Command",

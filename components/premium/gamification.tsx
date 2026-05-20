@@ -1,4 +1,4 @@
-import { Flame, Lock, ShieldAlert, Sparkle, TrendingUp, Zap } from "lucide-react";
+import { Flame, Lock, ShieldAlert, Sparkle, Target, TrendingUp, Trophy, Zap } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import type { TranslationKey } from "@/lib/i18n/dictionaries/en";
@@ -43,7 +43,7 @@ export function AchievementBadge({
   return (
     <div className={cn(
       "group rounded-lg border p-3 transition-all duration-200 card-hover",
-      unlocked ? "border-gold/20 bg-gold-bg" : "border-border bg-white",
+      unlocked ? "border-gold/20 bg-gold-bg" : "border-border bg-bg-surface dark:bg-bg-elevated",
     )}>
       <div className="flex items-center gap-2">
         <div className={cn(
@@ -102,7 +102,7 @@ export function LevelBadge({
   const pct = Math.round((xp / xpToNext) * 100);
 
   return (
-    <div className={cn("flex items-center gap-3 rounded-lg bg-white p-3 shadow-sm border border-border", className)}>
+    <div className={cn("flex items-center gap-3 rounded-lg bg-bg-surface dark:bg-bg-elevated p-3 shadow-sm border border-border", className)}>
       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-violet text-white text-sm font-bold shadow-sm">
         {level}
       </div>
@@ -117,7 +117,7 @@ export function LevelBadge({
         </div>
         <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-bg-subtle">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-primary to-violet transition-all duration-500"
+            className="h-full rounded-full bg-gradient-to-r from-primary to-violet transition-all duration-500 progress-fill"
             style={{ width: `${pct}%` }}
           />
         </div>
@@ -146,7 +146,7 @@ export function LevelCard({
 }) {
   const pct = Math.round((xp / xpToNext) * 100);
   return (
-    <div className={cn("rounded-xl border border-border bg-white p-5 shadow-[var(--shadow-card)]", className)}>
+    <div className={cn("rounded-xl border border-border bg-bg-surface dark:bg-bg-elevated p-5 shadow-[var(--shadow-card)]", className)}>
       <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-text-muted">Your Level</p>
       <div className="mt-3 flex items-center gap-4">
         <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-violet text-white text-xl font-bold shadow-md">
@@ -209,12 +209,12 @@ export function MomentumCard({
   const dash = (safe / 10) * circumference;
 
   return (
-    <div className={cn("rounded-xl border border-border bg-white p-5 shadow-[var(--shadow-card)] card-hover", className)}>
+    <div className={cn("rounded-xl border border-border bg-bg-surface dark:bg-bg-elevated p-5 shadow-[var(--shadow-card)] card-hover", className)}>
       <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-text-muted">{label}</p>
       <div className="mt-3 flex items-center gap-4">
         <div className="relative h-20 w-20 shrink-0">
           <svg viewBox="0 0 80 80" className="h-full w-full -rotate-90">
-            <circle cx="40" cy="40" r={radius} fill="none" stroke="#F1F5F9" strokeWidth="6" />
+            <circle cx="40" cy="40" r={radius} fill="none" stroke="#E2E8F0" strokeWidth="6" />
             <circle
               cx="40"
               cy="40"
@@ -262,7 +262,7 @@ export function DailyStreakCard({
 }) {
   const pct = longestStreak && longestStreak > 0 ? Math.round((streak / longestStreak) * 100) : streak > 0 ? 100 : 0;
   return (
-    <div className={cn("rounded-xl border border-border bg-white p-5 shadow-[var(--shadow-card)] card-hover", className)}>
+    <div className={cn("rounded-xl border border-border bg-bg-surface dark:bg-bg-elevated p-5 shadow-[var(--shadow-card)] card-hover", className)}>
       <div className="flex items-center justify-between">
         <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-text-muted">Daily Streak</p>
         {streak > 0 ? (
@@ -309,7 +309,7 @@ export function SystemHealthCard({
   ];
 
   return (
-    <div className={cn("rounded-xl border border-border bg-white p-5 shadow-[var(--shadow-card)]", className)}>
+    <div className={cn("rounded-xl border border-border bg-bg-surface dark:bg-bg-elevated p-5 shadow-[var(--shadow-card)]", className)}>
       <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-text-muted">System Health</p>
       <div className="mt-4 space-y-3">
         {metrics.map((m) => (
@@ -368,7 +368,7 @@ export function MissionCard({
   return (
     <div className={cn(
       "rounded-lg border p-3.5 transition-all duration-200 card-hover",
-      completed ? "border-emerald/20 bg-emerald-bg" : "bg-white border-border",
+      completed ? "border-emerald/20 bg-emerald-bg" : "border-border bg-bg-surface dark:bg-bg-elevated",
       !completed && toneBorder[tone],
       className,
     )}>
@@ -401,3 +401,147 @@ export function MissionCard({
     </div>
   );
 }
+
+/* ─── Gamification Dashboard ─── */
+
+interface BadgeItem {
+  id: string;
+  name: string;
+  description: string;
+  icon: React.ComponentType<{ className?: string }>;
+  unlocked: boolean;
+}
+
+interface MissionItem {
+  id: string;
+  name: string;
+  current: number;
+  target: number;
+}
+
+interface GamificationDashboardProps {
+  eliteIndex: number;
+  level: number;
+  xp: number;
+  xpToNextLevel: number;
+  streak: number;
+  badges: BadgeItem[];
+  missions: MissionItem[];
+}
+
+export function GamificationDashboard({
+  eliteIndex,
+  level,
+  xp,
+  xpToNextLevel,
+  streak,
+  badges,
+  missions,
+}: GamificationDashboardProps) {
+  const xpPct = Math.round((xp / xpToNextLevel) * 100);
+
+  return (
+    <div className="space-y-6">
+      {/* Level + Streak + XP */}
+      <div className="rounded-2xl border border-border bg-bg-surface dark:bg-bg-elevated p-5 shadow-[var(--shadow-card)]">
+        <div className="flex items-center gap-4">
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-cyan text-white text-xl font-bold shadow-md">
+            {level}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-text-muted">
+              Level {level} · Elite Index {eliteIndex.toFixed(1)}
+            </p>
+            <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-bg-subtle">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-primary to-cyan progress-fill"
+                style={{ width: `${xpPct}%` }}
+              />
+            </div>
+            <div className="mt-1 flex items-center justify-between">
+              <p className="text-[11px] text-text-muted">{xp} / {xpToNextLevel} XP</p>
+              {streak > 0 ? (
+                <span className="flex items-center gap-0.5 text-[11px] font-medium text-gold">
+                  <Flame className="h-3 w-3" /> {streak} day streak
+                </span>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Badge Grid */}
+      <div className="rounded-2xl border border-border bg-bg-surface dark:bg-bg-elevated p-5 shadow-[var(--shadow-card)]">
+        <div className="flex items-center gap-2 mb-4">
+          <Trophy className="h-4 w-4 text-gold" />
+          <p className="text-sm font-semibold text-text-primary">Badges</p>
+          <span className="rounded-md bg-bg-subtle px-1.5 py-0.5 font-mono text-[11px] text-text-muted">
+            {badges.filter((b) => b.unlocked).length}/{badges.length}
+          </span>
+        </div>
+        <div className="grid grid-cols-3 gap-2.5">
+          {badges.map((badge) => (
+            <div
+              key={badge.id}
+              className={cn(
+                "flex flex-col items-center gap-1.5 rounded-xl border p-3 text-center transition-all",
+                badge.unlocked
+                  ? "border-gold/20 bg-gold-bg"
+                  : "border-border opacity-30"
+              )}
+            >
+              <div className={cn(
+                "grid h-8 w-8 place-items-center rounded-lg",
+                badge.unlocked ? "bg-gold/20 text-gold" : "bg-bg-subtle text-text-muted"
+              )}>
+                {badge.unlocked ? (
+                  <badge.icon className="h-4 w-4" />
+                ) : (
+                  <Lock className="h-4 w-4" />
+                )}
+              </div>
+              <p className="text-[11px] font-medium text-text-primary leading-tight">{badge.name}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Missions */}
+      <div className="rounded-2xl border border-border bg-bg-surface dark:bg-bg-elevated p-5 shadow-[var(--shadow-card)]">
+        <div className="flex items-center gap-2 mb-4">
+          <Target className="h-4 w-4 text-primary" />
+          <p className="text-sm font-semibold text-text-primary">Missions</p>
+        </div>
+        <div className="space-y-3">
+          {missions.map((mission) => {
+            const pct = Math.min(100, Math.round((mission.current / mission.target) * 100));
+            const complete = mission.current >= mission.target;
+            return (
+              <div key={mission.id}>
+                <div className="flex items-center justify-between mb-1">
+                  <p className={cn("text-sm", complete ? "text-emerald font-medium" : "text-text-primary")}>
+                    {mission.name}
+                  </p>
+                  <span className="font-mono text-[11px] text-text-muted">
+                    {mission.current}/{mission.target}
+                  </span>
+                </div>
+                <div className="h-1.5 overflow-hidden rounded-full bg-bg-subtle">
+                  <div
+                    className={cn(
+                      "h-full rounded-full transition-all duration-700",
+                      complete ? "bg-emerald" : "bg-primary"
+                    )}
+                    style={{ width: `${pct}%` }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+

@@ -20,12 +20,12 @@ export function ScoreRing({
   const circumference = 2 * Math.PI * radius;
   const dash = (safe / 10) * circumference;
   const colorByTone = {
-    cyan: "#06B6D4",
-    violet: "#8B5CF6",
-    emerald: "#10B981",
-    gold: "#F59E0B",
-    rose: "#F43F5E",
-    danger: "#EF4444",
+    cyan: "var(--color-cyan)",
+    violet: "var(--color-violet)",
+    emerald: "var(--color-emerald)",
+    gold: "var(--color-gold)",
+    rose: "var(--color-rose)",
+    danger: "var(--color-rose)",
   };
   const sizeClass = {
     sm: "h-24 w-24",
@@ -39,14 +39,6 @@ export function ScoreRing({
     lg: "text-4xl",
     xl: "text-5xl",
   };
-  const glowColor = {
-    cyan: "rgba(6, 182, 212, 0.12)",
-    violet: "rgba(139, 92, 246, 0.12)",
-    emerald: "rgba(16, 185, 129, 0.12)",
-    gold: "rgba(245, 158, 11, 0.12)",
-    rose: "rgba(244, 63, 94, 0.12)",
-    danger: "rgba(239, 68, 68, 0.12)",
-  };
   const borderTone = {
     cyan: "border-cyan/20",
     violet: "border-violet/20",
@@ -59,7 +51,7 @@ export function ScoreRing({
   return (
     <div
       className={cn(
-        "relative grid place-items-center rounded-full border bg-white shadow-sm",
+        "relative grid place-items-center rounded-full border bg-bg-surface dark:bg-bg-elevated shadow-[var(--shadow-hero)]",
         sizeClass[size],
         borderTone[tone],
       )}
@@ -68,7 +60,7 @@ export function ScoreRing({
       {animated ? (
         <div
           className="absolute -inset-4 rounded-full blur-3xl"
-          style={{ background: `radial-gradient(circle, ${glowColor[tone]} 0%, transparent 70%)` }}
+          style={{ background: `radial-gradient(circle, ${colorByTone[tone]}20 0%, transparent 70%)` }}
         />
       ) : null}
       <svg viewBox="0 0 120 120" className={cn("absolute inset-0 h-full w-full -rotate-90 p-2")}>
@@ -79,14 +71,11 @@ export function ScoreRing({
           r={radius}
           fill="none"
           stroke={colorByTone[tone]}
-          strokeDasharray={`${dash} ${circumference - dash}`}
+          strokeDasharray={animated ? `${dash} ${circumference - dash}` : `${circumference * 0.01} ${circumference * 0.99}`}
           strokeLinecap="round"
           strokeWidth="8"
-          className="motion-premium"
-          style={{
-            filter: animated ? `drop-shadow(0 0 6px ${colorByTone[tone]})` : undefined,
-            transition: "stroke-dasharray 1s cubic-bezier(0.16, 1, 0.3, 1)",
-          }}
+          className={cn(animated && "progress-fill")}
+          style={animated ? { strokeDasharray: `${dash} ${circumference - dash}` } : undefined}
         />
       </svg>
       <div className="relative text-center">

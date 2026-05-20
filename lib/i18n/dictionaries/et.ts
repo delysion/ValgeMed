@@ -94,7 +94,7 @@ export const et: Dictionary = {
 
   "command.title": "Juhtpaneel",
   "command.subtitle": "Sinu privaatne keskus õppimiseks, energiaks, mäluks ja trajektooriks.",
-  "command.greeting": "Hea, et oled tagasi.",
+  "command.greeting": "Tere hommikust. Siin on sinu käsklus.",
   "command.today": "Täna",
   "command.eliteIndex": "Eliitindeks",
   "command.todaysCommand": "Tänane käsklus",

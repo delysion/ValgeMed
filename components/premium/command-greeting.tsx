@@ -12,6 +12,14 @@ function nextActionKey(action: NextBestAction, part: "title" | "reason"): Transl
   return `nba.${action.kind}.${part}` as TranslationKey;
 }
 
+function timeBasedGreeting(): string {
+  const hour = new Date().getHours();
+  if (hour >= 5 && hour < 12) return "Good morning. Here is your command.";
+  if (hour >= 12 && hour < 17) return "Good afternoon. Continue.";
+  if (hour >= 17 && hour < 22) return "Good evening. Review the day.";
+  return "System active. Proceed.";
+}
+
 export function CommandGreeting({
   greeting,
   dateLabel,
@@ -22,7 +30,7 @@ export function CommandGreeting({
   t,
   lowData,
 }: {
-  greeting: string;
+  greeting?: string;
   dateLabel: string;
   streak: number;
   eliteScore: number;
@@ -31,6 +39,7 @@ export function CommandGreeting({
   t: (key: TranslationKey) => string;
   lowData: boolean;
 }) {
+  const displayGreeting = greeting ?? timeBasedGreeting();
   const scoreTone = eliteScore >= 7 ? "emerald" : eliteScore >= 5 ? "violet" : eliteScore >= 3 ? "gold" : "rose";
 
   return (
@@ -53,16 +62,14 @@ export function CommandGreeting({
             </div>
 
             <h3 className="mt-4 max-w-2xl text-balance text-3xl font-bold tracking-tight text-text-primary sm:text-4xl md:text-5xl">
-              {greeting}
+              {displayGreeting}
             </h3>
 
             <p className="mt-2 max-w-xl text-sm leading-relaxed text-text-secondary sm:text-base">{t("common.nextMoveVisible")}</p>
           </div>
 
-          {/* Level + Streak badge */}
           <LevelBadge eliteScore={eliteScore} streak={streak} className="max-w-sm" />
 
-          {/* Next Best Action */}
           <div className="group relative overflow-hidden rounded-xl border border-border bg-bg-elevated/80 p-4 shadow-sm backdrop-blur-sm transition-all duration-200 hover:shadow-md sm:p-5">
             <div className="relative flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0">

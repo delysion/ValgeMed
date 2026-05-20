@@ -2,51 +2,41 @@ import type React from "react";
 
 import { cn } from "@/lib/utils";
 
+interface GlassCardProps extends React.HTMLAttributes<HTMLDivElement> {
+  tone?: "primary" | "neutral" | "default" | "cyan" | "violet" | "gold" | "emerald" | "rose" | "danger";
+  hover?: boolean;
+  padded?: boolean;
+}
+
 export function GlassCard({
   className,
   children,
-  tone = "default",
+  tone = "neutral",
   hover = false,
   padded = true,
-}: {
-  className?: string;
-  children: React.ReactNode;
-  tone?: "default" | "cyan" | "violet" | "gold" | "rose" | "emerald" | "danger";
-  hover?: boolean;
-  padded?: boolean;
-}) {
-  const tones = {
-    default: "bg-bg-surface border-border",
-    cyan: "bg-bg-surface border-cyan/25",
-    violet: "bg-bg-surface border-violet/25",
-    gold: "bg-bg-surface border-gold/25",
-    rose: "bg-bg-surface border-rose/25",
-    emerald: "bg-bg-surface border-emerald/25",
-    danger: "bg-bg-surface border-rose/25",
-  };
-
-  const bgTones = {
-    default: "",
-    cyan: "bg-gradient-to-br from-cyan-bg/50 to-bg-surface",
-    violet: "bg-gradient-to-br from-violet-bg/50 to-bg-surface",
-    gold: "bg-gradient-to-br from-gold-bg/50 to-bg-surface",
-    rose: "bg-gradient-to-br from-rose-bg/50 to-bg-surface",
-    emerald: "bg-gradient-to-br from-emerald-bg/50 to-bg-surface",
-    danger: "bg-gradient-to-br from-rose-bg/50 to-bg-surface",
-  };
-
+  ...props
+}: GlassCardProps) {
   return (
-    <section
+    <div
       className={cn(
-        "relative overflow-hidden rounded-2xl border shadow-[var(--shadow-card)] transition-all duration-200",
-        tones[tone],
-        bgTones[tone],
-        hover && "card-hover",
-        padded && "p-5 sm:p-6",
-        className,
+        "rounded-2xl border transition-all duration-250 card-hover",
+        padded && "p-6",
+        tone === "primary" && "border-l-[3px] border-l-primary",
+        tone === "neutral" && "border-border/50",
+        tone === "default" && "border-border",
+        tone === "cyan" && "border-cyan/25",
+        tone === "violet" && "border-violet/25",
+        tone === "gold" && "border-gold/25",
+        tone === "rose" && "border-rose/25",
+        tone === "emerald" && "border-emerald/25",
+        tone === "danger" && "border-rose/25",
+        "bg-bg-surface/70 backdrop-blur-sm shadow-[var(--shadow-card)]",
+        hover && "hover:shadow-elevated hover:-translate-y-px",
+        className
       )}
+      {...props}
     >
       {children}
-    </section>
+    </div>
   );
 }
