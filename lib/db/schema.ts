@@ -607,6 +607,17 @@ export const uploads = pgTable("uploads", {
   createdAt: createdAtColumn(),
 });
 
+export const pushSubscriptions = pgTable("push_subscriptions", {
+  id: idColumn(),
+  userId: uuid("user_id").notNull(),
+  endpoint: text("endpoint").notNull(),
+  p256dh: text("p256dh").notNull(),
+  auth: text("auth").notNull(),
+  userAgent: text("user_agent"),
+  createdAt: createdAtColumn(),
+  updatedAt: updatedAtColumn(),
+});
+
 export const profiles = pgTable("profiles", {
   id: uuid("id").primaryKey(),
   displayName: text("display_name"),
@@ -643,6 +654,7 @@ export const schema = {
   methodologyRisks,
   uploads,
   profiles,
+  pushSubscriptions,
 };
 
 export type Subject = typeof subjects.$inferSelect;
@@ -673,3 +685,4 @@ export type Manuscript = typeof manuscripts.$inferSelect;
 export type MethodologyRisk = typeof methodologyRisks.$inferSelect;
 export type Upload = typeof uploads.$inferSelect;
 export type Profile = typeof profiles.$inferSelect;
+export type PushSubscription = typeof pushSubscriptions.$inferSelect;

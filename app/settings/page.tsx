@@ -1,4 +1,4 @@
-import { FolderOpen, HardDrive, RefreshCw } from "lucide-react";
+import { Bell, FolderOpen, HardDrive, RefreshCw } from "lucide-react";
 
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { GlassCard } from "@/components/premium/glass-card";
@@ -8,6 +8,7 @@ import { requireUser } from "@/lib/auth/supabase";
 import { getI18n } from "@/lib/i18n/server";
 import { LanguageSelector } from "@/components/language-selector";
 import { OnboardingReplayButton } from "@/components/onboarding-replay-button";
+import { PushNotificationButton } from "@/components/push-notification-button";
 
 export const dynamic = "force-dynamic";
 
@@ -26,6 +27,22 @@ export default async function SettingsPage() {
           <p className="mt-2 text-sm text-text-secondary">{t("settings.languageBody")}</p>
           <div className="mt-4">
             <LanguageSelector />
+          </div>
+        </GlassCard>
+
+        {/* Push Notifications */}
+        <GlassCard tone="gold">
+          <SectionHeader
+            title={locale === "et" ? "Teavitused" : "Push Notifications"}
+            description={
+              locale === "et"
+                ? "Luba teavitused, et saada meeldetuletusi ülesannete ja eksamite kohta."
+                : "Enable notifications to receive reminders about tasks and exams."
+            }
+            icon={Bell}
+          />
+          <div className="mt-4">
+            <PushNotificationButton />
           </div>
         </GlassCard>
 
