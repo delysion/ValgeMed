@@ -3,11 +3,17 @@ import { getDb } from "@/lib/db";
 import { pushSubscriptions } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 
-webPush.setVapidDetails(
-  "mailto:admin@valgemed.com",
-  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
-  process.env.VAPID_PRIVATE_KEY!
-);
+let vapidConfigured = false;
+
+function ensureVapid() {
+  if (vapidConfigured) return;
+  webPush.setVapidDetails(
+    "mailto:admin@valgemed.com",
+    process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
+    process.env.VAPID_PRIVATE_KEY!
+  );
+  vapidConfigured = true;
+}
 
 export interface PushPayload {
   title: string;
@@ -19,6 +25,7 @@ export async function sendPushNotification(
   userId: string,
   payload: PushPayload
 ): Promise<void> {
+  ensureVapid();
   const db = getDb();
   const subscriptions = await db
     .select()
@@ -48,6 +55,7 @@ export async function sendPushNotification(
 export async function sendPushToAll(
   payload: PushPayload
 ): Promise<void> {
+  ensureVapid();
   const db = getDb();
   const allSubs = await db.select().from(pushSubscriptions);
 
