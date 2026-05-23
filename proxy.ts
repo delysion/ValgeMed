@@ -58,6 +58,8 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
+  let response = NextResponse.next();
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -69,6 +71,7 @@ export async function proxy(request: NextRequest) {
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value, options }) => {
             request.cookies.set(name, value);
+            response.cookies.set(name, value, options);
           });
         },
       },
@@ -89,7 +92,7 @@ export async function proxy(request: NextRequest) {
   const isAdmin = adminEmail && user.email === adminEmail;
 
   if (isAdmin) {
-    return NextResponse.next();
+    return response;
   }
 
   const name = user.user_metadata?.full_name ?? user.email ?? "";
@@ -105,7 +108,7 @@ export async function proxy(request: NextRequest) {
       const data = await res.json();
 
       if (data.approved) {
-        return NextResponse.next();
+        return response;
       }
 
       if (!data.notified) {
