@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   AlertTriangle,
@@ -132,15 +132,15 @@ export function Navigation() {
     setMounted(true);
   }, []);
 
-  const toggleSection = (labelKey: string) => {
+  const toggleSection = useCallback((labelKey: string) => {
     setOpenSection((prev) => {
       const next = prev === labelKey ? null : labelKey;
       setCookie(COOKIE_NAME, next ?? "");
       return next;
     });
-  };
+  }, []);
 
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     setLoggingOut(true);
     try {
       const supabase = getClient();
@@ -148,7 +148,7 @@ export function Navigation() {
     } catch {} finally {
       router.push("/login");
     }
-  };
+  }, [router]);
 
   if (!mounted) return null;
 

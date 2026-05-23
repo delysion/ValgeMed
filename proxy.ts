@@ -32,7 +32,7 @@ const privatePrefixes = [
 
 const publicPaths = ["/login", "/auth"];
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (publicPaths.some((path) => pathname.startsWith(path))) {

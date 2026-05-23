@@ -27,6 +27,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { requireUser } from "@/lib/auth/supabase";
 import { getCoreData } from "@/lib/data/queries";
 import { fmtDate } from "@/lib/labels";
+import type { TranslationKey } from "@/lib/i18n/dictionaries/en";
 import { getI18n } from "@/lib/i18n/server";
 import { buildBurnoutRiskFromLogs, buildEliteIndex, buildExamReadiness } from "@/lib/scoring/engine";
 import { getNextBestAction } from "@/lib/scoring/next-best-action";
@@ -290,8 +291,8 @@ export default async function CommandPage() {
           <div className="mt-4">
             <div className="flex items-center justify-between gap-4">
               <div className="min-w-0">
-                <p className="text-lg font-bold text-text-primary">{t(`nba.${nextAction.kind}.title` as never)}</p>
-                <p className="mt-1 text-sm text-text-secondary">{t(`nba.${nextAction.kind}.reason` as never)}</p>
+                <p className="text-lg font-bold text-text-primary">{t(`nba.${nextAction.kind}.title` as TranslationKey)}</p>
+                <p className="mt-1 text-sm text-text-secondary">{t(`nba.${nextAction.kind}.reason` as TranslationKey)}</p>
               </div>
               <Button asChild className="shrink-0 rounded-xl">
                 <Link href={nextAction.href}>

@@ -29,6 +29,7 @@ export function LogoutButton() {
       size="sm"
       className="rounded-xl gap-1.5"
       onClick={handleLogout}
+      aria-label={t("app.logout")}
     >
       <LogOut className="h-4 w-4" />
       <span className="hidden sm:inline">{t("app.logout")}</span>

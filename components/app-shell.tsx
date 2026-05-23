@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getI18n, dictionaries } from "@/lib/i18n/server";
 import { en } from "@/lib/i18n/dictionaries/en";
@@ -37,17 +37,17 @@ export function AppShell({
     setDictionary(i18n.dictionary);
   }, []);
 
-  const { t, dictionary: currentDictionary } = i18n || { t: (k: string) => k, dictionary: en, locale: "en" as Locale };
+  const { t, dictionary: currentDictionary } = useMemo(() => i18n || { t: (k: string) => k, dictionary: en, locale: "en" as Locale }, [i18n]);
 
-  const displayName = (user.email ?? "").split("@")[0];
+  const displayName = useMemo(() => (user.email ?? "").split("@")[0], [user.email]);
 
-  const handleToggleTheme = () => {
+  const handleToggleTheme = useCallback(() => {
     const next = theme === "dark" ? "light" : "dark";
     document.documentElement.classList.remove("light", "dark");
     document.documentElement.classList.add(next);
     localStorage.setItem(themeCookie, next);
     setThemeState(next);
-  };
+  }, [theme]);
 
   return (
     <TranslationProvider locale={locale} dictionary={currentDictionary} dictionaries={dictionaries}>

@@ -6,14 +6,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-interface OllamaStatus {
+export interface OllamaStatus {
   online: boolean;
   models: string[];
 }
 
 const CACHE_KEY = "ollama_status_cache";
-const CACHE_ONLINE_TTL = 5 * 60 * 1000; // 5 minutes
-const CACHE_OFFLINE_TTL = 2 * 60 * 1000; // 2 minutes
+const CACHE_ONLINE_TTL = 5 * 60 * 1000;
+const CACHE_OFFLINE_TTL = 2 * 60 * 1000;
 
 function getCachedStatus(): OllamaStatus | null {
   try {
@@ -39,7 +39,7 @@ function setCachedStatus(status: OllamaStatus) {
   }
 }
 
-export function OllamaStatusBadge() {
+export function useOllamaStatus() {
   const [status, setStatus] = useState<OllamaStatus | null>(() => getCachedStatus());
   const [checking, setChecking] = useState(false);
 
@@ -61,6 +61,12 @@ export function OllamaStatusBadge() {
       })
       .finally(() => setChecking(false));
   }, []);
+
+  return { status, checking, checkStatus };
+}
+
+export function OllamaStatusBadge() {
+  const { status, checking, checkStatus } = useOllamaStatus();
 
   return (
     <div className="flex items-center gap-2">

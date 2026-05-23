@@ -22,7 +22,7 @@ export function ThemeToggle({ theme, onToggle }: ThemeToggleProps) {
         "light" !== theme && "hover:scale-105",
         "dark" !== theme && "hover:scale-105"
       )}
-      aria-label={theme === "dark" ? "Switch to light mode" : "Switch to light mode"}
+      aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
     >
       {theme === "dark" ? (
         <Sun className="h-4 w-4 text-text-muted hover:text-text-primary transition-transform duration-300" />

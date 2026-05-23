@@ -9,6 +9,7 @@ import { ScoreRing } from "@/components/premium/score-ring";
 import { ScoreBreakdown } from "@/components/score-breakdown";
 import { requireUser } from "@/lib/auth/supabase";
 import { getCoreData } from "@/lib/data/queries";
+import type { TranslationKey } from "@/lib/i18n/dictionaries/en";
 import { getI18n } from "@/lib/i18n/server";
 import { buildEliteIndex } from "@/lib/scoring/engine";
 
@@ -74,7 +75,7 @@ export default async function EliteIndexPage() {
             key={item.title}
             title={item.title}
             value={item.result.score.toFixed(1)}
-            detail={t(item.result.factors[0]?.label as never) ?? item.result.factors[0]?.label}
+            detail={t(item.result.factors[0]?.label as TranslationKey) ?? item.result.factors[0]?.label}
             icon={item.icon}
             tone={item.tone}
           />

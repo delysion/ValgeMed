@@ -2,7 +2,7 @@ import Link from "next/link";
 import { differenceInCalendarDays, formatISO, startOfToday, subDays } from "date-fns";
 import {
   ArrowRight, BookOpen, Brain, Clock, Flame,
-  Focus, ListChecks, RotateCw, ShieldCheck, Sparkles, TrendingUp, Zap,
+  Focus, ListChecks, RotateCw, ShieldCheck, TrendingUp, Zap,
 } from "lucide-react";
 
 import { AppShell } from "@/components/app-shell";

@@ -1,72 +1,20 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useCallback, useState } from "react";
 import { Wifi, WifiOff, RefreshCw, Copy, Check, Cpu } from "lucide-react";
 import { GlassCard } from "@/components/premium/glass-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-
-interface OllamaStatus {
-  online: boolean;
-  models: string[];
-}
-
-const CACHE_KEY = "ollama_status_cache";
-const CACHE_ONLINE_TTL = 5 * 60 * 1000;
-const CACHE_OFFLINE_TTL = 2 * 60 * 1000;
-
-function getCachedStatus(): OllamaStatus | null {
-  try {
-    const cached = localStorage.getItem(CACHE_KEY);
-    if (!cached) return null;
-    const { status, timestamp } = JSON.parse(cached);
-    const ttl = status.online ? CACHE_ONLINE_TTL : CACHE_OFFLINE_TTL;
-    if (Date.now() - timestamp > ttl) {
-      localStorage.removeItem(CACHE_KEY);
-      return null;
-    }
-    return status;
-  } catch {
-    return null;
-  }
-}
-
-function setCachedStatus(status: OllamaStatus) {
-  try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify({ status, timestamp: Date.now() }));
-  } catch {
-    // localStorage unavailable
-  }
-}
+import { useOllamaStatus } from "@/components/ollama-status";
 
 interface OllamaStatusCardProps {
   locale?: string;
 }
 
 export function OllamaStatusCard({ locale = "en" }: OllamaStatusCardProps) {
-  const [status, setStatus] = useState<OllamaStatus | null>(() => getCachedStatus());
-  const [checking, setChecking] = useState(false);
+  const { status, checking, checkStatus } = useOllamaStatus();
   const [copied, setCopied] = useState(false);
-
-  const checkStatus = useCallback(() => {
-    setChecking(true);
-    fetch("/api/ai/status", { signal: AbortSignal.timeout(5000) })
-      .then((res) => {
-        if (!res.ok) throw new Error("Status check failed");
-        return res.json();
-      })
-      .then((data: OllamaStatus) => {
-        setStatus(data);
-        setCachedStatus(data);
-      })
-      .catch(() => {
-        const offline = { online: false, models: [] };
-        setStatus(offline);
-        setCachedStatus(offline);
-      })
-      .finally(() => setChecking(false));
-  }, []);
 
   const copyCommand = useCallback(async () => {
     try {

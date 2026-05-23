@@ -1,4 +1,4 @@
-import { Command, CheckCircle2, Brain, TrendingUp, Shield } from "lucide-react";
+import { Command, Brain, TrendingUp, Shield } from "lucide-react";
 import { GoogleLoginButton } from "./google-button";
 
 const features = [
