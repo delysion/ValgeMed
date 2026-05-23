@@ -46,12 +46,20 @@ const publicPaths = [
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (publicPaths.some((path) => pathname.startsWith(path))) {
+  // Extract the actual path from _next/data RSC requests
+  // _next/data/<build-id>/actual-path.json
+  let actualPathname = pathname;
+  const rscMatch = pathname.match(/^\/_next\/data\/[^/]+\/(.+)\.json$/);
+  if (rscMatch) {
+    actualPathname = `/${rscMatch[1]}`;
+  }
+
+  if (publicPaths.some((path) => actualPathname.startsWith(path))) {
     return NextResponse.next();
   }
 
   const isPrivate = privatePrefixes.some(
-    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+    (prefix) => actualPathname === prefix || actualPathname.startsWith(`${prefix}/`),
   );
 
   if (!isPrivate) {
@@ -99,13 +107,15 @@ export async function proxy(request: NextRequest) {
   const host = process.env.VERCEL_URL ?? request.headers.get("host") ?? "valgemed.vercel.app";
   const params = new URLSearchParams({ userId: user.id, email: user.email ?? "", name });
 
+  let checkData: Record<string, unknown> | null = null;
   try {
     const res = await fetch(`https://${host}/api/auth/check-profile?${params}`, {
       signal: AbortSignal.timeout(10_000),
     });
 
     if (res.ok) {
-      const data = await res.json();
+      const data = await res.json() as Record<string, unknown>;
+      checkData = data;
 
       if (data.approved) {
         return response;
@@ -119,7 +129,10 @@ export async function proxy(request: NextRequest) {
     // block on error
   }
 
-  return NextResponse.redirect(new URL("/pending-approval", request.url));
+  const redirect = NextResponse.redirect(new URL("/pending-approval", request.url));
+  redirect.headers.set("x-check-profile", JSON.stringify(checkData ?? { error: "no data" }));
+  redirect.headers.set("x-user-email", user.email ?? "");
+  return redirect;
 }
 
 export const config = {
