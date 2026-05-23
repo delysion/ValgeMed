@@ -1,43 +1,45 @@
 "use client";
 
 import { Moon, Sun } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 
-import { setThemeAction } from "@/lib/theme/actions";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-export function ThemeToggle({ theme }: { theme: "light" | "dark" }) {
-  const router = useRouter();
+interface ThemeToggleProps {
+  theme: "light" | "dark";
+  onToggle: () => void;
+}
+
+export function ThemeToggle({ theme, onToggle }: ThemeToggleProps) {
   const [pending, startTransition] = useTransition();
 
-  function toggle() {
-    const next = theme === "dark" ? "light" : "dark";
-    startTransition(async () => {
-      document.documentElement.classList.remove("light", "dark");
-      document.documentElement.classList.add(next);
-      await setThemeAction(next);
-      router.refresh();
+  const handleToggle = () => {
+    startTransition(() => {
+      onToggle();
     });
-  }
+  };
 
   return (
     <Button
       variant="ghost"
       size="icon"
-      onClick={toggle}
+      onClick={handleToggle}
       disabled={pending}
       className={cn(
         "h-9 w-9 rounded-lg",
-        pending && "opacity-50",
+        pending && "opacity-75",
+        !pending && "hover:scale-105"
       )}
-      aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+      aria-label={theme === "dark" ? "Switch to light mode" : "Switch to light mode"}
     >
       {theme === "dark" ? (
-        <Sun className="h-4 w-4 text-text-muted hover:text-text-primary" />
+        <Sun className="h-4 w-4 text-text-muted hover:text-text-primary transition-transform duration-300" />
       ) : (
-        <Moon className="h-4 w-4 text-text-muted hover:text-text-primary" />
+        <Moon className="h-4 w-4 text-text-muted hover:text-text-primary transition-transform duration-300" />
+      )}
+      {pending && (
+        <div className="absolute inset-0 bg-black/10 rounded-lg" />
       )}
     </Button>
   );

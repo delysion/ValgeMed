@@ -1,37 +1,52 @@
-import {
-  Command,
-  FileDown,
-  LogOut,
-  Menu,
-} from "lucide-react";
+"use client";
 
-import { LanguageSelector } from "@/components/language-selector";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
+
+import { getTheme, themeCookie } from "@/lib/theme/config";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { Navigation } from "./navigation";
+import { LanguageSelector } from "@/components/language-selector";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { LogoutButton } from "./logout-button";
 import type { User } from "@supabase/supabase-js";
 import { getI18n, dictionaries } from "@/lib/i18n/server";
 import { TranslationProvider } from "@/lib/i18n/useTranslation";
-import { getTheme } from "@/lib/theme/config";
 
-import { Navigation } from "./navigation";
-
-export async function AppShell({
+export default function AppShell({
   children,
   user,
 }: {
   children: React.ReactNode;
   user: User;
 }) {
-  const { locale, dictionary, t } = await getI18n();
-  const theme = await getTheme();
+  const [locale, setLocale] = useState("en");
+  const [dictionary, setDictionary] = useState<any>(null);
+  const [theme, setThemeState] = useState<"light" | "dark" | null>(null);
+
+  useEffect(() => {
+    getTheme().then(setThemeState);
+  }, []);
+
+  const { t, dictionary: currentDictionary } = useTranslation(locale, dictionary);
 
   const displayName = (user.email ?? "").split("@")[0];
 
+  const handleToggleTheme = () => {
+    const next = theme === "dark" ? "light" : "dark";
+    document.documentElement.classList.remove("light", "dark");
+    document.documentElement.classList.add(next);
+    localStorage.setItem("theme", next);
+    document.cookie = `${themeCookie}=${next};max-age=31536000;path=/`;
+    setThemeState(next);
+  };
+
   return (
-    <TranslationProvider locale={locale} dictionary={dictionary} dictionaries={dictionaries}>
-      <div className="min-h-screen bg-bg-page">
+    <TranslationProvider locale={locale} dictionary={currentDictionary} dictionaries={dictionaries}>
+      <div className="min-h-school bg-bg-page">
         <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-xl focus:bg-gradient-to-br focus:from-primary focus:to-primary-ring focus:px-4 focus:py-2 focus:text-white focus:outline-none focus:shadow-lg">
           Skip to main content
         </a>
@@ -60,7 +75,7 @@ export async function AppShell({
             <div className="flex min-w-0 items-center gap-3">
               <Sheet>
                 <SheetTrigger asChild>
-                  <Button variant="outline" size="icon" className="h-10 w-10 rounded-xl border border-border bg-gradient-to-br from-bg-elevated to-bg-subtle/30 hover:bg-bg-subtle active:scale-[0.97] lg:hidden" aria-label="Open navigation menu">
+                  <Button variant="outline" size="icon" className="h-9 w-9 rounded-xl border border-border bg-gradient-to-br from-bg-elevated to-bg-subtle/30 hover:bg-bg-subtle active:scale-[0.97] lg:hidden" aria-label="Open navigation menu">
                     <Menu className="h-5 w-5" />
                   </Button>
                 </SheetTrigger>
@@ -78,8 +93,8 @@ export async function AppShell({
                     <LanguageSelector label={t("language.label")} />
                   </div>
                   <div className="overflow-y-auto px-3 pb-6">
-                  <Navigation />
-                </div>
+                    <Navigation />
+                  </div>
                 </SheetContent>
               </Sheet>
               <div className="min-w-0">
@@ -88,7 +103,7 @@ export async function AppShell({
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <ThemeToggle theme={theme} />
+              <ThemeToggle theme={theme} onToggle={handleToggleTheme} />
               <div className="hidden sm:block">
                 <LanguageSelector label={t("language.label")} compact />
               </div>
@@ -101,7 +116,9 @@ export async function AppShell({
               <LogoutButton />
             </div>
           </header>
-          <main id="main-content" className="mx-auto w-full max-w-[1440px] px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-8">{children}</main>
+          <main id="main-content" className="mx-auto w-full max-w-[1440px] px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
+            {children}
+          </main>
         </div>
       </div>
     </TranslationProvider>

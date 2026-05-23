@@ -42,6 +42,7 @@ export const en = {
   "nav.portfolio": "Portfolio",
   "nav.ai": "AI",
   "nav.settings": "Settings",
+  "nav.sectionAiSettings": "AI & Settings",
   "nav.dailyLog": "Daily Log",
 
   "form.subject.createTitle": "New Subject",

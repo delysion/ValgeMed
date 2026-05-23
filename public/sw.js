@@ -1,4 +1,4 @@
-const CACHE_NAME = "valgemed-v2";
+const CACHE_NAME = "valgemed-v4";
 const STATIC_ASSETS = [
   "/",
   "/manifest.json",

@@ -108,6 +108,11 @@ const sections: NavSection[] = [
       { href: "/network", label: "nav.network", icon: Users },
       { href: "/life-admin", label: "nav.lifeAdmin", icon: ClipboardList },
       { href: "/portfolio", label: "nav.portfolio", icon: Briefcase },
+    ],
+  },
+  {
+    labelKey: "nav.sectionAiSettings",
+    items: [
       { href: "/ai", label: "nav.ai", icon: Bot },
       { href: "/settings", label: "nav.settings", icon: Settings },
     ],

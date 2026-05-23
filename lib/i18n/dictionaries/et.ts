@@ -44,6 +44,7 @@ export const et: Dictionary = {
   "nav.portfolio": "Portfoolio",
   "nav.ai": "AI",
   "nav.settings": "Seaded",
+  "nav.sectionAiSettings": "AI & Seaded",
   "nav.dailyLog": "Päevalogi",
 
   "form.subject.createTitle": "Uus õppeaine",
