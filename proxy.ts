@@ -47,7 +47,6 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Extract the actual path from _next/data RSC requests
-  // _next/data/<build-id>/actual-path.json
   let actualPathname = pathname;
   const rscMatch = pathname.match(/^\/_next\/data\/[^/]+\/(.+)\.json$/);
   if (rscMatch) {
@@ -103,36 +102,32 @@ export async function proxy(request: NextRequest) {
     return response;
   }
 
+  // Bypass: if user was manually approved by admin (cookie), let them through.
+  // Otherwise block until approved by admin.
   const name = user.user_metadata?.full_name ?? user.email ?? "";
-  const host = process.env.VERCEL_URL ?? request.headers.get("host") ?? "valgemed.vercel.app";
   const params = new URLSearchParams({ userId: user.id, email: user.email ?? "", name });
 
-  let checkData: Record<string, unknown> | null = null;
   try {
-    const res = await fetch(`https://${host}/api/auth/check-profile?${params}`, {
+    const res = await fetch(`https://valgemed.vercel.app/api/auth/check-profile?${params}`, {
       signal: AbortSignal.timeout(10_000),
     });
 
     if (res.ok) {
-      const data = await res.json() as Record<string, unknown>;
-      checkData = data;
+      const data = await res.json() as { approved?: boolean; notified?: boolean };
 
       if (data.approved) {
         return response;
       }
 
       if (!data.notified) {
-        fetch(`https://${host}/api/admin/notify-pending`, { method: "POST" }).catch(() => {});
+        fetch(`https://valgemed.vercel.app/api/admin/notify-pending`, { method: "POST" }).catch(() => {});
       }
     }
   } catch {
-    // block on error
+    // block non-approved users
   }
 
-  const redirect = NextResponse.redirect(new URL("/pending-approval", request.url));
-  redirect.headers.set("x-check-profile", JSON.stringify(checkData ?? { error: "no data" }));
-  redirect.headers.set("x-user-email", user.email ?? "");
-  return redirect;
+  return NextResponse.redirect(new URL("/pending-approval", request.url));
 }
 
 export const config = {
