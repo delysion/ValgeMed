@@ -14,11 +14,11 @@ export function LogoutButton() {
     try {
       const supabase = getClient();
       await supabase.auth.signOut();
-      router.push("/login");
-      router.refresh();
+      // Force reload to clear any cached data
+      window.location.href = "/login";
     } catch (error) {
       console.error("Logout failed:", error);
-      router.push("/login");
+      window.location.href = "/login";
     }
   };
 
