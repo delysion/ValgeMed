@@ -1,7 +1,9 @@
 import type { Metadata, Viewport } from "next";
+import { cookies } from "next/headers";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { getLocale, getDictionary, dictionaries } from "@/lib/i18n/server";
+import { isLocale, languageCookie, defaultLocale, type Locale } from "@/lib/i18n/config";
+import { getDictionary, dictionaries } from "@/lib/i18n/server";
 import { getTheme } from "@/lib/theme/config";
 import { TranslationProvider } from "@/lib/i18n/useTranslation";
 import { ServiceWorkerRegistration } from "./sw-register";
@@ -50,7 +52,9 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const locale = await getLocale();
+  const cookieStore = await cookies();
+  const localeCookie = cookieStore.get(languageCookie)?.value;
+  const locale: Locale = isLocale(localeCookie) ? localeCookie : defaultLocale;
   const dictionary = getDictionary(locale);
   const theme = await getTheme();
 

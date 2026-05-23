@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useCallback, useEffect } from "react";
 import type React from "react";
 
-import type { Locale } from "@/lib/i18n/config";
+import { languageCookie, type Locale } from "@/lib/i18n/config";
 import type { Dictionary, TranslationKey } from "@/lib/i18n/dictionaries/en";
 import { setLanguageAction } from "@/lib/i18n/actions";
 
@@ -42,7 +42,7 @@ export function TranslationProvider({
     
     // Also sync localStorage
     try {
-      localStorage.setItem("locale", newLocale);
+      localStorage.setItem(languageCookie, newLocale);
     } catch {}
   }, [locale, dictionaries]);
 
