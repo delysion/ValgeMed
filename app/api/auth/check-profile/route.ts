@@ -1,8 +1,6 @@
 import "server-only";
 
-import { getDb } from "@/lib/db";
-import { profiles } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { neon } from "@neondatabase/serverless";
 
 export async function GET(request: Request) {
   try {
@@ -12,31 +10,32 @@ export async function GET(request: Request) {
     const name = searchParams.get("name") ?? email;
 
     if (!userId || !email) {
-      return Response.json({ error: "Missing params" }, { status: 400 });
+      return Response.json({ error: "Missing userId or email" }, { status: 400 });
     }
 
-    const db = getDb();
+    const sql = neon(process.env.DATABASE_URL!);
 
-    await db
-      .insert(profiles)
-      .values({ id: userId, email, displayName: name, approved: false })
-      .onConflictDoUpdate({
-        target: profiles.id,
-        set: { email, displayName: name },
-      });
+    await sql`
+      INSERT INTO profiles (id, email, display_name, approved)
+      VALUES (${userId}, ${email}, ${name}, false)
+      ON CONFLICT (id) DO UPDATE SET email = ${email}, display_name = ${name}
+    `;
 
-    const [profile] = await db
-      .select({ approved: profiles.approved, notifiedAt: profiles.notifiedAt })
-      .from(profiles)
-      .where(eq(profiles.id, userId))
-      .limit(1);
+    const rows = await sql`
+      SELECT approved, notified_at FROM profiles WHERE id = ${userId}
+    `;
+
+    const profile = rows[0];
 
     return Response.json({
       approved: !!profile?.approved,
-      notified: !!profile?.notifiedAt,
+      notified: !!profile?.notified_at,
     });
   } catch (e) {
     console.error("check-profile error:", e);
-    return Response.json({ error: "Internal error" }, { status: 500 });
+    return Response.json({
+      error: "Internal error",
+      detail: e instanceof Error ? `${e.name}: ${e.message}` : String(e),
+    }, { status: 500 });
   }
 }

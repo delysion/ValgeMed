@@ -120,7 +120,7 @@ export async function proxy(request: NextRequest) {
       }
     }
   } catch {
-    // on error, block
+    console.error("proxy: check-profile failed for", user.email);
   }
 
   const pendingUrl = new URL("/pending-approval", request.url);
