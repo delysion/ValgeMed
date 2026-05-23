@@ -1,16 +1,7 @@
-import { redirect } from "next/navigation";
 import { Command } from "lucide-react";
-import { createClient } from "@/lib/supabase/server";
 import { GoogleLoginButton } from "./google-button";
 
-export default async function LoginPage() {
-  const supabase = await createClient();
-  const { data: { session } } = await supabase.auth.getSession();
-
-  if (session) {
-    redirect("/command");
-  }
-
+export default function LoginPage() {
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-bg-page p-4 overflow-hidden">
       {/* Atmospheric background */}
