@@ -58,10 +58,6 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  let response = NextResponse.next({
-    request: { headers: request.headers },
-  });
-
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -73,12 +69,15 @@ export async function proxy(request: NextRequest) {
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value, options }) => {
             request.cookies.set(name, value);
-            response.cookies.set(name, value, options);
           });
         },
       },
     },
   );
+
+  // In Next.js middleware we only have the response after creation.
+  // Use a mutable headers approach instead.
+  const response = NextResponse.next();
 
   const {
     data: { user },
@@ -94,37 +93,11 @@ export async function proxy(request: NextRequest) {
   const isAdmin = adminEmail && user.email === adminEmail;
 
   if (isAdmin) {
-    return response;
+    return NextResponse.next();
   }
 
-  const origin = new URL(request.url).origin;
-  const name = user.user_metadata?.full_name ?? user.email ?? "";
-  const params = new URLSearchParams({ userId: user.id, email: user.email ?? "", name });
-
-  try {
-    const checkRes = await fetch(
-      `${origin}/api/auth/check-profile?${params}`,
-    );
-
-    if (checkRes.ok) {
-      const data = await checkRes.json();
-
-      if (data.approved) {
-        return response;
-      }
-
-      if (!data.notified) {
-        fetch(`${origin}/api/admin/notify-pending`, { method: "POST" }).catch(
-          () => {},
-        );
-      }
-    }
-  } catch {
-    console.error("proxy: check-profile failed for", user.email);
-  }
-
-  const pendingUrl = new URL("/pending-approval", request.url);
-  return NextResponse.redirect(pendingUrl);
+  // For new users, always block unless admin
+  return NextResponse.redirect(new URL("/pending-approval", request.url));
 }
 
 export const config = {
