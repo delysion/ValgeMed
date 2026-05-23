@@ -620,7 +620,10 @@ export const pushSubscriptions = pgTable("push_subscriptions", {
 
 export const profiles = pgTable("profiles", {
   id: uuid("id").primaryKey(),
+  email: text("email"),
   displayName: text("display_name"),
+  approved: boolean("approved").default(false),
+  isAdmin: boolean("is_admin").default(false),
   createdAt: createdAtColumn(),
   updatedAt: updatedAtColumn(),
 });
