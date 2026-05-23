@@ -60,14 +60,14 @@ export function InstallAppButton() {
             <Smartphone className="h-5 w-5 text-white" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-text-primary">Installa ValgeMed</p>
+            <p className="text-sm font-semibold text-text-primary">Install ValgeMed</p>
             {isIOS ? (
               <p className="mt-1 text-xs text-text-secondary leading-relaxed">
-                Tocca <span className="inline-flex items-center align-middle"><svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5a2.5 2.5 0 0 1 5 0v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6h-1.5v9.5a2.5 2.5 0 0 0 5 0V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6H16.5z"/></svg></span> poi <strong>Aggiungi alla schermata Home</strong>
+                Tap <span className="inline-flex items-center align-middle"><svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5a2.5 2.5 0 0 1 5 0v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6h-1.5v9.5a2.5 2.5 0 0 0 5 0V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6H16.5z"/></svg></span> then <strong>Add to Home Screen</strong>
               </p>
             ) : (
               <p className="mt-1 text-xs text-text-secondary">
-                Aggiungi l&apos;icona alla tua schermata Home
+                Add the icon to your Home Screen
               </p>
             )}
           </div>
@@ -82,7 +82,7 @@ export function InstallAppButton() {
           <div className="mt-3 ml-13">
             <Button size="sm" onClick={handleInstall} className="w-full">
               <Download className="h-4 w-4" />
-              Installa
+              Install
             </Button>
           </div>
         )}
