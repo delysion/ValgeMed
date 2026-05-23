@@ -4,7 +4,7 @@ import "./globals.css";
 import { getLocale } from "@/lib/i18n/server";
 import { getTheme } from "@/lib/theme/config";
 import { ServiceWorkerRegistration } from "./sw-register";
-import { InstallAppButton } from "@/components/install-app-button";
+// import { InstallAppButton } from "@/components/install-app-button";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -70,7 +70,7 @@ export default async function RootLayout({
       </head>
       <body className="min-h-full">
         <ServiceWorkerRegistration />
-        <InstallAppButton />
+        {/* <InstallAppButton /> */}
         {children}
       </body>
     </html>
