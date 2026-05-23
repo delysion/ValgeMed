@@ -15,7 +15,6 @@ export function ThemeToggle({ theme, onToggle }: ThemeToggleProps) {
       variant="ghost"
       size="icon"
       onClick={onToggle}
-      disabled={false}
       className={cn(
         "h-9 w-9 rounded-lg",
         "light" === theme && "opacity-50",

@@ -9,11 +9,6 @@ export function getLocale(): Locale {
   if (isLocale(saved)) {
     return saved;
   }
-  // Fallback to browser language
-  const browserLang = navigator.language.split("-")[0];
-  if (isLocale(browserLang)) {
-    return browserLang;
-  }
   return defaultLocale;
 }
 
