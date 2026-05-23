@@ -59,8 +59,10 @@ export async function AppShell({
           <header className="sticky top-0 z-30 flex min-h-16 items-center justify-between gap-3 border-b border-border bg-gradient-to-r from-bg-surface/90 via-bg-surface/95 to-bg-subtle/30 px-4 py-2.5 backdrop-blur-xl sm:px-6 lg:px-8">
             <div className="flex min-w-0 items-center gap-3">
               <Sheet>
-                <SheetTrigger className="h-10 w-10 rounded-xl border border-border bg-gradient-to-br from-bg-elevated to-bg-subtle/30 p-0 hover:bg-bg-subtle active:scale-[0.97] lg:hidden" aria-label="Open navigation menu">
-                  <Menu className="h-5 w-5" />
+                <SheetTrigger asChild>
+                  <Button variant="outline" size="icon" className="h-10 w-10 rounded-xl border border-border bg-gradient-to-br from-bg-elevated to-bg-subtle/30 hover:bg-bg-subtle active:scale-[0.97] lg:hidden" aria-label="Open navigation menu">
+                    <Menu className="h-5 w-5" />
+                  </Button>
                 </SheetTrigger>
                 <SheetContent className="left-0 right-auto w-[min(88vw,300px)] border-r border-l-0 border-border bg-gradient-to-b from-bg-surface to-bg-page p-0 sm:max-w-sm">
                   <div className="flex items-center gap-3 border-b border-border bg-gradient-to-r from-bg-page/80 to-bg-surface/80 p-4">
