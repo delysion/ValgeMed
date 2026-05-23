@@ -5,6 +5,7 @@ import { et } from "@/lib/i18n/dictionaries/et";
 export const dictionaries = { en, et } as const;
 
 export function getLocale(): Locale {
+  if (typeof window === "undefined") return defaultLocale;
   const saved = localStorage.getItem(languageCookie);
   if (isLocale(saved)) {
     return saved;
