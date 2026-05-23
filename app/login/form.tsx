@@ -28,34 +28,40 @@ export function LoginForm() {
     setLoading(true);
     setError(null);
 
-    if (isSignUp) {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-        },
-      });
-      if (error) {
-        setError(error.message);
-        setLoading(false);
-      } else if (!data.session) {
-        setError("Check your email for the confirmation link.");
-        setLoading(false);
+    try {
+      if (isSignUp) {
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/auth/callback`,
+          },
+        });
+        if (error) {
+          setError(error.message);
+          setLoading(false);
+        } else if (!data.session) {
+          setError("Check your email for the confirmation link.");
+          setLoading(false);
+        } else {
+          window.location.href = "/";
+        }
       } else {
-        window.location.href = "/";
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (error) {
+          setError(error.message);
+          setLoading(false);
+        } else {
+          window.location.href = "/";
+        }
       }
-    } else {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      if (error) {
-        setError(error.message);
-        setLoading(false);
-      } else {
-        window.location.href = "/";
-      }
+    } catch (err) {
+      console.error("Email auth error:", err);
+      setError(err instanceof Error ? err.message : "An unexpected error occurred");
+      setLoading(false);
     }
   }
 
