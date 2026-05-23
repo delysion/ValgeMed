@@ -12,6 +12,9 @@ export function LoginForm() {
   const [error, setError] = useState<string | null>(null);
   const [sentReset, setSentReset] = useState(false);
   const supabase = getClient();
+  const next = typeof window !== "undefined"
+    ? new URLSearchParams(window.location.search).get("next") || "/"
+    : "/";
 
   async function handleResetPassword() {
     if (!email) {
@@ -66,13 +69,13 @@ export function LoginForm() {
             setIsSignUp(false);
             setLoading(false);
           } else {
-            window.location.href = "/";
+            window.location.href = next;
           }
         } else if (!data.session) {
           setError("Unable to create account. Please try again.");
           setLoading(false);
         } else {
-          window.location.href = "/";
+          window.location.href = next;
         }
       } else {
         const { error } = await supabase.auth.signInWithPassword({
@@ -83,7 +86,7 @@ export function LoginForm() {
           setError(error.message);
           setLoading(false);
         } else {
-          window.location.href = "/";
+          window.location.href = next;
         }
       }
     } catch (err) {

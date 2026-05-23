@@ -11,10 +11,7 @@ export async function POST(request: Request) {
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const sql = neon(process.env.DATABASE_URL!);
-  const rows = await sql.query(
-    "SELECT is_admin FROM profiles WHERE id = $1",
-    [user.id],
-  );
+  const rows = await sql`SELECT is_admin FROM profiles WHERE id = ${user.id}`;
 
   if (!rows[0]?.is_admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
