@@ -1,7 +1,6 @@
-const CACHE_NAME = "valgemed-v1";
+const CACHE_NAME = "valgemed-v2";
 const STATIC_ASSETS = [
   "/",
-  "/dashboard",
   "/manifest.json",
   "/icons/icon-192.png",
   "/icons/icon-512.png",
@@ -9,8 +8,9 @@ const STATIC_ASSETS = [
 ];
 
 const CACHE_STRATEGIES = {
-  static: ["/_next/static/", "/icons/", "/fonts/"],
-  network: ["/api/", "/auth/"],
+  // Never cache /_next/static/ - let Next.js handle versioning
+  static: ["/icons/", "/fonts/"],
+  network: ["/api/", "/auth/", "/_next/static/"],
 };
 
 self.addEventListener("install", (event) => {
