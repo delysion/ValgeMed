@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 
+import { getI18n } from "@/lib/i18n/server";
 import { getTheme, themeCookie } from "@/lib/theme/config";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
@@ -13,8 +14,6 @@ import { LanguageSelector } from "@/components/language-selector";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { LogoutButton } from "./logout-button";
 import type { User } from "@supabase/supabase-js";
-import { getI18n, dictionaries } from "@/lib/i18n/server";
-import { TranslationProvider } from "@/lib/i18n/useTranslation";
 
 export default function AppShell({
   children,
@@ -26,12 +25,15 @@ export default function AppShell({
   const [locale, setLocale] = useState("en");
   const [dictionary, setDictionary] = useState<any>(null);
   const [theme, setThemeState] = useState<"light" | "dark" | null>(null);
+  const [i18n, setI18n] = useState<{ t: any; dictionary: any; locale: string } | null>(null);
 
   useEffect(() => {
     getTheme().then(setThemeState);
+    const i18n = getI18n();
+    setI18n(i18n);
   }, []);
 
-  const { t, dictionary: currentDictionary } = useTranslation(locale, dictionary);
+  const { t, dictionary: currentDictionary } = i18n || { t: (k: string) => k, dictionary: null };
 
   const displayName = (user.email ?? "").split("@")[0];
 
@@ -39,8 +41,7 @@ export default function AppShell({
     const next = theme === "dark" ? "light" : "dark";
     document.documentElement.classList.remove("light", "dark");
     document.documentElement.classList.add(next);
-    localStorage.setItem("theme", next);
-    document.cookie = `${themeCookie}=${next};max-age=31536000;path=/`;
+    localStorage.setItem(themeCookie, next);
     setThemeState(next);
   };
 
@@ -144,7 +145,7 @@ export function PageHeader({
             <p className="mb-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-primary">{eyebrow}</p>
           ) : null}
           <h2 className="text-balance text-2xl font-bold tracking-tight text-text-primary sm:text-3xl">{title}</h2>
-          {description ? <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-text-secondary">{description}</p> : null}
+          {description ? <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-text-secondary">{description}</p} : null}
         </div>
         {actions ? <div className="flex flex-wrap items-center gap-2.5 shrink-0">{actions}</div> : null}
       </div>

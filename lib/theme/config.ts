@@ -1,14 +1,10 @@
-import { cookies } from "next/headers";
-
 export const themeCookie = "valgemed_theme";
 
-export async function getTheme(): Promise<"light" | "dark"> {
-  try {
-    const cookieStore = await cookies();
-    const value = cookieStore.get(themeCookie)?.value;
-    if (value === "dark" || value === "light") return value;
-    return "light";
-  } catch {
-    return "light";
+export function getTheme() {
+  const saved = localStorage.getItem(themeCookie);
+  if (saved === "dark" || saved === "light") {
+    return saved;
   }
+  // Fallback to system preference
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
