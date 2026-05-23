@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
-
 import { getI18n } from "@/lib/i18n/server";
 import { getTheme, themeCookie } from "@/lib/theme/config";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -33,7 +31,7 @@ export default function AppShell({
     setI18n(i18n);
   }, []);
 
-  const { t, dictionary: currentDictionary } = i18n || { t: (k: string) => k, dictionary: null };
+  const { t, dictionary: currentDictionary } = i18n || { t: (k: string) => k, dictionary: null, locale: "en" };
 
   const displayName = (user.email ?? "").split("@")[0];
 
@@ -145,7 +143,7 @@ export function PageHeader({
             <p className="mb-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-primary">{eyebrow}</p>
           ) : null}
           <h2 className="text-balance text-2xl font-bold tracking-tight text-text-primary sm:text-3xl">{title}</h2>
-          {description ? <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-text-secondary">{description}</p} : null}
+          {description ? <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-text-secondary">{description}</p> : null}
         </div>
         {actions ? <div className="flex flex-wrap items-center gap-2.5 shrink-0">{actions}</div> : null}
       </div>
