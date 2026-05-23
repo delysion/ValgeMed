@@ -98,7 +98,8 @@ export async function proxy(request: NextRequest) {
   }
 
   const origin = new URL(request.url).origin;
-  const params = new URLSearchParams({ userId: user.id, email: user.email ?? "" });
+  const name = user.user_metadata?.full_name ?? user.email ?? "";
+  const params = new URLSearchParams({ userId: user.id, email: user.email ?? "", name });
 
   try {
     const checkRes = await fetch(

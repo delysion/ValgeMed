@@ -6,6 +6,7 @@ import { Check, X, Shield } from "lucide-react";
 type Profile = {
   id: string;
   displayName: string | null;
+  email: string | null;
   approved: boolean | null;
   isAdmin: boolean | null;
   createdAt: Date | null;
@@ -39,6 +40,7 @@ export function UserRow({ profile: initial }: { profile: Profile }) {
           {profile.displayName ?? "Unknown"}
         </p>
         <p className="text-xs text-text-muted">
+          {profile.email && <span className="mr-2">{profile.email}</span>}
           {isAdminUser && (
             <span className="inline-flex items-center gap-1 mr-2 text-amber-400 font-medium">
               <Shield className="h-3 w-3" />

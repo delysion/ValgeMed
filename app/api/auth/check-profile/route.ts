@@ -6,6 +6,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const userId = searchParams.get("userId");
   const email = searchParams.get("email");
+  const name = searchParams.get("name") ?? email;
 
   if (!userId || !email) {
     return Response.json({ error: "Missing params" }, { status: 400 });
@@ -14,10 +15,10 @@ export async function GET(request: Request) {
   const sql = neon(process.env.DATABASE_URL!);
 
   await sql.query(
-    `INSERT INTO profiles (id, email, approved)
-     VALUES ($1, $2, false)
-     ON CONFLICT (id) DO UPDATE SET email = $2`,
-    [userId, email],
+    `INSERT INTO profiles (id, email, display_name, approved)
+     VALUES ($1, $2, $3, false)
+     ON CONFLICT (id) DO UPDATE SET email = $2, display_name = $3`,
+    [userId, email, name],
   );
 
   const rows = await sql.query(
