@@ -40,6 +40,15 @@ export function LoginForm() {
         if (error) {
           setError(error.message);
           setLoading(false);
+        } else if (!data.session && data.user) {
+          const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+          if (signInError) {
+            setError("Account already exists. Please sign in.");
+            setIsSignUp(false);
+            setLoading(false);
+          } else {
+            window.location.href = "/";
+          }
         } else if (!data.session) {
           setError("Check your email for the confirmation link.");
           setLoading(false);
