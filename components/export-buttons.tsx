@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Download, Cloud, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/lib/i18n/useTranslation";
+import { GoogleDriveHelp } from "./google-drive-help";
 
 export function ExportButtons() {
   const { t, locale } = useTranslation();
@@ -172,19 +173,22 @@ export function ExportButtons() {
         {locale === "et" ? "Laadi alla ZIP" : "Download ZIP"}
       </Button>
 
-      <Button
-        onClick={handleGoogleDrive}
-        disabled={loading !== null}
-        variant="outline"
-        size="sm"
-      >
-        {loading === "gdrive" ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
-        ) : (
-          <Cloud className="h-4 w-4" />
-        )}
-        Google Drive
-      </Button>
+      <div className="flex items-center gap-2">
+        <Button
+          onClick={handleGoogleDrive}
+          disabled={loading !== null}
+          variant="outline"
+          size="sm"
+        >
+          {loading === "gdrive" ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Cloud className="h-4 w-4" />
+          )}
+          Google Drive
+        </Button>
+        <GoogleDriveHelp />
+      </div>
 
       <Button
         onClick={handleOneDrive}
