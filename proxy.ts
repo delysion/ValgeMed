@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { neon } from "@neondatabase/serverless";
 
 const privatePrefixes = [
   "/",
@@ -75,10 +76,6 @@ export async function proxy(request: NextRequest) {
     },
   );
 
-  // In Next.js middleware we only have the response after creation.
-  // Use a mutable headers approach instead.
-  const response = NextResponse.next();
-
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -96,7 +93,39 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // For new users, always block unless admin
+  const name = user.user_metadata?.full_name ?? user.email ?? "";
+
+  try {
+    const sql = neon(process.env.DATABASE_URL!);
+
+    await sql`
+      INSERT INTO profiles (id, email, display_name, approved)
+      VALUES (${user.id}, ${user.email}, ${name}, false)
+      ON CONFLICT (id) DO UPDATE SET email = ${user.email}, display_name = ${name}
+    `;
+
+    const rows = await sql`
+      SELECT approved, notified_at FROM profiles WHERE id = ${user.id}
+    `;
+
+    const profile = rows[0];
+
+    if (profile?.approved) {
+      return NextResponse.next();
+    }
+
+    if (!profile?.notified_at && profile?.email === user.email) {
+      fetch(
+        process.env.VERCEL_URL
+          ? `https://${process.env.VERCEL_URL}/api/admin/notify-pending`
+          : `${new URL(request.url).origin}/api/admin/notify-pending`,
+        { method: "POST" },
+      ).catch(() => {});
+    }
+  } catch {
+    console.error("proxy: check-profile/neon failed for", user.email);
+  }
+
   return NextResponse.redirect(new URL("/pending-approval", request.url));
 }
 
