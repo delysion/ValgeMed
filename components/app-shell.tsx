@@ -124,6 +124,7 @@ export default function AppShell({
   );
 }
 
+export { AppShell }
 export function PageHeader({
   title,
   description,
