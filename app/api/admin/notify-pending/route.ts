@@ -8,11 +8,19 @@ import { eq, and, isNull, sql } from "drizzle-orm";
 export async function POST() {
   const db = getDb();
 
-  const [admin] = await db
+  let [admin] = await db
     .select()
     .from(profiles)
     .where(eq(profiles.isAdmin, true))
     .limit(1);
+
+  if (!admin && process.env.OWNER_EMAIL) {
+    [admin] = await db
+      .select()
+      .from(profiles)
+      .where(eq(profiles.email, process.env.OWNER_EMAIL))
+      .limit(1);
+  }
 
   if (!admin) return Response.json({ ok: false });
 

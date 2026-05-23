@@ -97,12 +97,13 @@ export async function proxy(request: NextRequest) {
     return response;
   }
 
+  const origin = new URL(request.url).origin;
+  const params = new URLSearchParams({ userId: user.id, email: user.email ?? "" });
+
   try {
-    const cookieHeader = request.headers.get("cookie") || "";
-    const origin = new URL(request.url).origin;
-    const checkRes = await fetch(`${origin}/api/auth/check-profile`, {
-      headers: { cookie: cookieHeader },
-    });
+    const checkRes = await fetch(
+      `${origin}/api/auth/check-profile?${params}`,
+    );
 
     if (checkRes.ok) {
       const data = await checkRes.json();
@@ -116,12 +117,9 @@ export async function proxy(request: NextRequest) {
           () => {},
         );
       }
-
-      const pendingUrl = new URL("/pending-approval", request.url);
-      return NextResponse.redirect(pendingUrl);
     }
   } catch {
-    // on error, block access
+    // on error, block
   }
 
   const pendingUrl = new URL("/pending-approval", request.url);
