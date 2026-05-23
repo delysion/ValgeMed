@@ -2,8 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { getI18n } from "@/lib/i18n/server";
+import { getI18n, dictionaries } from "@/lib/i18n/server";
+import { en } from "@/lib/i18n/dictionaries/en";
+import { TranslationProvider } from "@/lib/i18n/useTranslation";
 import { getTheme, themeCookie } from "@/lib/theme/config";
+import type { Locale } from "@/lib/i18n/config";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -21,7 +24,7 @@ export function AppShell({
   children: React.ReactNode;
   user: User;
 }) {
-  const [locale, setLocale] = useState("en");
+  const [locale, setLocale] = useState<Locale>("en");
   const [dictionary, setDictionary] = useState<any>(null);
   const [theme, setThemeState] = useState<"light" | "dark">("light");
   const [i18n, setI18n] = useState<{ t: any; dictionary: any; locale: string } | null>(null);
@@ -32,7 +35,7 @@ export function AppShell({
     setI18n(i18n);
   }, []);
 
-  const { t, dictionary: currentDictionary } = i18n || { t: (k: string) => k, dictionary: null, locale: "en" };
+  const { t, dictionary: currentDictionary } = i18n || { t: (k: string) => k, dictionary: en, locale: "en" as Locale };
 
   const displayName = (user.email ?? "").split("@")[0];
 
@@ -45,6 +48,7 @@ export function AppShell({
   };
 
   return (
+    <TranslationProvider locale={locale} dictionary={currentDictionary} dictionaries={dictionaries}>
     <div className="min-h-school bg-bg-page">
       <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-xl focus:bg-gradient-to-br focus:from-primary focus:to-primary-ring focus:px-4 focus:py-2 focus:text-white focus:outline-none focus:shadow-lg">
         Skip to main content
@@ -120,6 +124,7 @@ export function AppShell({
         </main>
       </div>
     </div>
+    </TranslationProvider>
   );
 }
 
