@@ -27,7 +27,8 @@ CREATE OR REPLACE FUNCTION handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
   INSERT INTO profiles (id, email)
-  VALUES (NEW.id, NEW.email);
+  VALUES (NEW.id, NEW.email)
+  ON CONFLICT (id) DO UPDATE SET email = NEW.email;
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
@@ -202,9 +203,14 @@ CREATE POLICY "Users can CRUD own uploads" ON uploads
   FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
 
 -- Approval system
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS email TEXT;
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS approved BOOLEAN DEFAULT false;
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT false;
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS notified_at TIMESTAMPTZ;
+
+-- Fix existing profiles: set approved=false for rows missing it
+UPDATE profiles SET approved = false WHERE approved IS NULL;
+UPDATE profiles SET is_admin = false WHERE is_admin IS NULL;
 
 -- Only admin can see all profiles; users see only their own
 DROP POLICY IF EXISTS "Users can view own profile" ON profiles;
