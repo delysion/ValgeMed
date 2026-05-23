@@ -1,6 +1,5 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { neon } from "@neondatabase/serverless";
 
 const privatePrefixes = [
   "/",
@@ -59,8 +58,6 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  let response = NextResponse.next();
-
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -72,7 +69,6 @@ export async function proxy(request: NextRequest) {
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value, options }) => {
             request.cookies.set(name, value);
-            response.cookies.set(name, value, options);
           });
         },
       },
@@ -93,40 +89,31 @@ export async function proxy(request: NextRequest) {
   const isAdmin = adminEmail && user.email === adminEmail;
 
   if (isAdmin) {
-    return response;
+    return NextResponse.next();
   }
 
   const name = user.user_metadata?.full_name ?? user.email ?? "";
+  const host = process.env.VERCEL_URL ?? request.headers.get("host") ?? "valgemed.vercel.app";
+  const params = new URLSearchParams({ userId: user.id, email: user.email ?? "", name });
 
   try {
-    const sql = neon(process.env.DATABASE_URL!);
+    const res = await fetch(`https://${host}/api/auth/check-profile?${params}`, {
+      signal: AbortSignal.timeout(10_000),
+    });
 
-    await sql`
-      INSERT INTO profiles (id, email, display_name, approved)
-      VALUES (${user.id}, ${user.email}, ${name}, false)
-      ON CONFLICT (id) DO UPDATE SET email = ${user.email}, display_name = ${name}
-    `;
+    if (res.ok) {
+      const data = await res.json();
 
-    const rows = await sql`
-      SELECT approved, notified_at FROM profiles WHERE id = ${user.id}
-    `;
+      if (data.approved) {
+        return NextResponse.next();
+      }
 
-    const profile = rows[0];
-
-    if (profile?.approved) {
-      return response;
-    }
-
-    if (!profile?.notified_at && profile?.email === user.email) {
-      fetch(
-        process.env.VERCEL_URL
-          ? `https://${process.env.VERCEL_URL}/api/admin/notify-pending`
-          : `${new URL(request.url).origin}/api/admin/notify-pending`,
-        { method: "POST" },
-      ).catch(() => {});
+      if (!data.notified) {
+        fetch(`https://${host}/api/admin/notify-pending`, { method: "POST" }).catch(() => {});
+      }
     }
   } catch {
-    console.error("proxy: check-profile/neon failed for", user.email);
+    // block on error
   }
 
   return NextResponse.redirect(new URL("/pending-approval", request.url));
