@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
-import { AlertCircle, RefreshCw } from "lucide-react";
+import { useEffect, useState } from "react";
+import { AlertCircle, RefreshCw, Bug } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function GlobalError({
@@ -11,6 +11,8 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const [showDetails, setShowDetails] = useState(false);
+
   useEffect(() => {
     console.error("Global error:", error);
   }, [error]);
@@ -45,7 +47,7 @@ export default function GlobalError({
               Something went wrong
             </h2>
             <p style={{ fontSize: "0.875rem", color: "#6b7280" }}>
-              The application encountered an unexpected error. This might be related to Ollama or a configuration issue.
+              {error?.message || "An unexpected error occurred"}
             </p>
             <button
               onClick={reset}
@@ -64,9 +66,42 @@ export default function GlobalError({
               <RefreshCw size={16} />
               Try Again
             </button>
-            <p style={{ fontSize: "0.75rem", color: "#9ca3af" }}>
-              If using AI features, make sure Ollama is running: ollama serve
-            </p>
+            <button
+              onClick={() => setShowDetails(!showDetails)}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                padding: "0.5rem 1rem",
+                border: "none",
+                borderRadius: "0.5rem",
+                backgroundColor: "transparent",
+                cursor: "pointer",
+                fontSize: "0.75rem",
+                color: "#6b7280",
+                textDecoration: "underline",
+              }}
+            >
+              <Bug size={12} />
+              {showDetails ? "Hide" : "Show"} error details
+            </button>
+            {showDetails && (
+              <pre style={{
+                fontSize: "0.7rem",
+                color: "#ef4444",
+                backgroundColor: "#fef2f2",
+                padding: "0.75rem",
+                borderRadius: "0.5rem",
+                overflow: "auto",
+                maxWidth: "100%",
+                textAlign: "left",
+                whiteSpace: "pre-wrap",
+                wordBreak: "break-word",
+              }}>
+                {error?.toString()}
+                {error?.stack && `\n\n${error.stack}`}
+              </pre>
+            )}
           </div>
         </div>
       </body>
