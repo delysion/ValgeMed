@@ -1,4 +1,5 @@
 import { createServerClient } from "@supabase/ssr";
+import { neon } from "@neondatabase/serverless";
 import { NextResponse, type NextRequest } from "next/server";
 
 const privatePrefixes = [
@@ -40,6 +41,7 @@ const publicPaths = [
   "/auth",
   "/pending-approval",
   "/api/admin/notify-pending",
+  "/api/admin/check-status",
   "/api/auth/check-profile",
 ];
 
@@ -51,6 +53,10 @@ export async function proxy(request: NextRequest) {
   const rscMatch = pathname.match(/^\/_next\/data\/[^/]+\/(.+)\.json$/);
   if (rscMatch) {
     actualPathname = `/${rscMatch[1]}`;
+  }
+  // Normalize RSC root path (/_next/data/.../index.json → / → /)
+  if (actualPathname === "/index") {
+    actualPathname = "/";
   }
 
   if (publicPaths.some((path) => actualPathname.startsWith(path))) {
@@ -96,35 +102,33 @@ export async function proxy(request: NextRequest) {
   }
 
   const adminEmail = process.env.OWNER_EMAIL;
-  const isAdmin = adminEmail && user.email === adminEmail;
-
-  if (isAdmin) {
+  if (adminEmail && user.email === adminEmail) {
     return response;
   }
 
-  // Bypass: if user was manually approved by admin (cookie), let them through.
-  // Otherwise block until approved by admin.
   const name = user.user_metadata?.full_name ?? user.email ?? "";
-  const params = new URLSearchParams({ userId: user.id, email: user.email ?? "", name });
 
   try {
-    const res = await fetch(`https://valgemed.vercel.app/api/auth/check-profile?${params}`, {
-      signal: AbortSignal.timeout(10_000),
-    });
+    const sql = neon(process.env.DATABASE_URL!);
 
-    if (res.ok) {
-      const data = await res.json() as { approved?: boolean; notified?: boolean };
+    const rows = await sql`
+      INSERT INTO profiles (id, email, display_name, approved)
+      VALUES (${user.id}, ${user.email ?? ""}, ${name}, false)
+      ON CONFLICT (id) DO UPDATE SET email = ${user.email ?? ""}, display_name = ${name}
+      RETURNING approved, notified_at
+    `;
 
-      if (data.approved) {
-        return response;
-      }
+    const profile = rows[0];
 
-      if (!data.notified) {
-        fetch(`https://valgemed.vercel.app/api/admin/notify-pending`, { method: "POST" }).catch(() => {});
-      }
+    if (profile?.approved) {
+      return response;
+    }
+
+    if (!profile?.notified_at) {
+      fetch(`${request.nextUrl.origin}/api/admin/notify-pending`, { method: "POST" }).catch(() => {});
     }
   } catch {
-    // block non-approved users
+    // block non-approved users on error
   }
 
   return NextResponse.redirect(new URL("/pending-approval", request.url));

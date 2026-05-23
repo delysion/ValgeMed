@@ -42,6 +42,8 @@ export function LoginForm() {
       } else if (!data.session) {
         setError("Check your email for the confirmation link.");
         setLoading(false);
+      } else {
+        window.location.href = "/";
       }
     } else {
       const { error } = await supabase.auth.signInWithPassword({
@@ -51,6 +53,8 @@ export function LoginForm() {
       if (error) {
         setError(error.message);
         setLoading(false);
+      } else {
+        window.location.href = "/";
       }
     }
   }
