@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   AlertTriangle,
   Beaker,
@@ -21,6 +22,7 @@ import {
   Languages,
   LayoutDashboard,
   Lightbulb,
+  LogOut,
   MapPin,
   NotebookPen,
   Radar,
@@ -36,6 +38,7 @@ import type { TranslationKey } from "@/lib/i18n/dictionaries/en";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 import { cn } from "@/lib/utils";
 import { NavLink } from "./nav-link";
+import { getClient } from "@/lib/supabase/client";
 
 const COOKIE_NAME = "valgemed_nav";
 const COOKIE_DAYS = 365;
@@ -110,13 +113,6 @@ const sections: NavSection[] = [
       { href: "/portfolio", label: "nav.portfolio", icon: Briefcase },
     ],
   },
-  {
-    labelKey: "nav.sectionAiSettings",
-    items: [
-      { href: "/ai", label: "nav.ai", icon: Bot },
-      { href: "/settings", label: "nav.settings", icon: Settings },
-    ],
-  },
 ];
 
 function getInitialSection(): string | null {
@@ -127,11 +123,12 @@ function getInitialSection(): string | null {
 
 export function Navigation() {
   const { t } = useTranslation();
+  const router = useRouter();
   const [openSection, setOpenSection] = useState<string | null>(() => getInitialSection());
   const [mounted, setMounted] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- mounting flag is intentional
     setMounted(true);
   }, []);
 
@@ -143,44 +140,70 @@ export function Navigation() {
     });
   };
 
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    try {
+      const supabase = getClient();
+      await supabase.auth.signOut();
+    } catch {} finally {
+      router.push("/login");
+    }
+  };
+
   if (!mounted) return null;
 
   return (
-    <nav className="grid gap-1 pb-6" aria-label="Main navigation">
-      {sections.map((section) => {
-        const isOpen = openSection === section.labelKey;
-        return (
-          <div key={section.labelKey}>
-            <button
-              type="button"
-              onClick={() => toggleSection(section.labelKey)}
-              aria-expanded={isOpen}
-              className="flex w-full items-center gap-2 px-3 py-2 text-[11px] font-bold uppercase tracking-[0.12em] text-text-muted hover:text-text-primary transition-colors duration-150 rounded-lg hover:bg-bg-subtle/50"
-            >
-              <span className="flex-1 text-left">{t(section.labelKey)}</span>
-              <ChevronDown
-                className={cn(
-                  "h-3.5 w-3.5 shrink-0 transition-transform duration-200",
-                  isOpen && "rotate-180",
-                )}
-              />
-            </button>
-            {isOpen && (
-              <div className="grid gap-0.5 px-1 mt-0.5 mb-1">
-                {section.items.map((item) => (
-                  <NavLink
-                    key={item.href}
-                    href={item.href}
-                    label={item.label}
-                    icon={item.icon}
-                    t={t}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        );
-      })}
+    <nav className="flex flex-col gap-1 pb-6 h-full" aria-label="Main navigation">
+      <div className="flex-1 space-y-1">
+        {sections.map((section) => {
+          const isOpen = openSection === section.labelKey;
+          return (
+            <div key={section.labelKey}>
+              <button
+                type="button"
+                onClick={() => toggleSection(section.labelKey)}
+                aria-expanded={isOpen}
+                className="flex w-full items-center gap-2 px-3 py-2 text-[11px] font-bold uppercase tracking-[0.12em] text-text-muted hover:text-text-primary transition-colors duration-150 rounded-lg hover:bg-bg-subtle/50"
+              >
+                <span className="flex-1 text-left">{t(section.labelKey)}</span>
+                <ChevronDown
+                  className={cn(
+                    "h-3.5 w-3.5 shrink-0 transition-transform duration-200",
+                    isOpen && "rotate-180",
+                  )}
+                />
+              </button>
+              {isOpen && (
+                <div className="grid gap-0.5 px-1 mt-0.5 mb-1">
+                  {section.items.map((item) => (
+                    <NavLink
+                      key={item.href}
+                      href={item.href}
+                      label={item.label}
+                      icon={item.icon}
+                      t={t}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="border-t border-border/60 pt-3 mt-3 space-y-1">
+        <NavLink href="/ai" label="nav.ai" icon={Bot} t={t} />
+        <NavLink href="/settings" label="nav.settings" icon={Settings} t={t} />
+        <button
+          type="button"
+          onClick={handleLogout}
+          disabled={loggingOut}
+          className="flex w-full items-center gap-3 rounded-xl py-2.5 pl-[9px] pr-3 text-sm font-medium text-text-secondary hover:bg-destructive/10 hover:text-destructive transition-all duration-200 active:scale-[0.98]"
+        >
+          <LogOut className="h-[18px] w-[18px] shrink-0" />
+          <span className="truncate">{t("nav.logout")}</span>
+        </button>
+      </div>
     </nav>
   );
 }

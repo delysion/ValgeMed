@@ -46,6 +46,7 @@ export const et: Dictionary = {
   "nav.settings": "Seaded",
   "nav.sectionAiSettings": "AI & Seaded",
   "nav.dailyLog": "Päevalogi",
+  "nav.logout": "Logi välja",
 
   "form.subject.createTitle": "Uus õppeaine",
   "form.subject.editTitle": "Muuda õppeainet",

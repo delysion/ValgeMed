@@ -44,6 +44,7 @@ export const en = {
   "nav.settings": "Settings",
   "nav.sectionAiSettings": "AI & Settings",
   "nav.dailyLog": "Daily Log",
+  "nav.logout": "Logout",
 
   "form.subject.createTitle": "New Subject",
   "form.subject.editTitle": "Edit Subject",
