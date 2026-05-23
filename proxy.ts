@@ -1,4 +1,5 @@
 import { createServerClient } from "@supabase/ssr";
+import { neon } from "@neondatabase/serverless";
 import { NextResponse, type NextRequest } from "next/server";
 
 const privatePrefixes = [
@@ -36,6 +37,8 @@ const privatePrefixes = [
 ];
 
 const publicPaths = ["/login", "/auth", "/pending-approval", "/api/admin/notify-pending"];
+
+const db = () => neon(process.env.DATABASE_URL!);
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -79,34 +82,44 @@ export async function proxy(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   if (user) {
+    const sql = db();
     const adminEmail = process.env.OWNER_EMAIL;
     const isAdmin = adminEmail && user.email === adminEmail;
 
     if (isAdmin) {
-      await supabase
-        .from("profiles")
-        .upsert(
-          { id: user.id, email: user.email, approved: true, is_admin: true },
-          { onConflict: "id" },
-        );
+      await sql.query(
+        `INSERT INTO profiles (id, email, approved, is_admin)
+         VALUES ($1, $2, true, true)
+         ON CONFLICT (id) DO UPDATE SET email = $2, approved = true, is_admin = true`,
+        [user.id, user.email],
+      );
       return response;
     }
 
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("approved, notified_at")
-      .eq("id", user.id)
-      .single();
+    const rows = await sql.query(
+      "SELECT approved, notified_at FROM profiles WHERE id = $1",
+      [user.id],
+    );
 
-    if (profile?.approved) {
+    let profile = rows[0];
+
+    if (!profile) {
+      await sql.query(
+        "INSERT INTO profiles (id, email, approved) VALUES ($1, $2, false) ON CONFLICT (id) DO NOTHING",
+        [user.id, user.email],
+      );
+      profile = { approved: false, notified_at: null };
+    }
+
+    if (profile.approved) {
       return response;
     }
 
-    if (!profile?.notified_at) {
-      await supabase
-        .from("profiles")
-        .update({ notified_at: new Date().toISOString() })
-        .eq("id", user.id);
+    if (!profile.notified_at) {
+      await sql.query(
+        "UPDATE profiles SET notified_at = NOW() WHERE id = $1",
+        [user.id],
+      );
 
       const origin = new URL(request.url).origin;
       fetch(`${origin}/api/admin/notify-pending`, { method: "POST" }).catch(() => {});

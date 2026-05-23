@@ -19,17 +19,19 @@ export default function PendingApprovalPage() {
       }
       setEmail(user.email ?? "");
 
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("approved")
-        .eq("id", user.id)
-        .single();
-
-      if (profile?.approved) {
-        router.replace("/command");
-      }
+      try {
+        const res = await fetch("/api/admin/check-status");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.hasProfile && data.approved) {
+            router.replace("/command");
+          }
+        }
+      } catch {}
     };
     check();
+    const interval = setInterval(check, 15_000);
+    return () => clearInterval(interval);
   }, [router]);
 
   return (
