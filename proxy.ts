@@ -1,5 +1,4 @@
 import { createServerClient } from "@supabase/ssr";
-import { neon } from "@neondatabase/serverless";
 import { NextResponse, type NextRequest } from "next/server";
 
 const privatePrefixes = [
@@ -36,9 +35,13 @@ const privatePrefixes = [
   "/api/export",
 ];
 
-const publicPaths = ["/login", "/auth", "/pending-approval", "/api/admin/notify-pending"];
-
-const db = () => neon(process.env.DATABASE_URL!);
+const publicPaths = [
+  "/login",
+  "/auth",
+  "/pending-approval",
+  "/api/admin/notify-pending",
+  "/api/auth/check-profile",
+];
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -81,57 +84,48 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (user) {
-    const sql = db();
-    const adminEmail = process.env.OWNER_EMAIL;
-    const isAdmin = adminEmail && user.email === adminEmail;
-
-    if (isAdmin) {
-      await sql.query(
-        `INSERT INTO profiles (id, email, approved, is_admin)
-         VALUES ($1, $2, true, true)
-         ON CONFLICT (id) DO UPDATE SET email = $2, approved = true, is_admin = true`,
-        [user.id, user.email],
-      );
-      return response;
-    }
-
-    const rows = await sql.query(
-      "SELECT approved, notified_at FROM profiles WHERE id = $1",
-      [user.id],
-    );
-
-    let profile = rows[0];
-
-    if (!profile) {
-      await sql.query(
-        "INSERT INTO profiles (id, email, approved) VALUES ($1, $2, false) ON CONFLICT (id) DO NOTHING",
-        [user.id, user.email],
-      );
-      profile = { approved: false, notified_at: null };
-    }
-
-    if (profile.approved) {
-      return response;
-    }
-
-    if (!profile.notified_at) {
-      await sql.query(
-        "UPDATE profiles SET notified_at = NOW() WHERE id = $1",
-        [user.id],
-      );
-
-      const origin = new URL(request.url).origin;
-      fetch(`${origin}/api/admin/notify-pending`, { method: "POST" }).catch(() => {});
-    }
-
-    const pendingUrl = new URL("/pending-approval", request.url);
-    return NextResponse.redirect(pendingUrl);
+  if (!user) {
+    const loginUrl = new URL("/login", request.url);
+    loginUrl.searchParams.set("next", pathname);
+    return NextResponse.redirect(loginUrl);
   }
 
-  const loginUrl = new URL("/login", request.url);
-  loginUrl.searchParams.set("next", pathname);
-  return NextResponse.redirect(loginUrl);
+  const adminEmail = process.env.OWNER_EMAIL;
+  const isAdmin = adminEmail && user.email === adminEmail;
+
+  if (isAdmin) {
+    return response;
+  }
+
+  try {
+    const cookieHeader = request.headers.get("cookie") || "";
+    const origin = new URL(request.url).origin;
+    const checkRes = await fetch(`${origin}/api/auth/check-profile`, {
+      headers: { cookie: cookieHeader },
+    });
+
+    if (checkRes.ok) {
+      const data = await checkRes.json();
+
+      if (data.approved) {
+        return response;
+      }
+
+      if (!data.notified) {
+        fetch(`${origin}/api/admin/notify-pending`, { method: "POST" }).catch(
+          () => {},
+        );
+      }
+
+      const pendingUrl = new URL("/pending-approval", request.url);
+      return NextResponse.redirect(pendingUrl);
+    }
+  } catch {
+    // on error, block access
+  }
+
+  const pendingUrl = new URL("/pending-approval", request.url);
+  return NextResponse.redirect(pendingUrl);
 }
 
 export const config = {
