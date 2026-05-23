@@ -1,5 +1,20 @@
-import { Command } from "lucide-react";
+import { Command, CheckCircle2, Brain, TrendingUp, Shield } from "lucide-react";
 import { GoogleLoginButton } from "./google-button";
+
+const features = [
+  {
+    icon: Brain,
+    text: "Active recall & spaced repetition",
+  },
+  {
+    icon: TrendingUp,
+    text: "Track progress & burnout risk",
+  },
+  {
+    icon: Shield,
+    text: "Private & secure - your data only",
+  },
+];
 
 export default function LoginPage() {
   return (
@@ -21,12 +36,40 @@ export default function LoginPage() {
           </p>
         </div>
 
+        {/* Login Card */}
         <div className="rounded-2xl border border-border/60 bg-bg-surface/90 p-6 shadow-[var(--shadow-premium)] backdrop-blur-sm motion-stagger-1">
           <GoogleLoginButton />
+          
+          <div className="mt-4 text-center">
+            <p className="text-xs text-text-muted">
+              Free forever · No credit card required
+            </p>
+          </div>
         </div>
 
-        <p className="mt-6 text-center text-xs text-text-muted">
-          Multi-user system. Sign in with your Google account.
+        {/* Features */}
+        <div className="mt-8 grid gap-3">
+          {features.map((feature, i) => (
+            <div
+              key={i}
+              className="flex items-center gap-3 rounded-xl bg-bg-surface/50 p-3 border border-border/40"
+            >
+              <feature.icon className="h-5 w-5 text-primary shrink-0" />
+              <span className="text-sm text-text-secondary">{feature.text}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Footer */}
+        <p className="mt-8 text-center text-xs text-text-muted">
+          By signing in, you agree to our{" "}
+          <a href="#" className="text-primary hover:underline">
+            Terms of Service
+          </a>{" "}
+          and{" "}
+          <a href="#" className="text-primary hover:underline">
+            Privacy Policy
+          </a>
         </p>
       </div>
     </div>
