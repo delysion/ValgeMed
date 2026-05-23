@@ -1,8 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { getLocale } from "@/lib/i18n/server";
+import { getLocale, getDictionary, dictionaries } from "@/lib/i18n/server";
 import { getTheme } from "@/lib/theme/config";
+import { TranslationProvider } from "@/lib/i18n/useTranslation";
 import { ServiceWorkerRegistration } from "./sw-register";
 import { InstallAppButton } from "@/components/install-app-button";
 
@@ -53,6 +54,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const locale = await getLocale();
+  const dictionary = getDictionary(locale);
   const theme = await getTheme();
 
   return (
@@ -71,7 +73,9 @@ export default async function RootLayout({
       <body className="min-h-full">
         <ServiceWorkerRegistration />
         <InstallAppButton />
-        {children}
+        <TranslationProvider locale={locale} dictionary={dictionary} dictionaries={dictionaries}>
+          {children}
+        </TranslationProvider>
       </body>
     </html>
   );

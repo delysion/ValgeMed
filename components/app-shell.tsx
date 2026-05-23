@@ -33,6 +33,8 @@ export function AppShell({
     getTheme().then(setThemeState);
     const i18n = getI18n();
     setI18n(i18n);
+    setLocale(i18n.locale as Locale);
+    setDictionary(i18n.dictionary);
   }, []);
 
   const { t, dictionary: currentDictionary } = i18n || { t: (k: string) => k, dictionary: en, locale: "en" as Locale };
