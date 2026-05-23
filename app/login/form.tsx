@@ -2,7 +2,7 @@
 
 import { getClient } from "@/lib/supabase/client";
 import { useState } from "react";
-import { Mail, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 export function LoginForm() {
   const [loading, setLoading] = useState(false);
@@ -29,7 +29,7 @@ export function LoginForm() {
     setError(null);
 
     if (isSignUp) {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -38,6 +38,9 @@ export function LoginForm() {
       });
       if (error) {
         setError(error.message);
+        setLoading(false);
+      } else if (!data.session) {
+        setError("Check your email for the confirmation link.");
         setLoading(false);
       }
     } else {
