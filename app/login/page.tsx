@@ -1,5 +1,5 @@
-import { Command, Brain, TrendingUp, Shield } from "lucide-react";
-import { GoogleLoginButton } from "./google-button";
+import { Command, Brain, TrendingUp, Shield, Mail } from "lucide-react";
+import { LoginForm } from "./form";
 
 const features = [
   {
@@ -19,7 +19,6 @@ const features = [
 export default function LoginPage() {
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-bg-page p-4 overflow-hidden">
-      {/* Atmospheric background */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary-soft/20 via-bg-page to-cyan-bg/10" />
       <div className="pointer-events-none absolute -top-32 -left-32 h-96 w-96 rounded-full bg-primary/6 blur-[100px]" />
       <div className="pointer-events-none absolute -bottom-40 -right-40 h-[500px] w-[500px] rounded-full bg-violet/5 blur-[120px]" />
@@ -36,10 +35,9 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Login Card */}
         <div className="rounded-2xl border border-border/60 bg-bg-surface/90 p-6 shadow-[var(--shadow-premium)] backdrop-blur-sm motion-stagger-1">
-          <GoogleLoginButton />
-          
+          <LoginForm />
+
           <div className="mt-4 text-center">
             <p className="text-xs text-text-muted">
               Free forever · No credit card required
@@ -47,7 +45,6 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Features */}
         <div className="mt-8 grid gap-3">
           {features.map((feature, i) => (
             <div
@@ -60,7 +57,6 @@ export default function LoginPage() {
           ))}
         </div>
 
-        {/* Footer */}
         <p className="mt-8 text-center text-xs text-text-muted">
           By signing in, you agree to our{" "}
           <a href="#" className="text-primary hover:underline">
