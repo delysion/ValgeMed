@@ -26,7 +26,7 @@ export function AppShell({
 }) {
   const [locale, setLocale] = useState<Locale>("en");
   const [dictionary, setDictionary] = useState<any>(null);
-  const [theme, setThemeState] = useState<"light" | "dark">("light");
+  const [theme, setThemeState] = useState<"light" | "dark">("dark");
   const [i18n, setI18n] = useState<{ t: any; dictionary: any; locale: string } | null>(null);
 
   useEffect(() => {
