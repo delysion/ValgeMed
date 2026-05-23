@@ -5,17 +5,18 @@ import {
   integer,
   pgEnum,
   pgTable,
+  serial,
   text,
   timestamp,
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
 
-const idColumn = () => uuid("id").defaultRandom().primaryKey();
+const idColumn = () => serial("id").primaryKey();
 const createdAtColumn = () =>
-  timestamp("created_at", { withTimezone: true }).defaultNow().notNull();
+  timestamp("created_at").defaultNow().notNull();
 const updatedAtColumn = () =>
-  timestamp("updated_at", { withTimezone: true }).defaultNow().notNull();
+  timestamp("updated_at").defaultNow().notNull();
 
 export const examFormatEnum = pgEnum("exam_format", [
   "written",
