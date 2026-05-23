@@ -9,7 +9,7 @@ import { LanguageSelector } from "@/components/language-selector";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { logoutAction } from "@/lib/auth/actions";
+import { LogoutButton } from "./logout-button";
 import type { User } from "@supabase/supabase-js";
 import { getI18n, dictionaries } from "@/lib/i18n/server";
 import { TranslationProvider } from "@/lib/i18n/useTranslation";
@@ -96,12 +96,7 @@ export async function AppShell({
                   {t("app.exportJson")}
                 </a>
               </Button>
-              <form action={logoutAction}>
-                <Button type="submit" variant="outline" size="sm" className="rounded-xl gap-1.5">
-                  <LogOut className="h-4 w-4" />
-                  <span className="hidden sm:inline">{t("app.logout")}</span>
-                </Button>
-              </form>
+              <LogoutButton />
             </div>
           </header>
           <main id="main-content" className="mx-auto w-full max-w-[1440px] px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-8">{children}</main>
