@@ -49,8 +49,8 @@ export async function POST() {
     );
 
   await sendPushNotification(admin.id, {
-    title: "Nuovo utente in attesa",
-    body: `Ci sono ${result.count} nuovo/i utente/i da approvare`,
+    title: "New user pending",
+    body: `${result.count} new user(s) awaiting approval`,
     url: "/admin/users",
   });
 

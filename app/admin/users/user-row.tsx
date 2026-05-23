@@ -15,6 +15,7 @@ type Profile = {
 export function UserRow({ profile: initial }: { profile: Profile }) {
   const [profile, setProfile] = useState(initial);
   const [busy, setBusy] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
 
   const handleApprove = async () => {
     setBusy(true);
@@ -24,7 +25,12 @@ export function UserRow({ profile: initial }: { profile: Profile }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId: profile.id, approved: !profile.approved }),
       });
-      if (res.ok) setProfile((p) => ({ ...p, approved: !p.approved }));
+      if (res.ok) {
+        const wasApproved = !!profile.approved;
+        setProfile((p) => ({ ...p, approved: !p.approved }));
+        setToast(wasApproved ? "Access revoked" : "User approved");
+        setTimeout(() => setToast(null), 2500);
+      }
     } finally {
       setBusy(false);
     }
@@ -34,7 +40,12 @@ export function UserRow({ profile: initial }: { profile: Profile }) {
   const isAdminUser = !!profile.isAdmin;
 
   return (
-    <div className="flex items-center justify-between rounded-xl border border-border/60 bg-bg-surface/80 p-4">
+    <div className="relative flex items-center justify-between rounded-xl border border-border/60 bg-bg-surface/80 p-4">
+      {toast && (
+        <div className="absolute -top-2 right-2 rounded-lg bg-text-primary px-3 py-1 text-xs font-medium text-bg-page shadow-md animate-in fade-in slide-in-from-top-1">
+          {toast}
+        </div>
+      )}
       <div className="min-w-0">
         <p className="text-sm font-semibold text-text-primary truncate">
           {profile.displayName ?? "Unknown"}

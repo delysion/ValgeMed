@@ -10,7 +10,26 @@ export function LoginForm() {
   const [password, setPassword] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [sentReset, setSentReset] = useState(false);
   const supabase = getClient();
+
+  async function handleResetPassword() {
+    if (!email) {
+      setError("Enter your email first.");
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth/callback`,
+    });
+    if (error) {
+      setError(error.message);
+    } else {
+      setSentReset(true);
+    }
+    setLoading(false);
+  }
 
   async function handleGoogle() {
     setLoading(true);
@@ -50,7 +69,7 @@ export function LoginForm() {
             window.location.href = "/";
           }
         } else if (!data.session) {
-          setError("Check your email for the confirmation link.");
+          setError("Unable to create account. Please try again.");
           setLoading(false);
         } else {
           window.location.href = "/";
@@ -127,8 +146,18 @@ export function LoginForm() {
           />
         </div>
 
-        {error && (
+        {sentReset ? (
+          <p className="text-xs text-green-400">Password reset link sent to your email.</p>
+        ) : error && (
           <p className="text-xs text-red-400">{error}</p>
+        )}
+
+        {!isSignUp && !sentReset && (
+          <button type="button" onClick={handleResetPassword} disabled={loading}
+            className="text-xs text-text-muted hover:text-primary transition-colors"
+          >
+            Forgot password?
+          </button>
         )}
 
         <button
