@@ -38,6 +38,7 @@ import type { TranslationKey } from "@/lib/i18n/dictionaries/en";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 import { cn } from "@/lib/utils";
 import { NavLink } from "./nav-link";
+import { AdminPendingBadge } from "./admin-pending-badge";
 import { getClient } from "@/lib/supabase/client";
 
 const COOKIE_NAME = "valgemed_nav";
@@ -194,6 +195,7 @@ export function Navigation() {
       <div className="border-t border-border/60 pt-3 mt-3 space-y-1">
         <NavLink href="/ai" label="nav.ai" icon={Bot} t={t} />
         <NavLink href="/settings" label="nav.settings" icon={Settings} t={t} />
+        <AdminPendingBadge />
         <button
           type="button"
           onClick={handleLogout}

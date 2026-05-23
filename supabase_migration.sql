@@ -204,6 +204,7 @@ CREATE POLICY "Users can CRUD own uploads" ON uploads
 -- Approval system
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS approved BOOLEAN DEFAULT false;
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT false;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS notified_at TIMESTAMPTZ;
 
 -- Only admin can see all profiles; users see only their own
 DROP POLICY IF EXISTS "Users can view own profile" ON profiles;

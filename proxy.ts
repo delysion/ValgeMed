@@ -34,7 +34,7 @@ const privatePrefixes = [
   "/api/export",
 ];
 
-const publicPaths = ["/login", "/auth", "/pending-approval"];
+const publicPaths = ["/login", "/auth", "/pending-approval", "/api/admin/notify-pending"];
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -93,12 +93,22 @@ export async function proxy(request: NextRequest) {
 
     const { data: profile } = await supabase
       .from("profiles")
-      .select("approved")
+      .select("approved, notified_at")
       .eq("id", user.id)
       .single();
 
     if (profile?.approved) {
       return response;
+    }
+
+    if (!profile?.notified_at) {
+      await supabase
+        .from("profiles")
+        .update({ notified_at: new Date().toISOString() })
+        .eq("id", user.id);
+
+      const origin = new URL(request.url).origin;
+      fetch(`${origin}/api/admin/notify-pending`, { method: "POST" }).catch(() => {});
     }
 
     const pendingUrl = new URL("/pending-approval", request.url);

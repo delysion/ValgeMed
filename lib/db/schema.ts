@@ -624,6 +624,7 @@ export const profiles = pgTable("profiles", {
   displayName: text("display_name"),
   approved: boolean("approved").default(false),
   isAdmin: boolean("is_admin").default(false),
+  notifiedAt: timestamp("notified_at", { withTimezone: true }),
   createdAt: createdAtColumn(),
   updatedAt: updatedAtColumn(),
 });
