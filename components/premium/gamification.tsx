@@ -1,5 +1,3 @@
-"use client";
-
 import { Flame, Lock, ShieldAlert, Sparkle, Target, TrendingUp, Trophy, Zap, Languages, Brain, BookOpen } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "@/lib/i18n/useTranslation";
