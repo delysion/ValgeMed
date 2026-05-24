@@ -18,7 +18,7 @@ Source reviewed: `C:/Users/vnthu/Downloads/ChatGPT-Med!Dent Study OS Tartu.md`.
 - `/elite-index` with expanded strategic scoring.
 - Life/elite database tables: Tartu notes, time blocks, health logs, language progress, reputation events, opportunities, professional contacts, life admin items, portfolio items and strategic reviews.
 - Error recurrence count and retest-oriented error destruction.
-- Product Bible and Elise Start Guide.
+- Product Bible and Start Guide.
 - Low-data mode warning on Command.
 - AI governance page with AI explicitly disabled in v1.
 

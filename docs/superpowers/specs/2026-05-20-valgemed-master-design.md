@@ -2,7 +2,7 @@
 
 > Data: 2026-05-20 (revisione 1)
 > Nome pubblico: ValgeMed — "A quiet command system for serious medical students."
-> Nome interno: ELISE OS
+> Nome storico: ValgeMed
 > Fonti: PRODUCT_BIBLE.md, VISUAL_RESCUE_PLAN.md, documento fondatore
 > Competenze integrate: frontend-design, web-design-guidelines, shadcn, vercel-react-best-practices, vercel-composition-patterns, next-best-practices
 
@@ -284,7 +284,7 @@ Overview strategica settimanale:
 
 ### 6.3 /elite-index
 Scomposizione del punteggio:
-- Elise Elite Index trend chart
+- Elite Index trend chart
 - Medical Mastery
 - Exam Readiness
 - Time Leverage
@@ -619,7 +619,7 @@ MetricCard: layout orizzontale a `< sm`. Tabelle: card-list a `< md`. Form: sing
 | Cookie theme | `valgemed_theme` |
 | Cookie language | `valgemed_language` |
 | Cookie navigation | `valgemed_nav` |
-| Codice/funzioni interne | `elise_*` (non rompere compatibilita) |
+| Codice/funzioni interne | `legacy_*` (compatibilita con codice preesistente) |
 | README heading | ValgeMed |
 
 ---

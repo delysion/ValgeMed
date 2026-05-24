@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Transform ELISE OS into ValgeMed — a dark Nordic clinical cockpit with rebranded identity, collapsible navigation, gamification layer, research command module, improved forms, premium login, and full accessibility sweep.
+**Goal:** Rebrand and overhaul ValgeMed — a dark Nordic clinical cockpit with refined identity, collapsible navigation, gamification layer, research command module, improved forms, premium login, and full accessibility sweep.
 
 **Architecture:** Next.js App Router with server components. CSS custom properties (design tokens) via Tailwind v4 `@theme inline`. shadcn/ui primitives + premium components. Cookie-based theme/language/nav persistence. Drizzle ORM with Neon Postgres. Vitest for tests. Recharts for charts.
 
@@ -81,7 +81,7 @@ const THEME_COOKIE = "valgemed_theme";
 
 - [ ] **Step 2: Verify no other hardcoded references to old cookie name**
 
-Run: `rg "elise_theme" lib/ components/ app/`
+Run: `rg "legacy_theme" lib/ components/ app/`
 Expected: no results (all references should use the constant)
 
 - [ ] **Step 3: Commit**
@@ -108,7 +108,7 @@ const LANGUAGE_COOKIE = "valgemed_language";
 
 - [ ] **Step 2: Verify**
 
-Run: `rg "elise_language" lib/ components/ app/`
+Run: `rg "legacy_language" lib/ components/ app/`
 Expected: no results
 
 - [ ] **Step 3: Commit**
@@ -131,7 +131,7 @@ git commit -m "feat: rename language cookie to valgemed_language"
 In `lib/i18n/dictionaries/en.ts`, update all occurrences:
 - `"ELISE OS"` → `"ValgeMed"`
 - `"Enter ELISE OS"` → `"Enter ValgeMed"`
-- `"Elise Elite Index"` → `"Elite Index"` (keep "Elise" only where it refers to the scoring engine)
+- `"Elite Index"` → keep as is
 
 - [ ] **Step 2: Update Estonian dictionary**
 
