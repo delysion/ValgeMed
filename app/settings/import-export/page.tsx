@@ -2,22 +2,24 @@ import { AppShell, PageHeader } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireUser } from "@/lib/auth/supabase";
+import { getI18n } from "@/lib/i18n/server";
 import { ExportButtons } from "@/components/export-buttons";
 
 export const dynamic = "force-dynamic";
 
 export default async function ImportExportPage() {
   const user = await requireUser();
+  const { t } = await getI18n();
 
   return (
     <AppShell user={user}>
-      <PageHeader title="Import / Export" description="Local data export. Import is create-only and remains on the roadmap to avoid accidental overwrites." />
+      <PageHeader title={t("settings.importExportTitle")} description={t("settings.importExportDesc")} />
       <div className="grid gap-6">
         {/* Quick Export */}
         <Card>
           <CardHeader>
-            <CardTitle>Quick Export</CardTitle>
-            <CardDescription>Export all your data as ZIP and save to cloud storage.</CardDescription>
+            <CardTitle>{t("settings.quickExport")}</CardTitle>
+            <CardDescription>{t("settings.quickExportDesc")}</CardDescription>
           </CardHeader>
           <CardContent>
             <ExportButtons />
@@ -28,23 +30,23 @@ export default async function ImportExportPage() {
         <div className="grid gap-4 md:grid-cols-2">
           <Card>
             <CardHeader>
-              <CardTitle>Export JSON</CardTitle>
-              <CardDescription>Full backup including life and elite tables.</CardDescription>
+              <CardTitle>{t("settings.exportJson")}</CardTitle>
+              <CardDescription>{t("settings.exportJsonDesc")}</CardDescription>
             </CardHeader>
             <CardContent>
               <Button asChild>
-                <a href="/api/export/json">Download JSON</a>
+                <a href="/api/export/json">{t("settings.downloadJson")}</a>
               </Button>
             </CardContent>
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle>Export CSV</CardTitle>
-              <CardDescription>Tabular format for external review.</CardDescription>
+              <CardTitle>{t("settings.exportCsv")}</CardTitle>
+              <CardDescription>{t("settings.exportCsvDesc")}</CardDescription>
             </CardHeader>
             <CardContent>
               <Button asChild variant="outline">
-                <a href="/api/export/csv">Download CSV</a>
+                <a href="/api/export/csv">{t("settings.downloadCsv")}</a>
               </Button>
             </CardContent>
           </Card>

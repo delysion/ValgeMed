@@ -5,8 +5,10 @@ import { useRouter } from "next/navigation";
 import { getClient } from "@/lib/supabase/client";
 import { Command, Hourglass, Loader2 } from "lucide-react";
 import { checkStatusAction } from "@/lib/actions/admin";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 export default function PendingApprovalPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [checking, setChecking] = useState(true);

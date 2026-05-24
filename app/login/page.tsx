@@ -1,22 +1,19 @@
 import { Command, Brain, TrendingUp, Shield, Mail } from "lucide-react";
+import { getI18n } from "@/lib/i18n/server";
 import { LoginForm } from "./form";
 
-const features = [
-  {
-    icon: Brain,
-    text: "Active recall & spaced repetition",
-  },
-  {
-    icon: TrendingUp,
-    text: "Track progress & burnout risk",
-  },
-  {
-    icon: Shield,
-    text: "Private & secure - your data only",
-  },
-];
+function getFeatures(t: ReturnType<typeof getI18n>["t"]) {
+  return [
+    { icon: Brain, text: t("login.feature1") },
+    { icon: TrendingUp, text: t("login.feature2") },
+    { icon: Shield, text: t("login.feature3") },
+  ];
+}
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  const { t } = getI18n();
+  const features = getFeatures(t);
+
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-bg-page p-4 overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-primary-soft/20 via-bg-page to-cyan-bg/10" />
@@ -31,7 +28,7 @@ export default function LoginPage() {
           </div>
           <h1 className="text-3xl font-bold tracking-tight text-text-primary">ValgeMed</h1>
           <p className="mt-2 text-sm leading-relaxed text-text-secondary">
-            A quiet command system for serious medical students.
+            {t("app.tagline")}
           </p>
         </div>
 
@@ -40,7 +37,7 @@ export default function LoginPage() {
 
           <div className="mt-4 text-center">
             <p className="text-xs text-text-muted">
-              Free forever · No credit card required
+              {t("login.freeForever")}
             </p>
           </div>
         </div>
@@ -58,14 +55,10 @@ export default function LoginPage() {
         </div>
 
         <p className="mt-8 text-center text-xs text-text-muted">
-          By signing in, you agree to our{" "}
-          <a href="#" className="text-primary hover:underline">
-            Terms of Service
-          </a>{" "}
-          and{" "}
-          <a href="#" className="text-primary hover:underline">
-            Privacy Policy
-          </a>
+          {t("login.termsAgreement")}{" "}
+          <a href="#" className="text-primary hover:underline">{t("login.termsOfService")}</a>{" "}
+          {t("common.or")}{" "}
+          <a href="#" className="text-primary hover:underline">{t("login.privacyPolicy")}</a>
         </p>
       </div>
     </div>

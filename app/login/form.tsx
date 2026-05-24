@@ -3,8 +3,10 @@
 import { getClient } from "@/lib/supabase/client";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 export function LoginForm() {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -18,7 +20,7 @@ export function LoginForm() {
 
   async function handleResetPassword() {
     if (!email) {
-      setError("Enter your email first.");
+      setError(t("login.enterEmail"));
       return;
     }
     setLoading(true);
@@ -65,14 +67,14 @@ export function LoginForm() {
         } else if (!data.session && data.user) {
           const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
           if (signInError) {
-            setError("Account already exists. Please sign in.");
+            setError(t("login.accountExists"));
             setIsSignUp(false);
             setLoading(false);
           } else {
             window.location.href = next;
           }
         } else if (!data.session) {
-          setError("Unable to create account. Please try again.");
+          setError(t("login.createAccountError"));
           setLoading(false);
         } else {
           window.location.href = next;
@@ -91,7 +93,7 @@ export function LoginForm() {
       }
     } catch (err) {
       console.error("Email auth error:", err);
-      setError(err instanceof Error ? err.message : "An unexpected error occurred");
+      setError(err instanceof Error ? err.message : t("login.unexpectedError"));
       setLoading(false);
     }
   }
@@ -110,7 +112,7 @@ export function LoginForm() {
           <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
           <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
         </svg>
-        {loading ? "Connecting..." : "Sign in with Google"}
+        {loading ? t("login.connecting") : t("login.signInWithGoogle")}
       </button>
 
       <div className="relative">
@@ -118,25 +120,25 @@ export function LoginForm() {
           <span className="w-full border-t border-border/60" />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-bg-surface/90 px-2 text-text-muted">or continue with email</span>
+          <span className="bg-bg-surface/90 px-2 text-text-muted">{t("login.orContinueWithEmail")}</span>
         </div>
       </div>
 
       <form onSubmit={handleEmailSubmit} className="space-y-3">
         <div>
-          <label htmlFor="email" className="sr-only">Email</label>
+          <label htmlFor="email" className="sr-only">{t("login.emailLabel")}</label>
           <input
             id="email"
             type="email"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@example.com"
+            placeholder={t("login.emailPlaceholder")}
             className="w-full rounded-xl border border-border/60 bg-bg-page px-4 py-3 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary/30"
           />
         </div>
         <div>
-          <label htmlFor="password" className="sr-only">Password</label>
+          <label htmlFor="password" className="sr-only">{t("login.passwordLabel")}</label>
           <input
             id="password"
             type="password"
@@ -144,13 +146,13 @@ export function LoginForm() {
             minLength={6}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password (min 6 characters)"
+            placeholder={t("login.passwordPlaceholder")}
             className="w-full rounded-xl border border-border/60 bg-bg-page px-4 py-3 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary/30"
           />
         </div>
 
         {sentReset ? (
-          <p className="text-xs text-green-400">Password reset link sent to your email.</p>
+          <p className="text-xs text-green-400">{t("login.resetSent")}</p>
         ) : error && (
           <p className="text-xs text-red-400">{error}</p>
         )}
@@ -159,7 +161,7 @@ export function LoginForm() {
           <button type="button" onClick={handleResetPassword} disabled={loading}
             className="text-xs text-text-muted hover:text-primary transition-colors"
           >
-            Forgot password?
+            {t("login.forgotPassword")}
           </button>
         )}
 
@@ -169,17 +171,17 @@ export function LoginForm() {
           className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-medium text-white shadow-sm hover:bg-primary/90 transition-colors disabled:opacity-50"
         >
           {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-          {isSignUp ? "Create account" : "Sign in"}
+          {isSignUp ? t("login.createAccount") : t("login.loginSubmit")}
         </button>
 
         <p className="text-center text-xs text-text-muted">
-          {isSignUp ? "Already have an account?" : "No account yet?"}{" "}
+          {isSignUp ? t("login.alreadyHaveAccount") : t("login.noAccount")}{" "}
           <button
             type="button"
             onClick={() => setIsSignUp(!isSignUp)}
             className="text-primary hover:underline"
           >
-            {isSignUp ? "Sign in" : "Create one"}
+            {isSignUp ? t("login.loginSubmit") : t("login.createOne")}
           </button>
         </p>
       </form>
