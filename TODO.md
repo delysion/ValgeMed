@@ -1,37 +1,28 @@
 # TODO
 
-## P0 - Stabilita e sicurezza
+## P0 — Stabilità e sicurezza
 
-- Aggiungere backup automatizzato fuori app per export periodici.
-- Aggiungere test e2e per login, CRUD principali ed export.
-- Aggiungere rate limiting locale al login se l'app viene esposta pubblicamente.
-- Aggiungere audit log minimale per modifiche critiche.
+- Backup automatizzato per export periodici
+- Test e2e per login, CRUD, export
+- Rate limiting al login (se esposto pubblicamente)
+- Audit log minimale per modifiche critiche
 
-## P1 - Studio e rendimento
+## P1 — Studio e rendimento
 
-- Advanced spaced repetition.
-- Exam import.
-- Anki import/export.
-- Complete remaining low-level CRUD form i18n so every form field label and option is dictionary-driven.
-- Persist language preference in the database if a durable single-owner settings table is added.
-- Import dati create-only con schermata di revisione e deduplicazione.
-- Migliorare battle plan con vincoli di energia e finestre disponibili.
-- Dashboard per rendimento per ora per materia.
-- Scoring weights editabili da UI con persistenza sicura.
-- Subject command center dedicato `/subjects/[id]`.
-- Last 48 hours plan e minimum viable pass plan piu dettagliati per ogni esame.
+- Spaced repetition avanzata
+- Import esami / Anki
+- i18n completa per tutti i form
+- Persistenza language preference in DB
+- Scoring weights editabili da UI
+- Dashboard rendimento per materia
 
-## P2 - Roadmap futura da non implementare ora
+## P2 — Futuro
 
-- AI locale Ollama/LM Studio.
-- AI manual packet con redazione esplicita dei dati condivisi.
-- Calendar integration.
-- File upload.
-- PDF notes.
-- Semantic search.
-- Mobile PWA notifications.
-- Multilingual Estonian study layer.
-- Lecture parser.
-- Offline mode.
-- Encrypted backups.
-- Desktop wrapper.
+- AI locale (Ollama)
+- Integrazione calendario
+- Upload file / PDF notes
+- Ricerca semantica
+- Notifiche push PWA
+- Lettore lezioni
+- Modalità offline
+- Backup cifrati

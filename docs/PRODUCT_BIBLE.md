@@ -48,7 +48,7 @@ Implemented scores:
 - Estonia Integration
 - Reputation Capital
 - Opportunity Capture
-- Elise Elite Index
+- Elite Index
 
 ## AI Policy
 
