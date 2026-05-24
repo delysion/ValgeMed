@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import {
   AlertTriangle,
@@ -106,15 +106,18 @@ const sections: NavSection[] = [
 export function MobileDrawer({
   open,
   onClose,
+  displayName = "",
 }: {
   open: boolean;
   onClose: () => void;
+  displayName?: string;
 }) {
   const { t } = useTranslation();
   const router = useRouter();
   const pathname = usePathname();
   const [theme, setThemeState] = useState<"light" | "dark">("dark");
   const [loggingOut, setLoggingOut] = useState(false);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     getTheme().then(setThemeState);
@@ -155,46 +158,76 @@ export function MobileDrawer({
   const isActive = (href: string) =>
     pathname === href || (href !== "/command" && pathname?.startsWith(href + "/"));
 
-  if (!open) return null;
-
   return (
-    <div className="fixed inset-0 z-50 lg:hidden">
+    <div
+      className={cn(
+        "fixed inset-0 z-50 lg:hidden",
+        "transition-[visibility] duration-300",
+        open ? "visible" : "invisible",
+      )}
+    >
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      {/* Drawer */}
-      <div className="absolute inset-y-0 left-0 w-[min(88vw,320px)] bg-gradient-to-b from-bg-surface to-bg-page border-r border-border shadow-2xl overflow-y-auto">
+      <div
+        className={cn(
+          "absolute inset-0 bg-black/60 backdrop-blur-sm",
+          "transition-opacity duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+          open ? "opacity-100" : "opacity-0",
+        )}
+        onClick={onClose}
+      />
+      {/* Drawer Panel */}
+      <div
+        ref={panelRef}
+        className={cn(
+          "absolute inset-y-0 left-0 w-[min(88vw,320px)] bg-gradient-to-b from-bg-surface to-bg-page border-r border-border shadow-2xl overflow-y-auto",
+          "transition-transform duration-[400ms] ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform",
+          open ? "translate-x-0" : "-translate-x-full",
+        )}
+      >
+        {/* Header */}
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-gradient-to-r from-bg-page/80 to-bg-surface/80 backdrop-blur-xl p-4">
-          <div className="flex items-center gap-3">
-            <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-primary via-primary-ring to-violet shadow-sm">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-primary via-primary-ring to-violet shadow-sm">
               <Command className="h-5 w-5 text-white" />
             </div>
-            <div>
-              <h2 className="text-sm font-bold tracking-tight text-text-primary">{t("app.name")}</h2>
-              <p className="text-xs text-text-muted">{t("app.tagline")}</p>
+            <div className="min-w-0">
+              <h2 className="text-sm font-bold tracking-tight text-text-primary truncate">{t("app.name")}</h2>
+              {displayName ? (
+                <p className="text-xs text-text-muted truncate">{displayName}</p>
+              ) : (
+                <p className="text-xs text-text-muted truncate">{t("app.tagline")}</p>
+              )}
             </div>
           </div>
-          <button type="button" onClick={onClose} className="grid h-9 w-9 place-items-center rounded-xl hover:bg-bg-subtle active:scale-[0.97]">
+          <button type="button" onClick={onClose} className="grid h-9 w-9 shrink-0 place-items-center rounded-xl hover:bg-bg-subtle active:scale-[0.92] transition-all duration-150">
             <X className="h-5 w-5 text-text-secondary" />
           </button>
         </div>
 
         <nav className="flex flex-col gap-1 p-3 pb-6" aria-label="Mobile navigation">
-          {sections.map((section) => (
+          {sections.map((section, si) => (
             <div key={section.labelKey}>
-              <p className="px-3 py-2 text-[11px] font-bold uppercase tracking-[0.12em] text-text-muted">
+              <p
+                className="px-3 py-2 text-[11px] font-bold uppercase tracking-[0.12em] text-text-muted"
+                style={{ transitionDelay: `${150 + si * 30}ms` }}
+              >
                 {t(section.labelKey)}
               </p>
               <div className="grid gap-0.5">
-                {section.items.map((item) => {
+                {section.items.map((item, ii) => {
                   const Icon = item.icon;
                   const active = isActive(item.href);
+                  const delay = 180 + si * 30 + ii * 20;
                   return (
                     <button
                       key={item.href}
                       type="button"
                       onClick={() => handleNav(item.href)}
+                      style={{ transitionDelay: open ? `${delay}ms` : "0ms" }}
                       className={cn(
-                        "flex items-center gap-3 min-h-[44px] rounded-xl py-2.5 pl-[9px] pr-3 text-sm font-medium transition-all duration-200 border-l-[3px] active:scale-[0.97]",
+                        "flex items-center gap-3 min-h-[44px] rounded-xl py-2.5 pl-[9px] pr-3 text-sm font-medium border-l-[3px]",
+                        "transition-all duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] active:scale-[0.96]",
+                        open ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-3",
                         active
                           ? "bg-gradient-to-r from-primary-soft/60 to-primary-soft/20 text-primary border-l-primary shadow-sm shadow-primary/10"
                           : "border-l-transparent text-text-secondary hover:bg-gradient-to-r hover:from-bg-subtle/60 hover:to-bg-subtle/20 hover:text-text-primary",
@@ -210,32 +243,33 @@ export function MobileDrawer({
           ))}
 
           <div className="border-t border-border/60 pt-3 mt-3 space-y-1">
-            <button
-              type="button"
-              onClick={() => handleNav("/ai")}
-              className={cn(
-                "flex items-center gap-3 min-h-[44px] rounded-xl py-2.5 pl-[9px] pr-3 text-sm font-medium transition-all duration-200 border-l-[3px] active:scale-[0.97]",
-                isActive("/ai")
-                  ? "bg-gradient-to-r from-primary-soft/60 to-primary-soft/20 text-primary border-l-primary"
-                  : "border-l-transparent text-text-secondary hover:bg-gradient-to-r hover:from-bg-subtle/60 hover:to-bg-subtle/20 hover:text-text-primary",
-              )}
-            >
-              <Bot className="h-[18px] w-[18px] shrink-0" />
-              <span>{t("nav.ai")}</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => handleNav("/settings")}
-              className={cn(
-                "flex items-center gap-3 min-h-[44px] rounded-xl py-2.5 pl-[9px] pr-3 text-sm font-medium transition-all duration-200 border-l-[3px] active:scale-[0.97]",
-                isActive("/settings")
-                  ? "bg-gradient-to-r from-primary-soft/60 to-primary-soft/20 text-primary border-l-primary"
-                  : "border-l-transparent text-text-secondary hover:bg-gradient-to-r hover:from-bg-subtle/60 hover:to-bg-subtle/20 hover:text-text-primary",
-              )}
-            >
-              <Settings className="h-[18px] w-[18px] shrink-0" />
-              <span>{t("nav.settings")}</span>
-            </button>
+            {[
+              { href: "/ai", icon: Bot, label: "nav.ai" },
+              { href: "/settings", icon: Settings, label: "nav.settings" },
+            ].map((item, ii) => {
+              const Icon = item.icon;
+              const active = isActive(item.href);
+              const delay = 180 + sections.length * 30 + ii * 20;
+              return (
+                <button
+                  key={item.href}
+                  type="button"
+                  onClick={() => handleNav(item.href)}
+                  style={{ transitionDelay: open ? `${delay}ms` : "0ms" }}
+                  className={cn(
+                    "flex items-center gap-3 min-h-[44px] rounded-xl py-2.5 pl-[9px] pr-3 text-sm font-medium border-l-[3px]",
+                    "transition-all duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] active:scale-[0.96]",
+                    open ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-3",
+                    active
+                      ? "bg-gradient-to-r from-primary-soft/60 to-primary-soft/20 text-primary border-l-primary"
+                      : "border-l-transparent text-text-secondary hover:bg-gradient-to-r hover:from-bg-subtle/60 hover:to-bg-subtle/20 hover:text-text-primary",
+                  )}
+                >
+                  <Icon className="h-[18px] w-[18px] shrink-0" />
+                  <span>{t(item.label as TranslationKey)}</span>
+                </button>
+              );
+            })}
             <AdminPendingBadge />
           </div>
 
@@ -251,7 +285,7 @@ export function MobileDrawer({
               type="button"
               onClick={handleLogout}
               disabled={loggingOut}
-              className="flex w-full items-center gap-3 min-h-[44px] rounded-xl py-2.5 pl-[9px] pr-3 text-sm font-medium text-text-secondary hover:bg-destructive/10 hover:text-destructive transition-all duration-200 active:scale-[0.98]"
+              className="flex w-full items-center gap-3 min-h-[44px] rounded-xl py-2.5 pl-[9px] pr-3 text-sm font-medium text-text-secondary hover:bg-destructive/10 hover:text-destructive transition-all duration-200 active:scale-[0.96]"
             >
               <LogOut className="h-[18px] w-[18px] shrink-0" />
               <span className="truncate">{t("nav.logout")}</span>

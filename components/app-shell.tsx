@@ -1,14 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
-import { getI18n, dictionaries } from "@/lib/i18n/server";
-import { en } from "@/lib/i18n/dictionaries/en";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { getI18n } from "@/lib/i18n/server";
 import { getTheme, themeCookie } from "@/lib/theme/config";
-import type { Locale } from "@/lib/i18n/config";
+import type { TranslationKey } from "@/lib/i18n/dictionaries/en";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { Navigation } from "./navigation";
 import { LanguageSelector } from "@/components/language-selector";
 import { LogoutButton } from "./logout-button";
@@ -18,6 +16,38 @@ import { checkStatusAction } from "@/lib/actions/admin";
 import { MobileNav } from "@/components/mobile-nav";
 import { MobileDrawer } from "@/components/mobile-drawer";
 
+const pageTitleKeys: Record<string, TranslationKey> = {
+  "/command": "nav.command",
+  "/dashboard": "nav.dashboard",
+  "/elite-index": "nav.eliteIndex",
+  "/strategic-review": "nav.strategicReview",
+  "/subjects": "nav.subjects",
+  "/exams": "nav.exams",
+  "/topics": "nav.topics",
+  "/study": "nav.study",
+  "/daily-log": "nav.dailyLog",
+  "/reviews": "nav.reviews",
+  "/errors": "nav.errors",
+  "/goals": "nav.goals",
+  "/memory": "nav.memory",
+  "/identity": "nav.identity",
+  "/tartu": "nav.tartu",
+  "/time": "nav.time",
+  "/health": "nav.health",
+  "/language": "nav.language",
+  "/research": "nav.researchCommand",
+  "/research/literature": "nav.literatureMap",
+  "/research/hypotheses": "nav.hypothesisEngine",
+  "/research/manuscripts": "nav.manuscriptPipeline",
+  "/opportunities": "nav.opportunities",
+  "/reputation": "nav.reputation",
+  "/network": "nav.network",
+  "/life-admin": "nav.lifeAdmin",
+  "/portfolio": "nav.portfolio",
+  "/settings": "nav.settings",
+  "/ai": "nav.ai",
+};
+
 export function AppShell({
   children,
   user,
@@ -25,8 +55,6 @@ export function AppShell({
   children: React.ReactNode;
   user: User;
 }) {
-  const [locale, setLocale] = useState<Locale>("en");
-  const [dictionary, setDictionary] = useState<any>(null);
   const [theme, setThemeState] = useState<"light" | "dark">("dark");
   const [i18n, setI18n] = useState<{ t: any; dictionary: any; locale: string } | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -35,13 +63,12 @@ export function AppShell({
     getTheme().then(setThemeState);
     const i18n = getI18n();
     setI18n(i18n);
-    setLocale(i18n.locale as Locale);
-    setDictionary(i18n.dictionary);
   }, []);
 
-  const { t, dictionary: currentDictionary } = useMemo(() => i18n || { t: (k: string) => k, dictionary: en, locale: "en" as Locale }, [i18n]);
+  const { t } = useMemo(() => i18n || { t: (k: string) => k }, [i18n]);
 
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     const checkApproval = async () => {
@@ -58,6 +85,16 @@ export function AppShell({
   }, [router]);
 
   const displayName = useMemo(() => (user.email ?? "").split("@")[0], [user.email]);
+
+  const pageTitle: string = useMemo(() => {
+    if (!pathname) return t("app.name");
+    const exact = pageTitleKeys[pathname];
+    if (exact) return t(exact);
+    for (const [p, key] of Object.entries(pageTitleKeys)) {
+      if (pathname.startsWith(p + "/")) return t(key as TranslationKey);
+    }
+    return t("app.name");
+  }, [pathname, t]);
 
   const handleToggleTheme = useCallback(() => {
     const next = theme === "dark" ? "light" : "dark";
@@ -93,21 +130,21 @@ export function AppShell({
       {/* Main Content Area */}
       <div className="lg:pl-64 pb-16 lg:pb-0">
         {/* Mobile Header */}
-        <header className="sticky top-0 z-30 flex h-12 items-center justify-between gap-3 border-b border-border bg-gradient-to-r from-bg-surface/95 to-bg-page/90 px-4 backdrop-blur-xl lg:hidden">
+        <header className="sticky top-0 z-30 flex h-11 items-center justify-between gap-3 border-b border-border bg-gradient-to-r from-bg-surface/95 to-bg-page/90 px-3 backdrop-blur-xl lg:hidden">
           <div className="flex items-center gap-2 min-w-0">
             <button
               type="button"
               onClick={() => setDrawerOpen(true)}
-              className="grid h-9 w-9 place-items-center rounded-xl hover:bg-bg-subtle active:scale-[0.97]"
+              className="grid h-8 w-8 shrink-0 place-items-center rounded-xl hover:bg-bg-subtle active:scale-[0.92] transition-all duration-150"
               aria-label={t("app.openMenu")}
             >
-              <Menu className="h-5 w-5 text-text-primary" />
+              <Menu className="h-[18px] w-[18px] text-text-primary" />
             </button>
-            <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-primary to-violet">
-              <Command className="h-4 w-4 text-white" />
+            <div className="grid h-6 w-6 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-primary to-violet">
+              <Command className="h-3.5 w-3.5 text-white" />
             </div>
             <div className="min-w-0">
-              <p className="truncate text-xs font-semibold text-text-primary leading-tight">{t("app.name")}</p>
+              <p className="truncate text-xs font-semibold text-text-primary leading-tight">{pageTitle}</p>
               <p className="truncate text-[10px] text-text-muted leading-tight">{displayName}</p>
             </div>
           </div>
@@ -139,7 +176,7 @@ export function AppShell({
       </div>
 
       <MobileNav onOpenDrawer={() => setDrawerOpen(true)} />
-      <MobileDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
+      <MobileDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} displayName={displayName} />
     </div>
   );
 }

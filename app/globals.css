@@ -490,3 +490,43 @@ select {
 .dark .noise::before {
   opacity: 0.03;
 }
+
+/* View Transitions — Cross-fade between pages */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root) {
+  animation: fade-out 200ms ease-out both;
+}
+::view-transition-new(root) {
+  animation: fade-in 300ms ease-out both;
+}
+
+/* Tap feedback utility — consistent press effect */
+@utility tap-sm {
+  transition: transform 0.1s ease;
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+@utility tap-md {
+  transition: transform 0.1s ease;
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+/* Interactive card lift */
+@utility card-lift {
+  transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-elevated);
+  }
+  &:active {
+    transform: translateY(0);
+  }
+}

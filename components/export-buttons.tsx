@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 
 export function ExportButtons() {
-  const { t, locale } = useTranslation();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
 
   async function handleDownloadZip() {
@@ -26,7 +26,7 @@ export function ExportButtons() {
       document.body.removeChild(a);
     } catch (error) {
       console.error("ZIP export failed:", error);
-      alert(locale === "et" ? "Export failed" : "Export failed");
+      alert(t("export.failed"));
     } finally {
       setLoading(false);
     }
@@ -45,7 +45,7 @@ export function ExportButtons() {
         ) : (
           <Download className="h-4 w-4" />
         )}
-        {locale === "et" ? "Laadi alla ZIP" : "Download ZIP Backup"}
+        {t("export.zip")}
       </Button>
     </div>
   );

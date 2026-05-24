@@ -681,6 +681,9 @@ export const en = {
   "settings.downloadJson": "Download JSON",
   "settings.downloadCsv": "Download CSV",
 
+  "export.zip": "Download ZIP Backup",
+  "export.failed": "Export failed",
+
   "pending.title": "Account pending approval",
   "pending.checking": "Checking your account...",
   "pending.description": "Your account {email} is waiting for admin approval. Once approved, you will be redirected automatically.",

@@ -41,7 +41,8 @@ export function MobileNav({ onOpenDrawer }: { onOpenDrawer: () => void }) {
   return (
     <nav
       className={cn(
-        "fixed bottom-0 left-0 right-0 z-40 border-t border-border/60 bg-gradient-to-t from-bg-page/95 to-bg-surface/95 backdrop-blur-xl transition-transform duration-300 pb-[env(safe-area-inset-bottom)] lg:hidden",
+        "fixed bottom-0 left-0 right-0 z-40 border-t border-border/60 bg-gradient-to-t from-bg-page/95 to-bg-surface/95 backdrop-blur-xl pb-[env(safe-area-inset-bottom)] lg:hidden",
+        "transition-transform duration-[400ms] ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform",
         visible ? "translate-y-0" : "translate-y-full",
       )}
     >
@@ -61,14 +62,21 @@ export function MobileNav({ onOpenDrawer }: { onOpenDrawer: () => void }) {
                 }
               }}
               className={cn(
-                "flex flex-col items-center justify-center gap-0.5 min-w-[56px] min-h-[44px] rounded-xl px-3 transition-all duration-150 active:scale-[0.97]",
-                isActive
-                  ? "text-primary"
-                  : "text-text-muted hover:text-text-secondary",
+                "relative flex flex-col items-center justify-center gap-0.5 min-w-[60px] min-h-[48px] rounded-xl px-3",
+                "transition-all duration-150 active:scale-[0.92]",
+                isActive ? "text-primary" : "text-text-muted hover:text-text-secondary",
               )}
             >
-              <Icon className={cn("h-5 w-5", isActive && "drop-shadow-sm")} />
-              <span className="text-[10px] font-medium leading-none">{tab.label}</span>
+              {isActive && (
+                <span className="absolute -top-1.5 left-1/2 h-1 w-5 -translate-x-1/2 rounded-full bg-gradient-to-r from-ice via-primary to-violet opacity-90" />
+              )}
+              <Icon className={cn("h-5 w-5", isActive && "drop-shadow-[0_2px_4px_rgba(0,180,255,0.25)]")} />
+              <span className={cn(
+                "text-[10px] font-medium leading-none",
+                isActive && "font-semibold",
+              )}>
+                {tab.label}
+              </span>
             </button>
           );
         })}

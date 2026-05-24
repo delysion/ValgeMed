@@ -683,6 +683,9 @@ export const et: Dictionary = {
   "settings.downloadJson": "Laadi JSON alla",
   "settings.downloadCsv": "Laadi CSV alla",
 
+  "export.zip": "Laadi alla ZIP",
+  "export.failed": "Eksport ebaõnnestus",
+
   "pending.title": "Konto ootab kinnitust",
   "pending.checking": "Kontrollin kontot...",
   "pending.description": "Sinu konto {email} ootab admini kinnitust. Kui oled kinnitatud, suunatakse sind automaatselt edasi.",
