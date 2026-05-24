@@ -323,7 +323,7 @@ export default async function CommandPage() {
             tone={elite.energyIntegrity.score < 4 ? "danger" : elite.energyIntegrity.score < 6 ? "gold" : "emerald"}
           />
           <MetricCard
-            title="Time Leverage"
+              title={t("command.timeLeverage")}
             value={`${timeLeverage}%`}
             detail={`${activeMinutesToday}m active / ${passiveMinutesToday}m passive`}
             icon={Clock}
@@ -344,7 +344,7 @@ export default async function CommandPage() {
 
         {/* ─── (6) Strategic Rule of the Day ─── */}
         <GlassCard tone="emerald">
-          <SectionHeader title="Strategic Rule of the Day" icon={Lightbulb} />
+          <SectionHeader title={t("command.strategicRuleTitle")} icon={Lightbulb} />
           <p className="mt-4 text-base font-medium italic text-text-primary leading-relaxed">
             &ldquo;{ruleOfTheDay}&rdquo;
           </p>

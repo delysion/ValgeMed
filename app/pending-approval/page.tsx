@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getClient } from "@/lib/supabase/client";
 import { Command, Hourglass, Loader2 } from "lucide-react";
+import { checkStatusAction } from "@/lib/actions/admin";
 
 export default function PendingApprovalPage() {
   const router = useRouter();
@@ -23,13 +24,10 @@ export default function PendingApprovalPage() {
       setEmail(user.email ?? "");
 
       try {
-        const res = await fetch("/api/admin/check-status");
-        if (res.ok) {
-          const data = await res.json();
-          if (data.hasProfile && data.approved) {
-            router.replace("/command");
-            return;
-          }
+        const data = await checkStatusAction();
+        if (data.hasProfile && data.approved) {
+          router.replace("/command");
+          return;
         }
         setError(false);
       } catch {

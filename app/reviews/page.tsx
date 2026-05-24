@@ -12,7 +12,7 @@ import {
   markReviewItemReviewedAction,
 } from "@/lib/actions/resources";
 import { requireUser } from "@/lib/auth/supabase";
-import { getCoreData } from "@/lib/data/queries";
+import { getReviewItems, getSubjects, getTopics } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server";
 import { fmtDate, humanize } from "@/lib/labels";
 
@@ -26,11 +26,11 @@ export default async function ReviewsPage({
   const user = await requireUser();
   const { t } = await getI18n();
   const params = await searchParams;
-  const data = await getCoreData();
-  const editing = data.reviewItems.find((item) => item.id === params.edit);
-  const subjectById = new Map(data.subjects.map((subject) => [subject.id, subject]));
+  const [subjects, topics, reviewItems] = await Promise.all([getSubjects(), getTopics(), getReviewItems()]);
+  const editing = reviewItems.find((item) => item.id === params.edit);
+  const subjectById = new Map(subjects.map((subject) => [subject.id, subject]));
   const today = startOfToday();
-  const activeItems = data.reviewItems.filter((item) => item.isActive);
+  const activeItems = reviewItems.filter((item) => item.isActive);
   const dueToday = activeItems.filter((item) => isToday(item.dueAt));
   const overdue = activeItems.filter((item) => isBefore(item.dueAt, today));
 
@@ -38,7 +38,7 @@ export default async function ReviewsPage({
     <AppShell user={user}>
       <PageHeader title={t("reviews.title")} description={t("reviews.subtitle")} />
       <div className="grid gap-4 xl:grid-cols-[460px_1fr]">
-        <ReviewItemForm item={editing} subjects={data.subjects} topics={data.topics} t={t as (key: string) => string} />
+        <ReviewItemForm item={editing} subjects={subjects} topics={topics} t={t as (key: string) => string} />
         <div className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <Card>
@@ -76,7 +76,7 @@ export default async function ReviewsPage({
             </CardHeader>
             <CardContent>
               <ResourceTable
-                rows={data.reviewItems}
+                rows={reviewItems}
                 editBasePath="/reviews"
                 deleteAction={deleteReviewItemAction}
                 extraActions={(item) => (

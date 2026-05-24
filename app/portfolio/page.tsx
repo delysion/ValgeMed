@@ -10,7 +10,7 @@ import { ResourceTable } from "@/components/tables/resource-table";
 import { Badge } from "@/components/ui/badge";
 import { deletePortfolioItemAction } from "@/lib/actions/resources";
 import { requireUser } from "@/lib/auth/supabase";
-import { getCoreData } from "@/lib/data/queries";
+import { getPortfolioItems } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server";
 import { fmtDate, humanize } from "@/lib/labels";
 
@@ -20,22 +20,22 @@ export default async function PortfolioPage({ searchParams }: { searchParams: Pr
   const user = await requireUser();
   const { t } = await getI18n();
   const params = await searchParams;
-  const data = await getCoreData();
-  const editing = data.portfolioItems.find((item) => item.id === params.edit);
+  const portfolioItems = await getPortfolioItems();
+  const editing = portfolioItems.find((item) => item.id === params.edit);
 
-  const completedItems = data.portfolioItems.filter((item) => item.status === "active");
-  const avgValue = completedItems.length > 0
-    ? (completedItems.reduce((sum, item) => sum + item.strategicValue, 0) / completedItems.length).toFixed(1)
+  const activeItems = portfolioItems.filter((item) => item.status === "active");
+  const avgValue = activeItems.length > 0
+    ? (activeItems.reduce((sum, item) => sum + item.strategicValue, 0) / activeItems.length).toFixed(1)
     : "-";
-  const researchItems = data.portfolioItems.filter((item) => item.itemType === "project" || item.itemType === "presentation").length;
+  const researchItems = portfolioItems.filter((item) => item.itemType === "project" || item.itemType === "presentation").length;
 
   return (
     <AppShell user={user}>
       <PageHeader title={t("portfolio.title")} description={t("portfolio.subtitle")} eyebrow={t("achievement.researchSeed")} />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <MetricCard title={t("portfolio.title")} value={data.portfolioItems.length} detail="items" icon={Award} tone="cyan" />
-        <MetricCard title={t("common.status")} value={completedItems.length} detail="completed" icon={Star} tone={completedItems.length > 0 ? "emerald" : "gold"} />
+        <MetricCard title={t("portfolio.title")} value={portfolioItems.length} detail="items" icon={Award} tone="cyan" />
+        <MetricCard title={t("common.status")} value={activeItems.length} detail="active" icon={Star} tone={activeItems.length > 0 ? "emerald" : "gold"} />
         <MetricCard title={t("opportunities.value")} value={avgValue} detail="/ 10 avg" icon={TrendingUp} tone={Number(avgValue) >= 6 ? "emerald" : "gold"} />
         <MetricCard title="Research" value={researchItems} detail="items" icon={FileText} tone={researchItems > 0 ? "violet" : "gold"} />
       </div>
@@ -53,16 +53,16 @@ export default async function PortfolioPage({ searchParams }: { searchParams: Pr
             <SectionHeader title={t("portfolio.trophyRoom")} description={t("common.strategicSignal")} />
             <div className="mt-5 space-y-4">
               <MomentumBar label={t("opportunities.value")} value={(Number(avgValue) / 10) * 100} tone="gold" />
-              <MomentumBar label="Completed" value={completedItems.length * 15} tone="emerald" />
+              <MomentumBar label="Active" value={activeItems.length * 15} tone="emerald" />
               <MomentumBar label="Research" value={researchItems * 20} tone="violet" />
             </div>
           </GlassCard>
 
           <GlassCard>
-            <SectionHeader title={t("portfolio.history")} description={`${data.portfolioItems.length} ${t("language.entries")}`} />
+            <SectionHeader title={t("portfolio.history")} description={`${portfolioItems.length} ${t("language.entries")}`} />
             <div className="mt-4">
               <ResourceTable
-                rows={data.portfolioItems.slice(0, 12)}
+                rows={portfolioItems}
                 editBasePath="/portfolio"
                 deleteAction={deletePortfolioItemAction}
                 columns={[

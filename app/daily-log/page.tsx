@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { deleteDailyLogAction } from "@/lib/actions/resources";
 import { requireUser } from "@/lib/auth/supabase";
-import { getCoreData } from "@/lib/data/queries";
+import { getDailyLogs } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server";
 import { fmtDate } from "@/lib/labels";
 
@@ -20,9 +20,9 @@ export default async function DailyLogPage({
   const user = await requireUser();
   const { t } = await getI18n();
   const params = await searchParams;
-  const data = await getCoreData();
-  const editing = data.dailyLogs.find((log) => log.id === params.edit);
-  const trend = data.dailyLogs
+  const dailyLogs = await getDailyLogs();
+  const editing = dailyLogs.find((log) => log.id === params.edit);
+  const trend = dailyLogs
     .slice()
     .reverse()
     .slice(-30)
@@ -62,7 +62,7 @@ export default async function DailyLogPage({
             </CardHeader>
             <CardContent>
               <ResourceTable
-                rows={data.dailyLogs}
+                rows={dailyLogs}
                 editBasePath="/daily-log"
                 deleteAction={deleteDailyLogAction}
                 columns={[

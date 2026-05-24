@@ -12,14 +12,14 @@ import { FileUploadZone } from "@/components/file-upload-zone";
 import { GlassCard } from "@/components/premium/glass-card";
 import { requireUser } from "@/lib/auth/supabase";
 import { getI18n } from "@/lib/i18n/server";
-import { getCoreData } from "@/lib/data/queries";
+import { getAiPageData } from "@/lib/data/queries";
 
 export const dynamic = "force-dynamic";
 
 export default async function AiPage() {
   const user = await requireUser();
   const { t, locale } = await getI18n();
-  const data = await getCoreData();
+  const data = await getAiPageData();
 
   const subjectsSummary = data.subjects.map((s) => s.name).join(", ") ||
     (locale === "et" ? "Aineid veel ei ole" : "No subjects yet");

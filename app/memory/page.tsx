@@ -1,12 +1,15 @@
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { IdentityNoteForm } from "@/components/forms/entity-forms";
 import { TartuNoteForm } from "@/components/forms/life-forms";
+import { Button } from "@/components/ui/button";
 import { GlassCard } from "@/components/premium/glass-card";
 import { NoteVault } from "@/components/premium/note-vault";
 import { SectionHeader } from "@/components/premium/section-header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { requireUser } from "@/lib/auth/supabase";
-import { getCoreData } from "@/lib/data/queries";
+import { getIdentityNotes, getTartuNotes } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server";
 
 export const dynamic = "force-dynamic";
@@ -15,9 +18,9 @@ export default async function MemoryPage({ searchParams }: { searchParams: Promi
   const user = await requireUser();
   const { t } = await getI18n();
   const params = await searchParams;
-  const data = await getCoreData();
-  const editing = data.identityNotes.find((note) => note.id === params.edit);
-  const editingTartu = data.tartuNotes.find((note) => note.id === params.editTartu);
+  const [identityNotes, tartuNotes] = await Promise.all([getIdentityNotes(), getTartuNotes()]);
+  const editing = identityNotes.find((note) => note.id === params.edit);
+  const editingTartu = tartuNotes.find((note) => note.id === params.editTartu);
 
   return (
     <AppShell user={user}>
@@ -32,9 +35,9 @@ export default async function MemoryPage({ searchParams }: { searchParams: Promi
 
         <TabsContent value="vault">
           <GlassCard>
-            <SectionHeader title={t("memory.allNotes")} description={`${data.identityNotes.length + data.tartuNotes.length} entries`} />
+            <SectionHeader title={t("memory.allNotes")} description={`${identityNotes.length + tartuNotes.length} entries`} />
             <div className="mt-5">
-              <NoteVault identityNotes={data.identityNotes} tartuNotes={[]} />
+              <NoteVault identityNotes={identityNotes} tartuNotes={tartuNotes} />
             </div>
           </GlassCard>
         </TabsContent>
@@ -42,13 +45,17 @@ export default async function MemoryPage({ searchParams }: { searchParams: Promi
         <TabsContent value="identity">
           <div className="grid gap-5 xl:grid-cols-[380px_1fr]">
             <GlassCard>
-              <SectionHeader title={t("memory.addIdentity")} description={t("memory.identityDesc")} />
+              <SectionHeader
+                title={editing ? t("form.identityNote.editTitle") : t("memory.addIdentity")}
+                description={t("memory.identityDesc")}
+                action={editing ? <Button asChild variant="outline" size="sm"><Link href="/memory"><ArrowLeft className="h-4 w-4" /> {t("common.cancel")}</Link></Button> : undefined}
+              />
               <div className="mt-4">
                 <IdentityNoteForm note={editing} t={t as (key: string) => string} />
               </div>
             </GlassCard>
             <GlassCard>
-              <NoteVault identityNotes={data.identityNotes} tartuNotes={[]} />
+              <NoteVault identityNotes={identityNotes} tartuNotes={[]} />
             </GlassCard>
           </div>
         </TabsContent>
@@ -56,13 +63,17 @@ export default async function MemoryPage({ searchParams }: { searchParams: Promi
         <TabsContent value="tartu">
           <div className="grid gap-5 xl:grid-cols-[380px_1fr]">
             <GlassCard>
-              <SectionHeader title={t("memory.addTartu")} description={t("memory.tartuDesc")} />
+              <SectionHeader
+                title={editingTartu ? "Edit Tartu Note" : t("memory.addTartu")}
+                description={t("memory.tartuDesc")}
+                action={editingTartu ? <Button asChild variant="outline" size="sm"><Link href="/memory"><ArrowLeft className="h-4 w-4" /> {t("common.cancel")}</Link></Button> : undefined}
+              />
               <div className="mt-4">
                 <TartuNoteForm note={editingTartu} />
               </div>
             </GlassCard>
             <GlassCard>
-              <NoteVault identityNotes={[]} tartuNotes={data.tartuNotes} />
+              <NoteVault identityNotes={[]} tartuNotes={tartuNotes} />
             </GlassCard>
           </div>
         </TabsContent>

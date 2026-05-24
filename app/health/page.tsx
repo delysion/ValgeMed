@@ -11,7 +11,7 @@ import { ResourceTable } from "@/components/tables/resource-table";
 import { Badge } from "@/components/ui/badge";
 import { deleteHealthLogAction } from "@/lib/actions/resources";
 import { requireUser } from "@/lib/auth/supabase";
-import { getCoreData } from "@/lib/data/queries";
+import { getHealthLogs } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server";
 import { fmtDate } from "@/lib/labels";
 
@@ -21,18 +21,18 @@ export default async function HealthPage({ searchParams }: { searchParams: Promi
   const user = await requireUser();
   const { t } = await getI18n();
   const params = await searchParams;
-  const data = await getCoreData();
-  const editing = data.healthLogs.find((log) => log.id === params.edit);
+  const healthLogs = await getHealthLogs();
+  const editing = healthLogs.find((log) => log.id === params.edit);
 
-  const latestLog = data.healthLogs[0];
-  const avgSleep = data.healthLogs.length > 0
-    ? (data.healthLogs.reduce((sum, log) => sum + (log.sleepQuality ?? 0), 0) / data.healthLogs.length).toFixed(1)
+  const latestLog = healthLogs[0];
+  const avgSleep = healthLogs.length > 0
+    ? (healthLogs.reduce((sum, log) => sum + (log.sleepQuality ?? 0), 0) / healthLogs.length).toFixed(1)
     : "-";
-  const avgFatigue = data.healthLogs.length > 0
-    ? (data.healthLogs.reduce((sum, log) => sum + (log.cognitiveFatigue ?? 0), 0) / data.healthLogs.length).toFixed(1)
+  const avgFatigue = healthLogs.length > 0
+    ? (healthLogs.reduce((sum, log) => sum + (log.cognitiveFatigue ?? 0), 0) / healthLogs.length).toFixed(1)
     : "-";
-  const avgRecovery = data.healthLogs.length > 0
-    ? (data.healthLogs.reduce((sum, log) => sum + (log.recoveryQuality ?? 0), 0) / data.healthLogs.length).toFixed(1)
+  const avgRecovery = healthLogs.length > 0
+    ? (healthLogs.reduce((sum, log) => sum + (log.recoveryQuality ?? 0), 0) / healthLogs.length).toFixed(1)
     : "-";
 
   return (
@@ -65,9 +65,9 @@ export default async function HealthPage({ searchParams }: { searchParams: Promi
           </GlassCard>
 
           <GlassCard>
-            <SectionHeader title={t("health.history")} description={`${data.healthLogs.length} ${t("health.entries")}`} />
+            <SectionHeader title={t("health.history")} description={`${healthLogs.length} ${t("health.entries")}`} />
             <div className="mt-4">
-              {data.healthLogs.length === 0 ? (
+              {healthLogs.length === 0 ? (
                 <EmptyState
                   icon={HeartPulse}
                   title={t("common.emptyTitle")}
@@ -76,7 +76,7 @@ export default async function HealthPage({ searchParams }: { searchParams: Promi
                 />
               ) : (
                 <ResourceTable
-                  rows={data.healthLogs.slice(0, 12)}
+                  rows={healthLogs.slice(0, 12)}
                   editBasePath="/health"
                   deleteAction={deleteHealthLogAction}
                   emptyState={{ title: t("common.emptyTitle"), description: t("common.emptyBody") }}

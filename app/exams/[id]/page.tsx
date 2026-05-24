@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { deleteQuizAttemptAction } from "@/lib/actions/resources";
 import { requireUser } from "@/lib/auth/supabase";
-import { getCoreData } from "@/lib/data/queries";
+import { getExamPageData } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server";
 import { fmtDate, humanize } from "@/lib/labels";
 import { buildExamReadiness } from "@/lib/scoring/engine";
@@ -25,7 +25,7 @@ export default async function ExamCommandCenter({ params }: { params: Promise<{ 
   const user = await requireUser();
   const { t } = await getI18n();
   const { id } = await params;
-  const data = await getCoreData();
+  const data = await getExamPageData();
   const exam = data.exams.find((item) => item.id === id);
 
   if (!exam) {

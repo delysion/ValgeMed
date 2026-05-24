@@ -10,7 +10,7 @@ import { ResourceTable } from "@/components/tables/resource-table";
 import { Badge } from "@/components/ui/badge";
 import { deleteLanguageProgressAction } from "@/lib/actions/resources";
 import { requireUser } from "@/lib/auth/supabase";
-import { getCoreData } from "@/lib/data/queries";
+import { getLanguageProgress } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server";
 import { fmtDate, humanize } from "@/lib/labels";
 
@@ -20,22 +20,22 @@ export default async function LanguagePage({ searchParams }: { searchParams: Pro
   const user = await requireUser();
   const { t } = await getI18n();
   const params = await searchParams;
-  const data = await getCoreData();
-  const editing = data.languageProgress.find((item) => item.id === params.edit);
+  const languageProgress = await getLanguageProgress();
+  const editing = languageProgress.find((item) => item.id === params.edit);
 
-  const totalMinutes = data.languageProgress.reduce((sum, item) => sum + item.minutes, 0);
-  const avgConfidence = data.languageProgress.length > 0
-    ? (data.languageProgress.reduce((sum, item) => sum + item.confidence, 0) / data.languageProgress.length).toFixed(1)
+  const totalMinutes = languageProgress.reduce((sum, item) => sum + item.minutes, 0);
+  const avgConfidence = languageProgress.length > 0
+    ? (languageProgress.reduce((sum, item) => sum + item.confidence, 0) / languageProgress.length).toFixed(1)
     : "-";
-  const estonianBlocks = data.languageProgress.filter((item) => item.language === "estonian").length;
-  const medicalTerms = data.languageProgress.filter((item) => item.language === "latin").length;
+  const estonianBlocks = languageProgress.filter((item) => item.language === "estonian").length;
+  const medicalTerms = languageProgress.filter((item) => item.language === "latin").length;
 
   return (
     <AppShell user={user}>
       <PageHeader title={t("language.title")} description={t("language.subtitle")} eyebrow={t("quest.languageBlock")} />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <MetricCard title={t("language.blocks")} value={data.languageProgress.length} detail="total blocks" icon={BookOpen} tone="cyan" />
+        <MetricCard title={t("language.blocks")} value={languageProgress.length} detail="total blocks" icon={BookOpen} tone="cyan" />
         <MetricCard title={t("common.confidence")} value={avgConfidence} detail="/ 10 avg" icon={Target} tone={Number(avgConfidence) >= 6 ? "emerald" : "gold"} />
         <MetricCard title="Estonian" value={estonianBlocks} detail="blocks" icon={Globe} tone="violet" />
         <MetricCard title={t("language.medicalTerms")} value={medicalTerms} detail="terms" icon={Sparkles} tone="rose" />
@@ -60,10 +60,10 @@ export default async function LanguagePage({ searchParams }: { searchParams: Pro
           </GlassCard>
 
           <GlassCard>
-            <SectionHeader title={t("language.history")} description={`${data.languageProgress.length} ${t("language.entries")}`} />
+            <SectionHeader title={t("language.history")} description={`${languageProgress.length} ${t("language.entries")}`} />
             <div className="mt-4">
               <ResourceTable
-                rows={data.languageProgress.slice(0, 12)}
+                rows={languageProgress.slice(0, 12)}
                 editBasePath="/language"
                 deleteAction={deleteLanguageProgressAction}
                 columns={[

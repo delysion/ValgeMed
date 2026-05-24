@@ -10,7 +10,7 @@ import { ResourceTable } from "@/components/tables/resource-table";
 import { Badge } from "@/components/ui/badge";
 import { deleteReputationEventAction } from "@/lib/actions/resources";
 import { requireUser } from "@/lib/auth/supabase";
-import { getCoreData } from "@/lib/data/queries";
+import { getReputationEvents } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server";
 import { fmtDate, humanize } from "@/lib/labels";
 
@@ -20,10 +20,10 @@ export default async function ReputationPage({ searchParams }: { searchParams: P
   const user = await requireUser();
   const { t } = await getI18n();
   const params = await searchParams;
-  const data = await getCoreData();
-  const editing = data.reputationEvents.find((event) => event.id === params.edit);
+  const reputationEvents = await getReputationEvents();
+  const editing = reputationEvents.find((event) => event.id === params.edit);
 
-  const activeEvents = data.reputationEvents.filter((e) => e.status === "done" || e.status === "doing");
+  const activeEvents = reputationEvents.filter((e) => e.status === "done" || e.status === "doing");
   const avgImpact = activeEvents.length > 0
     ? (activeEvents.reduce((sum, e) => sum + e.impact, 0) / activeEvents.length).toFixed(1)
     : "-";
@@ -34,7 +34,7 @@ export default async function ReputationPage({ searchParams }: { searchParams: P
       <PageHeader title={t("reputation.title")} description={t("reputation.subtitle")} eyebrow={t("nba.reputation_signal.reason")} />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <MetricCard title={t("reputation.title")} value={data.reputationEvents.length} detail="events" icon={Award} tone="cyan" />
+        <MetricCard title={t("reputation.title")} value={reputationEvents.length} detail="events" icon={Award} tone="cyan" />
         <MetricCard title={t("common.status")} value={activeEvents.length} detail="active" icon={Star} tone={activeEvents.length > 0 ? "emerald" : "gold"} />
         <MetricCard title={t("reputation.trust")} value={avgImpact} detail="/ 10 avg" icon={Shield} tone={Number(avgImpact) >= 6 ? "emerald" : "gold"} />
         <MetricCard title="High impact" value={highImpact} detail="≥ 7/10" icon={TrendingUp} tone={highImpact > 0 ? "violet" : "gold"} />
@@ -59,10 +59,10 @@ export default async function ReputationPage({ searchParams }: { searchParams: P
           </GlassCard>
 
           <GlassCard>
-            <SectionHeader title={t("reputation.history")} description={`${data.reputationEvents.length} ${t("language.entries")}`} />
+            <SectionHeader title={t("reputation.history")} description={`${reputationEvents.length} ${t("language.entries")}`} />
             <div className="mt-4">
               <ResourceTable
-                rows={data.reputationEvents.slice(0, 12)}
+                rows={reputationEvents}
                 editBasePath="/reputation"
                 deleteAction={deleteReputationEventAction}
                 columns={[

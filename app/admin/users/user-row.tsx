@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Check, X, Shield } from "lucide-react";
+import { approveUserAction } from "@/lib/actions/admin";
 
 type Profile = {
   id: string;
@@ -20,12 +21,8 @@ export function UserRow({ profile: initial }: { profile: Profile }) {
   const handleApprove = async () => {
     setBusy(true);
     try {
-      const res = await fetch("/api/admin/approve", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: profile.id, approved: !profile.approved }),
-      });
-      if (res.ok) {
+      const res = await approveUserAction(profile.id, !profile.approved);
+      if (res.success) {
         const wasApproved = !!profile.approved;
         setProfile((p) => ({ ...p, approved: !p.approved }));
         setToast(wasApproved ? "Access revoked" : "User approved");

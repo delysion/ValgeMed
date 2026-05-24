@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireUser } from "@/lib/auth/supabase";
-import { getCoreData } from "@/lib/data/queries";
+import { getSubjectDetailData } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server";
 import { fmtDate, humanize } from "@/lib/labels";
 import { buildMedicalMasteryScore } from "@/lib/scoring/engine";
@@ -23,7 +23,7 @@ export default async function SubjectCommandCenterPage({
   const user = await requireUser();
   const { t } = await getI18n();
   const { id } = await params;
-  const data = await getCoreData();
+  const data = await getSubjectDetailData();
   const subject = data.subjects.find((item) => item.id === id);
 
   if (!subject) {

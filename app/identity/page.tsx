@@ -1,10 +1,11 @@
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { IdentityNoteForm } from "@/components/forms/entity-forms";
 import { ResourceTable } from "@/components/tables/resource-table";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { GlassCard } from "@/components/premium/glass-card";
+import { SectionHeader } from "@/components/premium/section-header";
 import { deleteIdentityNoteAction } from "@/lib/actions/resources";
 import { requireUser } from "@/lib/auth/supabase";
-import { getCoreData } from "@/lib/data/queries";
+import { getIdentityNotes } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server";
 import { humanize } from "@/lib/labels";
 
@@ -14,21 +15,19 @@ export default async function IdentityPage({ searchParams }: { searchParams: Pro
   const user = await requireUser();
   const { t } = await getI18n();
   const params = await searchParams;
-  const data = await getCoreData();
-  const editing = data.identityNotes.find((note) => note.id === params.editNote);
+  const identityNotes = await getIdentityNotes();
+  const editing = identityNotes.find((note) => note.id === params.editNote);
 
   return (
     <AppShell user={user}>
-      <PageHeader title={t("nav.identity")} description={t("portfolio.subtitle")} />
+      <PageHeader title={t("nav.identity")} description={t("memory.identityDesc")} />
       <div className="grid gap-4 xl:grid-cols-[420px_1fr]">
         <IdentityNoteForm note={editing} t={t as (key: string) => string} />
-        <Card>
-          <CardHeader>
-            <CardTitle>{t("nav.identity")}</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <GlassCard>
+          <SectionHeader title={t("nav.identity")} description={`${identityNotes.length} notes`} />
+          <div className="mt-4">
             <ResourceTable
-              rows={data.identityNotes}
+              rows={identityNotes}
               editBasePath="/identity"
               editParam="editNote"
               deleteAction={deleteIdentityNoteAction}
@@ -38,8 +37,8 @@ export default async function IdentityPage({ searchParams }: { searchParams: Pro
                 { header: t("common.output"), render: (note) => <span className="line-clamp-2">{note.content}</span> },
               ]}
             />
-          </CardContent>
-        </Card>
+          </div>
+        </GlassCard>
       </div>
     </AppShell>
   );

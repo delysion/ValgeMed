@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { deleteTimeBlockAction } from "@/lib/actions/resources";
 import { requireUser } from "@/lib/auth/supabase";
-import { getCoreData } from "@/lib/data/queries";
+import { getTimeBlocks } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server";
 import { fmtDate, humanize } from "@/lib/labels";
 
@@ -15,8 +15,8 @@ export default async function TimePage({ searchParams }: { searchParams: Promise
   const user = await requireUser();
   const { t } = await getI18n();
   const params = await searchParams;
-  const data = await getCoreData();
-  const editing = data.timeBlocks.find((block) => block.id === params.edit);
+  const timeBlocks = await getTimeBlocks();
+  const editing = timeBlocks.find((block) => block.id === params.edit);
 
   return (
     <AppShell user={user}>
@@ -29,7 +29,7 @@ export default async function TimePage({ searchParams }: { searchParams: Promise
           </CardHeader>
           <CardContent>
             <ResourceTable
-              rows={data.timeBlocks}
+              rows={timeBlocks}
               editBasePath="/time"
               deleteAction={deleteTimeBlockAction}
               columns={[

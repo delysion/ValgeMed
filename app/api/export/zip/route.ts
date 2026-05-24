@@ -3,6 +3,7 @@ import { getDb } from "@/lib/db";
 import { schema } from "@/lib/db/schema";
 import { NextResponse } from "next/server";
 import JSZip from "jszip";
+import { eq } from "drizzle-orm";
 
 export const dynamic = "force-dynamic";
 
@@ -12,14 +13,16 @@ export async function GET() {
 
   const zip = new JSZip();
 
-  // Export all tables
+  // Export all tables — filter at DB level
   for (const [tableName, table] of Object.entries(schema)) {
     try {
-      const data = await db.select().from(table);
-      const userData = data.filter((row: any) => row.userId === user.id);
-      
-      if (userData.length > 0) {
-        zip.file(`${tableName}.json`, JSON.stringify(userData, null, 2));
+      const t = table as any;
+      const hasUserId = t.userId !== undefined;
+      const data = hasUserId
+        ? await db.select().from(table as any).where(eq(t.userId, user.id))
+        : await db.select().from(table as any);
+      if (data.length > 0) {
+        zip.file(`${tableName}.json`, JSON.stringify(data, null, 2));
       }
     } catch {
       // Skip tables that can't be exported

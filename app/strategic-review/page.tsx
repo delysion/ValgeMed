@@ -2,10 +2,11 @@ import { AppShell, PageHeader } from "@/components/app-shell";
 import { StrategicReviewForm } from "@/components/forms/life-forms";
 import { ResourceTable } from "@/components/tables/resource-table";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { GlassCard } from "@/components/premium/glass-card";
+import { SectionHeader } from "@/components/premium/section-header";
 import { deleteStrategicReviewAction } from "@/lib/actions/resources";
 import { requireUser } from "@/lib/auth/supabase";
-import { getCoreData } from "@/lib/data/queries";
+import { getStrategicReviews } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server";
 import { fmtDate, humanize } from "@/lib/labels";
 
@@ -15,21 +16,19 @@ export default async function StrategicReviewPage({ searchParams }: { searchPara
   const user = await requireUser();
   const { t } = await getI18n();
   const params = await searchParams;
-  const data = await getCoreData();
-  const editing = data.strategicReviews.find((review) => review.id === params.edit);
+  const strategicReviews = await getStrategicReviews();
+  const editing = strategicReviews.find((review) => review.id === params.edit);
 
   return (
     <AppShell user={user}>
       <PageHeader title={t("strategic.title")} description={t("strategic.subtitle")} />
       <div className="grid gap-4 xl:grid-cols-[420px_1fr]">
         <StrategicReviewForm review={editing} />
-        <Card>
-          <CardHeader>
-            <CardTitle>{t("strategic.title")}</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <GlassCard>
+          <SectionHeader title={t("strategic.title")} description={`${strategicReviews.length} reviews`} />
+          <div className="mt-4">
             <ResourceTable
-              rows={data.strategicReviews}
+              rows={strategicReviews}
               editBasePath="/strategic-review"
               deleteAction={deleteStrategicReviewAction}
               columns={[
@@ -39,8 +38,8 @@ export default async function StrategicReviewPage({ searchParams }: { searchPara
                 { header: t("common.nextAction"), render: (review) => <span className="line-clamp-2">{review.nextFocus ?? "-"}</span> },
               ]}
             />
-          </CardContent>
-        </Card>
+          </div>
+        </GlassCard>
       </div>
     </AppShell>
   );

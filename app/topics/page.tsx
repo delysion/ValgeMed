@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { deleteTopicAction } from "@/lib/actions/resources";
 import { requireUser } from "@/lib/auth/supabase";
-import { getCoreData } from "@/lib/data/queries";
+import { getErrorLogs, getExams, getSubjects, getTopics } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server";
 import { fmtDate, humanize } from "@/lib/labels";
 
@@ -23,11 +23,11 @@ export default async function TopicsPage({
   const user = await requireUser();
   const { t } = await getI18n();
   const params = await searchParams;
-  const data = await getCoreData();
-  const editing = data.topics.find((topic) => topic.id === params.edit);
-  const subjectById = new Map(data.subjects.map((subject) => [subject.id, subject]));
-  const examById = new Map(data.exams.map((exam) => [exam.id, exam]));
-  const filteredTopics = data.topics.filter((topic) => {
+  const [subjects, exams, topics, errorLogs] = await Promise.all([getSubjects(), getExams(), getTopics(), getErrorLogs()]);
+  const editing = topics.find((topic) => topic.id === params.edit);
+  const subjectById = new Map(subjects.map((subject) => [subject.id, subject]));
+  const examById = new Map(exams.map((exam) => [exam.id, exam]));
+  const filteredTopics = topics.filter((topic) => {
     if (params.subject && topic.subjectId !== params.subject) return false;
     if (params.status && topic.status !== params.status) return false;
     if (params.priority && topic.priority < Number(params.priority)) return false;
@@ -38,13 +38,13 @@ export default async function TopicsPage({
     <AppShell user={user}>
       <PageHeader title={t("topics.title")} description={t("topics.subtitle")} />
       <div className="grid gap-5 xl:grid-cols-[420px_1fr]">
-        <TopicForm topic={editing} subjects={data.subjects} exams={data.exams} t={t as (key: string) => string} />
+        <TopicForm topic={editing} subjects={subjects} exams={exams} t={t as (key: string) => string} />
         <div className="space-y-5">
           <GlassCard>
             <form className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
               <select name="subject" defaultValue={params.subject ?? ""} className="h-11 rounded-2xl border border-white/10 bg-black/25 px-4 text-sm text-text-primary">
                 <option value="">{t("common.subject")}</option>
-                {data.subjects.map((subject) => (
+                {subjects.map((subject) => (
                   <option key={subject.id} value={subject.id} className="bg-[#11151c]">{subject.name}</option>
                 ))}
               </select>
@@ -64,7 +64,7 @@ export default async function TopicsPage({
 
           <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
             {filteredTopics.map((topic) => {
-              const openErrors = data.errorLogs.filter((error) => error.topicId === topic.id && !error.resolved).length;
+              const openErrors = errorLogs.filter((error) => error.topicId === topic.id && !error.resolved).length;
               const level = getMasteryLevel({ confidence: topic.confidence, status: topic.status, openErrors });
               const suggestedAction = topic.confidence <= 3 ? t("nba.active_recall.title") : openErrors > 0 ? t("nba.error_review.title") : t("reviews.title");
 

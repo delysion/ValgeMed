@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { deleteTartuNoteAction } from "@/lib/actions/resources";
 import { requireUser } from "@/lib/auth/supabase";
-import { getCoreData } from "@/lib/data/queries";
+import { getTartuNotes } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server";
 import { humanize } from "@/lib/labels";
 
@@ -15,8 +15,8 @@ export default async function TartuPage({ searchParams }: { searchParams: Promis
   const user = await requireUser();
   const { t } = await getI18n();
   const params = await searchParams;
-  const data = await getCoreData();
-  const editing = data.tartuNotes.find((note) => note.id === params.edit);
+  const tartuNotes = await getTartuNotes();
+  const editing = tartuNotes.find((note) => note.id === params.edit);
 
   return (
     <AppShell user={user}>
@@ -29,7 +29,7 @@ export default async function TartuPage({ searchParams }: { searchParams: Promis
           </CardHeader>
           <CardContent>
             <ResourceTable
-              rows={data.tartuNotes}
+              rows={tartuNotes}
               editBasePath="/tartu"
               deleteAction={deleteTartuNoteAction}
               columns={[

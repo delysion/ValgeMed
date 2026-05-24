@@ -10,7 +10,7 @@ import {
   deleteTaskAction,
 } from "@/lib/actions/resources";
 import { requireUser } from "@/lib/auth/supabase";
-import { getCoreData } from "@/lib/data/queries";
+import { getGoalPageData } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server";
 import { fmtDate, humanize } from "@/lib/labels";
 
@@ -24,7 +24,7 @@ export default async function GoalsPage({
   const user = await requireUser();
   const { t } = await getI18n();
   const params = await searchParams;
-  const data = await getCoreData();
+  const data = await getGoalPageData();
   const editingGoal = data.goals.find((goal) => goal.id === params.editGoal);
   const editingTask = data.tasks.find((task) => task.id === params.editTask);
   const editingNote = data.identityNotes.find((note) => note.id === params.editNote);

@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ResourceTable } from "@/components/tables/resource-table";
 import { deleteSubjectAction } from "@/lib/actions/resources";
 import { requireUser } from "@/lib/auth/supabase";
-import { getCoreData } from "@/lib/data/queries";
+import { getSubjects as fetchSubjects, getTopics } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server";
 
 export const dynamic = "force-dynamic";
@@ -20,8 +20,8 @@ export default async function SubjectsPage({
   const user = await requireUser();
   const { t } = await getI18n();
   const params = await searchParams;
-  const data = await getCoreData();
-  const editing = data.subjects.find((subject) => subject.id === params.edit);
+  const [subjects, topics] = await Promise.all([fetchSubjects(), getTopics()]);
+  const editing = subjects.find((subject) => subject.id === params.edit);
 
   return (
     <AppShell user={user}>
@@ -37,7 +37,7 @@ export default async function SubjectsPage({
           </CardHeader>
           <CardContent>
             <ResourceTable
-              rows={data.subjects}
+              rows={subjects}
               editBasePath="/subjects"
               deleteAction={deleteSubjectAction}
               columns={[
@@ -63,7 +63,7 @@ export default async function SubjectsPage({
                 {
                   header: t("common.progress"),
                   render: (subject) => {
-                    const subjectTopics = data.topics.filter(
+                    const subjectTopics = topics.filter(
                       (topic) => topic.subjectId === subject.id,
                     );
                     const ready = subjectTopics.filter(

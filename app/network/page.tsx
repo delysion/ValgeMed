@@ -1,12 +1,15 @@
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { ProfessionalContactForm } from "@/components/forms/life-forms";
 import { ContactCard, FollowUpItem } from "@/components/premium/contact-card";
+import { Button } from "@/components/ui/button";
 import { GlassCard } from "@/components/premium/glass-card";
 import { OpportunityPipeline } from "@/components/premium/opportunity-pipeline";
 import { SectionHeader } from "@/components/premium/section-header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { requireUser } from "@/lib/auth/supabase";
-import { getCoreData } from "@/lib/data/queries";
+import { getOpportunities, getProfessionalContacts } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server";
 
 export const dynamic = "force-dynamic";
@@ -15,14 +18,14 @@ export default async function NetworkPage({ searchParams }: { searchParams: Prom
   const user = await requireUser();
   const { t } = await getI18n();
   const params = await searchParams;
-  const data = await getCoreData();
-  const editing = data.professionalContacts.find((contact) => contact.id === params.edit);
+  const [professionalContacts, opportunities] = await Promise.all([getProfessionalContacts(), getOpportunities()]);
+  const editing = professionalContacts.find((contact) => contact.id === params.edit);
 
-  const followUps = data.professionalContacts
+  const followUps = professionalContacts
     .filter((c) => c.nextFollowUpAt)
     .sort((a, b) => (a.nextFollowUpAt?.getTime() ?? 0) - (b.nextFollowUpAt?.getTime() ?? 0));
 
-  const strongContacts = data.professionalContacts
+  const strongContacts = professionalContacts
     .filter((c) => (c.relationshipStrength ?? 0) >= 6)
     .sort((a, b) => (b.relationshipStrength ?? 0) - (a.relationshipStrength ?? 0));
 
@@ -41,7 +44,16 @@ export default async function NetworkPage({ searchParams }: { searchParams: Prom
           <div className="grid gap-5 xl:grid-cols-[380px_1fr]">
             <div>
               {editing ? (
-                <ProfessionalContactForm contact={editing} />
+                <GlassCard>
+                  <SectionHeader
+                    title="Edit Contact"
+                    description={t("network.contactDesc")}
+                    action={<Button asChild variant="outline" size="sm"><Link href="/network"><ArrowLeft className="h-4 w-4" /> {t("common.cancel")}</Link></Button>}
+                  />
+                  <div className="mt-4">
+                    <ProfessionalContactForm contact={editing} />
+                  </div>
+                </GlassCard>
               ) : (
                 <GlassCard>
                   <SectionHeader title={t("network.addContact")} description={t("network.contactDesc")} />
@@ -65,9 +77,9 @@ export default async function NetworkPage({ searchParams }: { searchParams: Prom
               )}
 
               <GlassCard>
-                <SectionHeader title={t("network.allContacts")} description={`${data.professionalContacts.length} ${t("network.total")}`} />
+                <SectionHeader title={t("network.allContacts")} description={`${professionalContacts.length} ${t("network.total")}`} />
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                  {data.professionalContacts.map((contact) => (
+                  {professionalContacts.map((contact) => (
                     <ContactCard key={contact.id} contact={contact} />
                   ))}
                 </div>
@@ -94,7 +106,7 @@ export default async function NetworkPage({ searchParams }: { searchParams: Prom
           <GlassCard>
             <SectionHeader title={t("network.pipeline")} description={t("opportunities.subtitle")} />
             <div className="mt-4">
-              <OpportunityPipeline opportunities={data.opportunities} />
+              <OpportunityPipeline opportunities={opportunities} />
             </div>
           </GlassCard>
         </TabsContent>

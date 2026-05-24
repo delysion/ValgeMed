@@ -1,15 +1,19 @@
 import { isBefore, startOfToday } from "date-fns";
-import { CheckCircle2, Flame, RotateCw, ShieldAlert, Skull, Trash2 } from "lucide-react";
+import { CheckCircle2, Flame, RotateCw, ShieldAlert, Skull } from "lucide-react";
 
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
 import { AppShell, PageHeader } from "@/components/app-shell";
+import { DeleteButton } from "@/components/forms/delete-button";
 import { ErrorLogForm } from "@/components/forms/entity-forms";
 import { GlassCard } from "@/components/premium/glass-card";
 import { MetricCard } from "@/components/premium/metric-card";
+import { SectionHeader } from "@/components/premium/section-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { deleteErrorLogAction, toggleErrorResolvedAction } from "@/lib/actions/resources";
 import { requireUser } from "@/lib/auth/supabase";
-import { getCoreData } from "@/lib/data/queries";
+import { getErrorLogs, getExams, getSubjects, getTopics } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server";
 import { fmtDate, humanize } from "@/lib/labels";
 
@@ -19,11 +23,11 @@ export default async function ErrorsPage({ searchParams }: { searchParams: Promi
   const user = await requireUser();
   const { t } = await getI18n();
   const params = await searchParams;
-  const data = await getCoreData();
-  const editing = data.errorLogs.find((error) => error.id === params.edit);
-  const subjectById = new Map(data.subjects.map((subject) => [subject.id, subject]));
-  const open = data.errorLogs.filter((error) => !error.resolved);
-  const destroyed = data.errorLogs.filter((error) => error.resolved);
+  const [subjects, exams, topics, errorLogs] = await Promise.all([getSubjects(), getExams(), getTopics(), getErrorLogs()]);
+  const editing = errorLogs.find((error) => error.id === params.edit);
+  const subjectById = new Map(subjects.map((subject) => [subject.id, subject]));
+  const open = errorLogs.filter((error) => !error.resolved);
+  const destroyed = errorLogs.filter((error) => error.resolved);
   const recurring = open.filter((error) => error.recurrenceCount > 0);
   const retestDue = open.filter((error) => error.retestAt && isBefore(error.retestAt, startOfToday()));
 
@@ -38,9 +42,18 @@ export default async function ErrorsPage({ searchParams }: { searchParams: Promi
       </div>
 
       <div className="mt-5 grid gap-5 xl:grid-cols-[420px_1fr]">
-        <ErrorLogForm error={editing} subjects={data.subjects} topics={data.topics} exams={data.exams} t={t as (key: string) => string} />
+        <GlassCard>
+          <SectionHeader
+            title={editing ? t("form.errorLog.editTitle") : t("form.errorLog.createTitle")}
+            description=""
+            action={editing ? <Button asChild variant="outline" size="sm"><Link href="/errors"><ArrowLeft className="h-4 w-4" /> {t("common.cancel")}</Link></Button> : undefined}
+          />
+          <div className="mt-4">
+            <ErrorLogForm error={editing} subjects={subjects} topics={topics} exams={exams} t={t as (key: string) => string} />
+          </div>
+        </GlassCard>
         <div className="grid gap-4 md:grid-cols-2">
-          {data.errorLogs.map((error) => (
+          {errorLogs.map((error) => (
             <GlassCard key={error.id} tone={error.resolved ? "emerald" : error.severity >= 7 ? "danger" : "rose"} className={error.resolved ? "opacity-80" : undefined}>
               <div className="flex items-start justify-between gap-4">
                 <div>
@@ -81,14 +94,9 @@ export default async function ErrorsPage({ searchParams }: { searchParams: Promi
                   </Button>
                 </form>
                 <Button asChild variant="ghost" size="sm">
-                  <a href={`/errors?edit=${error.id}`}>{t("common.edit")}</a>
+                  <Link href={`/errors?edit=${error.id}`}>{t("common.edit")}</Link>
                 </Button>
-                <form action={deleteErrorLogAction}>
-                  <input type="hidden" name="id" value={error.id} />
-                  <Button type="submit" variant="destructive" size="icon" aria-label={t("common.delete")}>
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </form>
+                <DeleteButton action={deleteErrorLogAction} id={error.id} />
               </div>
             </GlassCard>
           ))}

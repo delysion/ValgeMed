@@ -3,6 +3,7 @@ import { db } from "@/lib/db/admin";
 import { profiles } from "@/lib/db/schema";
 import { UserRow } from "./user-row";
 import Link from "next/link";
+import { sql } from "drizzle-orm";
 
 export const dynamic = "force-dynamic";
 
@@ -15,13 +16,17 @@ export default async function AdminUsersPage(props: {
   const admin = await requireAdmin();
   const page = Math.max(1, Number(searchParams?.page) || 1);
 
-  const allProfiles = await db.query.profiles.findMany({
-    orderBy: (profiles, { asc }) => [asc(profiles.createdAt)],
-  });
+  const [paged, [{ count }]] = await Promise.all([
+    db.query.profiles.findMany({
+      orderBy: (profiles, { asc }) => [asc(profiles.createdAt)],
+      limit: PAGE_SIZE,
+      offset: (page - 1) * PAGE_SIZE,
+    }),
+    db.select({ count: sql<number>`count(*)::int` }).from(profiles),
+  ]);
 
-  const total = allProfiles.length;
-  const totalPages = Math.ceil(total / PAGE_SIZE);
-  const paged = allProfiles.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const total = Number(count);
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   return (
     <div className="mx-auto max-w-3xl p-6">

@@ -11,7 +11,7 @@ import { MomentumBar } from "@/components/premium/momentum-bar";
 import { SectionHeader } from "@/components/premium/section-header";
 import { Badge } from "@/components/ui/badge";
 import { requireUser } from "@/lib/auth/supabase";
-import { getCoreData } from "@/lib/data/queries";
+import { getReferenceData, getStudySessions } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server";
 import { fmtDate, humanize } from "@/lib/labels";
 
@@ -21,22 +21,22 @@ export default async function StudyPage({ searchParams }: { searchParams: Promis
   const user = await requireUser();
   const { t } = await getI18n();
   const params = await searchParams;
-  const data = await getCoreData();
-  const editing = data.studySessions.find((item) => item.id === params.edit);
-  const subjectById = new Map(data.subjects.map((subject) => [subject.id, subject]));
+  const [ref, studySessions] = await Promise.all([getReferenceData(), getStudySessions()]);
+  const editing = studySessions.find((item) => item.id === params.edit);
+  const subjectById = new Map(ref.subjects.map((subject) => [subject.id, subject]));
   const activeMethods = new Set(["active_recall", "quiz", "simulation", "error_review"]);
-  const activeMinutes = data.studySessions.filter((item) => activeMethods.has(item.method)).reduce((sum, item) => sum + item.durationMinutes, 0);
-  const passiveMinutes = data.studySessions.filter((item) => ["reading", "notes"].includes(item.method)).reduce((sum, item) => sum + item.durationMinutes, 0);
+  const activeMinutes = studySessions.filter((item) => activeMethods.has(item.method)).reduce((sum, item) => sum + item.durationMinutes, 0);
+  const passiveMinutes = studySessions.filter((item) => ["reading", "notes"].includes(item.method)).reduce((sum, item) => sum + item.durationMinutes, 0);
   const totalMinutes = activeMinutes + passiveMinutes;
   const activeRatio = totalMinutes === 0 ? 0 : (activeMinutes / totalMinutes) * 100;
   const methodTotals = Object.entries(
-    data.studySessions.reduce<Record<string, number>>((acc, item) => {
+    studySessions.reduce<Record<string, number>>((acc, item) => {
       acc[item.method] = (acc[item.method] ?? 0) + item.durationMinutes;
       return acc;
     }, {}),
   ).map(([name, value]) => ({ name: humanize(name), value }));
   const dayTotals = Object.entries(
-    data.studySessions.slice(0, 80).reduce<Record<string, number>>((acc, item) => {
+    studySessions.slice(0, 80).reduce<Record<string, number>>((acc, item) => {
       const key = item.startedAt.toISOString().slice(5, 10);
       acc[key] = (acc[key] ?? 0) + item.durationMinutes;
       return acc;
@@ -62,8 +62,8 @@ export default async function StudyPage({ searchParams }: { searchParams: Promis
                 <MinutesBarChart data={dayTotals} />
                 <div className="space-y-4">
                   <MomentumBar label={t("study.activeRecall")} value={activeRatio} tone="cyan" />
-                  <MomentumBar label={t("common.focus")} value={Math.min(100, data.studySessions[0]?.focusLevel ? data.studySessions[0].focusLevel * 10 : 0)} tone="violet" />
-                  <MomentumBar label={t("common.output")} value={Math.min(100, data.studySessions[0]?.outputQuality ? data.studySessions[0].outputQuality * 10 : 0)} tone="emerald" />
+                  <MomentumBar label={t("common.focus")} value={Math.min(100, studySessions[0]?.focusLevel ? studySessions[0].focusLevel * 10 : 0)} tone="violet" />
+                  <MomentumBar label={t("common.output")} value={Math.min(100, studySessions[0]?.outputQuality ? studySessions[0].outputQuality * 10 : 0)} tone="emerald" />
                 </div>
               </div>
             </GlassCard>
@@ -71,7 +71,7 @@ export default async function StudyPage({ searchParams }: { searchParams: Promis
             <GlassCard>
               <SectionHeader title={t("study.sessionHistory")} />
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                {data.studySessions.slice(0, 8).map((item) => (
+                {studySessions.slice(0, 8).map((item) => (
                   <div key={item.id} className="rounded-xl border border-white/10 bg-white/[0.03] p-3.5 transition hover:bg-white/[0.05]">
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
@@ -90,7 +90,7 @@ export default async function StudyPage({ searchParams }: { searchParams: Promis
             <GlassCard>
               <SectionHeader title={t("study.quickStart")} />
               <div className="mt-4">
-                <StudySessionForm session={editing} subjects={data.subjects} topics={data.topics} exams={data.exams} t={t as (key: string) => string} />
+                <StudySessionForm session={editing} subjects={ref.subjects} topics={ref.topics} exams={ref.exams} t={t as (key: string) => string} />
               </div>
             </GlassCard>
 
