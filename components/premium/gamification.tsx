@@ -498,6 +498,11 @@ export function GamificationDashboard({
   const { t } = useTranslation();
   const xpPct = Math.round((xp / xpToNextLevel) * 100);
 
+  // Helper to get icon component from string key
+  const getIconComponent = (iconKey: string) => {
+    return iconMap[iconKey] ?? iconMap.default;
+  };
+
   return (
     <div className="space-y-6">
       {/* Level + Streak + XP */}
@@ -537,6 +542,7 @@ export function GamificationDashboard({
             {badges.filter((b) => b.unlocked).length}/{badges.length}
           </span>
         </div>
+
         <div className="grid grid-cols-3 gap-2.5">
           {badges.map((badge) => (
             <div
@@ -552,11 +558,11 @@ export function GamificationDashboard({
                 "grid h-8 w-8 place-items-center rounded-lg",
                 badge.unlocked ? "bg-gradient-to-br from-gold/25 to-gold/10 text-gold shadow-sm" : "bg-bg-subtle text-text-muted"
               )}>
-{badge.unlocked ? (
-  <iconMap[badge.icon] ?? iconMap.default className="h-4 w-4" />
-) : (
-  <Lock className="h-4 w-4" />
-)}
+                {badge.unlocked ? (
+                  <getIconComponent(badge.icon) className="h-4 w-4" />
+                ) : (
+                  <Lock className="h-4 w-4" />
+                )}
               </div>
               <p className="text-[11px] font-medium text-text-primary leading-tight">{badge.name}</p>
             </div>
