@@ -1,32 +1,21 @@
 import { GlassCard } from "@/components/premium/glass-card";
 import { EmptyState } from "@/components/premium/empty-state";
 import { FileText } from "lucide-react";
+import { getI18n } from "@/lib/i18n/server";
 
-const PIPELINE_STAGES = [
-  "Idea",
-  "Research Question",
-  "Protocol",
-  "Ethics",
-  "Data Collection",
-  "Analysis",
-  "Draft",
-  "Co-author Review",
-  "Journal Selection",
-  "Submission",
-  "Revision",
-  "Publication",
-];
+export default async function ManuscriptPipelinePage() {
+  const { t } = getI18n();
+  const stages = t("research.manuscriptStages").split(",");
 
-export default function ManuscriptPipelinePage() {
   return (
     <div className="flex flex-col gap-6">
       <GlassCard>
-        <h3 className="text-sm font-semibold text-text-primary">Manuscript Pipeline</h3>
+        <h3 className="text-sm font-semibold text-text-primary">{t("research.manuscriptPipeline")}</h3>
         <p className="mt-2 text-sm text-text-secondary">
-          Track each manuscript through 12 stages from idea to publication.
+          {t("research.manuscriptPipelineDesc")}
         </p>
         <div className="mt-4 flex flex-wrap gap-1.5">
-          {PIPELINE_STAGES.map((stage, i) => (
+          {stages.map((stage, i) => (
             <div
               key={stage}
               className="rounded-full border border-border/50 bg-bg-subtle px-3 py-1 text-xs text-text-muted"
@@ -39,8 +28,8 @@ export default function ManuscriptPipelinePage() {
 
       <EmptyState
         icon={FileText}
-        title="No manuscripts in pipeline"
-        description="Start tracking your first manuscript from idea to publication."
+        title={t("research.noManuscripts")}
+        description={t("research.noManuscriptsDesc")}
         variant="first-time"
       />
     </div>
