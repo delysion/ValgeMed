@@ -1,3 +1,5 @@
+"use client";
+
 import { formatISO } from "date-fns";
 import type React from "react";
 

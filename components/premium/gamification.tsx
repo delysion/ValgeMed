@@ -1,11 +1,21 @@
 "use client";
 
 import { Flame, Lock, ShieldAlert, Sparkle, Target, TrendingUp, Trophy, Zap } from "lucide-react";
-
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 import type { TranslationKey } from "@/lib/i18n/dictionaries/en";
 import { cn } from "@/lib/utils";
+
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+  shield: ShieldAlert,
+  language: Languages,
+  brain: Brain,
+  book: BookOpen,
+  zap: Zap,
+  flame: Flame,
+  // Default fallback
+  default: ShieldAlert,
+};
 
 export type MasteryLevel =
   | "dormant"
@@ -542,11 +552,11 @@ export function GamificationDashboard({
                 "grid h-8 w-8 place-items-center rounded-lg",
                 badge.unlocked ? "bg-gradient-to-br from-gold/25 to-gold/10 text-gold shadow-sm" : "bg-bg-subtle text-text-muted"
               )}>
-                {badge.unlocked ? (
-                  <badge.icon className="h-4 w-4" />
-                ) : (
-                  <Lock className="h-4 w-4" />
-                )}
+{badge.unlocked ? (
+  <iconMap[badge.icon] ?? iconMap.default className="h-4 w-4" />
+) : (
+  <Lock className="h-4 w-4" />
+)}
               </div>
               <p className="text-[11px] font-medium text-text-primary leading-tight">{badge.name}</p>
             </div>
