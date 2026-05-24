@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Check, X, Shield } from "lucide-react";
 import { approveUserAction } from "@/lib/actions/admin";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 type Profile = {
   id: string;
@@ -14,6 +15,7 @@ type Profile = {
 };
 
 export function UserRow({ profile: initial }: { profile: Profile }) {
+  const { t } = useTranslation();
   const [profile, setProfile] = useState(initial);
   const [busy, setBusy] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
@@ -25,7 +27,7 @@ export function UserRow({ profile: initial }: { profile: Profile }) {
       if (res.success) {
         const wasApproved = !!profile.approved;
         setProfile((p) => ({ ...p, approved: !p.approved }));
-        setToast(wasApproved ? "Access revoked" : "User approved");
+        setToast(wasApproved ? t("admin.accessRevoked") : t("admin.userApproved"));
         setTimeout(() => setToast(null), 2500);
       }
     } finally {
@@ -45,17 +47,17 @@ export function UserRow({ profile: initial }: { profile: Profile }) {
       )}
       <div className="min-w-0">
         <p className="text-sm font-semibold text-text-primary truncate">
-          {profile.displayName ?? "Unknown"}
+          {profile.displayName ?? t("admin.unknown")}
         </p>
         <p className="text-xs text-text-muted">
           {profile.email && <span className="mr-2">{profile.email}</span>}
           {isAdminUser && (
             <span className="inline-flex items-center gap-1 mr-2 text-amber-400 font-medium">
               <Shield className="h-3 w-3" />
-              Admin
+              {t("admin.adminLabel")}
             </span>
           )}
-          {isApproved ? "Approved" : "Pending approval"}
+          {isApproved ? t("admin.approved") : t("admin.pendingApproval")}
           {profile.createdAt && ` · ${new Date(profile.createdAt).toLocaleDateString()}`}
         </p>
       </div>
@@ -69,9 +71,9 @@ export function UserRow({ profile: initial }: { profile: Profile }) {
         }`}
       >
         {isApproved ? (
-          <span className="flex items-center gap-1.5"><X className="h-4 w-4" /> Revoke</span>
+          <span className="flex items-center gap-1.5"><X className="h-4 w-4" /> {t("admin.revoke")}</span>
         ) : (
-          <span className="flex items-center gap-1.5"><Check className="h-4 w-4" /> Approve</span>
+          <span className="flex items-center gap-1.5"><Check className="h-4 w-4" /> {t("admin.approve")}</span>
         )}
       </button>
     </div>

@@ -1,12 +1,14 @@
 import { PageHeader } from "@/components/app-shell";
+import { getI18n } from "@/lib/i18n/server";
 
-export default function ResearchLayout({ children }: { children: React.ReactNode }) {
+export default async function ResearchLayout({ children }: { children: React.ReactNode }) {
+  const { t } = getI18n();
   return (
     <div>
       <PageHeader
-        eyebrow="Research"
-        title="Research Command"
-        description="From scattered curiosity to publishable research."
+        eyebrow={t("research.title")}
+        title={t("research.title")}
+        description={t("research.description")}
       />
       {children}
     </div>
