@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getI18n, dictionaries } from "@/lib/i18n/server";
 import { en } from "@/lib/i18n/dictionaries/en";
@@ -38,6 +38,25 @@ export function AppShell({
   }, []);
 
   const { t, dictionary: currentDictionary } = useMemo(() => i18n || { t: (k: string) => k, dictionary: en, locale: "en" as Locale }, [i18n]);
+
+  const router = useRouter();
+
+  useEffect(() => {
+    const checkApproval = async () => {
+      try {
+        const res = await fetch("/api/admin/check-status");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.hasProfile && !data.approved) {
+            router.replace("/pending-approval");
+          }
+        }
+      } catch {}
+    };
+    checkApproval();
+    const interval = setInterval(checkApproval, 60_000);
+    return () => clearInterval(interval);
+  }, [router]);
 
   const displayName = useMemo(() => (user.email ?? "").split("@")[0], [user.email]);
 
