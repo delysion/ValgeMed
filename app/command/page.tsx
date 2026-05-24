@@ -175,12 +175,12 @@ export default async function CommandPage() {
   const timeLeverage = Math.round(activeRatio);
 
   const gamificationBadges = [
-    { id: "error-destroyer", name: "Error Destroyer", description: "Destroy your first recurring error", icon: ShieldCheck, unlocked: destroyedErrors > 0 },
-    { id: "language-learner", name: "Polyglot Spark", description: "30+ min language study today", icon: Languages, unlocked: languageMinutes >= 30 },
-    { id: "active-recalls", name: "Recall Engine", description: "30+ min active recall today", icon: Brain, unlocked: activeMinutesToday >= 30 },
-    { id: "review-clear", name: "Zero Inbox", description: "All due reviews completed", icon: BookOpen, unlocked: dueReviews.length === 0 },
-    { id: "energy-guardian", name: "Energy Guardian", description: "Energy integrity score 6+", icon: Zap, unlocked: elite.energyIntegrity.score >= 6 },
-    { id: "streak-starter", name: "Streak Ignited", description: "3-day command streak", icon: Flame, unlocked: streak >= 3 },
+    { id: "error-destroyer", name: "Error Destroyer", description: "Destroy your first recurring error", icon: "shield", unlocked: destroyedErrors > 0 },
+    { id: "language-learner", name: "Polyglot Spark", description: "30+ min language study today", icon: "language", unlocked: languageMinutes >= 30 },
+    { id: "active-recalls", name: "Recall Engine", description: "30+ min active recall today", icon: "brain", unlocked: activeMinutesToday >= 30 },
+    { id: "review-clear", name: "Zero Inbox", description: "All due reviews completed", icon: "book", unlocked: dueReviews.length === 0 },
+    { id: "energy-guardian", name: "Energy Guardian", description: "Energy integrity score 6+", icon: "zap", unlocked: elite.energyIntegrity.score >= 6 },
+    { id: "streak-starter", name: "Streak Ignited", description: "3-day command streak", icon: "flame", unlocked: streak >= 3 },
   ];
 
   const gamificationMissions = [

@@ -1,21 +1,10 @@
 "use client";
 
-import { Flame, Lock, ShieldAlert, Sparkle, Target, TrendingUp, Trophy, Zap } from "lucide-react";
+import { Flame, Lock, ShieldAlert, Sparkle, Target, TrendingUp, Trophy, Zap, Languages, Brain, BookOpen } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 import type { TranslationKey } from "@/lib/i18n/dictionaries/en";
 import { cn } from "@/lib/utils";
-
-const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-  shield: ShieldAlert,
-  language: Languages,
-  brain: Brain,
-  book: BookOpen,
-  zap: Zap,
-  flame: Flame,
-  // Default fallback
-  default: ShieldAlert,
-};
 
 export type MasteryLevel =
   | "dormant"
@@ -465,7 +454,7 @@ interface BadgeItem {
   id: string;
   name: string;
   description: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: string;
   unlocked: boolean;
 }
 
@@ -497,11 +486,6 @@ export function GamificationDashboard({
 }: GamificationDashboardProps) {
   const { t } = useTranslation();
   const xpPct = Math.round((xp / xpToNextLevel) * 100);
-
-  // Helper to get icon component from string key
-  const getIconComponent = (iconKey: string) => {
-    return iconMap[iconKey] ?? iconMap.default;
-  };
 
   return (
     <div className="space-y-6">
@@ -558,11 +542,25 @@ export function GamificationDashboard({
                 "grid h-8 w-8 place-items-center rounded-lg",
                 badge.unlocked ? "bg-gradient-to-br from-gold/25 to-gold/10 text-gold shadow-sm" : "bg-bg-subtle text-text-muted"
               )}>
-                {badge.unlocked ? (
-                  <getIconComponent(badge.icon) className="h-4 w-4" />
-                ) : (
-                  <Lock className="h-4 w-4" />
-                )}
+{badge.unlocked ? (
+  badge.icon === "shield" ? (
+    <ShieldAlert className="h-4 w-4" />
+  ) : badge.icon === "language" ? (
+    <Languages className="h-4 w-4" />
+  ) : badge.icon === "brain" ? (
+    <Brain className="h-4 w-4" />
+  ) : badge.icon === "book" ? (
+    <BookOpen className="h-4 w-4" />
+  ) : badge.icon === "zap" ? (
+    <Zap className="h-4 w-4" />
+  ) : badge.icon === "flame" ? (
+    <Flame className="h-4 w-4" />
+  ) : (
+    <ShieldAlert className="h-4 w-4" />
+  )
+) : (
+  <Lock className="h-4 w-4" />
+)}
               </div>
               <p className="text-[11px] font-medium text-text-primary leading-tight">{badge.name}</p>
             </div>

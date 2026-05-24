@@ -155,12 +155,11 @@ export default async function DashboardPage() {
 
   const scoreTone = eliteScore >= 7 ? "emerald" : eliteScore >= 5 ? "violet" : eliteScore >= 3 ? "gold" : "rose";
   const dashboardBadges = [
-    { id: "study-machine", name: "Study Machine", description: "10+ hours studied this week", icon: BookOpen, unlocked: studyMinutesThisWeek >= 600 },
-    { id: "active-learner", name: "Active Learner", description: "70%+ active study ratio", icon: Brain, unlocked: activeRatio >= 70 },
-    { id: "error-free", name: "Error Free", description: "Zero open errors", icon: ShieldCheck, unlocked: openErrors.length === 0 },
-    { id: "review-master", name: "Review Master", description: "All reviews completed", icon: ListChecks, unlocked: dueReviews === 0 },
-    { id: "streak-warrior", name: "Streak Warrior", description: "7-day command streak", icon: Flame, unlocked: streak >= 7 },
-    { id: "balanced", name: "Balanced", description: "Low burnout risk", icon: Zap, unlocked: burnoutRisk.score < 4 },
+    { id: "study-machine", name: "Study Machine", description: "10+ hours studied this week", icon: "book", unlocked: studyMinutesThisWeek >= 600 },
+    { id: "active-learner", name: "Active Learner", description: "70%+ active study ratio", icon: "brain", unlocked: activeRatio >= 70 },
+    { id: "error-free", name: "Error Free", description: "Zero open errors", icon: "shield", unlocked: openErrors.length === 0 },
+    { id: "streak-warrior", name: "Streak Warrior", description: "7-day command streak", icon: "flame", unlocked: streak >= 7 },
+    { id: "balanced", name: "Balanced", description: "Low burnout risk", icon: "zap", unlocked: burnoutRisk.score < 4 },
   ];
   const dashboardMissions = [
     { id: "study-hours", name: "Reach 10h study this week", current: Math.min(studyMinutesThisWeek, 600), target: 600 },
