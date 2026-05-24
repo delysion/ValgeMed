@@ -93,20 +93,23 @@ export function AppShell({
       {/* Main Content Area */}
       <div className="lg:pl-64 pb-16 lg:pb-0">
         {/* Mobile Header */}
-        <header className="sticky top-0 z-30 flex h-12 items-center gap-3 border-b border-border bg-gradient-to-r from-bg-surface/95 to-bg-page/90 px-4 backdrop-blur-xl lg:hidden">
-          <button
-            type="button"
-            onClick={() => setDrawerOpen(true)}
-            className="grid h-9 w-9 place-items-center rounded-xl hover:bg-bg-subtle active:scale-[0.97]"
-            aria-label="Open navigation menu"
-          >
-            <Menu className="h-5 w-5 text-text-primary" />
-          </button>
+        <header className="sticky top-0 z-30 flex h-12 items-center justify-between gap-3 border-b border-border bg-gradient-to-r from-bg-surface/95 to-bg-page/90 px-4 backdrop-blur-xl lg:hidden">
           <div className="flex items-center gap-2 min-w-0">
+            <button
+              type="button"
+              onClick={() => setDrawerOpen(true)}
+              className="grid h-9 w-9 place-items-center rounded-xl hover:bg-bg-subtle active:scale-[0.97]"
+              aria-label={t("app.openMenu")}
+            >
+              <Menu className="h-5 w-5 text-text-primary" />
+            </button>
             <div className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-primary to-violet">
               <Command className="h-4 w-4 text-white" />
             </div>
-            <span className="truncate text-sm font-semibold text-text-primary">{t("app.name")}</span>
+            <div className="min-w-0">
+              <p className="truncate text-xs font-semibold text-text-primary leading-tight">{t("app.name")}</p>
+              <p className="truncate text-[10px] text-text-muted leading-tight">{displayName}</p>
+            </div>
           </div>
         </header>
 

@@ -7,6 +7,7 @@ export const et: Dictionary = {
   "app.privateConsole": "Privaatkäsklus",
   "app.exportJson": "JSON",
   "app.logout": "Logi välja",
+  "app.openMenu": "Ava navigatsioonimenüü",
   "language.label": "Keel",
   "language.en": "English",
   "language.et": "Eesti",

@@ -5,6 +5,7 @@ export const en = {
   "app.privateConsole": "Private Command",
   "app.exportJson": "JSON",
   "app.logout": "Logout",
+  "app.openMenu": "Open navigation menu",
   "language.label": "Language",
   "language.en": "English",
   "language.et": "Eesti",
