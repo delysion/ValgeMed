@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Pause, Play, RotateCcw, SkipForward } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 import { cn } from "@/lib/utils";
 
 const WORK_DURATION = 25 * 60;
@@ -14,6 +15,7 @@ const LONG_BREAK_INTERVAL = 4;
 type TimerMode = "work" | "shortBreak" | "longBreak";
 
 export function FocusTimer({ onComplete }: { onComplete?: (minutes: number) => void }) {
+  const { t } = useTranslation();
   const [mode, setMode] = useState<TimerMode>("work");
   const [timeLeft, setTimeLeft] = useState(WORK_DURATION);
   const [isRunning, setIsRunning] = useState(false);
@@ -107,9 +109,9 @@ export function FocusTimer({ onComplete }: { onComplete?: (minutes: number) => v
     longBreak: "text-violet",
   };
   const modeLabels = {
-    work: "Focus",
-    shortBreak: "Short Break",
-    longBreak: "Long Break",
+    work: t("focusTimer.modeFocus"),
+    shortBreak: t("focusTimer.modeShortBreak"),
+    longBreak: t("focusTimer.modeLongBreak"),
   };
   const ringColor = {
     work: "#06B6D4",
@@ -146,13 +148,13 @@ export function FocusTimer({ onComplete }: { onComplete?: (minutes: number) => v
       </div>
 
       <div className="flex items-center gap-2">
-        <Button variant="outline" size="icon" onClick={reset} aria-label="Reset">
+        <Button variant="outline" size="icon" onClick={reset} aria-label={t("focusTimer.reset")}>
           <RotateCcw className="h-4 w-4" />
         </Button>
-        <Button size="icon" onClick={toggle} aria-label={isRunning ? "Pause" : "Start"}>
+        <Button size="icon" onClick={toggle} aria-label={isRunning ? t("focusTimer.pause") : t("focusTimer.start")}>
           {isRunning ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
         </Button>
-        <Button variant="outline" size="icon" onClick={skip} aria-label="Skip">
+        <Button variant="outline" size="icon" onClick={skip} aria-label={t("focusTimer.skip")}>
           <SkipForward className="h-4 w-4" />
         </Button>
       </div>
@@ -162,7 +164,7 @@ export function FocusTimer({ onComplete }: { onComplete?: (minutes: number) => v
           {Array.from({ length: sessions }).map((_, i) => (
             <div key={i} className="h-1.5 w-1.5 rounded-full bg-cyan" />
           ))}
-          <span className="ml-1 text-xs text-text-secondary">{sessions} session{sessions > 1 ? "s" : ""}</span>
+          <span className="ml-1 text-xs text-text-secondary">{t("focusTimer.sessions", { count: sessions })}</span>
         </div>
       ) : null}
     </div>

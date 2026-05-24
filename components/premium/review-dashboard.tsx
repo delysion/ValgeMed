@@ -61,7 +61,7 @@ export function ReviewDashboard({
         <ReviewStat
           label={t("study.weeklyOutput")}
           value={totalMinutes}
-          suffix=" min"
+          suffix={t("reviewDashboard.suffixMin")}
           tone="cyan"
         />
       </div>
@@ -78,7 +78,7 @@ export function ReviewDashboard({
           ) : null}
           {lastReview.wins ? (
             <div className="mt-3">
-              <p className="text-xs font-medium text-emerald">Wins</p>
+              <p className="text-xs font-medium text-emerald">{t("reviewDashboard.wins")}</p>
               <p className="mt-1 text-sm text-muted">{lastReview.wins}</p>
             </div>
           ) : null}
@@ -90,7 +90,7 @@ export function ReviewDashboard({
           <div className="flex items-center gap-2">
             <XCircle className="h-4 w-4 text-danger" />
             <h4 className="text-sm font-semibold text-white">{unresolved} {t("errors.unresolved").toLowerCase()}</h4>
-            {recurring > 0 ? <Badge variant="danger" className="text-[10px]">{recurring} recurring</Badge> : null}
+            {recurring > 0 ? <Badge variant="danger" className="text-[10px]">{recurring} {t("reviewDashboard.recurring")}</Badge> : null}
           </div>
         </div>
       ) : (

@@ -1,11 +1,15 @@
+"use client";
+
 import { format, isToday, isTomorrow } from "date-fns";
 import { BookOpen, Clock, RotateCw } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 import type { ReviewItem } from "@/lib/db/schema";
 import { cn } from "@/lib/utils";
 
 export function RevisionQueue({ items }: { items: ReviewItem[] }) {
+  const { t } = useTranslation();
   const active = items.filter((item) => item.isActive);
   const due = active.filter((item) => item.dueAt <= new Date());
   const overdue = due.filter((item) => item.dueAt < new Date() && !isToday(item.dueAt));
@@ -16,7 +20,7 @@ export function RevisionQueue({ items }: { items: ReviewItem[] }) {
     return (
       <div className="rounded-xl border border-dashed border-border bg-gradient-to-br from-bg-surface to-bg-subtle/30 p-8 text-center">
         <BookOpen className="mx-auto h-6 w-6 text-text-muted" />
-        <p className="mt-3 text-sm text-text-secondary">No review items yet.</p>
+        <p className="mt-3 text-sm text-text-secondary">{t("revisionQueue.noItems")}</p>
       </div>
     );
   }
@@ -27,7 +31,7 @@ export function RevisionQueue({ items }: { items: ReviewItem[] }) {
         <div>
           <h4 className="mb-2 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-rose">
             <Clock className="h-3.5 w-3.5" />
-            Overdue ({overdue.length})
+            {t("revisionQueue.overdue", { count: overdue.length })}
           </h4>
           <div className="space-y-1.5">
             {overdue.map((item) => (
@@ -41,7 +45,7 @@ export function RevisionQueue({ items }: { items: ReviewItem[] }) {
         <div>
           <h4 className="mb-2 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-cyan">
             <BookOpen className="h-3.5 w-3.5" />
-            Due today ({today.length})
+            {t("revisionQueue.dueToday", { count: today.length })}
           </h4>
           <div className="space-y-1.5">
             {today.map((item) => (
@@ -53,7 +57,7 @@ export function RevisionQueue({ items }: { items: ReviewItem[] }) {
 
       {upcoming.length > 0 && (
         <div>
-          <h4 className="mb-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-text-muted">Upcoming</h4>
+          <h4 className="mb-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-text-muted">{t("revisionQueue.upcoming")}</h4>
           <div className="space-y-1.5">
             {upcoming.map((item) => (
               <ReviewRow key={item.id} item={item} />
@@ -66,6 +70,7 @@ export function RevisionQueue({ items }: { items: ReviewItem[] }) {
 }
 
 function ReviewRow({ item, overdue = false }: { item: ReviewItem; overdue?: boolean }) {
+  const { t } = useTranslation();
   return (
     <div className={cn(
       "flex items-center gap-3 rounded-lg border p-3 transition hover:shadow-sm",
@@ -73,7 +78,7 @@ function ReviewRow({ item, overdue = false }: { item: ReviewItem; overdue?: bool
     )}>
       <RotateCw className="h-3.5 w-3.5 shrink-0 text-text-muted" />
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm text-text-primary">{item.question ?? "Review item"}</p>
+        <p className="truncate text-sm text-text-primary">{item.question ?? t("revisionQueue.reviewItem")}</p>
         <p className="text-[11px] text-text-muted">{item.reviewType.replace("_", " ")} · reviewed {item.timesReviewed ?? 0}x</p>
       </div>
       <Badge variant={overdue ? "danger" : isToday(item.dueAt) ? "default" : isTomorrow(item.dueAt) ? "warning" : "muted"} className="shrink-0 text-[10px]">

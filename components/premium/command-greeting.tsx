@@ -12,12 +12,12 @@ function nextActionKey(action: NextBestAction, part: "title" | "reason"): Transl
   return `nba.${action.kind}.${part}` as TranslationKey;
 }
 
-function timeBasedGreeting(): string {
+function timeBasedGreetingKey(): TranslationKey {
   const hour = new Date().getHours();
-  if (hour >= 5 && hour < 12) return "Good morning. Here is your command.";
-  if (hour >= 12 && hour < 17) return "Good afternoon. Continue.";
-  if (hour >= 17 && hour < 22) return "Good evening. Review the day.";
-  return "System active. Proceed.";
+  if (hour >= 5 && hour < 12) return "greeting.morning";
+  if (hour >= 12 && hour < 17) return "greeting.afternoon";
+  if (hour >= 17 && hour < 22) return "greeting.evening";
+  return "greeting.night";
 }
 
 export function CommandGreeting({
@@ -39,7 +39,7 @@ export function CommandGreeting({
   t: (key: TranslationKey) => string;
   lowData: boolean;
 }) {
-  const displayGreeting = greeting ?? timeBasedGreeting();
+  const displayGreeting = greeting ?? t(timeBasedGreetingKey());
   const scoreTone = eliteScore >= 7 ? "emerald" : eliteScore >= 5 ? "violet" : eliteScore >= 3 ? "gold" : "rose";
 
   return (

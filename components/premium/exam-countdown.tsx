@@ -1,9 +1,13 @@
+"use client";
+
 import { differenceInDays, format } from "date-fns";
 import { CalendarClock } from "lucide-react";
 
+import { useTranslation } from "@/lib/i18n/useTranslation";
 import type { Exam } from "@/lib/db/schema";
 
 export function ExamCountdown({ exam }: { exam: Exam }) {
+  const { t } = useTranslation();
   if (!exam.examDate) return null;
 
   const daysLeft = differenceInDays(exam.examDate, new Date());
@@ -21,7 +25,7 @@ export function ExamCountdown({ exam }: { exam: Exam }) {
       </div>
       <div className="shrink-0 text-right">
         <p className={`font-mono text-2xl font-semibold ${isUrgent ? "text-rose" : isWarning ? "text-gold" : "text-text-primary"}`}>{daysLeft}</p>
-        <p className="text-[10px] text-text-muted">{daysLeft === 1 ? "day" : "days"}</p>
+        <p className="text-[10px] text-text-muted">{daysLeft === 1 ? t("common.day") : t("common.days")}</p>
       </div>
     </div>
   );

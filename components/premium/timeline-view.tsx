@@ -1,7 +1,11 @@
+"use client";
+
 import { format, isSameDay } from "date-fns";
 import { CalendarDays, Circle, Clock, GraduationCap, Handshake, Radar, Target } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "@/lib/i18n/useTranslation";
+import type { TranslationKey } from "@/lib/i18n/dictionaries/en";
 import type { DailyLog, ErrorLog, Exam, Opportunity, ProfessionalContact, ReviewItem, StudySession, Task } from "@/lib/db/schema";
 import { cn } from "@/lib/utils";
 
@@ -45,7 +49,9 @@ function buildEvents(input: {
   opportunities: Opportunity[];
   dailyLogs: DailyLog[];
   days?: number;
+  t: (key: TranslationKey, params?: Record<string, string | number>) => string;
 }): TimelineEvent[] {
+  const { t } = input;
   const days = input.days ?? 30;
   const now = new Date();
   const events: TimelineEvent[] = [];
@@ -54,7 +60,7 @@ function buildEvents(input: {
     if (exam.examDate) {
       const diff = (exam.examDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
       if (diff >= -1 && diff <= days) {
-        events.push({ date: exam.examDate, type: "exam", title: exam.title, detail: "Exam", tone: "gold" });
+        events.push({ date: exam.examDate, type: "exam", title: exam.title, detail: t("timeline.exam"), tone: "gold" });
       }
     }
   }
@@ -72,7 +78,7 @@ function buildEvents(input: {
     if (item.isActive && item.dueAt) {
       const diff = (item.dueAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
       if (diff >= -7 && diff <= days) {
-        events.push({ date: item.dueAt, type: "review", title: item.question?.slice(0, 50) ?? "Review item", tone: "violet" });
+        events.push({ date: item.dueAt, type: "review", title: item.question?.slice(0, 50) ?? t("timeline.reviewItem"), tone: "violet" });
       }
     }
   }
@@ -118,7 +124,7 @@ function buildEvents(input: {
     const logDate = new Date(log.date);
     const diff = (logDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
     if (diff >= -days && diff <= 0) {
-      events.push({ date: logDate, type: "daily", title: "Daily log", detail: `Energy: ${log.energyLevel ?? "-"}`, tone: undefined });
+      events.push({ date: logDate, type: "daily", title: t("timeline.dailyLog"), detail: t("timeline.energy", { value: log.energyLevel ?? "-" }), tone: undefined });
     }
   }
 
@@ -146,13 +152,14 @@ export function TimelineView({
   dailyLogs: DailyLog[];
   days?: number;
 }) {
-  const events = buildEvents({ exams, studySessions, reviewItems, tasks, errorLogs, contacts, opportunities, dailyLogs, days });
+  const { t } = useTranslation();
+  const events = buildEvents({ exams, studySessions, reviewItems, tasks, errorLogs, contacts, opportunities, dailyLogs, days, t });
 
   if (events.length === 0) {
     return (
       <div className="rounded-xl border border-dashed border-border bg-bg-subtle p-8 text-center">
         <CalendarDays className="mx-auto h-6 w-6 text-text-muted" />
-        <p className="mt-3 text-sm text-text-secondary">No events in the next {days} days.</p>
+        <p className="mt-3 text-sm text-text-secondary">{t("timeline.noEvents", { days })}</p>
       </div>
     );
   }
@@ -163,7 +170,7 @@ export function TimelineView({
     if (!last || last.date !== dateStr) {
       acc.push({
         date: dateStr,
-        label: isSameDay(event.date, new Date()) ? "Today" : format(event.date, "EEE d MMM"),
+        label: isSameDay(event.date, new Date()) ? t("timeline.today") : format(event.date, "EEE d MMM"),
         isToday: isSameDay(event.date, new Date()),
         events: [event],
       });

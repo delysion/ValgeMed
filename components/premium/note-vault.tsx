@@ -1,6 +1,9 @@
+"use client";
+
 import { BookOpen, FileText, Search, Tag } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 import type { IdentityNote, TartuNote } from "@/lib/db/schema";
 import { cn } from "@/lib/utils";
 
@@ -16,6 +19,7 @@ type NoteItem = {
 };
 
 export function NoteVault({ identityNotes, tartuNotes }: { identityNotes: IdentityNote[]; tartuNotes: TartuNote[] }) {
+  const { t } = useTranslation();
   const allNotes: NoteItem[] = [
     ...identityNotes.map((n) => ({ id: n.id, title: n.title, content: n.content, category: n.category, date: new Date(), source: "identity" as const })),
     ...tartuNotes.map((n) => ({ id: n.id, title: n.title, content: n.content, category: n.category, date: new Date(), source: "tartu" as const, priority: n.priority, status: n.status })),
@@ -25,8 +29,8 @@ export function NoteVault({ identityNotes, tartuNotes }: { identityNotes: Identi
     return (
       <div className="rounded-xl border border-dashed border-white/[0.06] bg-white/[0.02] p-8 text-center">
         <BookOpen className="mx-auto h-6 w-6 text-muted-2" />
-        <p className="mt-3 text-sm text-muted">Memory vault is empty.</p>
-        <p className="mt-1 text-xs text-muted-2">Add identity notes or Tartu notes to build your knowledge base.</p>
+        <p className="mt-3 text-sm text-muted">{t("noteVault.emptyTitle")}</p>
+        <p className="mt-1 text-xs text-muted-2">{t("noteVault.emptyDescription")}</p>
       </div>
     );
   }
@@ -43,7 +47,7 @@ export function NoteVault({ identityNotes, tartuNotes }: { identityNotes: Identi
             {cat.replace(/_/g, " ")}
           </Badge>
         ))}
-        <span className="ml-auto text-xs text-muted-2">{allNotes.length} notes</span>
+        <span className="ml-auto text-xs text-muted-2">{t("noteVault.notesCount", { count: allNotes.length })}</span>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
@@ -65,7 +69,7 @@ export function NoteVault({ identityNotes, tartuNotes }: { identityNotes: Identi
             </div>
             <div className="mt-3 flex items-center gap-3 text-[10px] text-muted-2">
               <span>{note.category.replace(/_/g, " ")}</span>
-              {note.priority != null ? <span>Priority: {note.priority}</span> : null}
+              {note.priority != null ? <span>{t("noteVault.priority", { value: note.priority })}</span> : null}
               {note.status ? <span className={cn("font-medium", note.status === "done" ? "text-emerald" : "text-muted")}>{note.status}</span> : null}
             </div>
           </div>

@@ -1,6 +1,9 @@
+"use client";
+
 import { Flame, Lock, ShieldAlert, Sparkle, Target, TrendingUp, Trophy, Zap } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 import type { TranslationKey } from "@/lib/i18n/dictionaries/en";
 import { cn } from "@/lib/utils";
 
@@ -72,7 +75,20 @@ export function RiskBadge({ value, labels }: { value: number; labels: { low: str
 
 /* ─── Level / XP System ─── */
 
-export function computeLevel(eliteScore: number): { level: number; xp: number; xpToNext: number; levelLabel: string } {
+const levelLabelKeys: TranslationKey[] = [
+  "gamification.levelInitiate",
+  "gamification.levelNovice",
+  "gamification.levelApprentice",
+  "gamification.levelScholar",
+  "gamification.levelStrategist",
+  "gamification.levelTactician",
+  "gamification.levelElite",
+  "gamification.levelMaster",
+  "gamification.levelGrandmaster",
+  "gamification.levelLegend",
+];
+
+export function computeLevel(eliteScore: number): { level: number; xp: number; xpToNext: number; levelLabel: string; levelLabelKey: TranslationKey } {
   const raw = Math.max(0, eliteScore);
   const level = Math.min(100, Math.floor(raw) + 1);
   const xpPerLevel = 10;
@@ -85,8 +101,9 @@ export function computeLevel(eliteScore: number): { level: number; xp: number; x
   ];
   const tier = Math.min(9, Math.floor((level - 1) / 10));
   const levelLabel = labels[tier];
+  const levelLabelKey = levelLabelKeys[tier];
 
-  return { level, xp, xpToNext, levelLabel };
+  return { level, xp, xpToNext, levelLabel, levelLabelKey };
 }
 
 export function LevelBadge({
@@ -98,7 +115,8 @@ export function LevelBadge({
   streak: number;
   className?: string;
 }) {
-  const { level, xp, xpToNext, levelLabel } = computeLevel(eliteScore);
+  const { t } = useTranslation();
+  const { level, xp, xpToNext, levelLabel, levelLabelKey } = computeLevel(eliteScore);
   const pct = Math.round((xp / xpToNext) * 100);
 
   return (
@@ -108,7 +126,7 @@ export function LevelBadge({
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <p className="text-sm font-semibold text-text-primary">Lv.{level} {levelLabel}</p>
+          <p className="text-sm font-semibold text-text-primary">{t("gamification.levelDisplay", { level, name: t(levelLabelKey) })}</p>
           {streak > 0 ? (
             <span className="flex items-center gap-0.5 text-xs font-medium text-gold">
               <Zap className="h-3 w-3" /> {streak}
@@ -121,7 +139,7 @@ export function LevelBadge({
             style={{ width: `${pct}%` }}
           />
         </div>
-        <p className="mt-0.5 text-[11px] text-text-muted">{xp}/{xpToNext} XP to next level</p>
+        <p className="mt-0.5 text-[11px] text-text-muted">{xp}/{xpToNext} {t("gamification.xpToNext")}</p>
       </div>
     </div>
   );
@@ -129,9 +147,26 @@ export function LevelBadge({
 
 /* ─── Premium Gamification Cards ─── */
 
+function getLevelLabelKey(label: string): TranslationKey {
+  const map: Record<string, TranslationKey> = {
+    "Initiate": "gamification.levelInitiate",
+    "Novice": "gamification.levelNovice",
+    "Apprentice": "gamification.levelApprentice",
+    "Scholar": "gamification.levelScholar",
+    "Strategist": "gamification.levelStrategist",
+    "Tactician": "gamification.levelTactician",
+    "Elite": "gamification.levelElite",
+    "Master": "gamification.levelMaster",
+    "Grandmaster": "gamification.levelGrandmaster",
+    "Legend": "gamification.levelLegend",
+  };
+  return map[label] ?? "gamification.levelInitiate";
+}
+
 export function LevelCard({
   level,
   levelLabel,
+  levelLabelKey,
   xp,
   xpToNext,
   streak,
@@ -139,21 +174,24 @@ export function LevelCard({
 }: {
   level: number;
   levelLabel: string;
+  levelLabelKey?: TranslationKey;
   xp: number;
   xpToNext: number;
   streak: number;
   className?: string;
 }) {
+  const { t } = useTranslation();
+  const labelKey = levelLabelKey ?? getLevelLabelKey(levelLabel);
   const pct = Math.round((xp / xpToNext) * 100);
   return (
     <div className={cn("rounded-xl border border-border/60 bg-gradient-to-br from-bg-surface via-bg-surface to-primary-soft/20 p-5 shadow-[var(--shadow-card)]", className)}>
-      <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-text-muted">Your Level</p>
+      <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-text-muted">{t("gamification.yourLevel")}</p>
       <div className="mt-3 flex items-center gap-4">
         <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary via-primary-ring to-violet text-white text-xl font-bold shadow-lg shadow-primary/30">
           {level}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-base font-semibold text-text-primary">Level {level} — {levelLabel}</p>
+          <p className="text-base font-semibold text-text-primary">{t("gamification.levelDisplay", { level, name: t(labelKey) })}</p>
           <div className="mt-2 h-2 overflow-hidden rounded-full bg-bg-subtle">
             <div
               className="h-full rounded-full bg-gradient-to-r from-primary via-primary-ring to-violet progress-fill"
@@ -161,10 +199,10 @@ export function LevelCard({
             />
           </div>
           <div className="mt-1.5 flex items-center justify-between">
-            <p className="text-xs text-text-muted">{xp} / {xpToNext} XP</p>
+            <p className="text-xs text-text-muted">{xp} / {xpToNext} {t("gamification.xp")}</p>
             {streak > 0 ? (
               <span className="flex items-center gap-0.5 text-xs font-medium text-gold">
-                <Flame className="h-3 w-3" /> {streak} day streak
+                <Flame className="h-3 w-3" /> {streak} {t("gamification.dayStreak")}
               </span>
             ) : null}
           </div>
@@ -267,11 +305,12 @@ export function DailyStreakCard({
   longestStreak?: number;
   className?: string;
 }) {
+  const { t } = useTranslation();
   const pct = longestStreak && longestStreak > 0 ? Math.round((streak / longestStreak) * 100) : streak > 0 ? 100 : 0;
   return (
     <div className={cn("rounded-xl border border-border bg-gradient-to-br from-gold-bg/30 via-bg-surface to-bg-surface p-5 shadow-[var(--shadow-card)] card-hover", className)}>
       <div className="flex items-center justify-between">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-text-muted">Daily Streak</p>
+        <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-text-muted">{t("gamification.dailyStreak")}</p>
         {streak > 0 ? (
           <div className="flex items-center gap-1">
             <Flame className="h-4 w-4 text-gold drop-shadow-sm" />
@@ -288,8 +327,8 @@ export function DailyStreakCard({
         />
       </div>
       <p className="mt-1.5 text-[11px] text-text-secondary">
-        {streak > 0 ? `${streak} day${streak > 1 ? "s" : ""} active` : "Start your streak today"}
-        {longestStreak ? ` · Best: ${longestStreak}` : ""}
+        {streak > 0 ? `${streak} ${t("gamification.daysActive")}` : t("gamification.startStreak")}
+        {longestStreak ? ` · ${t("gamification.bestStreak", { streak: longestStreak })}` : ""}
       </p>
     </div>
   );
@@ -308,16 +347,17 @@ export function SystemHealthCard({
   momentum: number;
   className?: string;
 }) {
+  const { t } = useTranslation();
   const metrics = [
-    { label: "Energy", value: energy, tone: energy >= 6 ? "emerald" : energy >= 4 ? "gold" : "rose" as const },
-    { label: "Sleep", value: sleep, tone: sleep >= 7 ? "emerald" as const : sleep >= 5 ? "gold" as const : "rose" as const },
-    { label: "Stress", value: 10 - stress, tone: stress <= 3 ? "emerald" as const : stress <= 6 ? "gold" as const : "rose" as const },
-    { label: "Momentum", value: momentum, tone: momentum >= 6 ? "emerald" as const : momentum >= 4 ? "gold" as const : "rose" as const },
+    { label: t("gamification.energy"), value: energy, tone: energy >= 6 ? "emerald" : energy >= 4 ? "gold" : "rose" as const },
+    { label: t("gamification.sleep"), value: sleep, tone: sleep >= 7 ? "emerald" as const : sleep >= 5 ? "gold" as const : "rose" as const },
+    { label: t("gamification.stress"), value: 10 - stress, tone: stress <= 3 ? "emerald" as const : stress <= 6 ? "gold" as const : "rose" as const },
+    { label: t("gamification.momentum"), value: momentum, tone: momentum >= 6 ? "emerald" as const : momentum >= 4 ? "gold" as const : "rose" as const },
   ];
 
   return (
     <div className={cn("rounded-xl border border-border bg-gradient-to-br from-bg-surface via-bg-surface to-bg-subtle/20 p-5 shadow-[var(--shadow-card)]", className)}>
-      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-text-muted">System Health</p>
+      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-text-muted">{t("gamification.systemHealth")}</p>
       <div className="mt-4 space-y-3">
         {metrics.map((m) => (
           <div key={m.label}>
@@ -445,6 +485,7 @@ export function GamificationDashboard({
   badges,
   missions,
 }: GamificationDashboardProps) {
+  const { t } = useTranslation();
   const xpPct = Math.round((xp / xpToNextLevel) * 100);
 
   return (
@@ -457,7 +498,7 @@ export function GamificationDashboard({
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-text-muted">
-              Level {level} · Elite Index {eliteIndex.toFixed(1)}
+              {t("gamification.yourLevel")} {level} · {t("elite.central")} {eliteIndex.toFixed(1)}
             </p>
             <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-bg-subtle">
               <div
@@ -466,10 +507,10 @@ export function GamificationDashboard({
               />
             </div>
             <div className="mt-1 flex items-center justify-between">
-              <p className="text-[11px] text-text-muted">{xp} / {xpToNextLevel} XP</p>
+              <p className="text-[11px] text-text-muted">{xp} / {xpToNextLevel} {t("gamification.xp")}</p>
               {streak > 0 ? (
                 <span className="flex items-center gap-0.5 text-[11px] font-medium text-gold">
-                  <Flame className="h-3 w-3" /> {streak} day streak
+                  <Flame className="h-3 w-3" /> {streak} {t("gamification.dayStreak")}
                 </span>
               ) : null}
             </div>
@@ -481,7 +522,7 @@ export function GamificationDashboard({
       <div className="rounded-2xl border border-border bg-gradient-to-br from-bg-surface via-bg-surface to-gold-bg/20 p-5 shadow-[var(--shadow-card)]">
         <div className="flex items-center gap-2 mb-4">
           <Trophy className="h-4 w-4 text-gold drop-shadow-sm" />
-          <p className="text-sm font-semibold text-text-primary">Badges</p>
+          <p className="text-sm font-semibold text-text-primary">{t("gamification.badges")}</p>
           <span className="rounded-md bg-gradient-to-br from-bg-subtle to-border/30 px-1.5 py-0.5 font-mono text-[11px] text-text-muted">
             {badges.filter((b) => b.unlocked).length}/{badges.length}
           </span>
@@ -517,7 +558,7 @@ export function GamificationDashboard({
       <div className="rounded-2xl border border-border bg-gradient-to-br from-bg-surface via-bg-surface to-primary-soft/15 p-5 shadow-[var(--shadow-card)]">
         <div className="flex items-center gap-2 mb-4">
           <Target className="h-4 w-4 text-primary drop-shadow-sm" />
-          <p className="text-sm font-semibold text-text-primary">Missions</p>
+          <p className="text-sm font-semibold text-text-primary">{t("gamification.missions")}</p>
         </div>
         <div className="space-y-3">
           {missions.map((mission) => {

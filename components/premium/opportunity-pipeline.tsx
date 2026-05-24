@@ -1,19 +1,23 @@
+"use client";
+
 import { format } from "date-fns";
 
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 import type { Opportunity } from "@/lib/db/schema";
 import { cn } from "@/lib/utils";
 
-const stages = [
-  { key: "watching", label: "Watching", tone: "text-muted-2" },
-  { key: "active", label: "Active", tone: "text-cyan" },
-  { key: "applied", label: "Applied", tone: "text-violet" },
-  { key: "won", label: "Won", tone: "text-emerald" },
-  { key: "passed", label: "Passed", tone: "text-muted-2" },
-  { key: "archived", label: "Archived", tone: "text-muted-2" },
-];
-
 export function OpportunityPipeline({ opportunities }: { opportunities: Opportunity[] }) {
+  const { t } = useTranslation();
+
+  const stages = [
+    { key: "watching", label: t("opportunity.stageWatching"), tone: "text-muted-2" as const },
+    { key: "active", label: t("opportunity.stageActive"), tone: "text-cyan" as const },
+    { key: "applied", label: t("opportunity.stageApplied"), tone: "text-violet" as const },
+    { key: "won", label: t("opportunity.stageWon"), tone: "text-emerald" as const },
+    { key: "passed", label: t("opportunity.stagePassed"), tone: "text-muted-2" as const },
+    { key: "archived", label: t("opportunity.stageArchived"), tone: "text-muted-2" as const },
+  ];
   const now = new Date();
   const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
 
@@ -42,6 +46,7 @@ export function OpportunityPipeline({ opportunities }: { opportunities: Opportun
 }
 
 function OppCard({ opp, weekFromNow }: { opp: Opportunity; weekFromNow: Date }) {
+  const { t } = useTranslation();
   const deadlineDate = opp.deadline ? new Date(opp.deadline) : null;
   const isUrgent = deadlineDate ? deadlineDate <= weekFromNow : false;
 
@@ -53,7 +58,7 @@ function OppCard({ opp, weekFromNow }: { opp: Opportunity; weekFromNow: Date }) 
         {deadlineDate ? (
           <span className={cn("font-medium", isUrgent && "text-gold")}>{format(deadlineDate, "d MMM")}</span>
         ) : null}
-        {opp.strategicUpside ? <span>Upside: {opp.strategicUpside}/10</span> : null}
+        {opp.strategicUpside ? <span>{t("opportunity.upside", { value: opp.strategicUpside })}</span> : null}
         {opp.nextAction ? <Badge variant="muted" className="text-[9px]">{opp.nextAction}</Badge> : null}
       </div>
     </div>

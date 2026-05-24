@@ -45,21 +45,21 @@ export function TodayFocusCard({
           <Clock className="h-4 w-4 text-cyan" />
           <div>
             <p className="font-mono text-lg font-semibold text-text-primary">{totalMinutes}</p>
-            <p className="text-[10px] text-text-secondary">min studied</p>
+            <p className="text-[10px] text-text-secondary">{t("todayFocus.minStudied")}</p>
           </div>
         </div>
         <div className="flex items-center gap-3 rounded-lg bg-bg-subtle p-3">
           <Brain className="h-4 w-4 text-violet" />
           <div>
             <p className="font-mono text-lg font-semibold text-text-primary">{activeMinutes}</p>
-            <p className="text-[10px] text-text-secondary">active recall</p>
+            <p className="text-[10px] text-text-secondary">{t("todayFocus.activeRecall")}</p>
           </div>
         </div>
         <div className="flex items-center gap-3 rounded-lg bg-bg-subtle p-3">
           <Target className="h-4 w-4 text-rose" />
           <div>
             <p className="font-mono text-lg font-semibold text-text-primary">{criticalTasks.length}</p>
-            <p className="text-[10px] text-text-secondary">critical tasks</p>
+            <p className="text-[10px] text-text-secondary">{t("todayFocus.criticalTasks")}</p>
           </div>
         </div>
       </div>

@@ -1,16 +1,20 @@
+"use client";
+
 import { format } from "date-fns";
 import { Building2, Star } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 import type { ProfessionalContact } from "@/lib/db/schema";
+import type { TranslationKey } from "@/lib/i18n/dictionaries/en";
 import { cn } from "@/lib/utils";
 
-function strengthLabel(value: number | null) {
-  if (value == null) return "New";
-  if (value >= 8) return "Strong";
-  if (value >= 5) return "Active";
-  if (value >= 3) return "Warm";
-  return "Cold";
+function strengthLabel(value: number | null, t: (key: TranslationKey, params?: Record<string, string | number>) => string) {
+  if (value == null) return t("contactCard.strengthNew");
+  if (value >= 8) return t("contactCard.strengthStrong");
+  if (value >= 5) return t("contactCard.strengthActive");
+  if (value >= 3) return t("contactCard.strengthWarm");
+  return t("contactCard.strengthCold");
 }
 
 function strengthTone(value: number | null) {
@@ -22,7 +26,8 @@ function strengthTone(value: number | null) {
 }
 
 export function ContactCard({ contact }: { contact: ProfessionalContact }) {
-  const strength = strengthLabel(contact.relationshipStrength);
+  const { t } = useTranslation();
+  const strength = strengthLabel(contact.relationshipStrength, t);
   const tone = strengthTone(contact.relationshipStrength);
 
   return (
@@ -51,8 +56,8 @@ export function ContactCard({ contact }: { contact: ProfessionalContact }) {
 
       <div className="mt-3 flex flex-wrap items-center gap-3 text-[11px] text-muted-2">
         <span className={cn("font-medium", tone)}>{strength}</span>
-        {contact.lastContactedAt ? <span>Last: {format(contact.lastContactedAt, "d MMM")}</span> : null}
-        {contact.nextFollowUpAt ? <span>Follow-up: {format(contact.nextFollowUpAt, "d MMM")}</span> : null}
+        {contact.lastContactedAt ? <span>{t("contactCard.lastContact", { date: format(contact.lastContactedAt, "d MMM") })}</span> : null}
+        {contact.nextFollowUpAt ? <span>{t("contactCard.followUp", { date: format(contact.nextFollowUpAt, "d MMM") })}</span> : null}
       </div>
 
       {contact.notes ? <p className="mt-2 line-clamp-2 text-xs leading-5 text-muted-2">{contact.notes}</p> : null}
@@ -61,6 +66,7 @@ export function ContactCard({ contact }: { contact: ProfessionalContact }) {
 }
 
 export function FollowUpItem({ contact }: { contact: ProfessionalContact }) {
+  const { t } = useTranslation();
   const isOverdue = contact.nextFollowUpAt ? contact.nextFollowUpAt < new Date() : false;
 
   return (
@@ -72,7 +78,7 @@ export function FollowUpItem({ contact }: { contact: ProfessionalContact }) {
       </div>
       {contact.nextFollowUpAt ? (
         <Badge variant={isOverdue ? "danger" : "muted"} className="shrink-0 text-[10px]">
-          {isOverdue ? "Overdue" : format(contact.nextFollowUpAt, "d MMM")}
+          {isOverdue ? t("contactCard.overdue") : format(contact.nextFollowUpAt, "d MMM")}
         </Badge>
       ) : null}
     </div>

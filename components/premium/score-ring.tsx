@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslation } from "@/lib/i18n/useTranslation";
 import { cn } from "@/lib/utils";
 
 export function ScoreRing({
@@ -15,6 +18,7 @@ export function ScoreRing({
   tone?: "cyan" | "violet" | "emerald" | "gold" | "rose" | "danger";
   animated?: boolean;
 }) {
+  const { t } = useTranslation();
   const safe = Math.max(0, Math.min(10, score));
   const radius = 44;
   const circumference = 2 * Math.PI * radius;
@@ -64,7 +68,7 @@ export function ScoreRing({
         borderTone[tone],
         bgTone[tone],
       )}
-      aria-label={`${label}: ${safe.toFixed(1)} out of 10`}
+      aria-label={t("scoreRing.ariaLabel", { label, value: safe.toFixed(1) })}
     >
       {animated ? (
         <div

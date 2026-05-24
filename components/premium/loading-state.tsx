@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
 import { Skeleton } from "@/components/ui/skeleton";
+import type { TranslationKey } from "@/lib/i18n/dictionaries/en";
 import { cn } from "@/lib/utils";
 
 interface LoadingStateProps {
@@ -9,6 +10,7 @@ interface LoadingStateProps {
   label?: string;
   fullScreen?: boolean;
   className?: string;
+  t: (key: TranslationKey) => string;
 }
 
 export function LoadingState({
@@ -17,6 +19,7 @@ export function LoadingState({
   label,
   fullScreen = false,
   className,
+  t,
 }: LoadingStateProps) {
   if (skeleton) return <>{skeleton}</>;
 
@@ -24,7 +27,7 @@ export function LoadingState({
 
   if (fullScreen) {
     return (
-      <div className={cn("grid min-h-screen place-items-center bg-bg-page", className)} role="status" aria-label={displayMessage ?? "Loading"}>
+      <div className={cn("grid min-h-screen place-items-center bg-bg-page", className)} role="status" aria-label={displayMessage ?? t("common.loading")}>
         <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border-strong bg-bg-subtle/50 px-6 py-14 text-center">
           <div className="flex flex-col gap-3 w-full max-w-md">
             <Skeleton variant="circular" className="mx-auto size-14" />
@@ -39,7 +42,7 @@ export function LoadingState({
   }
 
   return (
-    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border-strong bg-bg-subtle/50 px-6 py-14 text-center" role="status" aria-label={displayMessage ?? "Loading"}>
+    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border-strong bg-bg-subtle/50 px-6 py-14 text-center" role="status" aria-label={displayMessage ?? t("common.loading")}>
       <div className="flex flex-col gap-3 w-full max-w-md">
         <Skeleton variant="circular" className="mx-auto size-14" />
         <Skeleton variant="text" className="mx-auto w-36" />

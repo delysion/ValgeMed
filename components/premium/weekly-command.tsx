@@ -38,7 +38,8 @@ export function WeeklyCommandPanel({
   const avgEnergy = thisWeekLogs.length === 0 ? 0 : thisWeekLogs.reduce((sum, log) => sum + (log.energyLevel ?? 0), 0) / thisWeekLogs.length;
   const avgSleep = thisWeekLogs.length === 0 ? 0 : thisWeekLogs.reduce((sum, log) => sum + (log.sleepHours ?? 0), 0) / thisWeekLogs.length;
 
-  const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const dayKeys = ["weeklyCommand.mon", "weeklyCommand.tue", "weeklyCommand.wed", "weeklyCommand.thu", "weeklyCommand.fri", "weeklyCommand.sat", "weeklyCommand.sun"];
+  const days = dayKeys.map((k) => t(k));
   const logDates = new Set(thisWeekLogs.map((log) => log.date));
 
   return (
@@ -46,7 +47,7 @@ export function WeeklyCommandPanel({
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-base font-semibold text-text-primary">{t("command.weeklyCommand")}</h3>
         <Badge variant={trend >= 0 ? "success" : "danger"} className="text-[10px]">
-          {trend >= 0 ? "+" : ""}{trend.toFixed(0)}% vs last week
+          {trend >= 0 ? "+" : ""}{trend.toFixed(0)}{t("weeklyCommand.vsLastWeek")}
         </Badge>
       </div>
 
@@ -68,10 +69,10 @@ export function WeeklyCommandPanel({
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Stat label="Study" value={`${thisWeekMinutes} min`} />
-        <Stat label="Active ratio" value={`${activeRatio.toFixed(0)}%`} />
-        <Stat label="Avg energy" value={avgEnergy.toFixed(1)} />
-        <Stat label="Avg sleep" value={`${avgSleep.toFixed(1)}h`} />
+        <Stat label={t("weeklyCommand.study")} value={`${thisWeekMinutes} min`} />
+        <Stat label={t("weeklyCommand.activeRatio")} value={`${activeRatio.toFixed(0)}%`} />
+        <Stat label={t("weeklyCommand.avgEnergy")} value={avgEnergy.toFixed(1)} />
+        <Stat label={t("weeklyCommand.avgSleep")} value={`${avgSleep.toFixed(1)}h`} />
       </div>
     </div>
   );
