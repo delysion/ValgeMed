@@ -115,15 +115,15 @@ export function SmartInput({ onSubmit, placeholder, submitLabel, listeningLabel,
 
   return (
     <form onSubmit={handleSubmit} className={cn("flex flex-col gap-3", className)}>
-      <div className="flex items-center gap-2">
-        <div className="relative flex-1">
+      <div className="flex items-center gap-2 sm:gap-2">
+        <div className="relative flex-1 min-w-0">
           <Input
             type="text"
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder={placeholder}
             disabled={disabled || isLoading}
-            className="pr-12 h-12 text-base"
+            className="pr-12 h-12 text-sm sm:text-base"
           />
           {isListening && (
             <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
@@ -138,7 +138,7 @@ export function SmartInput({ onSubmit, placeholder, submitLabel, listeningLabel,
           size="icon"
           onClick={isListening ? stopListening : startListening}
           disabled={disabled || isLoading}
-          className="h-12 w-12 shrink-0"
+          className="h-12 w-10 sm:w-12 shrink-0"
         >
           {isListening ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
         </Button>
@@ -146,10 +146,10 @@ export function SmartInput({ onSubmit, placeholder, submitLabel, listeningLabel,
           type="submit"
           size="lg"
           disabled={!text.trim() || isLoading}
-          className="h-12 shrink-0 px-5"
+          className="h-12 shrink-0 px-3 sm:px-5"
         >
           {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
-          <span className="ml-1">{submitLabel}</span>
+          <span className="ml-1 hidden sm:inline">{submitLabel}</span>
         </Button>
       </div>
       {isListening && (
