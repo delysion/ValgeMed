@@ -37,24 +37,12 @@ export default async function AiPage() {
     t("ai.noExams");
 
   const toolDescriptions: Record<string, string> = {
-    daily_command: locale === "et"
-      ? "Sisesta oma praegune õppeseisund ja saan soovitused tänaseks päevaks."
-      : "Enter your current study state and I'll suggest today's priorities.",
-    exam_battle_plan: locale === "et"
-      ? "Sisesta eksami andmed ja saan lahinguplaani."
-      : "Enter exam details and I'll create a battle plan.",
-    error_analysis: locale === "et"
-      ? "Sisesta vigade andmed ja saan mustrite analüüsi."
-      : "Enter error data and I'll analyze patterns.",
-    weekly_review: locale === "et"
-      ? "Sisesta nädala andmed ja saan ülevaate."
-      : "Enter weekly data and I'll provide a review.",
-    semester_plan: locale === "et"
-      ? "Sisesta semestri andmed ja saan plaani."
-      : "Enter semester data and I'll create a plan.",
-    research_ideas: locale === "et"
-      ? "Sisesta uurimisala andmed ja saan ideid."
-      : "Enter research area data and I'll suggest ideas.",
+    daily_command: t("ai.dailyCommandDesc"),
+    exam_battle_plan: t("ai.examBattleDesc"),
+    error_analysis: t("ai.errorPatternDesc"),
+    weekly_review: t("ai.weeklyReviewDesc"),
+    semester_plan: t("ai.semesterPlanDesc"),
+    research_ideas: t("ai.researchIdeasDesc"),
   };
 
   const systemContext =
@@ -97,7 +85,6 @@ export default async function AiPage() {
             icon="WandSparkles"
             tool="daily_command"
             tone="violet"
-            locale={locale}
             inputPlaceholder={systemContext}
           />
           <AiToolCard
@@ -106,7 +93,6 @@ export default async function AiPage() {
             icon="Brain"
             tool="exam_battle_plan"
             tone="cyan"
-            locale={locale}
             inputPlaceholder={examsSummary}
           />
           <AiToolCard
@@ -115,7 +101,6 @@ export default async function AiPage() {
             icon="Search"
             tool="error_analysis"
             tone="rose"
-            locale={locale}
             inputPlaceholder={errorsSummary}
           />
           <AiToolCard
@@ -124,7 +109,6 @@ export default async function AiPage() {
             icon="CalendarRange"
             tool="weekly_review"
             tone="emerald"
-            locale={locale}
             inputPlaceholder={systemContext}
           />
           <AiToolCard
@@ -133,7 +117,6 @@ export default async function AiPage() {
             icon="FileText"
             tool="semester_plan"
             tone="gold"
-            locale={locale}
             inputPlaceholder={systemContext}
           />
           <AiToolCard
@@ -142,7 +125,6 @@ export default async function AiPage() {
             icon="FlaskConical"
             tool="research_ideas"
             tone="cyan"
-            locale={locale}
             inputPlaceholder={systemContext}
           />
         </div>
@@ -152,9 +134,7 @@ export default async function AiPage() {
           <div className="flex items-start gap-3">
             <Sparkles className="mt-0.5 h-5 w-5 shrink-0 text-text-muted" />
             <div>
-              <p className="text-sm font-medium text-text-primary">
-                {locale === "et" ? "Privaatsus" : "Privacy"}
-              </p>
+              <p className="text-sm font-medium text-text-primary">{t("ai.privacy")}</p>
               <p className="mt-1 text-xs text-text-secondary leading-relaxed">
                 {t("ai.warning")}
               </p>

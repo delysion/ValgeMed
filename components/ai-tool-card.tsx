@@ -6,6 +6,7 @@ import { GlassCard } from "@/components/premium/glass-card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   WandSparkles,
@@ -23,7 +24,6 @@ interface AiToolCardProps {
   tool: string;
   tone: "cyan" | "violet" | "rose" | "emerald" | "gold";
   inputPlaceholder?: string;
-  locale?: string;
   onDataRequest?: () => Promise<string>;
 }
 
@@ -34,9 +34,9 @@ export function AiToolCard({
   tool,
   tone,
   inputPlaceholder,
-  locale = "en",
   onDataRequest,
 }: AiToolCardProps) {
+  const { t, locale } = useTranslation();
   const Icon = iconMap[iconName] || WandSparkles;
   const [input, setInput] = useState("");
   const [result, setResult] = useState<string | null>(null);
@@ -54,7 +54,7 @@ export function AiToolCard({
           const data = await onDataRequest();
           setInput(data);
         } catch {
-          setError(locale === "et" ? "Andmete laadimine ebaõnnestus" : "Failed to load data");
+          setError(t("ai.failedToLoad"));
         }
       });
       return;
@@ -124,7 +124,7 @@ export function AiToolCard({
           ) : (
             <Play className="h-4 w-4" />
           )}
-          {locale === "et" ? "Käivita" : "Run"}
+          {t("ai.run")}
         </Button>
       </div>
 
@@ -133,7 +133,7 @@ export function AiToolCard({
           <Textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={inputPlaceholder || (locale === "et" ? "Sisesta andmed või lae üles..." : "Enter data or upload...")}
+            placeholder={inputPlaceholder || t("ai.enterData")}
             rows={4}
             className="resize-none text-sm"
           />
@@ -150,7 +150,7 @@ export function AiToolCard({
               ) : (
                 <Play className="h-4 w-4" />
               )}
-              {locale === "et" ? "Analüüsi" : "Analyze"}
+              {t("ai.analyze")}
             </Button>
           )}
 
@@ -170,9 +170,7 @@ export function AiToolCard({
                 <p className="font-medium">{error}</p>
                 {errorType === "OLLAMA_NOT_RUNNING" && (
                   <p className="mt-1.5 text-xs opacity-80">
-                    {locale === "et" 
-                      ? "Käivita terminalis: ollama serve" 
-                      : "Run in terminal: ollama serve"}
+                    {t("ai.ollamaStart")}
                   </p>
                 )}
               </div>

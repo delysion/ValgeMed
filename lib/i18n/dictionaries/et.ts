@@ -678,6 +678,32 @@ export const et: Dictionary = {
 
   "ai.uploadDesc": "Lae üles .txt või .md faile. Sisu ekstraheeritakse automaatselt ja saad genereerida flashcards AI-ga.",
 
+  "ai.privacy": "Privaatsus",
+
+  "ai.run": "Käivita",
+
+  "ai.analyze": "Analüüsi",
+
+  "ai.ollamaNotRunning": "Ollama ei tööta",
+
+  "ai.ollamaStart": "Käivita terminalis: ollama serve",
+
+  "ai.enterData": "Sisesta andmed või lae üles...",
+
+  "ai.failedToLoad": "Andmete laadimine ebaõnnestus",
+
+  "ai.dailyCommandDesc": "Sisesta oma praegune õppeseisund ja saan soovitused tänaseks päevaks.",
+
+  "ai.examBattleDesc": "Sisesta eksami andmed ja saan lahinguplaani.",
+
+  "ai.errorPatternDesc": "Sisesta vigade andmed ja saan mustrite analüüsi.",
+
+  "ai.weeklyReviewDesc": "Sisesta nädala andmed ja saan ülevaate.",
+
+  "ai.semesterPlanDesc": "Sisesta semestri andmed ja saan plaani.",
+
+  "ai.researchIdeasDesc": "Sisesta uurimisala andmed ja saan ideid.",
+
   "settings.title": "Seaded",
   "settings.subtitle": "Keel, privaatsus, andmebaasi olek ja eksport.",
   "settings.database": "Andmebaas",

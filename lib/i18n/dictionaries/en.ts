@@ -676,6 +676,32 @@ export const en = {
 
   "ai.uploadDesc": "Upload .txt or .md files. Content is extracted automatically and you can generate flashcards with AI.",
 
+  "ai.privacy": "Privacy",
+
+  "ai.run": "Run",
+
+  "ai.analyze": "Analyze",
+
+  "ai.ollamaNotRunning": "Ollama is not running",
+
+  "ai.ollamaStart": "Run in terminal: ollama serve",
+
+  "ai.enterData": "Enter data or upload...",
+
+  "ai.failedToLoad": "Failed to load data",
+
+  "ai.dailyCommandDesc": "Enter your current study state and I'll suggest today's priorities.",
+
+  "ai.examBattleDesc": "Enter exam details and I'll create a battle plan.",
+
+  "ai.errorPatternDesc": "Enter error data and I'll analyze patterns.",
+
+  "ai.weeklyReviewDesc": "Enter weekly data and I'll provide a review.",
+
+  "ai.semesterPlanDesc": "Enter semester data and I'll create a plan.",
+
+  "ai.researchIdeasDesc": "Enter research area data and I'll suggest ideas.",
+
   "settings.title": "Settings",
   "settings.subtitle": "Language, privacy, database status and exports.",
   "settings.database": "Database",
