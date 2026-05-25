@@ -59,8 +59,8 @@ export function AiStatusCard() {
             <div className="mt-3">
               <p className="text-sm text-text-secondary">
                 {locale === "et"
-                  ? "AI ei ole saadaval. Seadistamiseks vaata seadete lehte."
-                  : "AI is not available. Check Settings page for configuration."}
+                  ? "AI pole seadistatud. Lisa oma API võti Seadetes (Settings → AI Settings) või käivita Ollama."
+                  : "AI not configured. Add your API key in Settings → AI Settings, or start Ollama locally."}
               </p>
             </div>
           )}
