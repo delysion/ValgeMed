@@ -61,19 +61,22 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("AI execute error:", error);
     
-    if (error instanceof Error && error.message === "OLLAMA_NOT_RUNNING") {
-      return NextResponse.json(
-        { 
-          error: locale === "et" ? "AI ei tööta. Lisa AI_PROVIDER ja API võti Verceli keskkonnamuutujatesse või käivita kohalik Ollama." : "AI is not running. Add AI_PROVIDER and API key in Vercel environment variables, or start Ollama locally.",
-          errorType: "OLLAMA_NOT_RUNNING"
-        },
-        { status: 503 }
-      );
+    if (error instanceof Error) {
+      if (error.message === "OLLAMA_NOT_RUNNING") {
+        return NextResponse.json(
+          { error: "AI not available. Add your API key in Settings → AI Settings.", errorType: "OLLAMA_NOT_RUNNING" },
+          { status: 503 }
+        );
+      }
+      if (error.message.includes("401") || error.message.includes("Unauthorized") || error.message.includes("Invalid API key")) {
+        return NextResponse.json(
+          { error: "Invalid API key. Check your key in Settings → AI Settings.", errorType: "AUTH_ERROR" },
+          { status: 401 }
+        );
+      }
+      return NextResponse.json({ error: error.message, errorType: "UNKNOWN" }, { status: 500 });
     }
     
-    return NextResponse.json({ 
-      error: locale === "et" ? "AI töötlemine ebaõnnestus. Proovi uuesti." : "AI processing failed. Please try again.",
-      errorType: "UNKNOWN"
-    }, { status: 500 });
+    return NextResponse.json({ error: "AI processing failed", errorType: "UNKNOWN" }, { status: 500 });
   }
 }
