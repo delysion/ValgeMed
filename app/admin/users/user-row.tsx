@@ -10,6 +10,7 @@ type Profile = {
   displayName: string | null;
   email: string | null;
   approved: boolean | null;
+  rejectedAt: Date | null;
   isAdmin: boolean | null;
   createdAt: Date | null;
 };
@@ -77,9 +78,9 @@ export function UserRow({ profile: initial }: { profile: Profile }) {
     }
   };
 
-  const isPending = profile.approved === null;
+  const isPending = !profile.approved && !profile.rejectedAt;
   const isApproved = profile.approved === true;
-  const isRejected = profile.approved === false;
+  const isRejected = !profile.approved && !!profile.rejectedAt;
   const isAdminUser = !!profile.isAdmin;
 
   return (

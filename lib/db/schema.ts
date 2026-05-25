@@ -623,6 +623,7 @@ export const profiles = pgTable("profiles", {
   email: text("email"),
   displayName: text("display_name"),
   approved: boolean("approved").default(false),
+  rejectedAt: timestamp("rejected_at", { withTimezone: true }),
   isAdmin: boolean("is_admin").default(false),
   notifiedAt: timestamp("notified_at", { withTimezone: true }),
   createdAt: createdAtColumn(),

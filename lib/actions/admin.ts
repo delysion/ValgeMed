@@ -39,7 +39,7 @@ export async function approveUserAction(userId: string, approved: boolean) {
 
   await db
     .update(profiles)
-    .set({ approved, notifiedAt: null })
+    .set({ approved, notifiedAt: null, rejectedAt: approved ? null : new Date() })
     .where(eq(profiles.id, userId));
 
   return { success: true };
