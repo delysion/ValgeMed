@@ -87,6 +87,10 @@ export function TrendLineChart({
   data: Array<Record<string, string | number | null>>;
   lines: Array<{ key: string; color?: string }>;
 }) {
+  if (!data || data.length === 0) {
+    return null;
+  }
+
   return (
     <Line
       data={{

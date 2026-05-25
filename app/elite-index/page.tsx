@@ -20,20 +20,24 @@ export default async function EliteIndexPage() {
   const { t } = await getI18n();
   const data = await getCoreData();
   const elite = buildEliteIndex(data);
+  const hasReviews = data.strategicReviews.length > 0;
+  const hasLogs = data.dailyLogs.length > 0;
   const history =
-    data.strategicReviews.length > 0
+    hasReviews
       ? data.strategicReviews
           .slice()
           .reverse()
-          .map((review) => ({ date: review.date.slice(5), score: review.eliteIndexSnapshot }))
-      : data.dailyLogs
-          .slice()
-          .reverse()
-          .slice(-8)
-          .map((log, index) => ({
-            date: log.date.slice(5),
-            score: Math.max(0, Math.min(10, elite.eliteIndex.score - (data.dailyLogs.length - index) * 0.12)),
-          }));
+          .map((review) => ({ date: review.date.slice(5), score: review.eliteIndexSnapshot ?? 0 }))
+      : hasLogs
+        ? data.dailyLogs
+            .slice()
+            .reverse()
+            .slice(-8)
+            .map((log, index) => ({
+              date: log.date.slice(5),
+              score: Math.max(0, Math.min(10, (elite.eliteIndex.score ?? 0) - (data.dailyLogs.length - index) * 0.12)),
+            }))
+        : [];
 
   const components = [
     { title: t("elite.medicalMastery"), result: elite.medicalMastery, icon: Brain, tone: "cyan" as const },
@@ -61,7 +65,13 @@ export default async function EliteIndexPage() {
               <p className="mt-1 text-sm text-text-secondary">{t("gamification.readinessTrend")}</p>
             </div>
           </div>
-          <TrendLineChart data={history} lines={[{ key: "score", color: "#c7a6ff" }]} />
+          {history.length > 0 ? (
+            <TrendLineChart data={history} lines={[{ key: "score", color: "#c7a6ff" }]} />
+          ) : (
+            <div className="flex items-center justify-center h-[220px] text-sm text-text-muted">
+              {t("common.noData")}
+            </div>
+          )}
           <div className="mt-5 grid gap-3 md:grid-cols-2">
             <MomentumBar label={t("gamification.weeklyMomentum")} value={elite.eliteIndex.score * 10} tone="violet" />
             <MomentumBar label={t("gamification.recoveryBalance")} value={elite.energyIntegrity.score * 10} tone="emerald" />
