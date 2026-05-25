@@ -20,6 +20,7 @@ export default async function AiPage() {
   const user = await requireUser();
   const { t, locale } = await getI18n();
   const data = await getAiPageData();
+  const subjects = data.subjects;
 
   const subjectsSummary = data.subjects.map((s) => s.name).join(", ") ||
     t("ai.noSubjects");
@@ -102,6 +103,7 @@ export default async function AiPage() {
             tool="error_analysis"
             tone="rose"
             inputPlaceholder={errorsSummary}
+            subjects={subjects}
           />
           <AiToolCard
             title={t("ai.weeklyReview")}

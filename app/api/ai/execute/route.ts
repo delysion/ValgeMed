@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
         prompt = `${langRule}\n\nYou are an exam preparation strategist. Create a detailed battle plan for the exam described. Include: key topics to focus on, time allocation, common pitfalls, and a day-by-day breakdown.\n\nExam info:\n${input}`;
         break;
       case "error_analysis":
-        prompt = `${langRule}\n\nYou are a study error analyst. Analyze these error patterns and provide: root causes, prevention rules, and specific corrective actions.\n\nError data:\n${input}`;
+        prompt = `${langRule}\n\nYou are a study error analyst. Analyze the error data and respond with a JSON object ONLY (no markdown, no explanation). Use this exact structure:\n{\n  "title": "Short error title (max 220 chars)",\n  "cause": "Root cause analysis",\n  "correction": "Specific correction steps",\n  "preventionRule": "How to prevent this in the future",\n  "severity": 7\n}\nSeverity must be 0-10. Respond with valid JSON only.\n\nError data:\n${input}`;
         break;
       case "weekly_review":
         prompt = `${langRule}\n\nYou are a weekly review coach. Analyze this week's study data and provide: wins, areas to improve, specific recommendations for next week.\n\nWeekly data:\n${input}`;

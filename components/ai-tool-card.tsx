@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Loader2, Play, XCircle, Copy, Check, WifiOff, WandSparkles, Brain, Search, CalendarRange, FileText, FlaskConical } from "lucide-react";
+import { Loader2, Play, XCircle, Copy, Check, WifiOff, WandSparkles, Brain, Search, CalendarRange, FileText, FlaskConical, Save } from "lucide-react";
 import { GlassCard } from "@/components/premium/glass-card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/lib/i18n/useTranslation";
+import { createErrorLogAction } from "@/lib/actions/resources";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   WandSparkles,
@@ -25,6 +26,7 @@ interface AiToolCardProps {
   tone: "cyan" | "violet" | "rose" | "emerald" | "gold";
   inputPlaceholder?: string;
   onDataRequest?: () => Promise<string>;
+  subjects?: Array<{ id: string; name: string }>;
 }
 
 export function AiToolCard({
@@ -35,6 +37,7 @@ export function AiToolCard({
   tone,
   inputPlaceholder,
   onDataRequest,
+  subjects,
 }: AiToolCardProps) {
   const { t, locale } = useTranslation();
   const Icon = iconMap[iconName] || WandSparkles;
@@ -45,6 +48,12 @@ export function AiToolCard({
   const [isPending, startTransition] = useTransition();
   const [copied, setCopied] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [showSaveForm, setShowSaveForm] = useState(false);
+  const [selectedSubject, setSelectedSubject] = useState(subjects?.[0]?.id ?? "");
+
+  const parsedError = tool === "error_analysis" && result ? tryParseErrorJson(result) : null;
 
   const handleExecute = () => {
     setExpanded(true);
@@ -94,6 +103,48 @@ export function AiToolCard({
       setTimeout(() => setCopied(false), 2000);
     }
   };
+
+  function tryParseErrorJson(text: string): { title: string; cause?: string; correction?: string; preventionRule?: string; severity: number } | null {
+    try {
+      const obj = JSON.parse(text);
+      if (obj && obj.title) {
+        return {
+          title: obj.title,
+          cause: obj.cause,
+          correction: obj.correction,
+          preventionRule: obj.preventionRule,
+          severity: Math.max(0, Math.min(10, obj.severity ?? 5)),
+        };
+      }
+    } catch {}
+    return null;
+  }
+
+  async function handleSaveError() {
+    if (!parsedError || !selectedSubject) return;
+    setSaving(true);
+    try {
+      const fd = new FormData();
+      fd.set("subjectId", selectedSubject);
+      fd.set("title", parsedError.title);
+      fd.set("description", parsedError.cause || result || "");
+      fd.set("cause", parsedError.cause || "");
+      fd.set("correction", parsedError.correction || "");
+      fd.set("preventionRule", parsedError.preventionRule || "");
+      fd.set("severity", String(parsedError.severity));
+      fd.set("errorType", "memory");
+      fd.set("resolved", "false");
+      fd.set("recurrenceCount", "0");
+      await createErrorLogAction(fd);
+      setSaved(true);
+      setShowSaveForm(false);
+      setTimeout(() => setSaved(false), 3000);
+    } catch {
+      setError(t("ai.failedToLoad"));
+    } finally {
+      setSaving(false);
+    }
+  }
 
   return (
     <GlassCard tone={tone} className="transition-all duration-200">
@@ -179,21 +230,57 @@ export function AiToolCard({
 
           {result && (
             <div className="relative rounded-xl border border-border bg-bg-subtle/50 p-4">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute right-2 top-2 h-7 w-7"
-                onClick={handleCopy}
-              >
-                {copied ? (
-                  <Check className="h-3.5 w-3.5 text-emerald" />
-                ) : (
-                  <Copy className="h-3.5 w-3.5" />
-                )}
-              </Button>
-              <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap text-sm leading-relaxed text-text-primary">
-                {result}
+              <div className="flex items-start justify-between gap-2">
+                <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap text-sm leading-relaxed text-text-primary flex-1 min-w-0">
+                  {parsedError ? (
+                    <div className="space-y-2">
+                      <p className="font-semibold">{parsedError.title}</p>
+                      {parsedError.cause && <p className="text-xs"><span className="font-medium">Cause:</span> {parsedError.cause}</p>}
+                      {parsedError.correction && <p className="text-xs"><span className="font-medium">Correction:</span> {parsedError.correction}</p>}
+                      {parsedError.preventionRule && <p className="text-xs"><span className="font-medium">Prevention:</span> {parsedError.preventionRule}</p>}
+                      <p className="text-xs">Severity: {parsedError.severity}/10</p>
+                    </div>
+                  ) : (
+                    result
+                  )}
+                </div>
+                <div className="flex items-center gap-1 shrink-0">
+                  {parsedError && !saved && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowSaveForm(!showSaveForm)}
+                      className="h-7 text-xs"
+                    >
+                      <Save className="h-3 w-3 mr-1" /> Save
+                    </Button>
+                  )}
+                  {saved && <span className="text-xs text-emerald font-medium">Saved!</span>}
+                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleCopy}>
+                    {copied ? <Check className="h-3.5 w-3.5 text-emerald" /> : <Copy className="h-3.5 w-3.5" />}
+                  </Button>
+                </div>
               </div>
+
+              {showSaveForm && subjects && subjects.length > 0 && (
+                <div className="mt-3 flex items-center gap-2">
+                  <select
+                    value={selectedSubject}
+                    onChange={(e) => setSelectedSubject(e.target.value)}
+                    className="flex-1 h-9 rounded-lg border border-border/60 bg-bg-surface px-3 text-xs text-text-primary outline-none focus:ring-2 focus:ring-primary/30"
+                  >
+                    {subjects.map((s) => (
+                      <option key={s.id} value={s.id}>{s.name}</option>
+                    ))}
+                  </select>
+                  <Button size="sm" onClick={handleSaveError} disabled={saving} className="h-9 text-xs">
+                    {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : "Confirm"}
+                  </Button>
+                </div>
+              )}
+              {showSaveForm && (!subjects || subjects.length === 0) && (
+                <p className="mt-2 text-xs text-rose">Create a subject first to save errors.</p>
+              )}
             </div>
           )}
         </div>
