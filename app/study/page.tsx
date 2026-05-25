@@ -47,23 +47,31 @@ export default async function StudyPage({ searchParams }: { searchParams: Promis
     <AppShell user={user}>
       <PageHeader title={t("study.title")} description={t("study.subtitle")} />
       <div className="space-y-5">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
           <MetricCard title={t("study.activeRecall")} value={activeMinutes} detail={t("common.minutes")} icon={Brain} tone="cyan" />
           <MetricCard title={t("study.passive")} value={passiveMinutes} detail={t("common.minutes")} icon={Clock} tone="violet" />
           <MetricCard title={t("gamification.momentum")} value={`${activeRatio.toFixed(0)}%`} detail={t("achievement.activeRecallShift")} icon={Zap} tone={activeRatio >= 55 ? "emerald" : "gold"} />
           <MetricCard title={t("study.weeklyOutput")} value={totalMinutes} detail={t("common.protectEnergy")} icon={Sparkles} tone="rose" />
         </div>
 
-        <div className="grid gap-5 xl:grid-cols-[1fr_380px]">
-          <div className="space-y-5">
+        <div className="flex flex-col gap-5 lg:flex-row">
+          <div className="flex-1 min-w-0 space-y-5">
             <GlassCard tone="cyan">
               <SectionHeader title={t("study.weeklyOutput")} description={t("common.protectEnergy")} />
-              <div className="mt-5 grid gap-5 xl:grid-cols-[1fr_280px]">
-                <MinutesBarChart data={dayTotals} />
-                <div className="space-y-4">
+              <div className="mt-5 space-y-5">
+                {dayTotals.length > 0 ? (
+                  <div className="h-[220px] w-full">
+                    <MinutesBarChart data={dayTotals} />
+                  </div>
+                ) : (
+                  <div className="flex h-[220px] items-center justify-center rounded-xl border border-dashed border-border/60 text-sm text-text-muted">
+                    {t("common.noData")}
+                  </div>
+                )}
+                <div className="grid gap-3 sm:grid-cols-3">
                   <MomentumBar label={t("study.activeRecall")} value={activeRatio} tone="cyan" />
-                  <MomentumBar label={t("common.focus")} value={Math.min(100, studySessions[0]?.focusLevel ? studySessions[0].focusLevel * 10 : 0)} tone="violet" />
-                  <MomentumBar label={t("common.output")} value={Math.min(100, studySessions[0]?.outputQuality ? studySessions[0].outputQuality * 10 : 0)} tone="emerald" />
+                  <MomentumBar label={t("common.focus")} value={studySessions[0]?.focusLevel ? Math.min(100, studySessions[0].focusLevel * 10) : 0} tone="violet" />
+                  <MomentumBar label={t("common.output")} value={studySessions[0]?.outputQuality ? Math.min(100, studySessions[0].outputQuality * 10) : 0} tone="emerald" />
                 </div>
               </div>
             </GlassCard>
@@ -72,7 +80,7 @@ export default async function StudyPage({ searchParams }: { searchParams: Promis
               <SectionHeader title={t("study.sessionHistory")} />
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 {studySessions.slice(0, 8).map((item) => (
-                  <div key={item.id} className="rounded-xl border border-white/10 bg-white/[0.03] p-3.5 transition hover:bg-white/[0.05]">
+                  <div key={item.id} className="rounded-xl border border-border/60 bg-bg-surface/50 p-3.5 transition hover:bg-bg-surface/80">
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
                         <p className="truncate font-medium text-sm text-text-primary">{subjectById.get(item.subjectId)?.name ?? t("common.subject")}</p>
@@ -86,7 +94,7 @@ export default async function StudyPage({ searchParams }: { searchParams: Promis
             </GlassCard>
           </div>
 
-          <div className="space-y-5">
+          <div className="w-full lg:w-[380px] shrink-0 space-y-5">
             <GlassCard>
               <SectionHeader title={t("study.quickStart")} />
               <div className="mt-4">
@@ -101,7 +109,15 @@ export default async function StudyPage({ searchParams }: { searchParams: Promis
             <GlassCard>
               <SectionHeader title={t("study.methodSelector")} />
               <div className="mt-4">
-                <MethodPieChart data={methodTotals} />
+                {methodTotals.length > 0 ? (
+                  <div className="h-[220px]">
+                    <MethodPieChart data={methodTotals} />
+                  </div>
+                ) : (
+                  <div className="flex h-[220px] items-center justify-center rounded-xl border border-dashed border-border/60 text-sm text-text-muted">
+                    {t("common.noData")}
+                  </div>
+                )}
               </div>
             </GlassCard>
           </div>

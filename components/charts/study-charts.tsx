@@ -31,6 +31,7 @@ const tooltipOptions = {
 };
 
 export function MinutesBarChart({ data }: { data: Array<{ name: string; minutes: number }> }) {
+  if (!data || data.length === 0) return null;
   return <MetricBarChart data={data} dataKey="minutes" />;
 }
 
@@ -43,6 +44,8 @@ export function MetricBarChart({
   dataKey: string;
   domain?: [number, number];
 }) {
+  if (!data || data.length === 0) return null;
+
   return (
     <Bar
       data={{
@@ -58,6 +61,7 @@ export function MetricBarChart({
       options={{
         responsive: true,
         maintainAspectRatio: false,
+        animation: false,
         plugins: {
           tooltip: tooltipOptions,
           legend: { display: false },
