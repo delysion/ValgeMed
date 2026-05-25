@@ -81,7 +81,8 @@ export function LoginForm() {
           },
         });
         if (error) {
-          if (error.message?.toLowerCase().includes("rate limit") || error.message?.toLowerCase().includes("rate_limit")) {
+          const msg = error.message?.toLowerCase() ?? "";
+          if (msg.includes("rate limit") || msg.includes("rate_limit") || msg.includes("email rate")) {
             setRateLimited();
           } else {
             setError(error.message);
