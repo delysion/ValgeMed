@@ -56,7 +56,8 @@ export default async function RootLayout({
   const localeCookie = cookieStore.get(languageCookie)?.value;
   const locale: Locale = isLocale(localeCookie) ? localeCookie : defaultLocale;
   const dictionary = getDictionary(locale);
-  const theme = await getTheme();
+  const themeCookie = cookieStore.get("valgemed_theme")?.value;
+  const theme = themeCookie === "light" || themeCookie === "dark" ? themeCookie : "dark";
 
   return (
     <html

@@ -102,6 +102,7 @@ export function AppShell({
     document.documentElement.classList.remove("light", "dark");
     document.documentElement.classList.add(next);
     localStorage.setItem(themeCookie, next);
+    document.cookie = `${themeCookie}=${next};path=/;max-age=31536000;SameSite=Lax`;
     setThemeState(next);
   }, [theme]);
 
