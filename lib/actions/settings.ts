@@ -1,12 +1,12 @@
 "use server";
 
 import { eq } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 import { getDb } from "@/lib/db";
 import { profiles } from "@/lib/db/schema";
 import { requireUser } from "@/lib/auth/supabase";
-import { redirect } from "next/navigation";
 
-export async function saveAiSettingsAction(formData: FormData) {
+export async function saveAiSettingsAction(formData: FormData): Promise<void> {
   try {
     const user = await requireUser();
     const db = getDb();
@@ -19,9 +19,9 @@ export async function saveAiSettingsAction(formData: FormData) {
         aiApiKey: apiKey || null,
       })
       .where(eq(profiles.id, user.id));
+
+    revalidatePath("/settings");
   } catch (e) {
     console.error("saveAiSettings error:", e);
   }
-
-  redirect("/settings");
 }
