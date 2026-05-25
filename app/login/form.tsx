@@ -72,11 +72,19 @@ export function LoginForm() {
             setError(error.message);
           }
           setLoading(false);
-        } else if (!data.session) {
-          setError(t("login.checkEmail"));
+        } else if (data.session) {
+          router.push(getNextPath());
+        } else if (data.user) {
+          const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+          if (signInError) {
+            setError(t("login.unexpectedError"));
+          } else {
+            router.push(getNextPath());
+          }
           setLoading(false);
         } else {
-          router.push(getNextPath());
+          setError(t("login.unexpectedError"));
+          setLoading(false);
         }
       } else {
         const { error } = await supabase.auth.signInWithPassword({
