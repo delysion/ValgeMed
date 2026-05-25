@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { deleteDailyLogAction } from "@/lib/actions/resources";
 import { requireUser } from "@/lib/auth/supabase";
 import { getDailyLogs } from "@/lib/data/queries";
-import { getI18n } from "@/lib/i18n/server";
+import { getI18n } from "@/lib/i18n/server-i18n";
 import { fmtDate } from "@/lib/labels";
 
 export const dynamic = "force-dynamic";

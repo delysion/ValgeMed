@@ -28,7 +28,7 @@ import { requireUser } from "@/lib/auth/supabase";
 import { getCoreData } from "@/lib/data/queries";
 import { fmtDate } from "@/lib/labels";
 import type { TranslationKey } from "@/lib/i18n/dictionaries/en";
-import { getI18n } from "@/lib/i18n/server";
+import { getI18n } from "@/lib/i18n/server-i18n";
 import { buildBurnoutRiskFromLogs, buildEliteIndex, buildExamReadiness } from "@/lib/scoring/engine";
 import { getNextBestAction } from "@/lib/scoring/next-best-action";
 import { SmartInputWrapper } from "@/components/smart-input-wrapper";

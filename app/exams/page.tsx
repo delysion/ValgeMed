@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireUser } from "@/lib/auth/supabase";
 import { getExamPageData } from "@/lib/data/queries";
-import { getI18n } from "@/lib/i18n/server";
+import { getI18n } from "@/lib/i18n/server-i18n";
 import { fmtDate, humanize } from "@/lib/labels";
 import { buildExamReadiness } from "@/lib/scoring/engine";
 

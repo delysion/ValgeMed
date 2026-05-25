@@ -4,7 +4,7 @@ import { profiles } from "@/lib/db/schema";
 import { UserRow } from "./user-row";
 import Link from "next/link";
 import { sql } from "drizzle-orm";
-import { getI18n } from "@/lib/i18n/server";
+import { getI18n } from "@/lib/i18n/server-i18n";
 
 export const dynamic = "force-dynamic";
 

@@ -1,7 +1,7 @@
 import { GlassCard } from "@/components/premium/glass-card";
 import { EmptyState } from "@/components/premium/empty-state";
 import { BookOpen } from "lucide-react";
-import { getI18n } from "@/lib/i18n/server";
+import { getI18n } from "@/lib/i18n/server-i18n";
 
 export default async function LiteratureMapPage() {
   const { t } = await getI18n();

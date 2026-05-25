@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { deleteQuizAttemptAction } from "@/lib/actions/resources";
 import { requireUser } from "@/lib/auth/supabase";
 import { getExamPageData } from "@/lib/data/queries";
-import { getI18n } from "@/lib/i18n/server";
+import { getI18n } from "@/lib/i18n/server-i18n";
 import { fmtDate, humanize } from "@/lib/labels";
 import { buildExamReadiness } from "@/lib/scoring/engine";
 

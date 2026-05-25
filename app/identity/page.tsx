@@ -6,7 +6,7 @@ import { SectionHeader } from "@/components/premium/section-header";
 import { deleteIdentityNoteAction } from "@/lib/actions/resources";
 import { requireUser } from "@/lib/auth/supabase";
 import { getIdentityNotes } from "@/lib/data/queries";
-import { getI18n } from "@/lib/i18n/server";
+import { getI18n } from "@/lib/i18n/server-i18n";
 import { humanize } from "@/lib/labels";
 
 export const dynamic = "force-dynamic";

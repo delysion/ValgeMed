@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireUser } from "@/lib/auth/supabase";
 import { getSubjectDetailData } from "@/lib/data/queries";
-import { getI18n } from "@/lib/i18n/server";
+import { getI18n } from "@/lib/i18n/server-i18n";
 import { fmtDate, humanize } from "@/lib/labels";
 import { buildMedicalMasteryScore } from "@/lib/scoring/engine";
 

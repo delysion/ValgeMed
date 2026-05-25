@@ -1,5 +1,5 @@
 import { Command, Brain, TrendingUp, Shield, Mail } from "lucide-react";
-import { getI18n } from "@/lib/i18n/server";
+import { getI18n } from "@/lib/i18n/server-i18n";
 import { LoginForm } from "./form";
 
 function getFeatures(t: (key: string, params?: Record<string, string | number>) => string) {

@@ -11,7 +11,7 @@ import { AiFlashcardGenerator } from "@/components/ai-flashcard-generator";
 import { FileUploadZone } from "@/components/file-upload-zone";
 import { GlassCard } from "@/components/premium/glass-card";
 import { requireUser } from "@/lib/auth/supabase";
-import { getI18n } from "@/lib/i18n/server";
+import { getI18n } from "@/lib/i18n/server-i18n";
 import { getAiPageData } from "@/lib/data/queries";
 
 export const dynamic = "force-dynamic";

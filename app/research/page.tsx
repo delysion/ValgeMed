@@ -1,4 +1,4 @@
-import { getI18n } from "@/lib/i18n/server";
+import { getI18n } from "@/lib/i18n/server-i18n";
 import { GlassCard } from "@/components/premium/glass-card";
 import { AlertTriangle, BookOpen, Beaker, FileText, Shield } from "lucide-react";
 import Link from "next/link";

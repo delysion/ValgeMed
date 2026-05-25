@@ -8,7 +8,7 @@ import { ResourceTable } from "@/components/tables/resource-table";
 import { deleteSubjectAction } from "@/lib/actions/resources";
 import { requireUser } from "@/lib/auth/supabase";
 import { getSubjects as fetchSubjects, getTopics } from "@/lib/data/queries";
-import { getI18n } from "@/lib/i18n/server";
+import { getI18n } from "@/lib/i18n/server-i18n";
 
 export const dynamic = "force-dynamic";
 

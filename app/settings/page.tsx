@@ -5,7 +5,7 @@ import { GlassCard } from "@/components/premium/glass-card";
 import { SectionHeader } from "@/components/premium/section-header";
 import { Button } from "@/components/ui/button";
 import { requireUser } from "@/lib/auth/supabase";
-import { getI18n } from "@/lib/i18n/server";
+import { getI18n } from "@/lib/i18n/server-i18n";
 import { LanguageSelector } from "@/components/language-selector";
 import { OnboardingReplayButton } from "@/components/onboarding-replay-button";
 import { PushNotificationButton } from "@/components/push-notification-button";

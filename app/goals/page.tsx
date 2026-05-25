@@ -11,7 +11,7 @@ import {
 } from "@/lib/actions/resources";
 import { requireUser } from "@/lib/auth/supabase";
 import { getGoalPageData } from "@/lib/data/queries";
-import { getI18n } from "@/lib/i18n/server";
+import { getI18n } from "@/lib/i18n/server-i18n";
 import { fmtDate, humanize } from "@/lib/labels";
 
 export const dynamic = "force-dynamic";

@@ -10,7 +10,7 @@ import { SectionHeader } from "@/components/premium/section-header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { requireUser } from "@/lib/auth/supabase";
 import { getIdentityNotes, getTartuNotes } from "@/lib/data/queries";
-import { getI18n } from "@/lib/i18n/server";
+import { getI18n } from "@/lib/i18n/server-i18n";
 
 export const dynamic = "force-dynamic";
 

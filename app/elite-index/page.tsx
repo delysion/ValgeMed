@@ -10,7 +10,7 @@ import { ScoreBreakdown } from "@/components/score-breakdown";
 import { requireUser } from "@/lib/auth/supabase";
 import { getCoreData } from "@/lib/data/queries";
 import type { TranslationKey } from "@/lib/i18n/dictionaries/en";
-import { getI18n } from "@/lib/i18n/server";
+import { getI18n } from "@/lib/i18n/server-i18n";
 import { buildEliteIndex } from "@/lib/scoring/engine";
 
 export const dynamic = "force-dynamic";
