@@ -47,6 +47,7 @@ export function useOllamaStatus() {
 
   const checkStatus = useCallback(() => {
     setChecking(true);
+    try { localStorage.removeItem("ollama_status_cache"); } catch {}
     fetch("/api/ai/status", { signal: AbortSignal.timeout(5000) })
       .then((res) => {
         if (!res.ok) throw new Error("Status check failed");

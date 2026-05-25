@@ -8,21 +8,49 @@ import { Button } from "@/components/ui/button";
 export function AiSettingsForm({ initialProvider, initialKey }: { initialProvider?: string | null; initialKey?: string | null }) {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [error, setError] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [provider, setProvider] = useState(initialProvider || "");
+  const [apiKey, setApiKey] = useState(initialKey || "");
+  const hasKey = !!initialKey;
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setSaving(true);
     setSaved(false);
-    setError(false);
+    setErrorMsg(null);
 
-    const fd = new FormData(e.currentTarget);
+    const fd = new FormData();
+    fd.set("aiProvider", provider);
+    fd.set("aiApiKey", apiKey);
+
     try {
       await saveAiSettingsAction(fd);
       setSaved(true);
+      // Clear AI status cache so AI page shows updated status
+      try { localStorage.removeItem("ollama_status_cache"); } catch {}
       setTimeout(() => setSaved(false), 3000);
-    } catch {
-      setError(true);
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : "Failed to save");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleRemove() {
+    setProvider("");
+    setApiKey("");
+    setSaving(true);
+    setErrorMsg(null);
+    const fd = new FormData();
+    fd.set("aiProvider", "");
+    fd.set("aiApiKey", "");
+    try {
+      await saveAiSettingsAction(fd);
+      setSaved(true);
+      try { localStorage.removeItem("ollama_status_cache"); } catch {}
+      setTimeout(() => setSaved(false), 3000);
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : "Failed to remove");
     } finally {
       setSaving(false);
     }
@@ -33,8 +61,8 @@ export function AiSettingsForm({ initialProvider, initialKey }: { initialProvide
       <div className="flex flex-col gap-2">
         <label className="text-xs font-medium text-text-muted">Provider</label>
         <select
-          name="aiProvider"
-          defaultValue={initialProvider || ""}
+          value={provider}
+          onChange={(e) => setProvider(e.target.value)}
           className="h-12 w-full rounded-xl border border-border/60 bg-bg-elevated px-4 text-sm text-text-primary outline-none focus:ring-2 focus:ring-primary/30"
         >
           <option value="">None (AI disabled)</option>
@@ -45,21 +73,28 @@ export function AiSettingsForm({ initialProvider, initialKey }: { initialProvide
       <div className="flex flex-col gap-2">
         <label className="text-xs font-medium text-text-muted">API Key</label>
         <Input
-          name="aiApiKey"
+          value={apiKey}
+          onChange={(e) => setApiKey(e.target.value)}
           type="password"
-          defaultValue={initialKey || ""}
-          placeholder={initialKey ? "•••••••• (saved)" : "sk-... or gsk_..."}
+          placeholder={hasKey ? "Saved key (type to change)" : "sk-... or gsk_..."}
         />
       </div>
-      <div className="flex items-center justify-between">
-        <div>
-          {saved && <p className="text-xs text-emerald font-medium">✅ Settings saved!</p>}
-          {error && <p className="text-xs text-rose font-medium">❌ Failed to save</p>}
-          {!saved && !error && initialKey && <p className="text-xs text-text-muted">Key is saved</p>}
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex-1 min-w-0">
+          {saved && <p className="text-xs text-emerald font-medium">✅ Settings saved! (refresh AI page)</p>}
+          {errorMsg && <p className="text-xs text-rose font-medium">❌ {errorMsg}</p>}
+          {!saved && !errorMsg && hasKey && <p className="text-xs text-text-muted">Key is saved</p>}
         </div>
-        <Button type="submit" size="sm" disabled={saving}>
-          {saving ? "Saving..." : "Save"}
-        </Button>
+        <div className="flex items-center gap-2 shrink-0">
+          {hasKey && (
+            <Button type="button" variant="ghost" size="sm" onClick={handleRemove} disabled={saving} className="text-xs text-rose">
+              Remove
+            </Button>
+          )}
+          <Button type="submit" size="sm" disabled={saving}>
+            {saving ? "Saving..." : "Save"}
+          </Button>
+        </div>
       </div>
     </form>
   );
