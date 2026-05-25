@@ -77,7 +77,7 @@ export function CommandPageSkeleton() {
 export default async function CommandPage() {
   const user = await requireUser();
   const { t, locale } = await getI18n();
-  const data = await getCoreData();
+  const data = await getCoreData(user.id);
   const today = startOfToday();
   const todayDate = formatISO(today, { representation: "date" });
   const todayLog = data.dailyLogs.find((log) => log.date === todayDate) ?? null;

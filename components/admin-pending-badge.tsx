@@ -19,7 +19,7 @@ export function AdminPendingBadge() {
       } catch {}
     };
     fetchData();
-    const interval = setInterval(fetchData, 30_000);
+    const interval = setInterval(fetchData, 300_000);
     return () => clearInterval(interval);
   }, []);
 

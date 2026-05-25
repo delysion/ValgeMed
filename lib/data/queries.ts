@@ -86,8 +86,8 @@ const emptyCoreData: CoreData = {
 // ─────────────────────────────────────────────────────
 // Legacy: loads ALL 22 tables at once (use sparingly)
 // ─────────────────────────────────────────────────────
-export async function getCoreData(): Promise<CoreData> {
-  const userId = await getUserId();
+export async function getCoreData(userIdOverride?: string): Promise<CoreData> {
+  const userId = userIdOverride ?? await getUserId();
   return withDb<CoreData>(async (db) => {
     const [
       subjectRows, examRows, topicRows, sessionRows, reviewRows,

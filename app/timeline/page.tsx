@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 export default async function TimelinePage() {
   const user = await requireUser();
   const { t } = await getI18n();
-  const data = await getCoreData();
+  const data = await getCoreData(user.id);
 
   return (
     <AppShell user={user}>

@@ -80,7 +80,7 @@ export function AppShell({
       } catch {}
     };
     checkApproval();
-    const interval = setInterval(checkApproval, 60_000);
+    const interval = setInterval(checkApproval, 300_000);
     return () => clearInterval(interval);
   }, [router]);
 

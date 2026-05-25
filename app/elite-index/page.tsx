@@ -18,7 +18,7 @@ export const dynamic = "force-dynamic";
 export default async function EliteIndexPage() {
   const user = await requireUser();
   const { t } = await getI18n();
-  const data = await getCoreData();
+  const data = await getCoreData(user.id);
   const elite = buildEliteIndex(data);
   const hasReviews = data.strategicReviews.length > 0;
   const hasLogs = data.dailyLogs.length > 0;
