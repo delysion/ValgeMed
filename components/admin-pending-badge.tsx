@@ -5,13 +5,13 @@ import Link from "next/link";
 import { Shield } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { usePathname } from "next/navigation";
 
 export function AdminPendingBadge() {
   const [data, setData] = useState<{ count: number; isAdmin: boolean } | null>(null);
-  const [path, setPath] = useState("");
+  const pathname = usePathname();
 
   useEffect(() => {
-    setPath(window.location.pathname);
     const fetchData = async () => {
       try {
         const res = await fetch("/api/admin/pending-count");
@@ -25,7 +25,7 @@ export function AdminPendingBadge() {
 
   if (!data?.isAdmin) return null;
 
-  const isActive = path === "/admin/users" || path.startsWith("/admin/");
+  const isActive = pathname === "/admin/users" || pathname?.startsWith("/admin/");
 
   return (
     <Link

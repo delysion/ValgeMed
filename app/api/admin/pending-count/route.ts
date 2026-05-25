@@ -11,13 +11,17 @@ export async function GET() {
 
   const isOwner = process.env.OWNER_EMAIL === user.email;
 
-  const [ownProfile] = await db
-    .select()
-    .from(profiles)
-    .where(eq(profiles.id, user.id))
-    .limit(1);
+  let isAdmin = isOwner;
 
-  const isAdmin = !!ownProfile?.isAdmin || isOwner;
+  try {
+    const [ownProfile] = await db
+      .select()
+      .from(profiles)
+      .where(eq(profiles.id, user.id))
+      .limit(1);
+    isAdmin = !!ownProfile?.isAdmin || isOwner;
+  } catch {}
+
   if (!isAdmin) {
     return Response.json({ count: 0, isAdmin: false });
   }
