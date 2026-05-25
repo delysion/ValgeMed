@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
         prompt = `${langRule}\n\nYou are a medical study strategist. Based on this study data, respond with a JSON object ONLY (no markdown, no explanation):\n{\n  "focus": "Primary focus for today (1 sentence)",\n  "activeRecallMinutes": 45,\n  "passiveStudyMinutes": 30,\n  "energyLevel": 7,\n  "stressLevel": 4,\n  "dailyCommand": "Brief daily command text"\n}\nEnergyLevel and stressLevel are 0-10. activeRecallMinutes and passiveStudyMinutes are estimated minutes. Respond with valid JSON only.\n\nStudy data:\n${input}`;
         break;
       case "exam_battle_plan":
-        prompt = `${langRule}\n\nYou are an exam preparation strategist. Create a detailed battle plan for the exam described. Include: key topics to focus on, time allocation, common pitfalls, and a day-by-day breakdown.\n\nExam info:\n${input}`;
+        prompt = `${langRule}\n\nYou are an exam preparation strategist. Create a detailed battle plan for the exam described. Respond with a JSON object ONLY:\n{\n  "title": "Exam battle plan title",\n  "plan": "Full battle plan text with key topics, time allocation, pitfalls, day-by-day breakdown"\n}\nRespond with valid JSON only.\n\nExam info:\n${input}`;
         break;
       case "error_analysis":
         prompt = `${langRule}\n\nYou are a study error analyst. Analyze the error data and respond with a JSON object ONLY (no markdown, no explanation). Use this exact structure:\n{\n  "title": "Short error title (max 220 chars)",\n  "cause": "Root cause analysis",\n  "correction": "Specific correction steps",\n  "preventionRule": "How to prevent this in the future",\n  "severity": 7\n}\nSeverity must be 0-10. Respond with valid JSON only.\n\nError data:\n${input}`;
@@ -46,10 +46,10 @@ export async function POST(request: NextRequest) {
         prompt = `${langRule}\n\nYou are a weekly review coach. Analyze this week's study data and respond with a JSON object ONLY (no markdown, no explanation):\n{\n  "wins": "What went well this week",\n  "weaknesses": "What needs improvement",\n  "nextFocus": "Primary focus for next week",\n  "decisions": "Key decisions made"\n}\nRespond with valid JSON only.\n\nWeekly data:\n${input}`;
         break;
       case "semester_plan":
-        prompt = `${langRule}\n\nYou are a semester planning strategist. Create a semester plan based on these exams, subjects, and goals. Include milestone dates and priority allocation.\n\nSemester data:\n${input}`;
+        prompt = `${langRule}\n\nYou are a semester planning strategist. Create a semester plan based on these exams, subjects, and goals. Respond with a JSON object ONLY:\n{\n  "nextFocus": "Primary focus for this semester",\n  "wins": "Key milestones and objectives",\n  "weaknesses": "Risks and challenges",\n  "decisions": "Strategic decisions"\n}\nRespond with valid JSON only.\n\nSemester data:\n${input}`;
         break;
       case "research_ideas":
-        prompt = `${langRule}\n\nYou are a research advisor. Analyze these research areas and suggest: potential hypotheses, methodology considerations, and publication opportunities.\n\nResearch data:\n${input}`;
+        prompt = `${langRule}\n\nYou are a research advisor. Analyze these research areas and suggest potential research ideas. Respond with a JSON object ONLY:\n{\n  "question": "A research question or hypothesis",\n  "notes": "Methodology considerations, publication opportunities, next steps"\n}\nRespond with valid JSON only.\n\nResearch data:\n${input}`;
         break;
       default:
         return NextResponse.json({ error: "Unknown tool" }, { status: 400 });

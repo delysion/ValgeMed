@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 import { createErrorLogAction, upsertDailyLogAction, createStrategicReviewAction } from "@/lib/actions/resources";
+import { createHypothesisAction } from "@/lib/actions/research";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   WandSparkles,
@@ -56,6 +57,9 @@ export function AiToolCard({
   const parsedError = tool === "error_analysis" && result ? tryParseErrorJson(result) : null;
   const parsedDaily = tool === "daily_command" && result ? tryParseDailyJson(result) : null;
   const parsedReview = tool === "weekly_review" && result ? tryParseReviewJson(result) : null;
+  const parsedExam = tool === "exam_battle_plan" && result ? tryParseExamJson(result) : null;
+  const parsedSemester = tool === "semester_plan" && result ? tryParseReviewJson(result) : null;
+  const parsedResearch = tool === "research_ideas" && result ? tryParseResearchJson(result) : null;
 
   const handleExecute = () => {
     setExpanded(true);
@@ -108,6 +112,15 @@ export function AiToolCard({
         } else if (tool === "weekly_review") {
           const parsed = tryParseReviewJson(text);
           if (parsed) await autoSaveReview(parsed);
+        } else if (tool === "exam_battle_plan") {
+          const parsed = tryParseExamJson(text);
+          if (parsed) await autoSaveExam(parsed);
+        } else if (tool === "semester_plan") {
+          const parsed = tryParseReviewJson(text);
+          if (parsed) await autoSaveStrategic(parsed, "semester");
+        } else if (tool === "research_ideas") {
+          const parsed = tryParseResearchJson(text);
+          if (parsed) await autoSaveResearch(parsed);
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Execution failed");
@@ -177,6 +190,22 @@ export function AiToolCard({
     try {
       const obj = JSON.parse(text);
       if (obj && (obj.wins || obj.nextFocus)) return obj;
+    } catch {}
+    return null;
+  }
+
+  function tryParseExamJson(text: string): { title?: string; plan?: string } | null {
+    try {
+      const obj = JSON.parse(text);
+      if (obj && (obj.title || obj.plan)) return { title: obj.title || "Exam Plan", plan: obj.plan || text };
+    } catch {}
+    return null;
+  }
+
+  function tryParseResearchJson(text: string): { question?: string; notes?: string } | null {
+    try {
+      const obj = JSON.parse(text);
+      if (obj && obj.question) return obj;
     } catch {}
     return null;
   }
@@ -273,6 +302,48 @@ export function AiToolCard({
       fd.set("decisions", parsed.decisions || "");
       fd.set("eliteIndexSnapshot", "0");
       await createStrategicReviewAction(fd);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch {}
+  }
+
+  async function autoSaveExam(parsed: NonNullable<typeof parsedExam>) {
+    try {
+      const fd = new FormData();
+      fd.set("date", new Date().toISOString().slice(0, 10));
+      fd.set("reviewType", "monthly");
+      fd.set("wins", parsed.plan || "");
+      fd.set("nextFocus", parsed.title || "Exam Battle Plan");
+      fd.set("eliteIndexSnapshot", "0");
+      await createStrategicReviewAction(fd);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch {}
+  }
+
+  async function autoSaveStrategic(parsed: NonNullable<typeof parsedReview>, type: string) {
+    try {
+      const fd = new FormData();
+      fd.set("date", new Date().toISOString().slice(0, 10));
+      fd.set("reviewType", type);
+      fd.set("wins", parsed.wins || "");
+      fd.set("weaknesses", parsed.weaknesses || "");
+      fd.set("nextFocus", parsed.nextFocus || "");
+      fd.set("decisions", parsed.decisions || "");
+      fd.set("eliteIndexSnapshot", "0");
+      await createStrategicReviewAction(fd);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch {}
+  }
+
+  async function autoSaveResearch(parsed: NonNullable<typeof parsedResearch>) {
+    try {
+      const fd = new FormData();
+      fd.set("question", parsed.question || "Research idea");
+      fd.set("notes", parsed.notes || "");
+      fd.set("status", "draft");
+      await createHypothesisAction(fd);
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch {}
