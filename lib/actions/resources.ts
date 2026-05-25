@@ -69,7 +69,6 @@ export async function createSubjectAction(formData: FormData) {
   const data = parseForm(subjectSchema, formData);
   await db.insert(subjects).values({ ...data, userId });
   refresh(["/subjects", "/dashboard"]);
-  redirect("/subjects");
 }
 
 export async function updateSubjectAction(formData: FormData) {
@@ -93,7 +92,6 @@ export async function createExamAction(formData: FormData) {
   const data = parseForm(examSchema, formData);
   await db.insert(exams).values({ ...data, userId });
   refresh(["/exams", "/dashboard"]);
-  redirect("/exams");
 }
 
 export async function updateExamAction(formData: FormData) {
@@ -172,7 +170,6 @@ export async function createReviewItemAction(formData: FormData) {
   const data = parseForm(reviewItemSchema, formData);
   await db.insert(reviewItems).values({ ...data, userId });
   refresh(["/reviews", "/dashboard"]);
-  redirect("/reviews");
 }
 
 export async function updateReviewItemAction(formData: FormData) {
@@ -226,7 +223,6 @@ export async function createErrorLogAction(formData: FormData) {
   const data = parseForm(errorLogSchema, formData);
   await db.insert(errorLogs).values({ ...data, userId });
   refresh(["/errors", "/dashboard"]);
-  redirect("/errors");
 }
 
 export async function updateErrorLogAction(formData: FormData) {
@@ -263,7 +259,6 @@ export async function createQuizAttemptAction(formData: FormData) {
   const data = parseForm(quizAttemptSchema, formData);
   await db.insert(quizAttempts).values({ ...data, userId });
   refresh(["/exams", "/dashboard"]);
-  redirect("/exams");
 }
 
 export async function deleteQuizAttemptAction(formData: FormData) {
