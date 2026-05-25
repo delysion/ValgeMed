@@ -1,12 +1,12 @@
 "use server";
 
 import { and, eq, sql } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type { ZodType } from "zod";
 
 import { requireAuthUserId } from "@/lib/db/auth";
 import { getDb } from "@/lib/db";
+import { parseForm, parseId, refresh } from "@/lib/utils/forms";
 import {
   dailyLogs,
   errorLogs,
@@ -62,26 +62,6 @@ async function authorizedDb() {
   const userId = await requireAuthUserId();
   const db = getDb();
   return { db, userId };
-}
-
-function parseForm<T>(schema: ZodType<T>, formData: FormData): T {
-  const result = schema.safeParse(formDataToObject(formData));
-
-  if (!result.success) {
-    throw new Error(result.error.issues.map((issue) => issue.message).join(" "));
-  }
-
-  return result.data;
-}
-
-function parseId(formData: FormData) {
-  return idSchema.parse(String(formData.get("id") ?? ""));
-}
-
-function refresh(paths: string[]) {
-  for (const path of paths) {
-    revalidatePath(path);
-  }
 }
 
 export async function createSubjectAction(formData: FormData) {

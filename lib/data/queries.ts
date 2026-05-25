@@ -14,6 +14,7 @@ import {
   identityNotes,
   languageProgress,
   lifeAdminItems,
+  literatureGaps,
   opportunities,
   portfolioItems,
   professionalContacts,
@@ -48,6 +49,7 @@ import {
   type Task,
   type TimeBlock,
   type Topic,
+  type LiteratureGap,
 } from "@/lib/db/schema";
 
 export type CoreData = {
@@ -172,6 +174,13 @@ export async function getStudySessions(limit = 200) {
   const userId = await getUserIdOrThrow();
   return withDb<StudySession[]>((db) => {
     return db.select().from(studySessions).where(eq(studySessions.userId, userId)).orderBy(desc(studySessions.startedAt)).limit(limit);
+  }, []);
+}
+
+export async function getLiteratureGaps() {
+  const userId = await getUserIdOrThrow();
+  return withDb<LiteratureGap[]>((db) => {
+    return db.select().from(literatureGaps).where(eq(literatureGaps.userId, userId)).orderBy(desc(literatureGaps.priority), asc(literatureGaps.createdAt)).limit(100);
   }, []);
 }
 
