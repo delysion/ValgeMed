@@ -65,10 +65,15 @@ async function authorizedDb() {
 }
 
 export async function createSubjectAction(formData: FormData) {
-  const { db, userId } = await authorizedDb();
-  const data = parseForm(subjectSchema, formData);
-  await db.insert(subjects).values({ ...data, userId });
-  refresh(["/subjects", "/dashboard"]);
+  try {
+    const { db, userId } = await authorizedDb();
+    const data = parseForm(subjectSchema, formData);
+    await db.insert(subjects).values({ ...data, userId });
+    refresh(["/subjects", "/dashboard"]);
+  } catch (e) {
+    console.error("createSubjectAction error:", e);
+    throw e;
+  }
 }
 
 export async function updateSubjectAction(formData: FormData) {

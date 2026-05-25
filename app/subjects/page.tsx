@@ -23,6 +23,9 @@ export default async function SubjectsPage({
   const [subjects, topics] = await Promise.all([fetchSubjects(), getTopics()]);
   const editing = subjects.find((subject) => subject.id === params.edit);
 
+  // Debug: prevent crash from progress calculation
+  const safeTopics = topics || [];
+
   return (
     <AppShell user={user}>
       <PageHeader
@@ -63,18 +66,21 @@ export default async function SubjectsPage({
                 {
                   header: t("common.progress"),
                   render: (subject) => {
-                    const subjectTopics = topics.filter(
-                      (topic) => topic.subjectId === subject.id,
-                    );
-                    const ready = subjectTopics.filter(
-                      (topic) => topic.status === "exam_ready" || topic.status === "consolidated",
-                    ).length;
-                    const progress =
-                      subjectTopics.length === 0
-                        ? 0
-                        : Math.round((ready / subjectTopics.length) * 100);
-
-                    return `${progress}%`;
+                    try {
+                      const subjectTopics = safeTopics.filter(
+                        (topic) => topic.subjectId === subject.id,
+                      );
+                      const ready = subjectTopics.filter(
+                        (topic) => topic.status === "exam_ready" || topic.status === "consolidated",
+                      ).length;
+                      const progress =
+                        subjectTopics.length === 0
+                          ? 0
+                          : Math.round((ready / subjectTopics.length) * 100);
+                      return `${progress}%`;
+                    } catch {
+                      return "0%";
+                    }
                   },
                 },
               ]}
