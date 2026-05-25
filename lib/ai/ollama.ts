@@ -1,31 +1,68 @@
 "use server";
 
-interface OllamaResponse {
-  model: string;
-  response: string;
-  done: boolean;
+// ─── AI Provider Abstraction ───
+// Supports: ollama (local), openai (OpenAI API), groq (Groq API)
+// Set AI_PROVIDER env var to "openai" or "groq" and corresponding API key.
+
+const provider = process.env.AI_PROVIDER || "ollama";
+const apiKey = process.env.OPENAI_API_KEY || process.env.GROQ_API_KEY || "";
+const baseUrl = provider === "groq"
+  ? "https://api.groq.com/openai/v1"
+  : provider === "openai"
+    ? "https://api.openai.com/v1"
+    : "";
+
+async function cloudChat(prompt: string, model?: string): Promise<string> {
+  const selectedModel = model || process.env.AI_MODEL || (provider === "groq" ? "llama-3.3-70b-versatile" : "gpt-4o-mini");
+
+  const response = await fetch(`${baseUrl}/chat/completions`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: selectedModel,
+      messages: [{ role: "user", content: prompt }],
+      temperature: 0.3,
+      max_tokens: 2000,
+    }),
+  });
+
+  if (!response.ok) {
+    const err = await response.text();
+    throw new Error(`AI API error: ${response.status} — ${err}`);
+  }
+
+  const data = await response.json();
+  return data.choices?.[0]?.message?.content?.trim() || "";
 }
 
-export async function ollamaChat(prompt: string, model = "llama3.2"): Promise<string> {
-  try {
-    const body: Record<string, unknown> = {
-      model,
-      prompt,
-      stream: false,
-    };
+async function ollamaChat(prompt: string, model = "llama3.2"): Promise<string> {
+  const response = await fetch("http://localhost:11434/api/generate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ model, prompt, stream: false }),
+  });
 
-    const response = await fetch("http://localhost:11434/api/generate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
+  if (!response.ok) throw new Error(`Ollama error: ${response.status}`);
+  const data = await response.json();
+  return data.response.trim();
+}
 
-    if (!response.ok) {
-      throw new Error(`Ollama error: ${response.status}`);
+export async function aiChat(prompt: string, model?: string): Promise<string> {
+  // Try cloud provider first, fall back to Ollama
+  if (provider !== "ollama" && apiKey) {
+    try {
+      return await cloudChat(prompt, model);
+    } catch (error) {
+      console.error("Cloud AI failed, falling back to Ollama:", error);
     }
+  }
 
-    const data: OllamaResponse = await response.json();
-    return data.response.trim();
+  // Fallback: try Ollama locally
+  try {
+    return await ollamaChat(prompt, model);
   } catch (error) {
     if (error instanceof TypeError && error.message.includes("fetch")) {
       throw new Error("OLLAMA_NOT_RUNNING");
@@ -33,6 +70,8 @@ export async function ollamaChat(prompt: string, model = "llama3.2"): Promise<st
     throw error;
   }
 }
+
+// ─── Parsing Utilities ───
 
 export interface ParsedStudyIntent {
   action: "study_session" | "review_item" | "subject" | "topic" | "unknown";
@@ -60,15 +99,9 @@ Use null for missing fields. durationMinutes should be a number if provided.`;
 export async function parseUserIntent(text: string): Promise<ParsedStudyIntent> {
   try {
     const fullPrompt = `${SYSTEM_PROMPT}\n\nUser input: "${text}"\n\nRespond with ONLY JSON.`;
-
-    const response = await ollamaChat(fullPrompt);
-
-    try {
-      const cleaned = response.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-      return JSON.parse(cleaned) as ParsedStudyIntent;
-    } catch {
-      return { action: "unknown" };
-    }
+    const response = await aiChat(fullPrompt);
+    const cleaned = response.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+    return JSON.parse(cleaned) as ParsedStudyIntent;
   } catch {
     return { action: "unknown" };
   }
@@ -86,18 +119,12 @@ Each flashcard should test a key concept. Format: [{"question": "...", "answer":
 
 Study material:
 ${text}
+${subject ? `\nSubject: ${subject}` : ""}
+${topic ? `\nTopic: ${topic}` : ""}`;
 
-${subject ? `Subject: ${subject}` : ""}
-${topic ? `Topic: ${topic}` : ""}`;
-
-    const response = await ollamaChat(prompt);
-
-    try {
-      const cleaned = response.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-      return JSON.parse(cleaned);
-    } catch {
-      return [];
-    }
+    const response = await aiChat(prompt);
+    const cleaned = response.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+    return JSON.parse(cleaned);
   } catch {
     return [];
   }
@@ -106,8 +133,8 @@ ${topic ? `Topic: ${topic}` : ""}`;
 export async function summarizeText(text: string, maxLength = 200): Promise<string> {
   try {
     const prompt = `Summarize this text in no more than ${maxLength} characters. Return ONLY the summary:\n\n${text}`;
-    return await ollamaChat(prompt);
+    return await aiChat(prompt);
   } catch {
-    return "Summary unavailable - Ollama not connected";
+    return "Summary unavailable — AI not connected";
   }
 }

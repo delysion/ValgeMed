@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ollamaChat } from "@/lib/ai/ollama";
+import { aiChat } from "@/lib/ai/ollama";
 import { requireUser } from "@/lib/auth/supabase";
 
 export async function POST(request: NextRequest) {
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "Unknown tool" }, { status: 400 });
     }
 
-    const result = await ollamaChat(prompt);
+    const result = await aiChat(prompt);
 
     return NextResponse.json({ success: true, result });
   } catch (error) {
@@ -57,9 +57,7 @@ export async function POST(request: NextRequest) {
     if (error instanceof Error && error.message === "OLLAMA_NOT_RUNNING") {
       return NextResponse.json(
         { 
-          error: locale === "et" 
-            ? "Ollama ei tööta. Käivita 'ollama serve' terminalis." 
-            : "Ollama is not running. Run 'ollama serve' in your terminal.",
+          error: locale === "et" ? "AI ei tööta. Lisa AI_PROVIDER ja API võti Verceli keskkonnamuutujatesse või käivita kohalik Ollama." : "AI is not running. Add AI_PROVIDER and API key in Vercel environment variables, or start Ollama locally.",
           errorType: "OLLAMA_NOT_RUNNING"
         },
         { status: 503 }
@@ -67,9 +65,7 @@ export async function POST(request: NextRequest) {
     }
     
     return NextResponse.json({ 
-      error: locale === "et" 
-        ? "AI töötlemine ebaõnnestus. Proovi uuesti." 
-        : "AI processing failed. Please try again.",
+      error: locale === "et" ? "AI töötlemine ebaõnnestus. Proovi uuesti." : "AI processing failed. Please try again.",
       errorType: "UNKNOWN"
     }, { status: 500 });
   }
