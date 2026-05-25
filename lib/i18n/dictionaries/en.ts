@@ -408,7 +408,7 @@ export const en = {
 
   "login.checkEmail": "Check your email for a confirmation link before signing in.",
 
-  "login.rateLimited": "Too many attempts. Please wait a moment and try again.",
+  "login.rateLimited": "Supabase rate limit reached. Please wait 1 minute and try again.",
   "login.unexpectedError": "An unexpected error occurred",
   "login.signInWithGoogle": "Sign in with Google",
   "login.connecting": "Connecting...",

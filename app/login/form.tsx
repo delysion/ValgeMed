@@ -15,11 +15,26 @@ export function LoginForm() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sentReset, setSentReset] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
   const supabase = getClient();
 
   function getNextPath(): string {
     if (typeof window === "undefined") return "/";
     return new URLSearchParams(window.location.search).get("next") || "/";
+  }
+
+  function setRateLimited() {
+    setError(t("login.rateLimited"));
+    setCooldown(60);
+    const interval = setInterval(() => {
+      setCooldown((c) => {
+        if (c <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return c - 1;
+      });
+    }, 1000);
   }
 
   async function handleResetPassword() {
@@ -67,7 +82,7 @@ export function LoginForm() {
         });
         if (error) {
           if (error.message?.toLowerCase().includes("rate limit") || error.message?.toLowerCase().includes("rate_limit")) {
-            setError(t("login.rateLimited"));
+            setRateLimited();
           } else {
             setError(error.message);
           }
@@ -174,11 +189,11 @@ export function LoginForm() {
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || cooldown > 0}
           className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-medium text-white shadow-sm hover:bg-primary/90 transition-colors disabled:opacity-50"
         >
           {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-          {isSignUp ? t("login.createAccount") : t("login.loginSubmit")}
+          {cooldown > 0 ? `Wait ${cooldown}s` : isSignUp ? t("login.createAccount") : t("login.loginSubmit")}
         </button>
 
         <p className="text-center text-xs text-text-muted">
