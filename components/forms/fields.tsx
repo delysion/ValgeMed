@@ -51,7 +51,7 @@ export function FieldGrid({
   className?: string;
 }) {
   return (
-    <div className={cn("grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3", className)}>
+    <div className={cn("grid gap-5 grid-cols-1 md:grid-cols-2", className)}>
       {children}
     </div>
   );
@@ -153,7 +153,7 @@ export function NativeSelectField({
           name={name}
           defaultValue={defaultValue ?? ""}
           aria-invalid={error ? true : undefined}
-          className="flex h-11 w-full appearance-none rounded-xl border border-border bg-bg-elevated px-4 pr-10 text-sm text-text-primary shadow-[var(--shadow-inner)] outline-none transition-all duration-150 focus:border-primary/50 focus:bg-bg-surface focus:shadow-[0_0_0_3px_var(--primary-glow),var(--shadow-inner)] focus:ring-0"
+          className="flex h-12 w-full appearance-none rounded-xl border border-border bg-bg-elevated px-4 pr-10 text-sm text-text-primary shadow-[var(--shadow-inner)] outline-none transition-all duration-150 focus:border-primary/50 focus:bg-bg-surface focus:shadow-[0_0_0_3px_var(--primary-glow),var(--shadow-inner)] focus:ring-0 truncate"
         >
           {options.map((option) => (
             <option key={option.value} value={option.value} className="bg-bg-surface text-text-primary">

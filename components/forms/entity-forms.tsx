@@ -101,7 +101,7 @@ export function SubjectForm({ subject, t }: { subject?: Subject; t: TFunc }) {
       title={subject ? t("form.subject.editTitle") : t("form.subject.createTitle")}
       description={t("form.subject.description")}
     >
-      <form action={subject ? updateSubjectAction : createSubjectAction} className="space-y-5">
+      <form action={subject ? updateSubjectAction : createSubjectAction} className="space-y-6">
         {subject ? <input type="hidden" name="id" value={subject.id} /> : null}
         <FieldGrid>
           <TextField label={t("form.subject.nameLabel")} name="name" defaultValue={subject?.name} required placeholder={t("form.subject.namePlaceholder")} description={t("form.subject.nameDescription")} />
@@ -131,7 +131,7 @@ export function ExamForm({
       title={exam ? t("form.exam.editTitle") : t("form.exam.createTitle")}
       description={t("form.exam.description")}
     >
-      <form action={exam ? updateExamAction : createExamAction} className="space-y-5">
+      <form action={exam ? updateExamAction : createExamAction} className="space-y-6">
         {exam ? <input type="hidden" name="id" value={exam.id} /> : null}
         <FieldGrid>
           <NativeSelectField label={t("form.exam.subjectLabel")} name="subjectId" options={relationOptions(subjects, t("form.exam.subjectEmpty"))} defaultValue={exam?.subjectId} description={t("form.exam.subjectDescription")} />
@@ -165,7 +165,7 @@ export function TopicForm({
       title={topic ? t("form.topic.editTitle") : t("form.topic.createTitle")}
       description={t("form.topic.description")}
     >
-      <form action={topic ? updateTopicAction : createTopicAction} className="space-y-5">
+      <form action={topic ? updateTopicAction : createTopicAction} className="space-y-6">
         {topic ? <input type="hidden" name="id" value={topic.id} /> : null}
         <FieldGrid>
           <NativeSelectField label={t("form.topic.subjectLabel")} name="subjectId" options={relationOptions(subjects, t("form.topic.subjectEmpty"))} defaultValue={topic?.subjectId} description={t("form.topic.subjectDescription")} />
@@ -203,7 +203,7 @@ export function StudySessionForm({
       title={session ? t("form.studySession.editTitle") : t("form.studySession.createTitle")}
       description={t("form.studySession.description")}
     >
-      <form action={session ? updateStudySessionAction : createStudySessionAction} className="space-y-5">
+      <form action={session ? updateStudySessionAction : createStudySessionAction} className="space-y-6">
         {session ? <input type="hidden" name="id" value={session.id} /> : null}
         <FieldGrid>
           <NativeSelectField label={t("form.studySession.subjectLabel")} name="subjectId" options={relationOptions(subjects, t("form.studySession.subjectEmpty"))} defaultValue={session?.subjectId} description={t("form.studySession.subjectDescription")} />
@@ -280,7 +280,7 @@ export function ErrorLogForm({
       title={error ? t("form.errorLog.editTitle") : t("form.errorLog.createTitle")}
       description={t("form.errorLog.description")}
     >
-      <form action={error ? updateErrorLogAction : createErrorLogAction} className="space-y-5">
+      <form action={error ? updateErrorLogAction : createErrorLogAction} className="space-y-6">
         {error ? <input type="hidden" name="id" value={error.id} /> : null}
         <input type="hidden" name="resolved" value="false" />
         <FieldGrid>
@@ -321,7 +321,7 @@ export function QuizAttemptForm({
 }) {
   return (
     <FormCard title={t("form.quizAttempt.title")} description={t("form.quizAttempt.description")}>
-      <form action={createQuizAttemptAction} className="space-y-5">
+      <form action={createQuizAttemptAction} className="space-y-6">
         <FieldGrid>
           <NativeSelectField label={t("form.quizAttempt.subjectLabel")} name="subjectId" options={relationOptions(subjects, t("form.quizAttempt.subjectEmpty"))} defaultValue={exams.find((exam) => exam.id === examId)?.subjectId} description={t("form.quizAttempt.subjectDescription")} />
           <NativeSelectField label={t("form.quizAttempt.topicLabel")} name="topicId" options={relationOptions(topics, t("form.quizAttempt.topicEmpty"))} description={t("form.quizAttempt.topicDescription")} />
@@ -343,7 +343,7 @@ export function DailyLogForm({ log, compact = false, t }: { log?: DailyLog | nul
       title={log?.id ? t("form.dailyLog.editTitle") : t("form.dailyLog.createTitle")}
       description={t("form.dailyLog.description")}
     >
-      <form action={log?.id ? updateDailyLogAction : upsertDailyLogAction} className="space-y-5">
+      <form action={log?.id ? updateDailyLogAction : upsertDailyLogAction} className="space-y-6">
         {log?.id ? <input type="hidden" name="id" value={log.id} /> : null}
         <input type="hidden" name="movementDone" value="false" />
         <FieldGrid className={compact ? "xl:grid-cols-3" : undefined}>
@@ -369,7 +369,7 @@ export function DailyLogForm({ log, compact = false, t }: { log?: DailyLog | nul
 export function GoalForm({ goal, t }: { goal?: Goal; t: TFunc }) {
   return (
     <FormCard title={goal ? t("form.goal.editTitle") : t("form.goal.createTitle")} description={t("form.goal.description")}>
-      <form action={goal ? updateGoalAction : createGoalAction} className="space-y-5">
+      <form action={goal ? updateGoalAction : createGoalAction} className="space-y-6">
         {goal ? <input type="hidden" name="id" value={goal.id} /> : null}
         <FieldGrid>
           <TextField label={t("form.goal.titleLabel")} name="title" defaultValue={goal?.title} required placeholder={t("form.goal.titlePlaceholder")} description={t("form.goal.titleDescription")} />
@@ -400,7 +400,7 @@ export function TaskForm({
 }) {
   return (
     <FormCard title={task ? t("form.task.editTitle") : t("form.task.createTitle")} description={t("form.task.description")}>
-      <form action={task ? updateTaskAction : createTaskAction} className="space-y-5">
+      <form action={task ? updateTaskAction : createTaskAction} className="space-y-6">
         {task ? <input type="hidden" name="id" value={task.id} /> : null}
         <FieldGrid>
           <TextField label={t("form.task.titleLabel")} name="title" defaultValue={task?.title} required placeholder={t("form.task.titlePlaceholder")} description={t("form.task.titleDescription")} />
@@ -429,7 +429,7 @@ export function IdentityNoteForm({
 }) {
   return (
     <FormCard title={note ? t("form.identityNote.editTitle") : t("form.identityNote.createTitle")} description={t("form.identityNote.description")}>
-      <form action={note ? updateIdentityNoteAction : createIdentityNoteAction} className="space-y-5">
+      <form action={note ? updateIdentityNoteAction : createIdentityNoteAction} className="space-y-6">
         {note ? <input type="hidden" name="id" value={note.id} /> : null}
         <FieldGrid>
           <TextField label={t("form.identityNote.titleLabel")} name="title" defaultValue={note?.title} required placeholder={t("form.identityNote.titlePlaceholder")} description={t("form.identityNote.titleDescription")} />

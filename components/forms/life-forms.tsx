@@ -88,9 +88,9 @@ export function TartuNoteForm({ note }: { note?: TartuNote }) {
   const { t } = useTranslation();
   return (
     <FormCard title={note ? t("lifeForm.tartuNote.editTitle") : t("lifeForm.tartuNote.title")} description={t("lifeForm.tartuNote.desc")}>
-      <form action={note ? updateTartuNoteAction : createTartuNoteAction} className="space-y-3">
-        {note ? <input type="hidden" name="id" value={note.id} /> : null}
-        <FieldGrid>
+  <form action={note ? updateTartuNoteAction : createTartuNoteAction} className="space-y-5">
+    {note ? <input type="hidden" name="id" value={note.id} /> : null}
+    <FieldGrid>
           <TextField label={t("lifeForm.tartuNote.titleLabel")} name="title" defaultValue={note?.title} required />
           <NativeSelectField label={t("lifeForm.tartuNote.categoryLabel")} name="category" options={optionize(tartuNoteCategories)} defaultValue={note?.category ?? "tartu_life"} />
           <NativeSelectField label={t("lifeForm.tartuNote.statusLabel")} name="status" options={optionize(taskStatuses)} defaultValue={note?.status ?? "todo"} />
@@ -107,7 +107,7 @@ export function TimeBlockForm({ block }: { block?: TimeBlock }) {
   const { t } = useTranslation();
   return (
     <FormCard title={block ? t("lifeForm.timeBlock.editTitle") : t("lifeForm.timeBlock.title")} description={t("lifeForm.timeBlock.desc")}>
-      <form action={block ? updateTimeBlockAction : createTimeBlockAction} className="space-y-3">
+      <form action={block ? updateTimeBlockAction : createTimeBlockAction} className="space-y-5">
         {block ? <input type="hidden" name="id" value={block.id} /> : null}
         <FieldGrid>
           <TextField label={t("lifeForm.timeBlock.dateLabel")} name="date" type="date" defaultValue={block?.date ?? formatISO(new Date(), { representation: "date" })} />
@@ -129,7 +129,7 @@ export function HealthLogForm({ log }: { log?: HealthLog }) {
   const { t } = useTranslation();
   return (
     <FormCard title={log ? t("lifeForm.healthLog.editTitle") : t("lifeForm.healthLog.title")} description={t("lifeForm.healthLog.desc")}>
-      <form action={log ? updateHealthLogAction : createHealthLogAction} className="space-y-3">
+      <form action={log ? updateHealthLogAction : createHealthLogAction} className="space-y-5">
         {log ? <input type="hidden" name="id" value={log.id} /> : null}
         <input type="hidden" name="movementDone" value="false" />
         <FieldGrid>
@@ -154,7 +154,7 @@ export function LanguageProgressForm({ item }: { item?: LanguageProgress }) {
   const { t } = useTranslation();
   return (
     <FormCard title={item ? t("lifeForm.languageProgress.editTitle") : t("lifeForm.languageProgress.title")} description={t("lifeForm.languageProgress.desc")}>
-      <form action={item ? updateLanguageProgressAction : createLanguageProgressAction} className="space-y-3">
+      <form action={item ? updateLanguageProgressAction : createLanguageProgressAction} className="space-y-5">
         {item ? <input type="hidden" name="id" value={item.id} /> : null}
         <FieldGrid>
           <NativeSelectField label={t("lifeForm.languageProgress.languageLabel")} name="language" options={optionize(languages)} defaultValue={item?.language ?? "estonian"} />
@@ -176,7 +176,7 @@ export function ReputationEventForm({ event }: { event?: ReputationEvent }) {
   const { t } = useTranslation();
   return (
     <FormCard title={event ? t("lifeForm.reputationEvent.editTitle") : t("lifeForm.reputationEvent.title")} description={t("lifeForm.reputationEvent.desc")}>
-      <form action={event ? updateReputationEventAction : createReputationEventAction} className="space-y-3">
+      <form action={event ? updateReputationEventAction : createReputationEventAction} className="space-y-5">
         {event ? <input type="hidden" name="id" value={event.id} /> : null}
         <FieldGrid>
           <TextField label={t("lifeForm.reputationEvent.titleLabel")} name="title" defaultValue={event?.title} required />
@@ -198,7 +198,7 @@ export function OpportunityForm({ opportunity }: { opportunity?: Opportunity }) 
   const { t } = useTranslation();
   return (
     <FormCard title={opportunity ? t("lifeForm.opportunity.editTitle") : t("lifeForm.opportunity.title")} description={t("lifeForm.opportunity.desc")}>
-      <form action={opportunity ? updateOpportunityAction : createOpportunityAction} className="space-y-3">
+      <form action={opportunity ? updateOpportunityAction : createOpportunityAction} className="space-y-5">
         {opportunity ? <input type="hidden" name="id" value={opportunity.id} /> : null}
         <FieldGrid>
           <TextField label={t("lifeForm.opportunity.titleLabel")} name="title" defaultValue={opportunity?.title} required />
@@ -221,7 +221,7 @@ export function ProfessionalContactForm({ contact }: { contact?: ProfessionalCon
   const { t } = useTranslation();
   return (
     <FormCard title={contact ? t("lifeForm.professionalContact.editTitle") : t("lifeForm.professionalContact.title")} description={t("lifeForm.professionalContact.desc")}>
-      <form action={contact ? updateProfessionalContactAction : createProfessionalContactAction} className="space-y-3">
+      <form action={contact ? updateProfessionalContactAction : createProfessionalContactAction} className="space-y-5">
         {contact ? <input type="hidden" name="id" value={contact.id} /> : null}
         <FieldGrid>
           <TextField label={t("lifeForm.professionalContact.nameLabel")} name="name" defaultValue={contact?.name} required />
@@ -242,7 +242,7 @@ export function LifeAdminItemForm({ item }: { item?: LifeAdminItem }) {
   const { t } = useTranslation();
   return (
     <FormCard title={item ? t("lifeForm.lifeAdmin.editTitle") : t("lifeForm.lifeAdmin.title")} description={t("lifeForm.lifeAdmin.desc")}>
-      <form action={item ? updateLifeAdminItemAction : createLifeAdminItemAction} className="space-y-3">
+      <form action={item ? updateLifeAdminItemAction : createLifeAdminItemAction} className="space-y-5">
         {item ? <input type="hidden" name="id" value={item.id} /> : null}
         <FieldGrid>
           <TextField label={t("lifeForm.lifeAdmin.titleLabel")} name="title" defaultValue={item?.title} required />
@@ -262,7 +262,7 @@ export function PortfolioItemForm({ item }: { item?: PortfolioItem }) {
   const { t } = useTranslation();
   return (
     <FormCard title={item ? t("lifeForm.portfolioItem.editTitle") : t("lifeForm.portfolioItem.title")} description={t("lifeForm.portfolioItem.desc")}>
-      <form action={item ? updatePortfolioItemAction : createPortfolioItemAction} className="space-y-3">
+      <form action={item ? updatePortfolioItemAction : createPortfolioItemAction} className="space-y-5">
         {item ? <input type="hidden" name="id" value={item.id} /> : null}
         <FieldGrid>
           <TextField label={t("lifeForm.portfolioItem.titleLabel")} name="title" defaultValue={item?.title} required />
@@ -283,7 +283,7 @@ export function StrategicReviewForm({ review }: { review?: StrategicReview }) {
   const { t } = useTranslation();
   return (
     <FormCard title={review ? t("lifeForm.strategicReview.editTitle") : t("lifeForm.strategicReview.title")} description={t("lifeForm.strategicReview.desc")}>
-      <form action={review ? updateStrategicReviewAction : createStrategicReviewAction} className="space-y-3">
+      <form action={review ? updateStrategicReviewAction : createStrategicReviewAction} className="space-y-5">
         {review ? <input type="hidden" name="id" value={review.id} /> : null}
         <FieldGrid>
           <TextField label={t("lifeForm.strategicReview.dateLabel")} name="date" type="date" defaultValue={review?.date ?? formatISO(new Date(), { representation: "date" })} />
