@@ -20,8 +20,12 @@ export const dynamic = "force-dynamic";
 export default async function SettingsPage() {
   const user = await requireUser();
   const { t } = await getI18n();
-  const db = getDb();
-  const [profile] = await db.select({ aiProvider: profiles.aiProvider, aiApiKey: profiles.aiApiKey }).from(profiles).where(eq(profiles.id, user.id)).limit(1);
+  let profile = { aiProvider: null as string | null, aiApiKey: null as string | null };
+  try {
+    const db = getDb();
+    const [p] = await db.select({ aiProvider: profiles.aiProvider, aiApiKey: profiles.aiApiKey }).from(profiles).where(eq(profiles.id, user.id)).limit(1);
+    if (p) profile = p;
+  } catch {} // columns may not exist yet
 
   return (
     <AppShell user={user}>
