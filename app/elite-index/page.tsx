@@ -30,12 +30,11 @@ export default async function EliteIndexPage() {
           .map((review) => ({ date: review.date.slice(5), score: review.eliteIndexSnapshot ?? 0 }))
       : hasLogs
         ? data.dailyLogs
-            .slice()
+            .slice(0, 8)
             .reverse()
-            .slice(-8)
-            .map((log, index) => ({
+            .map((log, i) => ({
               date: log.date.slice(5),
-              score: Math.max(0, Math.min(10, (elite.eliteIndex.score ?? 0) - (data.dailyLogs.length - index) * 0.12)),
+              score: Math.max(0, Math.min(10, (elite.eliteIndex.score ?? 0) * (i + 1) / 8)),
             }))
         : [];
 

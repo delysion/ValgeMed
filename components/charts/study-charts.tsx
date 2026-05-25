@@ -108,6 +108,7 @@ export function TrendLineChart({
       options={{
         responsive: true,
         maintainAspectRatio: false,
+        animation: false,
         plugins: {
           tooltip: tooltipOptions,
           legend: { display: false },
@@ -126,6 +127,7 @@ export function TrendLineChart({
         },
       }}
       height={220}
+      redraw={false}
     />
   );
 }
