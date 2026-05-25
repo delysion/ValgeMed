@@ -2,11 +2,13 @@
 
 import { getClient } from "@/lib/supabase/client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 
 export function LoginForm() {
   const { t } = useTranslation();
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -14,9 +16,11 @@ export function LoginForm() {
   const [error, setError] = useState<string | null>(null);
   const [sentReset, setSentReset] = useState(false);
   const supabase = getClient();
-  const next = typeof window !== "undefined"
-    ? new URLSearchParams(window.location.search).get("next") || "/"
-    : "/";
+
+  function getNextPath(): string {
+    if (typeof window === "undefined") return "/";
+    return new URLSearchParams(window.location.search).get("next") || "/";
+  }
 
   async function handleResetPassword() {
     if (!email) {
@@ -69,15 +73,15 @@ export function LoginForm() {
           if (signInError) {
             setError(t("login.accountExists"));
             setIsSignUp(false);
-            setLoading(false);
           } else {
-            window.location.href = next;
+            router.push(getNextPath());
           }
+          setLoading(false);
         } else if (!data.session) {
           setError(t("login.createAccountError"));
           setLoading(false);
         } else {
-          window.location.href = next;
+          router.push(getNextPath());
         }
       } else {
         const { error } = await supabase.auth.signInWithPassword({
@@ -86,10 +90,10 @@ export function LoginForm() {
         });
         if (error) {
           setError(error.message);
-          setLoading(false);
         } else {
-          window.location.href = next;
+          router.push(getNextPath());
         }
+        setLoading(false);
       }
     } catch (err) {
       console.error("Email auth error:", err);
