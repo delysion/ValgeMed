@@ -407,6 +407,10 @@ export const et: Dictionary = {
   "login.enterEmail": "Sisesta kõigepealt oma e-post.",
   "login.accountExists": "Konto on juba olemas. Palun logi sisse.",
   "login.createAccountError": "Konto loomine ebaõnnestus. Palun proovi uuesti.",
+
+  "login.checkEmail": "Konto loomine õnnestus. Enne sisselogimist kontrolli oma e-posti kinnituslinki.",
+
+  "login.rateLimited": "Liiga palju katseid. Palun oota hetk ja proovi uuesti.",
   "login.unexpectedError": "Juhtus ootamatu viga",
   "login.signInWithGoogle": "Logi sisse Google'iga",
   "login.connecting": "Ühendan...",

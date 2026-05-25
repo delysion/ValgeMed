@@ -405,6 +405,10 @@ export const en = {
   "login.enterEmail": "Enter your email first.",
   "login.accountExists": "Account already exists. Please sign in.",
   "login.createAccountError": "Unable to create account. Please try again.",
+
+  "login.checkEmail": "Check your email for a confirmation link before signing in.",
+
+  "login.rateLimited": "Too many attempts. Please wait a moment and try again.",
   "login.unexpectedError": "An unexpected error occurred",
   "login.signInWithGoogle": "Sign in with Google",
   "login.connecting": "Connecting...",

@@ -66,19 +66,14 @@ export function LoginForm() {
           },
         });
         if (error) {
-          setError(error.message);
-          setLoading(false);
-        } else if (!data.session && data.user) {
-          const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-          if (signInError) {
-            setError(t("login.accountExists"));
-            setIsSignUp(false);
+          if (error.message?.toLowerCase().includes("rate limit") || error.message?.toLowerCase().includes("rate_limit")) {
+            setError(t("login.rateLimited"));
           } else {
-            router.push(getNextPath());
+            setError(error.message);
           }
           setLoading(false);
         } else if (!data.session) {
-          setError(t("login.createAccountError"));
+          setError(t("login.checkEmail"));
           setLoading(false);
         } else {
           router.push(getNextPath());
