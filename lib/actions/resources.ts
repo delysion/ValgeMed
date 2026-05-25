@@ -69,6 +69,7 @@ export async function createSubjectAction(formData: FormData) {
   const data = parseForm(subjectSchema, formData);
   await db.insert(subjects).values({ ...data, userId });
   refresh(["/subjects", "/dashboard"]);
+  redirect("/subjects");
 }
 
 export async function updateSubjectAction(formData: FormData) {
@@ -92,6 +93,7 @@ export async function createExamAction(formData: FormData) {
   const data = parseForm(examSchema, formData);
   await db.insert(exams).values({ ...data, userId });
   refresh(["/exams", "/dashboard"]);
+  redirect("/exams");
 }
 
 export async function updateExamAction(formData: FormData) {
