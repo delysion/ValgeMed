@@ -340,6 +340,7 @@ export default async function CommandPage() {
           streak={streak}
           badges={gamificationBadges}
           missions={gamificationMissions}
+          t={t as (key: string) => string}
         />
 
         {/* ─── (6) Strategic Rule of the Day ─── */}

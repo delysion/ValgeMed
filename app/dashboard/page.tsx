@@ -215,6 +215,7 @@ export default async function DashboardPage() {
                 xp={xp}
                 xpToNext={xpToNext}
                 streak={streak}
+                t={t as (key: string) => string}
                 className="min-w-[200px] flex-1 border-primary/15 bg-bg-surface/70 backdrop-blur-sm shadow-sm"
               />
               {dueReviews > 0 ? (
@@ -242,6 +243,7 @@ export default async function DashboardPage() {
           streak={streak}
           badges={dashboardBadges}
           missions={dashboardMissions}
+          t={t as (key: string) => string}
         />
 
         {/* ─── STAT ROW — responsive grid ─── */}
@@ -418,7 +420,7 @@ export default async function DashboardPage() {
           {/* ─── RIGHT SIDEBAR ─── */}
           <div className="flex flex-col gap-5">
             {/* Daily Streak */}
-            <DailyStreakCard streak={streak} longestStreak={longest} />
+            <DailyStreakCard streak={streak} longestStreak={longest} t={t as (key: string) => string} />
 
             {/* System Health */}
             <SystemHealthCard
@@ -426,6 +428,7 @@ export default async function DashboardPage() {
               sleep={sleepHours ?? 6.5}
               stress={stressLevel ?? 5}
               momentum={systemMomentum}
+              t={t as (key: string) => string}
             />
 
             {/* Momentum */}

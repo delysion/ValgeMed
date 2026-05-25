@@ -1,8 +1,9 @@
 import { Flame, Lock, ShieldAlert, Sparkle, Target, TrendingUp, Trophy, Zap, Languages, Brain, BookOpen } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { useTranslation } from "@/lib/i18n/useTranslation";
 import type { TranslationKey } from "@/lib/i18n/dictionaries/en";
 import { cn } from "@/lib/utils";
+
+export type TFunction = (key: string, params?: Record<string, string | number>) => string;
 
 export type MasteryLevel =
   | "dormant"
@@ -106,14 +107,15 @@ export function computeLevel(eliteScore: number): { level: number; xp: number; x
 export function LevelBadge({
   eliteScore,
   streak,
+  t,
   className,
 }: {
   eliteScore: number;
   streak: number;
+  t: TFunction;
   className?: string;
 }) {
-  const { t } = useTranslation();
-  const { level, xp, xpToNext, levelLabel, levelLabelKey } = computeLevel(eliteScore);
+  const { level, xp, xpToNext, levelLabelKey } = computeLevel(eliteScore);
   const pct = Math.round((xp / xpToNext) * 100);
 
   return (
@@ -167,6 +169,7 @@ export function LevelCard({
   xp,
   xpToNext,
   streak,
+  t,
   className,
 }: {
   level: number;
@@ -175,9 +178,9 @@ export function LevelCard({
   xp: number;
   xpToNext: number;
   streak: number;
+  t: TFunction;
   className?: string;
 }) {
-  const { t } = useTranslation();
   const labelKey = levelLabelKey ?? getLevelLabelKey(levelLabel);
   const pct = Math.round((xp / xpToNext) * 100);
   return (
@@ -296,13 +299,14 @@ export function MomentumCard({
 export function DailyStreakCard({
   streak,
   longestStreak,
+  t,
   className,
 }: {
   streak: number;
   longestStreak?: number;
+  t: TFunction;
   className?: string;
 }) {
-  const { t } = useTranslation();
   const pct = longestStreak && longestStreak > 0 ? Math.round((streak / longestStreak) * 100) : streak > 0 ? 100 : 0;
   return (
     <div className={cn("rounded-xl border border-border bg-gradient-to-br from-gold-bg/30 via-bg-surface to-bg-surface p-5 shadow-[var(--shadow-card)] card-hover", className)}>
@@ -336,15 +340,16 @@ export function SystemHealthCard({
   sleep,
   stress,
   momentum,
+  t,
   className,
 }: {
   energy: number;
   sleep: number;
   stress: number;
   momentum: number;
+  t: TFunction;
   className?: string;
 }) {
-  const { t } = useTranslation();
   const metrics = [
     { label: t("gamification.energy"), value: energy, tone: energy >= 6 ? "emerald" : energy >= 4 ? "gold" : "rose" as const },
     { label: t("gamification.sleep"), value: sleep, tone: sleep >= 7 ? "emerald" as const : sleep >= 5 ? "gold" as const : "rose" as const },
@@ -471,6 +476,7 @@ interface GamificationDashboardProps {
   streak: number;
   badges: BadgeItem[];
   missions: MissionItem[];
+  t: TFunction;
 }
 
 export function GamificationDashboard({
@@ -481,8 +487,8 @@ export function GamificationDashboard({
   streak,
   badges,
   missions,
+  t,
 }: GamificationDashboardProps) {
-  const { t } = useTranslation();
   const xpPct = Math.round((xp / xpToNextLevel) * 100);
 
   return (

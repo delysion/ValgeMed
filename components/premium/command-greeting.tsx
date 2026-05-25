@@ -68,7 +68,7 @@ export function CommandGreeting({
             <p className="mt-2 max-w-xl text-sm leading-relaxed text-text-secondary sm:text-base">{t("common.nextMoveVisible")}</p>
           </div>
 
-          <LevelBadge eliteScore={eliteScore} streak={streak} className="max-w-sm" />
+          <LevelBadge eliteScore={eliteScore} streak={streak} t={t as (key: string) => string} className="max-w-sm" />
 
           <div className="group relative overflow-hidden rounded-xl border border-border bg-bg-elevated/80 p-4 shadow-sm backdrop-blur-sm transition-all duration-200 hover:shadow-md sm:p-5">
             <div className="relative flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
