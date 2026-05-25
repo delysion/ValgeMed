@@ -5,7 +5,7 @@ import {
 
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { OllamaStatusBadge } from "@/components/ollama-status";
-import { OllamaStatusCard } from "@/components/ollama-status-card";
+import { AiStatusCard } from "@/components/ollama-status-card";
 import { AiToolCard } from "@/components/ai-tool-card";
 import { AiFlashcardGenerator } from "@/components/ai-flashcard-generator";
 import { FileUploadZone } from "@/components/file-upload-zone";
@@ -59,7 +59,7 @@ export default async function AiPage() {
 
       <div className="flex flex-col gap-5">
         {/* Ollama Status Card */}
-        <OllamaStatusCard locale={locale} />
+        <AiStatusCard />
 
         {/* Quick Flashcard Generator */}
         <AiFlashcardGenerator />

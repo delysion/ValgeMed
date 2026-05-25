@@ -9,6 +9,8 @@ import { cn } from "@/lib/utils";
 export interface OllamaStatus {
   online: boolean;
   models: string[];
+  provider?: string;
+  model?: string;
 }
 
 const CACHE_KEY = "ollama_status_cache";
@@ -74,7 +76,7 @@ export function OllamaStatusBadge() {
         variant={status?.online ? "success" : status === null ? "muted" : "danger"}
         className="gap-1.5 cursor-pointer select-none"
         onClick={checkStatus}
-        title={status?.online ? "Ollama connected" : "Click to check Ollama status"}
+        title={status?.online ? `${status.provider || "AI"} connected` : "Check AI status"}
       >
         {status?.online ? (
           <Wifi className="h-3 w-3" />
@@ -82,10 +84,10 @@ export function OllamaStatusBadge() {
           <WifiOff className="h-3 w-3" />
         )}
         {status?.online
-          ? `Ollama${status.models.length > 0 ? ` · ${status.models[0]}` : ""}`
+          ? `${status.provider || "AI"}${status.model ? ` · ${status.model}` : ""}`
           : status === null
-            ? "Check Ollama"
-            : "Ollama Offline"}
+            ? "Check AI"
+            : "AI Offline"}
       </Badge>
       <Button
         variant="ghost"
@@ -93,7 +95,7 @@ export function OllamaStatusBadge() {
         className="h-7 w-7"
         onClick={checkStatus}
         disabled={checking}
-        title="Refresh Ollama status"
+        title="Refresh AI status"
       >
         <RefreshCw className={cn("h-3.5 w-3.5", checking && "animate-spin")} />
       </Button>
