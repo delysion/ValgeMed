@@ -40,6 +40,7 @@ import { cn } from "@/lib/utils";
 import { AdminPendingBadge } from "./admin-pending-badge";
 import { ThemeToggle } from "./theme-toggle";
 import { LanguageSelector } from "./language-selector";
+import { InstallMenuItem } from "./install-app-button";
 import { getClient } from "@/lib/supabase/client";
 import { getTheme, themeCookie } from "@/lib/theme/config";
 
@@ -281,6 +282,7 @@ export function MobileDrawer({
             <div className="flex items-center justify-between px-3">
               <ThemeToggle theme={theme} onToggle={handleToggleTheme} />
             </div>
+            <InstallMenuItem />
             <button
               type="button"
               onClick={handleLogout}

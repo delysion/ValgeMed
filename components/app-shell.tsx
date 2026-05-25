@@ -15,6 +15,7 @@ import type { User } from "@supabase/supabase-js";
 import { checkStatusAction } from "@/lib/actions/admin";
 import { MobileNav } from "@/components/mobile-nav";
 import { MobileDrawer } from "@/components/mobile-drawer";
+import { InstallMenuItem } from "@/components/install-app-button";
 
 const pageTitleKeys: Record<string, TranslationKey> = {
   "/command": "nav.command",
@@ -124,6 +125,9 @@ export function AppShell({
         </div>
         <div className="p-3 pt-3">
           <Navigation />
+          <div className="mt-2">
+            <InstallMenuItem />
+          </div>
         </div>
       </aside>
 
