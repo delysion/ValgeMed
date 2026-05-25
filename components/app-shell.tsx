@@ -134,22 +134,19 @@ export function AppShell({
       {/* Main Content Area */}
       <div className="lg:pl-64 pb-16 lg:pb-0">
         {/* Mobile Header */}
-        <header className="sticky top-0 z-30 flex h-11 items-center justify-between gap-3 border-b border-border bg-gradient-to-r from-bg-surface/95 to-bg-page/90 px-3 backdrop-blur-xl lg:hidden">
-          <div className="flex items-center gap-2 min-w-0">
+        <header className="sticky top-0 z-30 flex h-12 items-center justify-between gap-2 border-b border-border/80 bg-gradient-to-r from-bg-page/95 to-bg-surface/95 px-4 backdrop-blur-2xl lg:hidden">
+          <div className="flex items-center gap-2.5 min-w-0">
             <button
               type="button"
               onClick={() => setDrawerOpen(true)}
-              className="grid h-8 w-8 shrink-0 place-items-center rounded-xl hover:bg-bg-subtle active:scale-[0.92] transition-all duration-150"
+              className="grid h-10 w-10 shrink-0 place-items-center rounded-xl hover:bg-bg-subtle active:scale-[0.92] transition-all duration-150"
               aria-label={t("app.openMenu")}
             >
-              <Menu className="h-[18px] w-[18px] text-text-primary" />
+              <Menu className="h-5 w-5 text-text-primary" />
             </button>
-            <div className="grid h-6 w-6 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-primary to-violet">
-              <Command className="h-3.5 w-3.5 text-white" />
-            </div>
             <div className="min-w-0">
-              <p className="truncate text-xs font-semibold text-text-primary leading-tight">{pageTitle}</p>
-              <p className="truncate text-[10px] text-text-muted leading-tight">{displayName}</p>
+              <p className="truncate text-sm font-semibold text-text-primary leading-tight">{pageTitle}</p>
+              <p className="truncate text-[11px] text-text-muted leading-tight">{displayName}</p>
             </div>
           </div>
         </header>
