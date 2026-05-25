@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getI18n } from "@/lib/i18n/server";
 
 export default async function NotFound() {
-  const { t } = getI18n();
+  const { t } = await getI18n();
   return (
     <div className="flex min-h-screen items-center justify-center bg-bg-page p-4">
       <div className="text-center max-w-md">

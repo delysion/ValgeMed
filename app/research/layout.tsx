@@ -2,7 +2,7 @@ import { PageHeader } from "@/components/app-shell";
 import { getI18n } from "@/lib/i18n/server";
 
 export default async function ResearchLayout({ children }: { children: React.ReactNode }) {
-  const { t } = getI18n();
+  const { t } = await getI18n();
   return (
     <div>
       <PageHeader

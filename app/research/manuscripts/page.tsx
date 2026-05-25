@@ -4,7 +4,7 @@ import { FileText } from "lucide-react";
 import { getI18n } from "@/lib/i18n/server";
 
 export default async function ManuscriptPipelinePage() {
-  const { t } = getI18n();
+  const { t } = await getI18n();
   const stages = t("research.manuscriptStages").split(",");
 
   return (

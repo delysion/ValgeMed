@@ -61,8 +61,7 @@ export function AppShell({
 
   useEffect(() => {
     getTheme().then(setThemeState);
-    const i18n = getI18n();
-    setI18n(i18n);
+    getI18n().then(setI18n);
   }, []);
 
   const { t } = useMemo(() => i18n || { t: (k: string) => k }, [i18n]);

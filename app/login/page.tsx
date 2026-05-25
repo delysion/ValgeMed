@@ -2,7 +2,7 @@ import { Command, Brain, TrendingUp, Shield, Mail } from "lucide-react";
 import { getI18n } from "@/lib/i18n/server";
 import { LoginForm } from "./form";
 
-function getFeatures(t: ReturnType<typeof getI18n>["t"]) {
+function getFeatures(t: (key: string, params?: Record<string, string | number>) => string) {
   return [
     { icon: Brain, text: t("login.feature1") },
     { icon: TrendingUp, text: t("login.feature2") },
@@ -11,8 +11,8 @@ function getFeatures(t: ReturnType<typeof getI18n>["t"]) {
 }
 
 export default async function LoginPage() {
-  const { t } = getI18n();
-  const features = getFeatures(t);
+  const { t } = await getI18n();
+  const features = getFeatures(t as (key: string) => string);
 
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-bg-page p-4 overflow-hidden">

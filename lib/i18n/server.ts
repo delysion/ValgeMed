@@ -13,8 +13,19 @@ export function getLocale(): Locale {
   return defaultLocale;
 }
 
-export function getI18n() {
-  const locale = getLocale();
+export async function getI18n() {
+  let locale: Locale;
+
+  if (typeof window === "undefined") {
+    const { cookies } = await import("next/headers");
+    const cookieStore = await cookies();
+    const localeCookie = cookieStore.get(languageCookie)?.value;
+    locale = isLocale(localeCookie) ? localeCookie : defaultLocale;
+  } else {
+    const saved = localStorage.getItem(languageCookie);
+    locale = isLocale(saved) ? saved : defaultLocale;
+  }
+
   const dictionary = getDictionary(locale);
 
   return {

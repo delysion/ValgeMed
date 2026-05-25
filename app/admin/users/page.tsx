@@ -13,7 +13,7 @@ const PAGE_SIZE = 20;
 export default async function AdminUsersPage(props: {
   searchParams?: Promise<{ page?: string }>;
 }) {
-  const { t } = getI18n();
+  const { t } = await getI18n();
   const searchParams = await props.searchParams;
   const admin = await requireAdmin();
   const page = Math.max(1, Number(searchParams?.page) || 1);

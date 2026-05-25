@@ -4,7 +4,7 @@ import { Beaker } from "lucide-react";
 import { getI18n } from "@/lib/i18n/server";
 
 export default async function HypothesisEnginePage() {
-  const { t } = getI18n();
+  const { t } = await getI18n();
   const dimensions = t("research.hypothesisDims").split(",");
   const outputs = t("research.hypothesisOutputs").split(",");
 

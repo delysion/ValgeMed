@@ -4,7 +4,7 @@ import { BookOpen } from "lucide-react";
 import { getI18n } from "@/lib/i18n/server";
 
 export default async function LiteratureMapPage() {
-  const { t } = getI18n();
+  const { t } = await getI18n();
   return (
     <div className="flex flex-col gap-6">
       <GlassCard tone="primary">
