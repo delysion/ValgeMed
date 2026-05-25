@@ -4,12 +4,14 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Command, BookOpen, Target, Grid3x3 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n/useTranslation";
+import type { TranslationKey } from "@/lib/i18n/dictionaries/en";
 
 const tabs = [
-  { id: "command", label: "Command", icon: Command, paths: ["/command", "/dashboard", "/elite-index", "/strategic-review"] },
-  { id: "studio", label: "Studio", icon: BookOpen, paths: ["/subjects", "/exams", "/topics", "/study", "/reviews", "/errors", "/study-sessions", "/daily-log"] },
-  { id: "goals", label: "Goals", icon: Target, paths: ["/goals", "/memory", "/identity", "/tartu", "/time", "/health", "/language"] },
-  { id: "more", label: "Altro", icon: Grid3x3, paths: [] },
+  { id: "command", labelKey: "nav.command", icon: Command, paths: ["/command", "/dashboard", "/elite-index", "/strategic-review"] },
+  { id: "studio", labelKey: "nav.sectionStudy", icon: BookOpen, paths: ["/subjects", "/exams", "/topics", "/study", "/reviews", "/errors", "/study-sessions", "/daily-log"] },
+  { id: "goals", labelKey: "nav.goals", icon: Target, paths: ["/goals", "/memory", "/identity", "/tartu", "/time", "/health", "/language"] },
+  { id: "more", labelKey: "common.more", icon: Grid3x3, paths: [] },
 ];
 
 const primaryPaths = {
@@ -19,6 +21,7 @@ const primaryPaths = {
 };
 
 export function MobileNav({ onOpenDrawer }: { onOpenDrawer: () => void }) {
+  const { t } = useTranslation();
   const pathname = usePathname();
   const router = useRouter();
   const [visible, setVisible] = useState(true);
@@ -75,7 +78,7 @@ export function MobileNav({ onOpenDrawer }: { onOpenDrawer: () => void }) {
                 "text-[10px] font-medium leading-none",
                 isActive && "font-semibold",
               )}>
-                {tab.label}
+                {t(tab.labelKey as TranslationKey)}
               </span>
             </button>
           );

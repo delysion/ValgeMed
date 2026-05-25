@@ -385,8 +385,10 @@ export const et: Dictionary = {
   "common.systemAwake": "Süsteem on valmis.",
   "common.nextMoveVisible": "Sinu järgmine samm on juba nähtav.",
   "common.quietProgress": "Vaikne areng kuhjub.",
+
   "common.protectEnergy": "Hoia energiat. Tõsta väljundit.",
 
+  "common.more": "Rohkem",
   "login.title": "Sisene ValgeMedi",
   "login.subtitle": "Privaatne akadeemiline juhtsüsteem. Avalikke kontosid ei ole. Müra ei ole.",
   "login.email": "Omaniku e-post",

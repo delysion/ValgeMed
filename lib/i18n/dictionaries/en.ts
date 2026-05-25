@@ -383,8 +383,10 @@ export const en = {
   "common.systemAwake": "The system is awake.",
   "common.nextMoveVisible": "Your next move is already visible.",
   "common.quietProgress": "Quiet progress compounds.",
+
   "common.protectEnergy": "Protect energy. Upgrade output.",
 
+  "common.more": "More",
   "login.title": "Enter ValgeMed",
   "login.subtitle": "Private academic command system. No public accounts. No noise.",
   "login.email": "Owner email",
