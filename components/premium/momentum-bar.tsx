@@ -31,9 +31,9 @@ export function MomentumBar({
 
   return (
     <div className="group">
-      <div className="mb-1.5 flex items-center justify-between gap-3">
-        <span className="text-sm font-medium text-text-primary">{label}</span>
-        <span className="font-mono text-xs text-text-secondary transition-colors group-hover:text-text-primary">{safe.toFixed(0)}%</span>
+      <div className="mb-1.5 flex items-center justify-between gap-2">
+        <span className="truncate text-sm font-medium text-text-primary">{label}</span>
+        <span className="shrink-0 font-mono text-xs text-text-secondary transition-colors group-hover:text-text-primary">{safe.toFixed(0)}%</span>
       </div>
       <div className="relative h-2 overflow-hidden rounded-full bg-bg-subtle">
         <div

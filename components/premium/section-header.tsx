@@ -16,16 +16,16 @@ export function SectionHeader({
   className?: string;
 }) {
   return (
-    <div className={cn("flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between", className)}>
-      <div className="flex items-start gap-3 min-w-0">
+    <div className={cn("flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between", className)}>
+      <div className="flex items-center gap-3 min-w-0 max-w-full">
         {Icon ? (
-          <div className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-primary/15 bg-gradient-to-br from-primary-soft to-primary/8 text-primary shadow-sm shadow-primary/10">
+          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-primary/15 bg-gradient-to-br from-primary-soft to-primary/8 text-primary shadow-sm shadow-primary/10">
             <Icon className="h-[18px] w-[18px]" />
           </div>
         ) : null}
-        <div className="min-w-0">
-          <h3 className="text-lg font-semibold tracking-tight text-text-primary sm:text-xl">{title}</h3>
-          {description ? <p className="mt-1 text-sm leading-relaxed text-text-secondary">{description}</p> : null}
+        <div className="min-w-0 max-w-full">
+          <h3 className="truncate text-lg font-semibold tracking-tight text-text-primary sm:text-xl">{title}</h3>
+          {description ? <p className="mt-0.5 truncate text-sm leading-relaxed text-text-secondary">{description}</p> : null}
         </div>
       </div>
       {action ? <div className="mt-1 sm:mt-0 shrink-0">{action}</div> : null}

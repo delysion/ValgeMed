@@ -79,11 +79,11 @@ export function MetricCard({
           <Icon className={cn("h-5 w-5", tone ? toneStyles[tone]?.icon.split(" ")[0] : "text-primary")} />
         </div>
       ) : null}
-      <div className="min-w-0 sm:mt-1">
+      <div className="min-w-0 w-full">
         {displayLabel ? (
-          <p className="text-xs font-medium text-text-muted uppercase tracking-[0.08em]">{displayLabel}</p>
+          <p className="truncate text-xs font-medium text-text-muted uppercase tracking-[0.08em]">{displayLabel}</p>
         ) : null}
-        <div className="flex items-baseline gap-1.5">
+        <div className="flex items-baseline gap-1.5 flex-wrap">
           <p className="text-xl font-bold tabular-nums text-text-primary sm:text-2xl">{value}</p>
           {trend ? (
             isNewTrend ? (
@@ -101,13 +101,13 @@ export function MetricCard({
                 {trendValue}
               </span>
             ) : (
-              <span className="rounded-md bg-gradient-to-br from-bg-subtle to-border/30 px-1.5 py-0.5 text-[10px] font-semibold text-text-secondary">
+              <span className="rounded-md bg-gradient-to-br from-bg-subtle to-border/30 px-1.5 py-0.5 text-[10px] font-semibold text-text-secondary truncate max-w-[120px]">
                 {trend}
               </span>
             )
           ) : null}
         </div>
-        {detail ? <p className="mt-1 text-xs leading-relaxed text-text-muted">{detail}</p> : null}
+        {detail ? <p className="mt-1 text-xs leading-relaxed text-text-muted line-clamp-2">{detail}</p> : null}
       </div>
     </div>
   );
