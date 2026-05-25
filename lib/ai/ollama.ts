@@ -2,67 +2,49 @@
 
 // ─── AI Provider Abstraction ───
 // Supports: ollama (local), openai (OpenAI API), groq (Groq API)
-// Set AI_PROVIDER env var to "openai" or "groq" and corresponding API key.
+// Uses user's API key if provided, falls back to env vars, then Ollama.
+// To configure, users can set their key in Settings → AI Settings.
+// Admins can also set AI_PROVIDER and API key in Vercel env vars.
 
-const provider = process.env.AI_PROVIDER || "ollama";
-const apiKey = process.env.OPENAI_API_KEY || process.env.GROQ_API_KEY || "";
-const baseUrl = provider === "groq"
-  ? "https://api.groq.com/openai/v1"
-  : provider === "openai"
-    ? "https://api.openai.com/v1"
-    : "";
+export async function aiChat(prompt: string, model?: string, userOptions?: { provider?: string; apiKey?: string }): Promise<string> {
+  const provider = userOptions?.provider || process.env.AI_PROVIDER || "ollama";
+  const apiKey = userOptions?.apiKey || process.env.OPENAI_API_KEY || process.env.GROQ_API_KEY || "";
 
-async function cloudChat(prompt: string, model?: string): Promise<string> {
-  const selectedModel = model || process.env.AI_MODEL || (provider === "groq" ? "llama-3.3-70b-versatile" : "gpt-4o-mini");
-
-  const response = await fetch(`${baseUrl}/chat/completions`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: selectedModel,
-      messages: [{ role: "user", content: prompt }],
-      temperature: 0.3,
-      max_tokens: 2000,
-    }),
-  });
-
-  if (!response.ok) {
-    const err = await response.text();
-    throw new Error(`AI API error: ${response.status} — ${err}`);
-  }
-
-  const data = await response.json();
-  return data.choices?.[0]?.message?.content?.trim() || "";
-}
-
-async function ollamaChat(prompt: string, model = "llama3.2"): Promise<string> {
-  const response = await fetch("http://localhost:11434/api/generate", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ model, prompt, stream: false }),
-  });
-
-  if (!response.ok) throw new Error(`Ollama error: ${response.status}`);
-  const data = await response.json();
-  return data.response.trim();
-}
-
-export async function aiChat(prompt: string, model?: string): Promise<string> {
-  // Try cloud provider first, fall back to Ollama
+  // Try cloud provider
   if (provider !== "ollama" && apiKey) {
+    const baseUrl = provider === "groq"
+      ? "https://api.groq.com/openai/v1"
+      : "https://api.openai.com/v1";
+    const selectedModel = model || process.env.AI_MODEL || (provider === "groq" ? "llama-3.3-70b-versatile" : "gpt-4o-mini");
+
     try {
-      return await cloudChat(prompt, model);
+      const response = await fetch(`${baseUrl}/chat/completions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
+        body: JSON.stringify({ model: selectedModel, messages: [{ role: "user", content: prompt }], temperature: 0.3, max_tokens: 2000 }),
+      });
+      if (!response.ok) {
+        const err = await response.text();
+        throw new Error(`AI API error: ${response.status} — ${err}`);
+      }
+      const data = await response.json();
+      return data.choices?.[0]?.message?.content?.trim() || "";
     } catch (error) {
-      console.error("Cloud AI failed, falling back to Ollama:", error);
+      if (!userOptions?.apiKey) throw error; // Only fall back to Ollama if using default key
+      throw new Error("Invalid API key or provider configuration");
     }
   }
 
-  // Fallback: try Ollama locally
+  // Fallback: Ollama locally
   try {
-    return await ollamaChat(prompt, model);
+    const response = await fetch("http://localhost:11434/api/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ model: model || "llama3.2", prompt, stream: false }),
+    });
+    if (!response.ok) throw new Error(`Ollama error: ${response.status}`);
+    const data = await response.json();
+    return data.response.trim();
   } catch (error) {
     if (error instanceof TypeError && error.message.includes("fetch")) {
       throw new Error("OLLAMA_NOT_RUNNING");

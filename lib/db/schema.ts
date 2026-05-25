@@ -624,6 +624,8 @@ export const profiles = pgTable("profiles", {
   displayName: text("display_name"),
   approved: boolean("approved").default(false),
   rejectedAt: timestamp("rejected_at", { withTimezone: true }),
+  aiProvider: text("ai_provider"),
+  aiApiKey: text("ai_api_key"),
   isAdmin: boolean("is_admin").default(false),
   notifiedAt: timestamp("notified_at", { withTimezone: true }),
   createdAt: createdAtColumn(),

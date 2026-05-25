@@ -1,20 +1,27 @@
-import { Bell, FolderOpen, HardDrive, RefreshCw } from "lucide-react";
+import { Bell, FolderOpen, HardDrive, RefreshCw, Cpu } from "lucide-react";
 
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { GlassCard } from "@/components/premium/glass-card";
 import { SectionHeader } from "@/components/premium/section-header";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { requireUser } from "@/lib/auth/supabase";
 import { getI18n } from "@/lib/i18n/server-i18n";
 import { LanguageSelector } from "@/components/language-selector";
 import { OnboardingReplayButton } from "@/components/onboarding-replay-button";
 import { PushNotificationButton } from "@/components/push-notification-button";
+import { saveAiSettingsAction } from "@/lib/actions/settings";
+import { getDb } from "@/lib/db";
+import { profiles } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 
 export const dynamic = "force-dynamic";
 
 export default async function SettingsPage() {
   const user = await requireUser();
   const { t } = await getI18n();
+  const db = getDb();
+  const [profile] = await db.select({ aiProvider: profiles.aiProvider, aiApiKey: profiles.aiApiKey }).from(profiles).where(eq(profiles.id, user.id)).limit(1);
 
   return (
     <AppShell user={user}>
@@ -27,6 +34,42 @@ export default async function SettingsPage() {
           <p className="mt-2 text-sm text-text-secondary">{t("settings.languageBody")}</p>
           <div className="mt-4">
             <LanguageSelector />
+          </div>
+        </GlassCard>
+
+        {/* AI Configuration */}
+        <GlassCard tone="violet">
+          <SectionHeader title="AI Settings" description="Use your own API key for AI features" icon={Cpu} />
+          <div className="mt-4">
+            <form action={saveAiSettingsAction} className="space-y-4">
+              <div className="flex flex-col gap-2">
+                <label className="text-xs font-medium text-text-muted">Provider</label>
+                <select
+                  name="aiProvider"
+                  defaultValue={profile?.aiProvider || ""}
+                  className="h-12 w-full rounded-xl border border-border/60 bg-bg-elevated px-4 text-sm text-text-primary outline-none focus:ring-2 focus:ring-primary/30"
+                >
+                  <option value="">None (use server default)</option>
+                  <option value="groq">Groq (free)</option>
+                  <option value="openai">OpenAI</option>
+                </select>
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="text-xs font-medium text-text-muted">API Key</label>
+                <Input
+                  name="aiApiKey"
+                  type="password"
+                  defaultValue={profile?.aiApiKey || ""}
+                  placeholder={profile?.aiApiKey ? "•••••••• (saved)" : "sk-... or gsk_..."}
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <p className="text-xs text-text-muted">
+                  {profile?.aiApiKey ? "✅ Key saved" : "Key is stored encrypted in your profile"}
+                </p>
+                <Button type="submit" size="sm">Save</Button>
+              </div>
+            </form>
           </div>
         </GlassCard>
 
