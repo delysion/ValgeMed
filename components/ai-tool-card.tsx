@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/lib/i18n/useTranslation";
-import { createErrorLogAction } from "@/lib/actions/resources";
+import { createErrorLogAction, upsertDailyLogAction, createStrategicReviewAction } from "@/lib/actions/resources";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   WandSparkles,
@@ -54,6 +54,8 @@ export function AiToolCard({
   const [selectedSubject, setSelectedSubject] = useState(subjects?.[0]?.id ?? "");
 
   const parsedError = tool === "error_analysis" && result ? tryParseErrorJson(result) : null;
+  const parsedDaily = tool === "daily_command" && result ? tryParseDailyJson(result) : null;
+  const parsedReview = tool === "weekly_review" && result ? tryParseReviewJson(result) : null;
 
   const handleExecute = () => {
     setExpanded(true);
@@ -136,6 +138,68 @@ export function AiToolCard({
       fd.set("resolved", "false");
       fd.set("recurrenceCount", "0");
       await createErrorLogAction(fd);
+      setSaved(true);
+      setShowSaveForm(false);
+      setTimeout(() => setSaved(false), 3000);
+    } catch {
+      setError(t("ai.failedToLoad"));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function tryParseDailyJson(text: string): { focus?: string; activeRecallMinutes?: number; passiveStudyMinutes?: number; energyLevel?: number; stressLevel?: number; dailyCommand?: string } | null {
+    try {
+      const obj = JSON.parse(text);
+      if (obj && obj.dailyCommand) return obj;
+    } catch {}
+    return null;
+  }
+
+  function tryParseReviewJson(text: string): { wins?: string; weaknesses?: string; nextFocus?: string; decisions?: string } | null {
+    try {
+      const obj = JSON.parse(text);
+      if (obj && (obj.wins || obj.nextFocus)) return obj;
+    } catch {}
+    return null;
+  }
+
+  async function handleSaveDaily() {
+    if (!parsedDaily) return;
+    setSaving(true);
+    try {
+      const fd = new FormData();
+      fd.set("date", new Date().toISOString().slice(0, 10));
+      fd.set("energyLevel", String(parsedDaily.energyLevel ?? 5));
+      fd.set("stressLevel", String(parsedDaily.stressLevel ?? 5));
+      fd.set("activeRecallMinutes", String(parsedDaily.activeRecallMinutes ?? 0));
+      fd.set("passiveStudyMinutes", String(parsedDaily.passiveStudyMinutes ?? 0));
+      fd.set("notes", parsedDaily.dailyCommand || parsedDaily.focus || "");
+      fd.set("studyMinutes", String((parsedDaily.activeRecallMinutes ?? 0) + (parsedDaily.passiveStudyMinutes ?? 0)));
+      await upsertDailyLogAction(fd);
+      setSaved(true);
+      setShowSaveForm(false);
+      setTimeout(() => setSaved(false), 3000);
+    } catch {
+      setError(t("ai.failedToLoad"));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleSaveReview() {
+    if (!parsedReview) return;
+    setSaving(true);
+    try {
+      const fd = new FormData();
+      fd.set("date", new Date().toISOString().slice(0, 10));
+      fd.set("reviewType", "weekly");
+      fd.set("wins", parsedReview.wins || "");
+      fd.set("weaknesses", parsedReview.weaknesses || "");
+      fd.set("nextFocus", parsedReview.nextFocus || "");
+      fd.set("decisions", parsedReview.decisions || "");
+      fd.set("eliteIndexSnapshot", "0");
+      await createStrategicReviewAction(fd);
       setSaved(true);
       setShowSaveForm(false);
       setTimeout(() => setSaved(false), 3000);
@@ -240,12 +304,26 @@ export function AiToolCard({
                       {parsedError.preventionRule && <p className="text-xs"><span className="font-medium">Prevention:</span> {parsedError.preventionRule}</p>}
                       <p className="text-xs">Severity: {parsedError.severity}/10</p>
                     </div>
+                  ) : parsedDaily ? (
+                    <div className="space-y-2">
+                      {parsedDaily.dailyCommand && <p className="font-semibold">{parsedDaily.dailyCommand}</p>}
+                      {parsedDaily.focus && <p className="text-xs">{parsedDaily.focus}</p>}
+                      <p className="text-xs">Active recall: {parsedDaily.activeRecallMinutes}m · Passive: {parsedDaily.passiveStudyMinutes}m</p>
+                      <p className="text-xs">Energy: {parsedDaily.energyLevel}/10 · Stress: {parsedDaily.stressLevel}/10</p>
+                    </div>
+                  ) : parsedReview ? (
+                    <div className="space-y-2">
+                      <p className="font-semibold">Weekly Review</p>
+                      {parsedReview.wins && <p className="text-xs"><span className="font-medium">Wins:</span> {parsedReview.wins}</p>}
+                      {parsedReview.weaknesses && <p className="text-xs"><span className="font-medium">Weaknesses:</span> {parsedReview.weaknesses}</p>}
+                      {parsedReview.nextFocus && <p className="text-xs"><span className="font-medium">Next focus:</span> {parsedReview.nextFocus}</p>}
+                    </div>
                   ) : (
                     result
                   )}
                 </div>
                 <div className="flex items-center gap-1 shrink-0">
-                  {parsedError && !saved && (
+                  {(parsedError || parsedDaily || parsedReview) && !saved && (
                     <Button
                       variant="outline"
                       size="sm"
@@ -262,24 +340,39 @@ export function AiToolCard({
                 </div>
               </div>
 
-              {showSaveForm && subjects && subjects.length > 0 && (
-                <div className="mt-3 flex items-center gap-2">
-                  <select
-                    value={selectedSubject}
-                    onChange={(e) => setSelectedSubject(e.target.value)}
-                    className="flex-1 h-9 rounded-lg border border-border/60 bg-bg-surface px-3 text-xs text-text-primary outline-none focus:ring-2 focus:ring-primary/30"
-                  >
-                    {subjects.map((s) => (
-                      <option key={s.id} value={s.id}>{s.name}</option>
-                    ))}
-                  </select>
-                  <Button size="sm" onClick={handleSaveError} disabled={saving} className="h-9 text-xs">
-                    {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : "Confirm"}
+              {showSaveForm && parsedError && (
+                <div className="mt-3 flex flex-col gap-2">
+                  {subjects && subjects.length > 0 ? (
+                    <div className="flex items-center gap-2">
+                      <select
+                        value={selectedSubject}
+                        onChange={(e) => setSelectedSubject(e.target.value)}
+                        className="flex-1 h-9 rounded-lg border border-border/60 bg-bg-surface px-3 text-xs text-text-primary outline-none focus:ring-2 focus:ring-primary/30"
+                      >
+                        {subjects.map((s) => (
+                          <option key={s.id} value={s.id}>{s.name}</option>
+                        ))}
+                      </select>
+                      <Button size="sm" onClick={handleSaveError} disabled={saving} className="h-9 text-xs">Confirm</Button>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-rose">Create a subject first to save errors.</p>
+                  )}
+                </div>
+              )}
+              {showSaveForm && parsedDaily && (
+                <div className="mt-3">
+                  <Button size="sm" onClick={handleSaveDaily} disabled={saving} className="h-9 text-xs">
+                    {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : "Save to Daily Log"}
                   </Button>
                 </div>
               )}
-              {showSaveForm && (!subjects || subjects.length === 0) && (
-                <p className="mt-2 text-xs text-rose">Create a subject first to save errors.</p>
+              {showSaveForm && parsedReview && (
+                <div className="mt-3">
+                  <Button size="sm" onClick={handleSaveReview} disabled={saving} className="h-9 text-xs">
+                    {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : "Save as Weekly Review"}
+                  </Button>
+                </div>
               )}
             </div>
           )}
