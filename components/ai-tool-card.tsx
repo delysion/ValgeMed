@@ -77,6 +77,7 @@ export function AiToolCard({
       setError(null);
       setErrorType(null);
       setResult(null);
+      setSaved(false);
       try {
         const res = await fetch("/api/ai/execute", {
           method: "POST",
@@ -92,6 +93,22 @@ export function AiToolCard({
         }
 
         setResult(data.result);
+
+        // Auto-save if valid JSON
+        const text = data.result;
+        if (tool === "error_analysis") {
+          const parsed = tryParseErrorJson(text);
+          if (parsed && subjects && subjects.length > 0) {
+            setSelectedSubject(subjects[0].id);
+            await autoSaveError(parsed, subjects[0].id, text);
+          }
+        } else if (tool === "daily_command") {
+          const parsed = tryParseDailyJson(text);
+          if (parsed) await autoSaveDaily(parsed);
+        } else if (tool === "weekly_review") {
+          const parsed = tryParseReviewJson(text);
+          if (parsed) await autoSaveReview(parsed);
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Execution failed");
       }
@@ -208,6 +225,57 @@ export function AiToolCard({
     } finally {
       setSaving(false);
     }
+  }
+
+  async function autoSaveError(parsed: NonNullable<typeof parsedError>, subjectId: string, rawText: string) {
+    try {
+      const fd = new FormData();
+      fd.set("subjectId", subjectId);
+      fd.set("title", parsed.title);
+      fd.set("description", parsed.cause || rawText);
+      fd.set("cause", parsed.cause || "");
+      fd.set("correction", parsed.correction || "");
+      fd.set("preventionRule", parsed.preventionRule || "");
+      fd.set("severity", String(parsed.severity));
+      fd.set("errorType", "memory");
+      fd.set("resolved", "false");
+      fd.set("recurrenceCount", "0");
+      await createErrorLogAction(fd);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch {}
+  }
+
+  async function autoSaveDaily(parsed: NonNullable<typeof parsedDaily>) {
+    try {
+      const fd = new FormData();
+      fd.set("date", new Date().toISOString().slice(0, 10));
+      fd.set("energyLevel", String(parsed.energyLevel ?? 5));
+      fd.set("stressLevel", String(parsed.stressLevel ?? 5));
+      fd.set("activeRecallMinutes", String(parsed.activeRecallMinutes ?? 0));
+      fd.set("passiveStudyMinutes", String(parsed.passiveStudyMinutes ?? 0));
+      fd.set("notes", parsed.dailyCommand || parsed.focus || "");
+      fd.set("studyMinutes", String((parsed.activeRecallMinutes ?? 0) + (parsed.passiveStudyMinutes ?? 0)));
+      await upsertDailyLogAction(fd);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch {}
+  }
+
+  async function autoSaveReview(parsed: NonNullable<typeof parsedReview>) {
+    try {
+      const fd = new FormData();
+      fd.set("date", new Date().toISOString().slice(0, 10));
+      fd.set("reviewType", "weekly");
+      fd.set("wins", parsed.wins || "");
+      fd.set("weaknesses", parsed.weaknesses || "");
+      fd.set("nextFocus", parsed.nextFocus || "");
+      fd.set("decisions", parsed.decisions || "");
+      fd.set("eliteIndexSnapshot", "0");
+      await createStrategicReviewAction(fd);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch {}
   }
 
   return (
