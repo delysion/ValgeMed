@@ -718,6 +718,12 @@ export const et: Dictionary = {
   "admin.revoke": "Tühista",
   "admin.approve": "Kinnita",
 
+  "admin.reject": "Lükka tagasi",
+
+  "admin.rejected": "Tagasi lükatud",
+
+  "admin.userRejected": "Kasutaja tagasi lükatud",
+
   "mastery.dormant": "Uinuv",
   "mastery.awakening": "Ärkamas",
   "mastery.building": "Kujunemas",

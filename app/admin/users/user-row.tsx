@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check, X, Shield } from "lucide-react";
+import { Check, X, Shield, Ban } from "lucide-react";
 import { approveUserAction } from "@/lib/actions/admin";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 
@@ -20,22 +20,66 @@ export function UserRow({ profile: initial }: { profile: Profile }) {
   const [busy, setBusy] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
+  const showToast = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 2500);
+  };
+
   const handleApprove = async () => {
     setBusy(true);
     try {
-      const res = await approveUserAction(profile.id, !profile.approved);
+      const res = await approveUserAction(profile.id, true);
       if (res.success) {
-        const wasApproved = !!profile.approved;
-        setProfile((p) => ({ ...p, approved: !p.approved }));
-        setToast(wasApproved ? t("admin.accessRevoked") : t("admin.userApproved"));
-        setTimeout(() => setToast(null), 2500);
+        setProfile((p) => ({ ...p, approved: true }));
+        showToast(t("admin.userApproved"));
       }
     } finally {
       setBusy(false);
     }
   };
 
-  const isApproved = !!profile.approved;
+  const handleReject = async () => {
+    setBusy(true);
+    try {
+      const res = await approveUserAction(profile.id, false);
+      if (res.success) {
+        setProfile((p) => ({ ...p, approved: false }));
+        showToast(t("admin.userRejected"));
+      }
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleRevoke = async () => {
+    setBusy(true);
+    try {
+      const res = await approveUserAction(profile.id, false);
+      if (res.success) {
+        setProfile((p) => ({ ...p, approved: false }));
+        showToast(t("admin.accessRevoked"));
+      }
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleReapprove = async () => {
+    setBusy(true);
+    try {
+      const res = await approveUserAction(profile.id, true);
+      if (res.success) {
+        setProfile((p) => ({ ...p, approved: true }));
+        showToast(t("admin.userApproved"));
+      }
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const isPending = profile.approved === null;
+  const isApproved = profile.approved === true;
+  const isRejected = profile.approved === false;
   const isAdminUser = !!profile.isAdmin;
 
   return (
@@ -57,25 +101,48 @@ export function UserRow({ profile: initial }: { profile: Profile }) {
               {t("admin.adminLabel")}
             </span>
           )}
-          {isApproved ? t("admin.approved") : t("admin.pendingApproval")}
+          {isApproved ? t("admin.approved") : isRejected ? t("admin.rejected") : t("admin.pendingApproval")}
           {profile.createdAt && ` · ${new Date(profile.createdAt).toLocaleDateString()}`}
         </p>
       </div>
-      <button
-        onClick={handleApprove}
-        disabled={busy || isAdminUser}
-        className={`shrink-0 rounded-xl px-4 py-2 text-sm font-semibold transition-all active:scale-[0.97] disabled:opacity-50 ${
-          isApproved
-            ? "bg-destructive/10 text-destructive hover:bg-destructive/20"
-            : "bg-primary/10 text-primary hover:bg-primary/20"
-        }`}
-      >
-        {isApproved ? (
-          <span className="flex items-center gap-1.5"><X className="h-4 w-4" /> {t("admin.revoke")}</span>
-        ) : (
-          <span className="flex items-center gap-1.5"><Check className="h-4 w-4" /> {t("admin.approve")}</span>
+      <div className="flex items-center gap-2">
+        {isPending && (
+          <>
+            <button
+              onClick={handleReject}
+              disabled={busy || isAdminUser}
+              className="shrink-0 rounded-xl px-4 py-2 text-sm font-semibold transition-all active:scale-[0.97] disabled:opacity-50 bg-destructive/10 text-destructive hover:bg-destructive/20"
+            >
+              <span className="flex items-center gap-1.5"><Ban className="h-4 w-4" /> {t("admin.reject")}</span>
+            </button>
+            <button
+              onClick={handleApprove}
+              disabled={busy || isAdminUser}
+              className="shrink-0 rounded-xl px-4 py-2 text-sm font-semibold transition-all active:scale-[0.97] disabled:opacity-50 bg-primary/10 text-primary hover:bg-primary/20"
+            >
+              <span className="flex items-center gap-1.5"><Check className="h-4 w-4" /> {t("admin.approve")}</span>
+            </button>
+          </>
         )}
-      </button>
+        {isApproved && (
+          <button
+            onClick={handleRevoke}
+            disabled={busy || isAdminUser}
+            className="shrink-0 rounded-xl px-4 py-2 text-sm font-semibold transition-all active:scale-[0.97] disabled:opacity-50 bg-destructive/10 text-destructive hover:bg-destructive/20"
+          >
+            <span className="flex items-center gap-1.5"><X className="h-4 w-4" /> {t("admin.revoke")}</span>
+          </button>
+        )}
+        {isRejected && (
+          <button
+            onClick={handleReapprove}
+            disabled={busy || isAdminUser}
+            className="shrink-0 rounded-xl px-4 py-2 text-sm font-semibold transition-all active:scale-[0.97] disabled:opacity-50 bg-primary/10 text-primary hover:bg-primary/20"
+          >
+            <span className="flex items-center gap-1.5"><Check className="h-4 w-4" /> {t("admin.approve")}</span>
+          </button>
+        )}
+      </div>
     </div>
   );
 }

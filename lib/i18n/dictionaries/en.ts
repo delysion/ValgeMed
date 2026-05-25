@@ -716,6 +716,12 @@ export const en = {
   "admin.revoke": "Revoke",
   "admin.approve": "Approve",
 
+  "admin.reject": "Reject",
+
+  "admin.rejected": "Rejected",
+
+  "admin.userRejected": "User rejected",
+
   "mastery.dormant": "Dormant",
   "mastery.awakening": "Awakening",
   "mastery.building": "Building",
