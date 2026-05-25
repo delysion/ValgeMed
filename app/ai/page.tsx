@@ -22,19 +22,19 @@ export default async function AiPage() {
   const data = await getAiPageData();
 
   const subjectsSummary = data.subjects.map((s) => s.name).join(", ") ||
-    (locale === "et" ? "Aineid veel ei ole" : "No subjects yet");
+    t("ai.noSubjects");
   const topicsSummary = data.topics.map((t) => `${t.title} (${t.confidence}/10)`).join("; ") ||
-    (locale === "et" ? "Teemasid veel ei ole" : "No topics yet");
+    t("ai.noTopics");
   const errorsSummary = data.errorLogs
     .filter((e) => !e.resolved)
     .map((e) => `${e.title} (severity: ${e.severity})`)
     .join("; ") ||
-    (locale === "et" ? "Avatud vigu ei ole" : "No open errors");
+    t("ai.noErrors");
   const reviewsDue = data.reviewItems.filter((r) => r.isActive && r.dueAt <= new Date()).length;
   const examsSummary = data.exams
     .map((e) => `${e.title} (${e.examDate ? new Date(e.examDate).toLocaleDateString() : "no date"})`)
     .join("; ") ||
-    (locale === "et" ? "Eksameid veel ei jälgita" : "No exams tracked");
+    t("ai.noExams");
 
   const toolDescriptions: Record<string, string> = {
     daily_command: locale === "et"
@@ -57,9 +57,8 @@ export default async function AiPage() {
       : "Enter research area data and I'll suggest ideas.",
   };
 
-  const systemContext = locale === "et"
-    ? `Süsteemi kokkuvõte:\nAined: ${subjectsSummary}\nTeemad: ${topicsSummary}\nAvatud vead: ${errorsSummary}\nTähtajalised kordamised: ${reviewsDue}\nEksamid: ${examsSummary}`
-    : `System summary:\nSubjects: ${subjectsSummary}\nTopics: ${topicsSummary}\nOpen errors: ${errorsSummary}\nDue reviews: ${reviewsDue}\nExams: ${examsSummary}`;
+  const systemContext =
+    `${t("ai.systemSummary")}\n${t("ai.subjects")}: ${subjectsSummary}\n${t("ai.topics")}: ${topicsSummary}\n${t("ai.errors")}: ${errorsSummary}\n${t("ai.reviewsDue")}: ${reviewsDue}\n${t("ai.exams")}: ${examsSummary}`;
 
   return (
     <AppShell user={user}>
@@ -81,13 +80,11 @@ export default async function AiPage() {
           <div className="flex items-center gap-2 mb-4">
             <Upload className="h-5 w-5 text-cyan" />
             <h3 className="text-lg font-semibold text-text-primary">
-              {locale === "et" ? "Lae üles õppematerjal" : "Upload Study Material"}
+              {t("ai.upload")}
             </h3>
           </div>
           <p className="text-sm text-text-secondary mb-4">
-            {locale === "et"
-              ? "Lae üles .txt või .md faile. Sisu ekstraheeritakse automaatselt ja saad genereerida flashcards AI-ga."
-              : "Upload .txt or .md files. Content is extracted automatically and you can generate flashcards with AI."}
+            {t("ai.uploadDesc")}
           </p>
           <FileUploadZone />
         </GlassCard>

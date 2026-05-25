@@ -652,6 +652,30 @@ export const en = {
   "ai.warning": "AI is optional. No automatic cloud transfer. Review every packet before sharing.",
   "ai.promptRule": "Respond in the selected UI language. Keep medical terminology precise. Do not invent facts.",
 
+  "ai.noSubjects": "No subjects yet",
+
+  "ai.noTopics": "No topics yet",
+
+  "ai.noErrors": "No open errors",
+
+  "ai.noExams": "No exams tracked",
+
+  "ai.systemSummary": "System summary",
+
+  "ai.subjects": "Subjects",
+
+  "ai.topics": "Topics",
+
+  "ai.errors": "Open errors",
+
+  "ai.reviewsDue": "Due reviews",
+
+  "ai.exams": "Exams",
+
+  "ai.upload": "Upload Study Material",
+
+  "ai.uploadDesc": "Upload .txt or .md files. Content is extracted automatically and you can generate flashcards with AI.",
+
   "settings.title": "Settings",
   "settings.subtitle": "Language, privacy, database status and exports.",
   "settings.database": "Database",

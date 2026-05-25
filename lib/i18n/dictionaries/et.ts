@@ -654,6 +654,30 @@ export const et: Dictionary = {
   "ai.warning": "AI on valikuline. Automaatset pilve saatmist ei toimu. Vaata iga pakett enne jagamist üle.",
   "ai.promptRule": "Vasta valitud kasutajaliidese keeles. Hoia meditsiiniterminoloogia täpne. Ära leiuta fakte.",
 
+  "ai.noSubjects": "Aineid veel ei ole",
+
+  "ai.noTopics": "Teemasid veel ei ole",
+
+  "ai.noErrors": "Avatud vigu ei ole",
+
+  "ai.noExams": "Eksameid veel ei jälgita",
+
+  "ai.systemSummary": "Süsteemi kokkuvõte",
+
+  "ai.subjects": "Ained",
+
+  "ai.topics": "Teemad",
+
+  "ai.errors": "Avatud vead",
+
+  "ai.reviewsDue": "Tähtajalised kordamised",
+
+  "ai.exams": "Eksamid",
+
+  "ai.upload": "Lae üles õppematerjal",
+
+  "ai.uploadDesc": "Lae üles .txt või .md faile. Sisu ekstraheeritakse automaatselt ja saad genereerida flashcards AI-ga.",
+
   "settings.title": "Seaded",
   "settings.subtitle": "Keel, privaatsus, andmebaasi olek ja eksport.",
   "settings.database": "Andmebaas",
