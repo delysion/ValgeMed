@@ -44,7 +44,7 @@ export default async function SettingsPage() {
         <GlassCard tone="violet">
           <SectionHeader title="AI Settings" description="Use your own API key for AI features" icon={Cpu} />
           <div className="mt-4">
-            <AiSettingsForm initialProvider={profile?.aiProvider} initialKey={profile?.aiApiKey} />
+            <AiSettingsForm key={profile?.aiApiKey || "empty"} initialProvider={profile?.aiProvider} initialKey={profile?.aiApiKey} />
           </div>
         </GlassCard>
 

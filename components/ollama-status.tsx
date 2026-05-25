@@ -42,7 +42,7 @@ function setCachedStatus(status: OllamaStatus) {
 }
 
 export function useOllamaStatus() {
-  const [status, setStatus] = useState<OllamaStatus | null>(() => getCachedStatus());
+  const [status, setStatus] = useState<OllamaStatus | null>(null);
   const [checking, setChecking] = useState(false);
 
   const checkStatus = useCallback(() => {
