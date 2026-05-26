@@ -25,7 +25,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { requireUser } from "@/lib/auth/supabase";
-import { getCoreData } from "@/lib/data/queries";
+import { getCommandPageData } from "@/lib/data/queries";
 import { fmtDate } from "@/lib/labels";
 import type { TranslationKey } from "@/lib/i18n/dictionaries/en";
 import { getI18n } from "@/lib/i18n/server-i18n";
@@ -77,7 +77,7 @@ export function CommandPageSkeleton() {
 export default async function CommandPage() {
   const user = await requireUser();
   const { t, locale } = await getI18n();
-  const data = await getCoreData(user.id);
+  const data = await getCommandPageData(user.id);
   const today = startOfToday();
   const todayDate = formatISO(today, { representation: "date" });
   const todayLog = data.dailyLogs.find((log) => log.date === todayDate) ?? null;

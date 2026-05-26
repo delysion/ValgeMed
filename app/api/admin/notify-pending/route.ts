@@ -5,7 +5,20 @@ import { profiles } from "@/lib/db/schema";
 import { sendPushNotification } from "@/lib/push/notifications";
 import { eq, and, isNull, sql } from "drizzle-orm";
 
-export async function POST() {
+function getInternalToken() {
+  return process.env.INTERNAL_API_TOKEN ?? process.env.SESSION_SECRET ?? "";
+}
+
+function isAuthorizedInternalRequest(request: Request) {
+  const expected = getInternalToken();
+  return expected.length > 0 && request.headers.get("x-valgemed-internal-token") === expected;
+}
+
+export async function POST(request: Request) {
+  if (!isAuthorizedInternalRequest(request)) {
+    return new Response("Unauthorized", { status: 401 });
+  }
+
   const db = getDb();
 
   let [admin] = await db

@@ -1,4 +1,4 @@
-import type { CoreData } from "@/lib/data/queries";
+import type { ExportData } from "@/lib/data/queries";
 
 const exportTables = [
   "subjects",
@@ -22,6 +22,13 @@ const exportTables = [
   "lifeAdminItems",
   "portfolioItems",
   "strategicReviews",
+  "researchAreas",
+  "literatureGaps",
+  "hypotheses",
+  "manuscripts",
+  "methodologyRisks",
+  "uploads",
+  "pushSubscriptions",
 ] as const;
 
 function normalize(value: unknown): string {
@@ -45,7 +52,7 @@ function escapeCsv(value: unknown) {
   return normalized;
 }
 
-export function buildJsonExport(data: CoreData) {
+export function buildJsonExport(data: ExportData) {
   return {
     exportedAt: new Date().toISOString(),
     app: "Tartu Med/Dent OS",
@@ -53,7 +60,7 @@ export function buildJsonExport(data: CoreData) {
   };
 }
 
-export function buildCsvExport(data: CoreData) {
+export function buildCsvExport(data: ExportData) {
   const chunks: string[] = [];
 
   for (const table of exportTables) {

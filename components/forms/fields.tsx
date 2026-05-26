@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useId, type ReactNode } from "react";
 import { useFormStatus } from "react-dom";
 import { ChevronDown } from "lucide-react";
 
@@ -19,6 +19,7 @@ export function Field({
   className,
   required,
   requiredLabel = "Required",
+  id,
 }: {
   label: string;
   children: ReactNode;
@@ -28,10 +29,11 @@ export function Field({
   className?: string;
   required?: boolean;
   requiredLabel?: string;
+  id?: string;
 }) {
   return (
     <div className={cn("flex flex-col gap-2", className)}>
-      <Label className="text-sm font-medium text-text-secondary">
+      <Label htmlFor={id} className="text-sm font-medium text-text-secondary">
         {label}
         {required ? <span className="ml-1 text-rose" title={requiredLabel}>*</span> : null}
       </Label>
@@ -82,9 +84,12 @@ export function TextField({
   max?: number;
   required?: boolean;
 }) {
+  const id = useId();
+
   return (
-    <Field label={label} description={description} helper={helper} error={error} required={required}>
+    <Field label={label} description={description} helper={helper} error={error} required={required} id={id}>
       <Input
+        id={id}
         name={name}
         type={type}
         min={min}
@@ -117,9 +122,12 @@ export function TextAreaField({
   error?: string;
   className?: string;
 }) {
+  const id = useId();
+
   return (
-    <Field label={label} description={description} helper={helper} error={error} className={className}>
+    <Field label={label} description={description} helper={helper} error={error} className={className} id={id}>
       <Textarea
+        id={id}
         name={name}
         placeholder={placeholder}
         defaultValue={defaultValue ?? ""}
@@ -146,10 +154,13 @@ export function NativeSelectField({
   helper?: string;
   error?: string;
 }) {
+  const id = useId();
+
   return (
-    <Field label={label} description={description} helper={helper} error={error}>
+    <Field label={label} description={description} helper={helper} error={error} id={id}>
       <div className="relative">
         <select
+          id={id}
           name={name}
           defaultValue={defaultValue ?? ""}
           aria-invalid={error ? true : undefined}

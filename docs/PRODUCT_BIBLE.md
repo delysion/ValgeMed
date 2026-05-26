@@ -2,20 +2,20 @@
 
 ## North Star
 
-Tartu Med/Dent OS is a private single-owner operating system for a future Medicine/Dentistry student in Tartu. It is not a SaaS, not a social product, and not a motivational toy. It is a quiet command console for study, memory, errors, energy, identity and strategic progression.
+ValgeMed is a private, admin-approved multi-user operating system for serious medical students. It is not a public SaaS, social product, or motivational toy. It is a quiet command console for study, memory, errors, energy, identity, research, life administration, and strategic progression.
 
-The app should help the owner become a precise, calm, resilient and ambitious future clinician: strong recall, high-quality exam preparation, low wasted effort, protected energy, and a professional identity built through repeated small decisions.
+The app should help each approved user become a precise, calm, resilient and ambitious future clinician: strong recall, high-quality exam preparation, low wasted effort, protected energy, and a professional identity built through repeated small decisions.
 
 ## Non-Negotiables
 
-- Single user only.
-- No public registration.
+- Multi-user only through explicit admin approval.
+- No open public access.
 - No billing.
 - No social features.
-- No AI cloud in v1.
+- AI cloud is allowed only as an explicit user action with usage limits, guardrails, and reviewable output.
 - No invasive tracking.
-- Password is never stored in clear text.
-- All private pages and export routes require the owner session.
+- Authorization data lives in the database, not editable user metadata.
+- Private pages, APIs, exports and mutating server actions require an approved user.
 - Scores are strategic signals, not objective truths.
 
 ## Product Layers
@@ -25,6 +25,7 @@ The app should help the owner become a precise, calm, resilient and ambitious fu
 - Memory Engine: active recall and spaced review, using a simple local cadence.
 - Error Destruction: every error should become cause, correction, prevention rule and retest.
 - Exam Battle Plans: readiness, risk, weak topics, errors, simulations and last 7 days view.
+- Research Pipeline: research areas, literature gaps, hypotheses, manuscripts and methodology risks that help produce real paper outputs.
 - Time Capital: planned vs actual time, leverage and energy cost.
 - Energy Integrity: sleep quality, recovery, fatigue, food and movement.
 - Tartu / Estonia: language, academic culture, documents and routine.
@@ -36,24 +37,18 @@ The app should help the owner become a precise, calm, resilient and ambitious fu
 
 The scoring engine is local and deterministic. Every score must show factors, weights and a caution note. A low score should produce a next action, not shame.
 
-Implemented scores:
-
-- Exam Readiness
-- Study Efficiency
-- Burnout Risk
-- Time Leverage
-- Medical Mastery
-- Error Destruction
-- Energy Integrity
-- Estonia Integration
-- Reputation Capital
-- Opportunity Capture
-- Elite Index
-
 ## AI Policy
 
-AI is intentionally disabled in the MVP. The future AI layer may support local Ollama or LM Studio, or a manual packet workflow, but it must never send personal study data automatically. Any AI packet must be explicit, reviewable and minimal.
+AI can be local or cloud-backed. The product rule is not "no cloud"; it is explicit intent, minimal context, usage caps, medical guardrails, and no silent background AI calls. AI assists drafting, analysis and study organization; it must not become diagnosis, treatment advice, clinical decision support, or automatic personal-data exfiltration.
+
+## Upload Policy
+
+Uploads are text extraction only. The app stores extracted text and metadata in the user's private database records; it does not store raw files. PDF extraction is not implemented yet. Users should keep archival originals in their own Drive/OneDrive.
+
+## Calendar Policy
+
+iCal export is the current calendar integration. Google Calendar push sync should wait until auth/storage hardening and consent UX are stronger.
 
 ## UI Tone
 
-Dark, nordic, clinical, private, dense but readable. The interface should feel like a professional console, not a startup landing page, social app, influencer habit tracker or gamified productivity toy.
+Dark, nordic, clinical, private, dense but readable. The interface should feel like a professional console, not a startup landing page, social app, influencer habit tracker or generic gamified productivity toy.

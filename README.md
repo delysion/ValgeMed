@@ -2,7 +2,7 @@
 
 A quiet command system for serious medical students.
 
-ValgeMed is not a SaaS. It is a private console for study, memory, errors, energy, identity, and strategic progression toward becoming a precise, calm, resilient clinician.
+ValgeMed is a private, admin-approved multi-user console for study, memory, errors, energy, identity, research, and strategic progression toward becoming a precise, calm, resilient clinician.
 
 ## What It Is
 
@@ -12,7 +12,7 @@ It does not replace existing tools — it orchestrates them.
 
 ### What It Is Not
 
-Not a study planner, Notion template, flashcard clone, habit tracker, motivational app, or AI chatbot. No public registration, no billing, no social features, no scraping.
+Not a study planner, Notion template, flashcard clone, habit tracker, motivational app, generic AI chatbot, or public SaaS. No open access, no billing, no social features, no scraping.
 
 ## Stack
 
@@ -20,7 +20,7 @@ Not a study planner, Notion template, flashcard clone, habit tracker, motivation
 - Neon Postgres + Drizzle ORM
 - Zod server-side validators
 - shadcn-style local UI, lucide-react, date-fns
-- npm
+- pnpm
 
 ## Auth
 
@@ -49,6 +49,8 @@ The scoring engine is local and deterministic. Every score shows factors, weight
 - **Reputation Capital** — reliability, good questions, useful work, follow-up, portfolio.
 - **Opportunity Radar** — research, shadowing, mentorship, scholarships, volunteering, clinical exposure.
 
+- **Research Pipeline** - research areas, literature gaps, scored hypotheses, manuscript stages, methodology risks.
+
 ## Approval Flow
 
 1. User signs up via email/password or Google.
@@ -60,14 +62,14 @@ The scoring engine is local and deterministic. Every score shows factors, weight
 ## Local Setup
 
 ```bash
-npm install
+pnpm install
 cp .env.example .env
 ```
 
 Fill in the required environment variables (see `.env.example`). Then:
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 ## Database
@@ -75,8 +77,8 @@ npm run dev
 1. Create a Neon project and copy the connection string as `DATABASE_URL`.
 2. Run migrations:
    ```bash
-   npm run db:migrate
-   npm run db:seed
+   pnpm db:migrate
+   pnpm db:seed
    ```
 
 ## Vercel Setup
@@ -89,12 +91,12 @@ npm run dev
 ## Commands
 
 ```bash
-npm run dev          # development
-npm run build        # production build
-npm run lint         # linting
-npm run db:generate  # generate Drizzle migrations
-npm run db:migrate   # apply migrations
-npm run db:seed      # seed demo data
+pnpm dev          # development
+pnpm build        # production build
+pnpm lint         # linting
+pnpm db:generate  # generate Drizzle migrations
+pnpm db:migrate   # apply migrations
+pnpm db:seed      # seed demo data
 ```
 
 ## Bilingual UI
@@ -110,13 +112,16 @@ English (`en`) as default, Estonian (`et`) as secondary. Language is persisted i
 - `/command` as primary private command page, `/dashboard` as weekly overview, `/elite-index` with expanded scoring.
 - Scoring engine with local non-AI next-best-action engine.
 - Gamification: Elite Index, mastery badges, study quests, achievements, streak, momentum, error destruction states.
-- Export JSON/CSV for study, goals, identity, life, and elite modules.
+- Export JSON/CSV/ZIP for private data and iCal export for deadlines.
+- Optional AI tools with usage limits, guardrails, and user/admin-controlled caps.
+- Text-only upload extraction for `.txt` and `.md`; raw files are not stored by the app.
 
 ## Privacy
 
-- No automatic AI cloud calls in the current version.
-- No personal data is sent to AI services by default.
-- JSON and CSV exports are protected behind authentication + approval.
+- AI cloud providers are allowed, but calls are explicit user actions and are rate/cap limited.
+- Personal data should only be sent to AI when the user intentionally runs an AI action.
+- JSON, CSV, ZIP and iCal exports are protected behind authentication + approval.
+- Uploads store extracted text and metadata only, not raw files.
 - Session cookies are `httpOnly`, `sameSite=lax`, and `secure` in production.
 - Neon Postgres is configured through `DATABASE_URL`.
 
@@ -126,8 +131,8 @@ English (`en`) as default, Estonian (`et`) as secondary. Language is persisted i
 - Spaced repetition uses a simple explainable cadence (not SM-2).
 - Scoring weights are versioned constants; Settings shows them but full persistence is not implemented.
 - CSV export is one file with table sections.
-- No file upload, exam import, calendar integration, PDF notes, or semantic search.
-- No local or cloud AI execution is implemented.
+- PDF extraction, semantic search, and Google Calendar push sync are not implemented.
+- iCal export is implemented; Google Calendar sync should wait until storage/auth hardening is complete.
 
 ## Roadmap
 

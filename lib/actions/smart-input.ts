@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { parseUserIntent, generateReviewItemsFromText, type ParsedStudyIntent } from "@/lib/ai/ollama";
 import { AI_USAGE_LIMIT_ERROR, runAiChatWithUsage } from "@/lib/ai/usage";
 import { getUserAiOptions } from "@/lib/ai/user-options";
-import { requireUser } from "@/lib/auth/supabase";
+import { requireApprovedUser } from "@/lib/auth/supabase";
 import { getDb } from "@/lib/db";
 import {
   dailyLogs,
@@ -188,7 +188,7 @@ export async function processSmartInputAction(input: string, locale: Locale = "e
   const msg = getMsg(locale);
 
   try {
-    const user = await requireUser();
+    const user = await requireApprovedUser();
     const userOptions = await getUserAiOptions(user.id);
 
     const parsed: ParsedSmartInput = parseSmartInputLocally(input) ?? await parseUserIntent(
@@ -649,7 +649,7 @@ export async function generateFlashcardsFromTextAction(
   const msg = getMsg(locale);
 
   try {
-    const user = await requireUser();
+    const user = await requireApprovedUser();
     const userOptions = await getUserAiOptions(user.id);
 
     const items = await generateReviewItemsFromText(

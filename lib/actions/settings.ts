@@ -4,11 +4,11 @@ import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getDb } from "@/lib/db";
 import { profiles } from "@/lib/db/schema";
-import { requireUser } from "@/lib/auth/supabase";
+import { requireApprovedUser } from "@/lib/auth/supabase";
 
 export async function saveAiSettingsAction(formData: FormData): Promise<void> {
   try {
-    const user = await requireUser();
+    const user = await requireApprovedUser();
     const db = getDb();
     const provider = formData.get("aiProvider") as string;
     const apiKey = formData.get("aiApiKey") as string;

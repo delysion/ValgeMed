@@ -7,12 +7,12 @@ import {
 } from "@/lib/ai/study-copilot";
 import { AI_USAGE_LIMIT_ERROR, runAiChatWithUsage } from "@/lib/ai/usage";
 import { getUserAiOptions } from "@/lib/ai/user-options";
-import { requireUser } from "@/lib/auth/supabase";
+import { requireApprovedUser } from "@/lib/auth/supabase";
 import { getAiPageData } from "@/lib/data/queries";
 
 export async function POST(request: NextRequest) {
   try {
-    const user = await requireUser();
+    const user = await requireApprovedUser();
     const body = await request.json();
     const locale = typeof body?.locale === "string" ? body.locale : "en";
     const messages = sanitizeStudyCopilotMessages(body?.messages);

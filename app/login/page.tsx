@@ -56,9 +56,9 @@ export default async function LoginPage() {
 
         <p className="mt-8 text-center text-xs text-text-muted">
           {t("login.termsAgreement")}{" "}
-          <a href="#" className="text-primary hover:underline">{t("login.termsOfService")}</a>{" "}
+          <span className="text-primary">{t("login.termsOfService")}</span>{" "}
           {t("common.or")}{" "}
-          <a href="#" className="text-primary hover:underline">{t("login.privacyPolicy")}</a>
+          <span className="text-primary">{t("login.privacyPolicy")}</span>
         </p>
       </div>
     </div>

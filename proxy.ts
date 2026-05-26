@@ -33,7 +33,10 @@ const privatePrefixes = [
   "/strategic-review",
   "/ai",
   "/settings",
+  "/api/ai",
   "/api/export",
+  "/api/push",
+  "/api/upload",
 ];
 
 const publicPaths = [
@@ -41,7 +44,6 @@ const publicPaths = [
   "/reset-password",
   "/auth",
   "/pending-approval",
-  "/api/admin/notify-pending",
   "/api/admin/check-status",
   "/api/auth/check-profile",
 ];
@@ -126,7 +128,13 @@ export async function proxy(request: NextRequest) {
     }
 
     if (!profile?.notified_at) {
-      fetch(`${request.nextUrl.origin}/api/admin/notify-pending`, { method: "POST" }).catch(() => {});
+      const internalToken = process.env.INTERNAL_API_TOKEN ?? process.env.SESSION_SECRET ?? "";
+      if (internalToken) {
+        fetch(`${request.nextUrl.origin}/api/admin/notify-pending`, {
+          method: "POST",
+          headers: { "x-valgemed-internal-token": internalToken },
+        }).catch(() => {});
+      }
     }
   } catch {
     // block non-approved users on error

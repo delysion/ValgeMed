@@ -120,8 +120,9 @@ export function FileUploadZone({
           size="icon"
           className="absolute right-3 top-3 h-7 w-7"
           onClick={clearFile}
+          aria-label="Remove uploaded file"
         >
-          <X className="h-4 w-4" />
+          <X className="h-4 w-4" aria-hidden="true" />
         </Button>
         <div className="flex items-start gap-3">
           <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald" />
@@ -152,6 +153,15 @@ export function FileUploadZone({
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         onClick={() => fileInputRef.current?.click()}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            fileInputRef.current?.click();
+          }
+        }}
+        role="button"
+        tabIndex={0}
+        aria-label="Upload study file"
         className={cn(
           "flex cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed p-8 transition-all duration-200",
           isDragging
@@ -170,7 +180,7 @@ export function FileUploadZone({
             {isUploading ? "Uploading..." : "Drop file here or click to upload"}
           </p>
           <p className="mt-1 text-xs text-text-muted">
-            .txt, .md, .pdf — max 10MB
+            .txt, .md — max 10MB
           </p>
         </div>
       </div>
@@ -178,14 +188,16 @@ export function FileUploadZone({
       <input
         ref={fileInputRef}
         type="file"
-        accept=".txt,.md,.pdf"
+        name="file"
+        accept=".txt,.md"
+        aria-label="Upload study file"
         onChange={handleInputChange}
         className="hidden"
       />
 
       {error && (
-        <div className="mt-2 flex items-center gap-2 text-sm text-rose">
-          <AlertCircle className="h-4 w-4" />
+        <div className="mt-2 flex items-center gap-2 text-sm text-rose" role="alert">
+          <AlertCircle className="h-4 w-4" aria-hidden="true" />
           {error}
         </div>
       )}

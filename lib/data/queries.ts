@@ -20,9 +20,11 @@ import {
   opportunities,
   portfolioItems,
   professionalContacts,
+  pushSubscriptions,
   quizAttempts,
   reviewItems,
   reputationEvents,
+  researchAreas,
   studySessions,
   strategicReviews,
   subjects,
@@ -30,6 +32,8 @@ import {
   tasks,
   timeBlocks,
   topics,
+  methodologyRisks,
+  uploads,
   type DailyLog,
   type ErrorLog,
   type Exam,
@@ -41,11 +45,14 @@ import {
   type LifeAdminItem,
   type LiteratureGap,
   type Manuscript,
+  type MethodologyRisk,
   type Opportunity,
   type PortfolioItem,
   type ProfessionalContact,
+  type PushSubscription,
   type QuizAttempt,
   type ReviewItem,
+  type ResearchArea,
   type ReputationEvent,
   type StudySession,
   type StrategicReview,
@@ -54,6 +61,7 @@ import {
   type Task,
   type TimeBlock,
   type Topic,
+  type Upload,
 } from "@/lib/db/schema";
 
 export type CoreData = {
@@ -78,6 +86,16 @@ export type CoreData = {
   lifeAdminItems: LifeAdminItem[];
   portfolioItems: PortfolioItem[];
   strategicReviews: StrategicReview[];
+};
+
+export type ExportData = CoreData & {
+  researchAreas: ResearchArea[];
+  literatureGaps: LiteratureGap[];
+  hypotheses: Hypothesis[];
+  manuscripts: Manuscript[];
+  methodologyRisks: MethodologyRisk[];
+  uploads: Upload[];
+  pushSubscriptions: PushSubscription[];
 };
 
 const emptyCoreData: CoreData = {
@@ -141,6 +159,31 @@ export async function getCoreData(userIdOverride?: string): Promise<CoreData> {
 // Targeted data helpers (preferred — load only what you need)
 // ─────────────────────────────────────────────────────
 
+export async function getExportData(userIdOverride?: string): Promise<ExportData> {
+  const userId = userIdOverride ?? await getUserId();
+  const [core, pipeline, uploadRows, pushRows] = await Promise.all([
+    getCoreData(userId),
+    getResearchPipelineData(userId),
+    withDb<Upload[]>((db) => {
+      return db.select().from(uploads).where(eq(uploads.userId, userId)).orderBy(desc(uploads.createdAt)).limit(500);
+    }, []),
+    withDb<PushSubscription[]>((db) => {
+      return db.select().from(pushSubscriptions).where(eq(pushSubscriptions.userId, userId)).orderBy(desc(pushSubscriptions.createdAt)).limit(50);
+    }, []),
+  ]);
+
+  return {
+    ...core,
+    researchAreas: pipeline.researchAreas,
+    literatureGaps: pipeline.literatureGaps,
+    hypotheses: pipeline.hypotheses,
+    manuscripts: pipeline.manuscripts,
+    methodologyRisks: pipeline.methodologyRisks,
+    uploads: uploadRows,
+    pushSubscriptions: pushRows,
+  };
+}
+
 async function getUserIdOrThrow() {
   const uid = await getUserId();
   return uid;
@@ -188,6 +231,13 @@ export async function getLiteratureGaps() {
   }, []);
 }
 
+export async function getResearchAreas() {
+  const userId = await getUserIdOrThrow();
+  return withDb<ResearchArea[]>((db) => {
+    return db.select().from(researchAreas).where(eq(researchAreas.userId, userId)).orderBy(desc(researchAreas.createdAt)).limit(100);
+  }, []);
+}
+
 export async function getHypotheses() {
   const userId = await getUserIdOrThrow();
   return withDb<Hypothesis[]>((db) => {
@@ -199,6 +249,13 @@ export async function getManuscripts() {
   const userId = await getUserIdOrThrow();
   return withDb<Manuscript[]>((db) => {
     return db.select().from(manuscripts).where(eq(manuscripts.userId, userId)).orderBy(desc(manuscripts.createdAt)).limit(100);
+  }, []);
+}
+
+export async function getMethodologyRisks() {
+  const userId = await getUserIdOrThrow();
+  return withDb<MethodologyRisk[]>((db) => {
+    return db.select().from(methodologyRisks).where(eq(methodologyRisks.userId, userId)).orderBy(desc(methodologyRisks.createdAt)).limit(100);
   }, []);
 }
 
@@ -324,6 +381,251 @@ export async function getStrategicReviews(limit = 100) {
 // ─────────────────────────────────────────────────────
 // Composite page-level queries
 // ─────────────────────────────────────────────────────
+
+export type CommandPageData = Pick<
+  CoreData,
+  | "subjects"
+  | "exams"
+  | "topics"
+  | "studySessions"
+  | "reviewItems"
+  | "errorLogs"
+  | "quizAttempts"
+  | "dailyLogs"
+  | "tasks"
+  | "timeBlocks"
+  | "healthLogs"
+  | "languageProgress"
+  | "reputationEvents"
+  | "opportunities"
+  | "professionalContacts"
+  | "lifeAdminItems"
+  | "portfolioItems"
+  | "strategicReviews"
+  | "tartuNotes"
+>;
+
+const emptyCommandPageData: CommandPageData = {
+  subjects: [],
+  exams: [],
+  topics: [],
+  studySessions: [],
+  reviewItems: [],
+  errorLogs: [],
+  quizAttempts: [],
+  dailyLogs: [],
+  tasks: [],
+  timeBlocks: [],
+  healthLogs: [],
+  languageProgress: [],
+  reputationEvents: [],
+  opportunities: [],
+  professionalContacts: [],
+  lifeAdminItems: [],
+  portfolioItems: [],
+  strategicReviews: [],
+  tartuNotes: [],
+};
+
+export async function getCommandPageData(userIdOverride?: string): Promise<CommandPageData> {
+  const userId = userIdOverride ?? await getUserIdOrThrow();
+  return withDb<CommandPageData>(async (db) => {
+    const [
+      subjectRows,
+      examRows,
+      topicRows,
+      sessionRows,
+      reviewRows,
+      errorRows,
+      quizRows,
+      dailyRows,
+      taskRows,
+      timeRows,
+      healthRows,
+      languageRows,
+      reputationRows,
+      opportunityRows,
+      contactRows,
+      lifeAdminRows,
+      portfolioRows,
+      strategicReviewRows,
+      tartuRows,
+    ] = await Promise.all([
+      db.select().from(subjects).where(eq(subjects.userId, userId)).orderBy(asc(subjects.name)),
+      db.select().from(exams).where(eq(exams.userId, userId)).orderBy(asc(exams.examDate), desc(exams.importance)).limit(20),
+      db.select().from(topics).where(eq(topics.userId, userId)).orderBy(desc(topics.priority), asc(topics.title)).limit(120),
+      db.select().from(studySessions).where(eq(studySessions.userId, userId)).orderBy(desc(studySessions.startedAt)).limit(120),
+      db.select().from(reviewItems).where(eq(reviewItems.userId, userId)).orderBy(asc(reviewItems.dueAt)).limit(80),
+      db.select().from(errorLogs).where(eq(errorLogs.userId, userId)).orderBy(desc(errorLogs.severity), desc(errorLogs.createdAt)).limit(60),
+      db.select().from(quizAttempts).where(eq(quizAttempts.userId, userId)).orderBy(desc(quizAttempts.date)).limit(80),
+      db.select().from(dailyLogs).where(eq(dailyLogs.userId, userId)).orderBy(desc(dailyLogs.date)).limit(45),
+      db.select().from(tasks).where(eq(tasks.userId, userId)).orderBy(desc(tasks.priority), asc(tasks.dueAt)).limit(40),
+      db.select().from(timeBlocks).where(eq(timeBlocks.userId, userId)).orderBy(desc(timeBlocks.date), desc(timeBlocks.createdAt)).limit(80),
+      db.select().from(healthLogs).where(eq(healthLogs.userId, userId)).orderBy(desc(healthLogs.date)).limit(45),
+      db.select().from(languageProgress).where(eq(languageProgress.userId, userId)).orderBy(asc(languageProgress.nextPracticeAt), desc(languageProgress.createdAt)).limit(30),
+      db.select().from(reputationEvents).where(eq(reputationEvents.userId, userId)).orderBy(desc(reputationEvents.eventDate), desc(reputationEvents.impact)).limit(40),
+      db.select().from(opportunities).where(eq(opportunities.userId, userId)).orderBy(asc(opportunities.deadline), desc(opportunities.strategicUpside)).limit(50),
+      db.select().from(professionalContacts).where(eq(professionalContacts.userId, userId)).orderBy(desc(professionalContacts.relationshipStrength), asc(professionalContacts.nextFollowUpAt)).limit(40),
+      db.select().from(lifeAdminItems).where(eq(lifeAdminItems.userId, userId)).orderBy(desc(lifeAdminItems.priority), asc(lifeAdminItems.dueAt)).limit(50),
+      db.select().from(portfolioItems).where(eq(portfolioItems.userId, userId)).orderBy(desc(portfolioItems.date), desc(portfolioItems.createdAt)).limit(40),
+      db.select().from(strategicReviews).where(eq(strategicReviews.userId, userId)).orderBy(desc(strategicReviews.date)).limit(20),
+      db.select().from(tartuNotes).where(eq(tartuNotes.userId, userId)).orderBy(desc(tartuNotes.priority), desc(tartuNotes.createdAt)).limit(30),
+    ]);
+
+    return {
+      subjects: subjectRows,
+      exams: examRows,
+      topics: topicRows,
+      studySessions: sessionRows,
+      reviewItems: reviewRows,
+      errorLogs: errorRows,
+      quizAttempts: quizRows,
+      dailyLogs: dailyRows,
+      tasks: taskRows,
+      timeBlocks: timeRows,
+      healthLogs: healthRows,
+      languageProgress: languageRows,
+      reputationEvents: reputationRows,
+      opportunities: opportunityRows,
+      professionalContacts: contactRows,
+      lifeAdminItems: lifeAdminRows,
+      portfolioItems: portfolioRows,
+      strategicReviews: strategicReviewRows,
+      tartuNotes: tartuRows,
+    };
+  }, emptyCommandPageData);
+}
+
+export type EliteIndexPageData = Pick<
+  CoreData,
+  | "topics"
+  | "studySessions"
+  | "quizAttempts"
+  | "errorLogs"
+  | "dailyLogs"
+  | "healthLogs"
+  | "timeBlocks"
+  | "languageProgress"
+  | "tartuNotes"
+  | "lifeAdminItems"
+  | "reputationEvents"
+  | "professionalContacts"
+  | "portfolioItems"
+  | "opportunities"
+  | "strategicReviews"
+>;
+
+const emptyEliteIndexPageData: EliteIndexPageData = {
+  topics: [],
+  studySessions: [],
+  quizAttempts: [],
+  errorLogs: [],
+  dailyLogs: [],
+  healthLogs: [],
+  timeBlocks: [],
+  languageProgress: [],
+  tartuNotes: [],
+  lifeAdminItems: [],
+  reputationEvents: [],
+  professionalContacts: [],
+  portfolioItems: [],
+  opportunities: [],
+  strategicReviews: [],
+};
+
+export async function getEliteIndexPageData(userIdOverride?: string): Promise<EliteIndexPageData> {
+  const userId = userIdOverride ?? await getUserIdOrThrow();
+  return withDb<EliteIndexPageData>(async (db) => {
+    const [
+      topicRows,
+      sessionRows,
+      quizRows,
+      errorRows,
+      dailyRows,
+      healthRows,
+      timeRows,
+      languageRows,
+      tartuRows,
+      lifeAdminRows,
+      reputationRows,
+      contactRows,
+      portfolioRows,
+      opportunityRows,
+      strategicReviewRows,
+    ] = await Promise.all([
+      db.select().from(topics).where(eq(topics.userId, userId)).orderBy(desc(topics.priority), asc(topics.title)).limit(160),
+      db.select().from(studySessions).where(eq(studySessions.userId, userId)).orderBy(desc(studySessions.startedAt)).limit(160),
+      db.select().from(quizAttempts).where(eq(quizAttempts.userId, userId)).orderBy(desc(quizAttempts.date)).limit(120),
+      db.select().from(errorLogs).where(eq(errorLogs.userId, userId)).orderBy(desc(errorLogs.severity), desc(errorLogs.createdAt)).limit(80),
+      db.select().from(dailyLogs).where(eq(dailyLogs.userId, userId)).orderBy(desc(dailyLogs.date)).limit(90),
+      db.select().from(healthLogs).where(eq(healthLogs.userId, userId)).orderBy(desc(healthLogs.date)).limit(90),
+      db.select().from(timeBlocks).where(eq(timeBlocks.userId, userId)).orderBy(desc(timeBlocks.date), desc(timeBlocks.createdAt)).limit(160),
+      db.select().from(languageProgress).where(eq(languageProgress.userId, userId)).orderBy(asc(languageProgress.nextPracticeAt), desc(languageProgress.createdAt)).limit(60),
+      db.select().from(tartuNotes).where(eq(tartuNotes.userId, userId)).orderBy(desc(tartuNotes.priority), desc(tartuNotes.createdAt)).limit(60),
+      db.select().from(lifeAdminItems).where(eq(lifeAdminItems.userId, userId)).orderBy(desc(lifeAdminItems.priority), asc(lifeAdminItems.dueAt)).limit(80),
+      db.select().from(reputationEvents).where(eq(reputationEvents.userId, userId)).orderBy(desc(reputationEvents.eventDate), desc(reputationEvents.impact)).limit(80),
+      db.select().from(professionalContacts).where(eq(professionalContacts.userId, userId)).orderBy(desc(professionalContacts.relationshipStrength), asc(professionalContacts.nextFollowUpAt)).limit(80),
+      db.select().from(portfolioItems).where(eq(portfolioItems.userId, userId)).orderBy(desc(portfolioItems.date), desc(portfolioItems.createdAt)).limit(80),
+      db.select().from(opportunities).where(eq(opportunities.userId, userId)).orderBy(asc(opportunities.deadline), desc(opportunities.strategicUpside)).limit(80),
+      db.select().from(strategicReviews).where(eq(strategicReviews.userId, userId)).orderBy(desc(strategicReviews.date)).limit(80),
+    ]);
+
+    return {
+      topics: topicRows,
+      studySessions: sessionRows,
+      quizAttempts: quizRows,
+      errorLogs: errorRows,
+      dailyLogs: dailyRows,
+      healthLogs: healthRows,
+      timeBlocks: timeRows,
+      languageProgress: languageRows,
+      tartuNotes: tartuRows,
+      lifeAdminItems: lifeAdminRows,
+      reputationEvents: reputationRows,
+      professionalContacts: contactRows,
+      portfolioItems: portfolioRows,
+      opportunities: opportunityRows,
+      strategicReviews: strategicReviewRows,
+    };
+  }, emptyEliteIndexPageData);
+}
+
+export type ResearchPipelineData = {
+  researchAreas: ResearchArea[];
+  literatureGaps: LiteratureGap[];
+  hypotheses: Hypothesis[];
+  manuscripts: Manuscript[];
+  methodologyRisks: MethodologyRisk[];
+};
+
+const emptyResearchPipelineData: ResearchPipelineData = {
+  researchAreas: [],
+  literatureGaps: [],
+  hypotheses: [],
+  manuscripts: [],
+  methodologyRisks: [],
+};
+
+export async function getResearchPipelineData(userIdOverride?: string): Promise<ResearchPipelineData> {
+  const userId = userIdOverride ?? await getUserIdOrThrow();
+  return withDb<ResearchPipelineData>(async (db) => {
+    const [areaRows, gapRows, hypothesisRows, manuscriptRows, riskRows] = await Promise.all([
+      db.select().from(researchAreas).where(eq(researchAreas.userId, userId)).orderBy(desc(researchAreas.createdAt)).limit(100),
+      db.select().from(literatureGaps).where(eq(literatureGaps.userId, userId)).orderBy(desc(literatureGaps.priority), asc(literatureGaps.createdAt)).limit(100),
+      db.select().from(hypotheses).where(eq(hypotheses.userId, userId)).orderBy(desc(hypotheses.createdAt)).limit(100),
+      db.select().from(manuscripts).where(eq(manuscripts.userId, userId)).orderBy(asc(manuscripts.deadline), desc(manuscripts.createdAt)).limit(100),
+      db.select().from(methodologyRisks).where(eq(methodologyRisks.userId, userId)).orderBy(desc(methodologyRisks.createdAt)).limit(100),
+    ]);
+
+    return {
+      researchAreas: areaRows,
+      literatureGaps: gapRows,
+      hypotheses: hypothesisRows,
+      manuscripts: manuscriptRows,
+      methodologyRisks: riskRows,
+    };
+  }, emptyResearchPipelineData);
+}
 
 export type ExamPageData = {
   subjects: Subject[];

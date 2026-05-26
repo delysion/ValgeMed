@@ -78,7 +78,7 @@ describe("study copilot guardrails", () => {
   it("exposes a user-scoped read-only chat route", () => {
     const route = source("app", "api", "ai", "chat", "route.ts");
 
-    expect(route).toContain("requireUser");
+    expect(route).toContain("requireApprovedUser");
     expect(route).toContain("getAiPageData(user.id)");
     expect(route).toContain("getUserAiOptions(user.id)");
     expect(route).toContain("sanitizeStudyCopilotMessages");

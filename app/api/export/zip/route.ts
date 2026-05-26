@@ -3,7 +3,7 @@ import type { AnyPgColumn, AnyPgTable } from "drizzle-orm/pg-core";
 import JSZip from "jszip";
 import { NextResponse } from "next/server";
 
-import { requireUser } from "@/lib/auth/supabase";
+import { requireApprovedUser } from "@/lib/auth/supabase";
 import { getDb, type AppDb } from "@/lib/db";
 import {
   dailyLogs,
@@ -92,7 +92,7 @@ async function addUserTableToZip(
 }
 
 export async function GET() {
-  const user = await requireUser();
+  const user = await requireApprovedUser();
   const db = getDb();
 
   const zip = new JSZip();

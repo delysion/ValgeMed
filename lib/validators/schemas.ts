@@ -443,7 +443,17 @@ export const strategicReviewSchema = z.object({
   eliteIndexSnapshot: z.coerce.number().min(0).max(10).default(0),
 });
 
+export const researchAreaSchema = z.object({
+  name: z.string().trim().min(1, "Research area is required").max(220),
+  description: nullableShortText(2000),
+  whatIsKnown: nullableShortText(3000),
+  whatIsUnknown: nullableShortText(3000),
+  isControversial: nullableShortText(2000),
+  methodologicallyWeak: nullableShortText(2000),
+});
+
 export const literatureGapSchema = z.object({
+  researchAreaId: z.preprocess(emptyToNull, idSchema.nullable()),
   title: z.string().min(1, "Title is required").max(300),
   description: z.preprocess(emptyToNull, z.string().max(2000).nullable()),
   priority: scoreSchema.default(0),
@@ -453,14 +463,18 @@ export const literatureGapSchema = z.object({
 
 export const hypothesisSchema = z.object({
   question: z.string().min(1, "Research question is required").max(500),
+  totalScore: nullableScoreSchema,
+  output: z.preprocess(emptyToNull, z.string().max(1200).nullable()),
   status: z.string().default("draft"),
   notes: z.preprocess(emptyToNull, z.string().max(5000).nullable()),
 });
 
 export const manuscriptSchema = z.object({
   title: z.string().min(1, "Title is required").max(300),
+  hypothesisId: z.preprocess(emptyToNull, idSchema.nullable()),
   stage: z.string().default("idea"),
   journal: z.preprocess(emptyToNull, z.string().max(200).nullable()),
+  deadline: nullableDate,
   notes: z.preprocess(emptyToNull, z.string().max(5000).nullable()),
 });
 

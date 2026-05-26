@@ -2,7 +2,7 @@ import { GlassCard } from "@/components/premium/glass-card";
 import { EmptyState } from "@/components/premium/empty-state";
 import { FileText } from "lucide-react";
 import { getI18n } from "@/lib/i18n/server-i18n";
-import { getManuscripts } from "@/lib/data/queries";
+import { getResearchPipelineData } from "@/lib/data/queries";
 import { ManuscriptForm } from "@/components/forms/research-forms";
 import { deleteManuscriptAction } from "@/lib/actions/research";
 import { DeleteButton } from "@/components/forms/delete-button";
@@ -16,8 +16,10 @@ export default async function ManuscriptPipelinePage({
 }) {
   const { t } = await getI18n();
   const params = await searchParams;
-  const manuscripts = await getManuscripts();
+  const data = await getResearchPipelineData();
+  const manuscripts = data.manuscripts;
   const editingManuscript = manuscripts.find((m) => m.id === params.editManuscript);
+  const hypothesisById = new Map(data.hypotheses.map((hypothesis) => [hypothesis.id, hypothesis.question]));
 
   return (
     <div className="flex flex-col gap-6">
@@ -36,6 +38,10 @@ export default async function ManuscriptPipelinePage({
                   <p className="mt-0.5 text-xs text-text-muted">
                     Stage: {manuscript.stage.replace(/_/g, " ")}
                     {manuscript.journal && ` · ${manuscript.journal}`}
+                  </p>
+                  <p className="mt-0.5 text-xs text-text-muted">
+                    {hypothesisById.get(manuscript.hypothesisId ?? "") ?? "No hypothesis"}
+                    {manuscript.deadline ? ` · ${new Intl.DateTimeFormat("en-GB", { dateStyle: "medium" }).format(manuscript.deadline)}` : ""}
                   </p>
                   {manuscript.notes && <p className="mt-1 text-xs text-text-secondary line-clamp-2">{manuscript.notes}</p>}
                 </div>
@@ -58,7 +64,7 @@ export default async function ManuscriptPipelinePage({
 
         <GlassCard>
           <h3 className="text-sm font-semibold text-text-primary mb-4">{editingManuscript ? t("common.edit") : t("common.create")}</h3>
-          <ManuscriptForm manuscript={editingManuscript} />
+          <ManuscriptForm manuscript={editingManuscript} hypotheses={data.hypotheses} />
         </GlassCard>
       </div>
     </div>

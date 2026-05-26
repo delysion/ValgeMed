@@ -1,10 +1,10 @@
-import { requireUser } from "@/lib/auth/supabase";
+import { requireApprovedUser } from "@/lib/auth/supabase";
 import { getDb } from "@/lib/db";
 import { pushSubscriptions } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
 
 export async function POST(request: Request) {
-  const user = await requireUser();
+  const user = await requireApprovedUser();
   const body = await request.json();
   const db = getDb();
 
@@ -45,7 +45,7 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  const user = await requireUser();
+  const user = await requireApprovedUser();
   const body = await request.json();
   const db = getDb();
   const { endpoint } = body;

@@ -2,7 +2,7 @@ import { GlassCard } from "@/components/premium/glass-card";
 import { EmptyState } from "@/components/premium/empty-state";
 import { BookOpen, Lightbulb } from "lucide-react";
 import { getI18n } from "@/lib/i18n/server-i18n";
-import { getLiteratureGaps } from "@/lib/data/queries";
+import { getResearchPipelineData } from "@/lib/data/queries";
 import { LiteratureGapForm } from "@/components/forms/research-forms";
 import { deleteLiteratureGapAction } from "@/lib/actions/research";
 import { DeleteButton } from "@/components/forms/delete-button";
@@ -16,8 +16,10 @@ export default async function LiteratureMapPage({
 }) {
   const { t } = await getI18n();
   const params = await searchParams;
-  const gaps = await getLiteratureGaps();
+  const data = await getResearchPipelineData();
+  const gaps = data.literatureGaps;
   const editingGap = gaps.find((gap) => gap.id === params.editGap);
+  const areaById = new Map(data.researchAreas.map((area) => [area.id, area.name]));
 
   return (
     <div className="flex flex-col gap-6">
@@ -35,6 +37,9 @@ export default async function LiteratureMapPage({
                   <p className="text-sm font-semibold text-text-primary">{gap.title}</p>
                   <p className="mt-0.5 text-xs text-text-muted">
                     {t("common.priority")}: {gap.priority}/10 · {t("common.status")}: {gap.status}
+                  </p>
+                  <p className="mt-0.5 text-xs text-text-muted">
+                    {areaById.get(gap.researchAreaId ?? "") ?? "No area"} {gap.publishableForStudent ? "· publishable" : ""}
                   </p>
                   {gap.description && <p className="mt-1 text-xs text-text-secondary line-clamp-2">{gap.description}</p>}
                 </div>
@@ -60,7 +65,7 @@ export default async function LiteratureMapPage({
             <Lightbulb className="h-5 w-5 text-primary" />
             <h3 className="text-base font-semibold text-text-primary">{editingGap ? t("common.edit") : t("common.create")}</h3>
           </div>
-          <LiteratureGapForm gap={editingGap} />
+          <LiteratureGapForm gap={editingGap} researchAreas={data.researchAreas} />
         </GlassCard>
       </div>
     </div>

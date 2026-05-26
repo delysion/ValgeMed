@@ -132,7 +132,7 @@ export function StudyCopilotChat() {
           </div>
 
           {error && (
-            <div className="mx-3 mb-2 rounded-lg border border-rose/20 bg-rose/10 px-3 py-2 text-xs text-rose">
+            <div className="mx-3 mb-2 rounded-lg border border-rose/20 bg-rose/10 px-3 py-2 text-xs text-rose" role="alert">
               {error}
             </div>
           )}
@@ -143,12 +143,13 @@ export function StudyCopilotChat() {
                 value={input}
                 onChange={(event) => setInput(event.target.value)}
                 placeholder={t("ai.copilotPlaceholder")}
+                aria-label={t("ai.copilotPlaceholder")}
                 rows={2}
                 maxLength={MAX_STUDY_COPILOT_MESSAGE_CHARS}
                 className="min-h-12 resize-none text-sm"
               />
-              <Button type="submit" size="icon" disabled={sending || !input.trim()} title={t("ai.copilotSend")}>
-                {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+              <Button type="submit" size="icon" disabled={sending || !input.trim()} title={t("ai.copilotSend")} aria-label={t("ai.copilotSend")}>
+                {sending ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Send className="h-4 w-4" aria-hidden="true" />}
               </Button>
             </div>
           </form>

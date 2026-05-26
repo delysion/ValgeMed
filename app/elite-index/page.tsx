@@ -7,7 +7,7 @@ import { MomentumBar } from "@/components/premium/momentum-bar";
 import { ScoreRing } from "@/components/premium/score-ring";
 import { ScoreBreakdown } from "@/components/score-breakdown";
 import { requireUser } from "@/lib/auth/supabase";
-import { getCoreData } from "@/lib/data/queries";
+import { getEliteIndexPageData } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server-i18n";
 import { buildEliteIndex, type ScoreResult } from "@/lib/scoring/engine";
 import { cn } from "@/lib/utils";
@@ -19,7 +19,7 @@ type TFunc = (key: string) => string;
 export default async function EliteIndexPage() {
   const user = await requireUser();
   const { t } = await getI18n();
-  const data = await getCoreData(user.id);
+  const data = await getEliteIndexPageData(user.id);
   const elite = buildEliteIndex(data);
   const hasReviews = data.strategicReviews.length > 0;
   const hasLogs = data.dailyLogs.length > 0;

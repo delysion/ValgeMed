@@ -37,6 +37,7 @@ export default async function HypothesisEnginePage({
                     {t("common.status")}: {hypothesis.status}
                     {hypothesis.totalScore !== null && ` · Score: ${hypothesis.totalScore}`}
                   </p>
+                  {hypothesis.output && <p className="mt-0.5 text-xs text-text-muted">Output: {hypothesis.output}</p>}
                   {hypothesis.notes && <p className="mt-1 text-xs text-text-secondary line-clamp-2">{hypothesis.notes}</p>}
                 </div>
                 <div className="flex items-center gap-1">

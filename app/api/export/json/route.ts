@@ -1,10 +1,10 @@
-import { requireUser } from "@/lib/auth/supabase";
-import { getCoreData } from "@/lib/data/queries";
+import { requireApprovedUser } from "@/lib/auth/supabase";
+import { getExportData } from "@/lib/data/queries";
 import { buildJsonExport } from "@/lib/export/serialize";
 
 export async function GET() {
-  await requireUser();
-  const data = await getCoreData();
+  const user = await requireApprovedUser();
+  const data = await getExportData(user.id);
 
   return Response.json(buildJsonExport(data), {
     headers: {

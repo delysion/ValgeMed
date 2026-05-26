@@ -1,31 +1,35 @@
 # Architecture
 
-Tartu Med/Dent OS e una console privata single-user.
+ValgeMed is a private, admin-approved multi-user Next.js application.
 
 ## Boundaries
 
-- UI e server actions vivono in Next.js App Router.
-- La sessione e stateless JWT firmato in cookie httpOnly.
-- Il database e Neon Postgres via Drizzle ORM.
-- Tutte le mutazioni passano da server actions con `requireOwnerSession`.
-- Export JSON/CSV passa da route handler protetti.
+- UI, server components, route handlers and server actions live in Next.js App Router.
+- Authentication uses Supabase Auth with cookie-based SSR helpers.
+- Approval and admin authorization are stored in the `profiles` table.
+- The database is Neon Postgres accessed through Drizzle ORM.
+- Private pages are gated by `proxy.ts`; mutating server actions and sensitive route handlers also require approved users.
+- Export routes and AI/upload/push APIs are protected behind authentication plus approval.
 
-## Security notes
+## Security Notes
 
-- Nessuna registrazione pubblica.
-- Nessun provider auth esterno.
-- Nessuna password in chiaro.
-- Nessuna AI cloud nella prima versione.
-- Proxy Next protegge pagine private e route export.
-- Le server actions verificano comunque la sessione per evitare chiamate POST dirette non autorizzate.
+- Users can sign in, but cannot access private functionality until an admin approves them.
+- `OWNER_EMAIL` bootstrap creates/keeps the owner as approved admin.
+- Server actions use approval-aware auth helpers to avoid bypassing the proxy through direct POST calls.
+- `/api/admin/notify-pending` is an internal side-effect route and requires an internal token header.
+- AI cloud providers are permitted only for explicit user-triggered actions with usage limits.
+- Uploads are text extraction only; raw files are not stored by the app.
+- Supabase sessions should not be authorized through editable user metadata.
 
 ## Scoring
 
-Lo scoring engine e euristico, locale e spiegabile. Ogni score restituisce fattori, pesi e nota di cautela. Lo score non viene presentato come verita assoluta.
+The scoring engine is heuristic, local and explainable. Every score returns factors, weights and a caution note. Scores are strategic signals, not objective truth.
 
-## Product modules
+## Product Modules
 
-- `/command` aggrega dati e decide la next best action senza AI.
-- `/elite-index` calcola i segnali strategici estesi.
-- I moduli life/elite (`/tartu`, `/time`, `/health`, `/language`, `/reputation`, `/opportunities`, `/network`, `/life-admin`, `/portfolio`, `/strategic-review`) usano le stesse server actions protette e lo stesso database Neon.
-- `/ai` e solo governance nella v1: nessun provider viene chiamato.
+- `/command` uses targeted page data and decides the next best action.
+- `/elite-index` uses targeted scoring data instead of loading every table.
+- `/research` is a paper-production pipeline: areas, gaps, hypotheses, manuscripts and methodology risks.
+- `/timeline` and `/api/export/ical` provide calendar views/export.
+- `/ai` supports explicit AI actions with guardrails; no silent background calls.
+- Life/strategy modules use the same approved-user data boundary.

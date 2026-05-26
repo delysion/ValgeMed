@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { writeFile, mkdir } from "fs/promises";
-import { join } from "path";
 import { randomUUID } from "crypto";
 import { getDb } from "@/lib/db";
 import { uploads } from "@/lib/db/schema";
-import { requireAuthUserId } from "@/lib/db/auth";
+import { requireApprovedUserId } from "@/lib/db/auth";
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,18 +15,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
-    const allowedTypes = [
-      "text/plain",
-      "application/pdf",
-      "text/markdown",
-      "application/octet-stream",
-    ];
     const ext = file.name.split(".").pop()?.toLowerCase() ?? "";
-    const isValidType = allowedTypes.includes(file.type) || ["txt", "pdf", "md"].includes(ext);
+    if (ext === "pdf" || file.type === "application/pdf") {
+      return NextResponse.json(
+        { error: "PDF text extraction is not enabled yet. Upload .txt or .md, or paste the extracted text into AI." },
+        { status: 415 },
+      );
+    }
+
+    const allowedTypes = ["text/plain", "text/markdown", "application/octet-stream"];
+    const isValidType = allowedTypes.includes(file.type) || ["txt", "md"].includes(ext);
 
     if (!isValidType) {
       return NextResponse.json(
-        { error: "Only .txt, .pdf, and .md files are supported" },
+        { error: "Only .txt and .md files are supported for text extraction" },
         { status: 400 }
       );
     }
@@ -38,25 +38,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "File too large (max 10MB)" }, { status: 400 });
     }
 
-    const uploadDir = join(process.cwd(), "public", "uploads");
-    await mkdir(uploadDir, { recursive: true });
-
-    const uniqueName = `${randomUUID()}.${ext}`;
-    const filePath = join(uploadDir, uniqueName);
-
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    await writeFile(filePath, buffer);
+    const extractedText = buffer.toString("utf-8").trim();
 
-    let extractedText = "";
-    if (ext === "txt" || ext === "md") {
-      extractedText = buffer.toString("utf-8");
-    } else if (ext === "pdf") {
-      extractedText = `[PDF uploaded: ${file.name}] — Text extraction requires pdf-parse library. For now, copy-paste the text content for AI processing.`;
+    if (!extractedText) {
+      return NextResponse.json({ error: "No readable text found in this file" }, { status: 400 });
     }
 
     const db = getDb();
-    const userId = await requireAuthUserId();
+    const userId = await requireApprovedUserId();
+    const uniqueName = `extracted-${randomUUID()}.${ext || "txt"}`;
     const [upload] = await db
       .insert(uploads)
       .values({
@@ -65,10 +57,10 @@ export async function POST(request: NextRequest) {
         originalName: file.name,
         mimeType: file.type || `application/${ext}`,
         sizeBytes: file.size,
-        extractedText: extractedText || null,
+        extractedText,
         subjectId: subjectId || undefined,
         topicId: topicId || undefined,
-        processed: false,
+        processed: true,
       })
       .returning();
 

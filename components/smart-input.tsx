@@ -119,9 +119,12 @@ export function SmartInput({ onSubmit, placeholder, submitLabel, listeningLabel,
         <div className="relative flex-1 min-w-0">
           <Input
             type="text"
+            name="smart-input"
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder={placeholder}
+            aria-label={placeholder}
+            autoComplete="off"
             disabled={disabled || isLoading}
             className="pr-12 h-12 text-sm sm:text-base"
           />
@@ -138,17 +141,19 @@ export function SmartInput({ onSubmit, placeholder, submitLabel, listeningLabel,
           size="icon"
           onClick={isListening ? stopListening : startListening}
           disabled={disabled || isLoading}
+          aria-label={isListening ? listeningLabel : "Start voice input"}
           className="h-12 w-10 sm:w-12 shrink-0"
         >
-          {isListening ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
+          {isListening ? <MicOff className="h-5 w-5" aria-hidden="true" /> : <Mic className="h-5 w-5" aria-hidden="true" />}
         </Button>
         <Button
           type="submit"
           size="lg"
           disabled={!text.trim() || isLoading}
+          aria-label={submitLabel}
           className="h-12 shrink-0 px-3 sm:px-5"
         >
-          {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
+          {isLoading ? <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" /> : <Send className="h-5 w-5" aria-hidden="true" />}
           <span className="ml-1 hidden sm:inline">{submitLabel}</span>
         </Button>
       </div>

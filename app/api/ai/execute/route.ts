@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireUser } from "@/lib/auth/supabase";
+import { requireApprovedUser } from "@/lib/auth/supabase";
 import { getUserAiOptions } from "@/lib/ai/user-options";
 import { AI_USAGE_LIMIT_ERROR, runAiChatWithUsage } from "@/lib/ai/usage";
 
 export async function POST(request: NextRequest) {
   let locale = "en";
   try {
-    const user = await requireUser();
+    const user = await requireApprovedUser();
     const body = await request.json();
     const { tool, input, locale: reqLocale = "en" } = body as {
       tool: string;

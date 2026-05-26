@@ -1,4 +1,4 @@
-import { requireUser } from "@/lib/auth/supabase";
+import { requireApprovedUser } from "@/lib/auth/supabase";
 import { buildIcsCalendar, type IcsEvent } from "@/lib/calendar/ical";
 import { getTimelinePageData } from "@/lib/data/queries";
 
@@ -9,7 +9,7 @@ function validDate(value: Date | string | null | undefined) {
 }
 
 export async function GET() {
-  const user = await requireUser();
+  const user = await requireApprovedUser();
   const data = await getTimelinePageData(user.id, 180);
   const events: IcsEvent[] = [];
 
