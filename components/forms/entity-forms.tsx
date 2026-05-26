@@ -56,7 +56,6 @@ import {
   TextAreaField,
   TextField,
 } from "@/components/forms/fields";
-import { ColorPicker } from "@/components/ui/color-picker";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 
@@ -106,7 +105,7 @@ export function SubjectForm({ subject, t }: { subject?: Subject; t: TFunc }) {
         <FieldGrid>
           <TextField label={t("form.subject.nameLabel")} name="name" defaultValue={subject?.name} required placeholder={t("form.subject.namePlaceholder")} description={t("form.subject.nameDescription")} />
           <TextField label={t("form.subject.codeLabel")} name="code" defaultValue={subject?.code} placeholder={t("form.subject.codePlaceholder")} description={t("form.subject.codeDescription")} />
-          <ColorPicker name="color" value={subject?.color ?? "#5746E5"} />
+          <TextField label={t("form.subject.colorLabel")} name="color" defaultValue={subject?.color ?? "#5746E5"} description={t("form.subject.colorDescription")} />
           <TextField label={t("form.subject.difficultyLabel")} name="difficulty" type="number" min={0} max={10} defaultValue={subject?.difficulty ?? 5} description={t("form.subject.difficultyDescription")} />
           <TextField label={t("form.subject.importanceLabel")} name="importance" type="number" min={0} max={10} defaultValue={subject?.importance ?? 5} description={t("form.subject.importanceDescription")} />
         </FieldGrid>
