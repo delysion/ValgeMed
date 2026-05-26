@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Check, X, Shield, Ban, Save } from "lucide-react";
-import { approveUserAction, updateUserAiPromptLimitAction } from "@/lib/actions/admin";
+import { approveUserAction, updateUserAiPromptLimitAction, updateUserAiUsageLimitsAction } from "@/lib/actions/admin";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 
 type Profile = {
@@ -13,6 +13,8 @@ type Profile = {
   rejectedAt: Date | null;
   isAdmin: boolean | null;
   aiPromptLimitChars: number;
+  aiDailyRequestLimit: number;
+  aiDailyCharLimit: number;
   createdAt: Date | null;
 };
 
@@ -22,6 +24,8 @@ export function UserRow({ profile: initial }: { profile: Profile }) {
   const [busy, setBusy] = useState(false);
   const [limitBusy, setLimitBusy] = useState(false);
   const [promptLimit, setPromptLimit] = useState(initial.aiPromptLimitChars);
+  const [dailyRequestLimit, setDailyRequestLimit] = useState(initial.aiDailyRequestLimit);
+  const [dailyCharLimit, setDailyCharLimit] = useState(initial.aiDailyCharLimit);
   const [toast, setToast] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
@@ -95,6 +99,25 @@ export function UserRow({ profile: initial }: { profile: Profile }) {
     }
   };
 
+  const handleSaveUsageLimits = async () => {
+    setLimitBusy(true);
+    try {
+      const res = await updateUserAiUsageLimitsAction(profile.id, dailyRequestLimit, dailyCharLimit);
+      if (res.success) {
+        setProfile((p) => ({
+          ...p,
+          aiDailyRequestLimit: res.aiDailyRequestLimit,
+          aiDailyCharLimit: res.aiDailyCharLimit,
+        }));
+        setDailyRequestLimit(res.aiDailyRequestLimit);
+        setDailyCharLimit(res.aiDailyCharLimit);
+        showToast(t("admin.aiUsageLimitsSaved"));
+      }
+    } finally {
+      setLimitBusy(false);
+    }
+  };
+
   const isPending = !profile.approved && !profile.rejectedAt;
   const isApproved = profile.approved === true;
   const isRejected = !profile.approved && !!profile.rejectedAt;
@@ -124,7 +147,7 @@ export function UserRow({ profile: initial }: { profile: Profile }) {
         </p>
       </div>
       <div className="flex flex-col items-start gap-2 sm:items-end">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center justify-start gap-2 sm:justify-end">
           <label htmlFor={`prompt-limit-${profile.id}`} className="text-xs font-medium text-text-muted">
             {t("admin.promptLimit")}
           </label>
@@ -146,6 +169,43 @@ export function UserRow({ profile: initial }: { profile: Profile }) {
           >
             <Save className="h-3.5 w-3.5" />
             {t("admin.saveLimit")}
+          </button>
+        </div>
+        <div className="flex flex-wrap items-center justify-start gap-2 sm:justify-end">
+          <label htmlFor={`daily-request-limit-${profile.id}`} className="text-xs font-medium text-text-muted">
+            {t("admin.aiDailyRequests")}
+          </label>
+          <input
+            id={`daily-request-limit-${profile.id}`}
+            type="number"
+            min={1}
+            max={500}
+            step={1}
+            value={dailyRequestLimit}
+            onChange={(event) => setDailyRequestLimit(Number(event.target.value))}
+            className="h-9 w-20 rounded-lg border border-border/60 bg-bg-page px-2 text-sm text-text-primary outline-none focus:border-primary"
+          />
+          <label htmlFor={`daily-char-limit-${profile.id}`} className="text-xs font-medium text-text-muted">
+            {t("admin.aiDailyChars")}
+          </label>
+          <input
+            id={`daily-char-limit-${profile.id}`}
+            type="number"
+            min={10000}
+            max={2000000}
+            step={10000}
+            value={dailyCharLimit}
+            onChange={(event) => setDailyCharLimit(Number(event.target.value))}
+            className="h-9 w-32 rounded-lg border border-border/60 bg-bg-page px-2 text-sm text-text-primary outline-none focus:border-primary"
+          />
+          <button
+            onClick={handleSaveUsageLimits}
+            disabled={limitBusy || busy}
+            className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border/60 px-3 text-xs font-semibold text-text-secondary transition-colors hover:bg-bg-page disabled:opacity-50"
+            title={t("admin.saveAiUsageLimits")}
+          >
+            <Save className="h-3.5 w-3.5" />
+            {t("admin.saveAiUsageLimits")}
           </button>
         </div>
         <div className="flex items-center gap-2">

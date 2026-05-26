@@ -24,7 +24,6 @@ export function EmptyState({
   action,
   actionLabel,
   href,
-  variant: _variant = "no-data",
   tone,
   className,
 }: EmptyStateProps) {

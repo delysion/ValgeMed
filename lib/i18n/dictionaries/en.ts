@@ -792,6 +792,10 @@ export const en = {
   "admin.promptLimit": "Prompt limit",
   "admin.saveLimit": "Save",
   "admin.promptLimitSaved": "Prompt limit saved",
+  "admin.aiDailyRequests": "AI/day",
+  "admin.aiDailyChars": "Chars/day",
+  "admin.saveAiUsageLimits": "Save AI caps",
+  "admin.aiUsageLimitsSaved": "AI caps saved",
 
   "mastery.dormant": "Dormant",
   "mastery.awakening": "Awakening",

@@ -125,6 +125,9 @@ export default async function SettingsPage() {
             <Button asChild variant="outline">
               <a href="/api/export/csv">{t("settings.csv")}</a>
             </Button>
+            <Button asChild variant="outline">
+              <a href="/api/export/ical">iCal</a>
+            </Button>
           </div>
         </GlassCard>
 

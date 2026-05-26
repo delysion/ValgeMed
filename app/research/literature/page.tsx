@@ -1,10 +1,11 @@
 import { GlassCard } from "@/components/premium/glass-card";
 import { EmptyState } from "@/components/premium/empty-state";
-import { BookOpen, Lightbulb, Trash2 } from "lucide-react";
+import { BookOpen, Lightbulb } from "lucide-react";
 import { getI18n } from "@/lib/i18n/server-i18n";
 import { getLiteratureGaps } from "@/lib/data/queries";
 import { LiteratureGapForm } from "@/components/forms/research-forms";
 import { deleteLiteratureGapAction } from "@/lib/actions/research";
+import { DeleteButton } from "@/components/forms/delete-button";
 
 export const dynamic = "force-dynamic";
 
@@ -31,12 +32,7 @@ export default async function LiteratureMapPage() {
                   </p>
                   {gap.description && <p className="mt-1 text-xs text-text-secondary line-clamp-2">{gap.description}</p>}
                 </div>
-                <form action={deleteLiteratureGapAction}>
-                  <input type="hidden" name="id" value={gap.id} />
-                  <button type="submit" className="shrink-0 rounded-lg p-1.5 text-text-muted hover:bg-destructive/10 hover:text-destructive transition-colors">
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </form>
+                <DeleteButton action={deleteLiteratureGapAction} id={gap.id} />
               </div>
             ))
           ) : (

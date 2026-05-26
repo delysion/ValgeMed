@@ -14,7 +14,6 @@ import {
   SystemHealthCard,
 } from "@/components/premium/gamification";
 import { GlassCard } from "@/components/premium/glass-card";
-import { LoadingState } from "@/components/premium/loading-state";
 import { MetricCard } from "@/components/premium/metric-card";
 import { ScoreRing } from "@/components/premium/score-ring";
 import { SectionHeader } from "@/components/premium/section-header";

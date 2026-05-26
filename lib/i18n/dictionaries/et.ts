@@ -794,6 +794,10 @@ export const et: Dictionary = {
   "admin.promptLimit": "Prompti limiit",
   "admin.saveLimit": "Salvesta",
   "admin.promptLimitSaved": "Prompti limiit salvestatud",
+  "admin.aiDailyRequests": "AI/päev",
+  "admin.aiDailyChars": "Märgid/päev",
+  "admin.saveAiUsageLimits": "Salvesta AI limiidid",
+  "admin.aiUsageLimitsSaved": "AI limiidid salvestatud",
 
   "mastery.dormant": "Uinuv",
   "mastery.awakening": "Ärkamas",

@@ -2,13 +2,30 @@
 
 import { revalidatePath } from "next/cache";
 import { parseUserIntent, generateReviewItemsFromText, type ParsedStudyIntent } from "@/lib/ai/ollama";
+import { AI_USAGE_LIMIT_ERROR, runAiChatWithUsage } from "@/lib/ai/usage";
 import { getUserAiOptions } from "@/lib/ai/user-options";
 import { requireUser } from "@/lib/auth/supabase";
 import { getDb } from "@/lib/db";
-import { subjects, topics, studySessions, reviewItems } from "@/lib/db/schema";
+import {
+  dailyLogs,
+  errorLogs,
+  exams,
+  healthLogs,
+  languageProgress,
+  lifeAdminItems,
+  opportunities,
+  professionalContacts,
+  reviewItems,
+  studySessions,
+  subjects,
+  tasks,
+  timeBlocks,
+  topics,
+} from "@/lib/db/schema";
 import { getNextReviewSchedule } from "@/lib/scheduling/reviews";
 import { and, eq } from "drizzle-orm";
 import type { Locale } from "@/lib/i18n/config";
+import { parseSmartInputLocally, type SmartInputIntent } from "@/lib/smart-input/intent";
 
 export interface SmartInputResult {
   success: boolean;
@@ -36,11 +53,22 @@ const messages = {
     subjectCreated: (subject: string) => `Subject "${subject}" created`,
     noTopic: "To create a topic, write for example: 'Add topic mitochondria to biology subject'",
     topicCreated: (topic: string, subject: string) => `Topic "${topic}" created under ${subject}`,
+    examCreated: (title: string) => `Exam created: ${title}`,
+    taskCreated: (title: string) => `Task created: ${title}`,
+    lifeAdminCreated: (title: string) => `Life admin item created: ${title}`,
+    opportunityCreated: (title: string) => `Opportunity created: ${title}`,
+    errorCreated: (title: string) => `Error log created: ${title}`,
+    dailyCreated: "Daily log updated",
+    healthCreated: "Health log updated",
+    languageCreated: (title: string) => `Language practice logged: ${title}`,
+    contactCreated: (name: string) => `Contact created: ${name}`,
+    timeBlockCreated: (title: string) => `Time block created: ${title}`,
     genericError: "An error occurred. Make sure Ollama is running (ollama serve) and the model is downloaded.",
     generateNoText: "Couldn't generate flashcards from text. Try with more structured text.",
     generateNoSubject: "To generate flashcards from text, specify the subject. Example: 'Generate flashcards from [text] in biochemistry'",
     generateSuccess: (count: number, text: string) => `Generated ${count} flashcards from "${text.substring(0, 30)}..."`,
     generateError: "Error generating. Make sure Ollama is running.",
+    aiLimitReached: "Daily AI limit reached. Ask an admin to raise your AI caps.",
   },
   et: {
     unknown: "Ma ei saanud aru, mida sa soovid teha. Proovi näiteks kirjutada ' Õpi biokeemia 2 tundi' või 'Lisa küsimus mitokondrite kohta'.",
@@ -55,17 +83,30 @@ const messages = {
     subjectCreated: (subject: string) => `Aine "${subject}" loodud`,
     noTopic: " Teema loomiseks kirjuta näiteks: 'Lisa teema mitokondrid bioloogia aine juurde'",
     topicCreated: (topic: string, subject: string) => `Teema "${topic}" loodud ${subject} aine juurde`,
+    examCreated: (title: string) => `Exam created: ${title}`,
+    taskCreated: (title: string) => `Task created: ${title}`,
+    lifeAdminCreated: (title: string) => `Life admin item created: ${title}`,
+    opportunityCreated: (title: string) => `Opportunity created: ${title}`,
+    errorCreated: (title: string) => `Error log created: ${title}`,
+    dailyCreated: "Daily log updated",
+    healthCreated: "Health log updated",
+    languageCreated: (title: string) => `Language practice logged: ${title}`,
+    contactCreated: (name: string) => `Contact created: ${name}`,
+    timeBlockCreated: (title: string) => `Time block created: ${title}`,
     genericError: "Ilmnes viga. Veendu, et Ollama töötab (ollama serve) ja mudel on alla laaditud.",
     generateNoText: "Flaskardide genereerimine tekstist ebaõnnestus. Proovi struktureerituma tekstiga.",
     generateNoSubject: " Flashcardide genereerimiseks tekstist täpsusta ainet. Näide: 'Genereeri flashcards [tekst] biokeemias'",
     generateSuccess: (count: number, text: string) => `Genereeritud ${count} flashcards "${text.substring(0, 30)}..."`,
     generateError: "Genereerimise viga. Veendu, et Ollama töötab.",
+    aiLimitReached: "Daily AI limit reached. Ask an admin to raise your AI caps.",
   },
 };
 
 function getMsg(locale: Locale) {
   return messages[locale] || messages.en;
 }
+
+type ParsedSmartInput = ParsedStudyIntent | SmartInputIntent;
 
 async function findOrCreateSubject(userId: string, subjectName: string): Promise<string> {
   const db = getDb();
@@ -128,6 +169,21 @@ async function findOrCreateTopic(userId: string, subjectId: string, topicName: s
   return newTopic.id;
 }
 
+function toDate(value: string | undefined) {
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function todayKey() {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "UTC",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+}
+
 export async function processSmartInputAction(input: string, locale: Locale = "en"): Promise<SmartInputResult> {
   const msg = getMsg(locale);
 
@@ -135,7 +191,16 @@ export async function processSmartInputAction(input: string, locale: Locale = "e
     const user = await requireUser();
     const userOptions = await getUserAiOptions(user.id);
 
-    const parsed: ParsedStudyIntent = await parseUserIntent(input, userOptions);
+    const parsed: ParsedSmartInput = parseSmartInputLocally(input) ?? await parseUserIntent(
+      input,
+      userOptions,
+      (prompt) => runAiChatWithUsage({
+        userId: user.id,
+        feature: "smart_input_parse",
+        prompt,
+        userOptions,
+      }),
+    );
 
     if (parsed.action === "unknown" || !parsed.action) {
       return {
@@ -282,6 +347,275 @@ export async function processSmartInputAction(input: string, locale: Locale = "e
         };
       }
 
+      case "exam": {
+        const title = parsed.title || parsed.subject || "Exam";
+        const subjectId = await findOrCreateSubject(user.id, parsed.subject || "General");
+
+        await getDb().insert(exams).values({
+          userId: user.id,
+          subjectId,
+          title,
+          examDate: toDate(parsed.examDate),
+          notes: parsed.notes ?? input,
+        });
+
+        revalidatePath("/exams");
+        revalidatePath("/dashboard");
+        revalidatePath("/timeline");
+        revalidatePath("/command");
+
+        return {
+          success: true,
+          message: msg.examCreated(title),
+          messageKey: "examCreated",
+          details: { subject: parsed.subject },
+        };
+      }
+
+      case "task": {
+        const title = parsed.title || "Task";
+        await getDb().insert(tasks).values({
+          userId: user.id,
+          title,
+          description: parsed.description ?? input,
+          dueAt: toDate(parsed.dueAt),
+          priority: parsed.priority ?? 0,
+        });
+
+        revalidatePath("/goals");
+        revalidatePath("/timeline");
+        revalidatePath("/command");
+
+        return {
+          success: true,
+          message: msg.taskCreated(title),
+          messageKey: "taskCreated",
+        };
+      }
+
+      case "life_admin": {
+        const title = parsed.title || "Life admin item";
+        await getDb().insert(lifeAdminItems).values({
+          userId: user.id,
+          title,
+          description: parsed.description ?? input,
+          category: parsed.category ?? "other",
+          dueAt: toDate(parsed.dueAt),
+          priority: parsed.priority ?? 0,
+        });
+
+        revalidatePath("/life-admin");
+        revalidatePath("/timeline");
+        revalidatePath("/command");
+
+        return {
+          success: true,
+          message: msg.lifeAdminCreated(title),
+          messageKey: "lifeAdminCreated",
+        };
+      }
+
+      case "opportunity": {
+        const title = parsed.title || "Opportunity";
+        await getDb().insert(opportunities).values({
+          userId: user.id,
+          title,
+          description: parsed.description ?? input,
+          opportunityType: parsed.opportunityType ?? "other",
+          deadline: parsed.deadline ?? null,
+          nextAction: parsed.nextAction ?? null,
+          status: "watching",
+        });
+
+        revalidatePath("/opportunities");
+        revalidatePath("/timeline");
+        revalidatePath("/elite-index");
+        revalidatePath("/command");
+
+        return {
+          success: true,
+          message: msg.opportunityCreated(title),
+          messageKey: "opportunityCreated",
+        };
+      }
+
+      case "error_log": {
+        const title = parsed.title || "Error pattern";
+        const subjectId = await findOrCreateSubject(user.id, parsed.subject || "General");
+        const topicId = parsed.topic ? await findOrCreateTopic(user.id, subjectId, parsed.topic) : null;
+
+        await getDb().insert(errorLogs).values({
+          userId: user.id,
+          subjectId,
+          topicId: topicId ?? undefined,
+          title,
+          description: parsed.description ?? input,
+          severity: parsed.severity ?? 0,
+        });
+
+        revalidatePath("/errors");
+        revalidatePath("/timeline");
+        revalidatePath("/dashboard");
+        revalidatePath("/command");
+
+        return {
+          success: true,
+          message: msg.errorCreated(title),
+          messageKey: "errorCreated",
+          details: { subject: parsed.subject, topic: parsed.topic },
+        };
+      }
+
+      case "daily_log": {
+        const date = parsed.date ?? todayKey();
+
+        await getDb()
+          .insert(dailyLogs)
+          .values({
+            userId: user.id,
+            date,
+            energyLevel: parsed.energyLevel ?? null,
+            stressLevel: parsed.stressLevel ?? null,
+            moodLevel: parsed.moodLevel ?? null,
+            studyMinutes: parsed.studyMinutes ?? 0,
+            activeRecallMinutes: parsed.activeRecallMinutes ?? 0,
+            passiveStudyMinutes: parsed.passiveStudyMinutes ?? 0,
+            movementDone: false,
+            notes: parsed.notes ?? input,
+          })
+          .onConflictDoUpdate({
+            target: [dailyLogs.userId, dailyLogs.date],
+            set: {
+              energyLevel: parsed.energyLevel ?? null,
+              stressLevel: parsed.stressLevel ?? null,
+              moodLevel: parsed.moodLevel ?? null,
+              studyMinutes: parsed.studyMinutes ?? 0,
+              activeRecallMinutes: parsed.activeRecallMinutes ?? 0,
+              passiveStudyMinutes: parsed.passiveStudyMinutes ?? 0,
+              notes: parsed.notes ?? input,
+              updatedAt: new Date(),
+            },
+          });
+
+        revalidatePath("/daily-log");
+        revalidatePath("/dashboard");
+        revalidatePath("/command");
+
+        return {
+          success: true,
+          message: msg.dailyCreated,
+          messageKey: "dailyCreated",
+        };
+      }
+
+      case "health_log": {
+        const date = parsed.date ?? todayKey();
+
+        await getDb()
+          .insert(healthLogs)
+          .values({
+            userId: user.id,
+            date,
+            sleepQuality: parsed.sleepQuality ?? null,
+            cognitiveFatigue: parsed.cognitiveFatigue ?? null,
+            recoveryQuality: parsed.recoveryQuality ?? null,
+            foodQuality: parsed.foodQuality ?? null,
+            movementDone: false,
+            notes: parsed.notes ?? input,
+          })
+          .onConflictDoUpdate({
+            target: [healthLogs.userId, healthLogs.date],
+            set: {
+              sleepQuality: parsed.sleepQuality ?? null,
+              cognitiveFatigue: parsed.cognitiveFatigue ?? null,
+              recoveryQuality: parsed.recoveryQuality ?? null,
+              foodQuality: parsed.foodQuality ?? null,
+              notes: parsed.notes ?? input,
+              updatedAt: new Date(),
+            },
+          });
+
+        revalidatePath("/health");
+        revalidatePath("/command");
+        revalidatePath("/elite-index");
+
+        return {
+          success: true,
+          message: msg.healthCreated,
+          messageKey: "healthCreated",
+        };
+      }
+
+      case "language_progress": {
+        const title = parsed.title || parsed.language || "Language practice";
+        await getDb().insert(languageProgress).values({
+          userId: user.id,
+          language: parsed.language ?? "estonian",
+          title,
+          minutes: parsed.minutes ?? 0,
+          confidence: parsed.confidence ?? 0,
+          lastPracticedAt: new Date(),
+          nextPracticeAt: toDate(parsed.nextPracticeAt),
+          notes: parsed.notes ?? input,
+        });
+
+        revalidatePath("/language");
+        revalidatePath("/timeline");
+        revalidatePath("/command");
+        revalidatePath("/elite-index");
+
+        return {
+          success: true,
+          message: msg.languageCreated(title),
+          messageKey: "languageCreated",
+        };
+      }
+
+      case "contact": {
+        const name = parsed.name || ("title" in parsed ? parsed.title : undefined) || "Contact";
+        await getDb().insert(professionalContacts).values({
+          userId: user.id,
+          name,
+          role: parsed.role ?? null,
+          institution: parsed.institution ?? null,
+          nextFollowUpAt: toDate(parsed.nextFollowUpAt),
+          notes: parsed.notes ?? input,
+        });
+
+        revalidatePath("/network");
+        revalidatePath("/timeline");
+        revalidatePath("/command");
+
+        return {
+          success: true,
+          message: msg.contactCreated(name),
+          messageKey: "contactCreated",
+        };
+      }
+
+      case "time_block": {
+        const title = parsed.title || "Time block";
+        await getDb().insert(timeBlocks).values({
+          userId: user.id,
+          date: parsed.date ?? todayKey(),
+          title,
+          blockType: parsed.blockType ?? "study",
+          plannedMinutes: parsed.plannedMinutes ?? 0,
+          actualMinutes: 0,
+          notes: parsed.notes ?? input,
+        });
+
+        revalidatePath("/time");
+        revalidatePath("/timeline");
+        revalidatePath("/command");
+
+        return {
+          success: true,
+          message: msg.timeBlockCreated(title),
+          messageKey: "timeBlockCreated",
+        };
+      }
+
       default:
         return {
           success: false,
@@ -291,6 +625,13 @@ export async function processSmartInputAction(input: string, locale: Locale = "e
     }
   } catch (error) {
     console.error("Smart input error:", error);
+    if (error instanceof Error && error.name === AI_USAGE_LIMIT_ERROR) {
+      return {
+        success: false,
+        message: msg.aiLimitReached,
+        messageKey: "aiLimitReached",
+      };
+    }
     return {
       success: false,
       message: msg.genericError,
@@ -311,7 +652,18 @@ export async function generateFlashcardsFromTextAction(
     const user = await requireUser();
     const userOptions = await getUserAiOptions(user.id);
 
-    const items = await generateReviewItemsFromText(text, subject, topic, userOptions);
+    const items = await generateReviewItemsFromText(
+      text,
+      subject,
+      topic,
+      userOptions,
+      (prompt) => runAiChatWithUsage({
+        userId: user.id,
+        feature: "flashcard_generation",
+        prompt,
+        userOptions,
+      }),
+    );
 
     if (items.length === 0) {
       return {
@@ -357,6 +709,13 @@ export async function generateFlashcardsFromTextAction(
     };
   } catch (error) {
     console.error("Flashcard generation error:", error);
+    if (error instanceof Error && error.name === AI_USAGE_LIMIT_ERROR) {
+      return {
+        success: false,
+        message: msg.aiLimitReached,
+        messageKey: "aiLimitReached",
+      };
+    }
     return {
       success: false,
       message: msg.generateError,

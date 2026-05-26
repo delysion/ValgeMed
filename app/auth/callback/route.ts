@@ -5,6 +5,7 @@ const VALID_REDIRECT_PATHS = [
   "/command",
   "/dashboard",
   "/settings",
+  "/reset-password",
   "/ai",
   "/subjects",
   "/exams",

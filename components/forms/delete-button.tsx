@@ -2,21 +2,60 @@
 
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
-export function DeleteButton({ action, id }: { action: (formData: FormData) => void; id: string }) {
+export function DeleteButton({
+  action,
+  id,
+  label = "Delete",
+  title = "Delete this item?",
+  description = "This action cannot be undone.",
+  confirmLabel = "Delete",
+  cancelLabel = "Cancel",
+}: {
+  action: (formData: FormData) => void | Promise<void>;
+  id: string;
+  label?: string;
+  title?: string;
+  description?: string;
+  confirmLabel?: string;
+  cancelLabel?: string;
+}) {
   return (
-    <form
-      action={action}
-      onSubmit={(e) => {
-        if (!confirm("Are you sure you want to delete this item?")) {
-          e.preventDefault();
-        }
-      }}
-    >
-      <input type="hidden" name="id" value={id} />
-      <Button type="submit" variant="destructive" size="icon" aria-label="Delete">
-        <Trash2 className="h-4 w-4" />
-      </Button>
-    </form>
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button type="button" variant="destructive" size="icon" aria-label={label}>
+          <Trash2 className="h-4 w-4" aria-hidden="true" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="w-[min(92vw,420px)]">
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>{description}</DialogDescription>
+        </DialogHeader>
+        <div className="mt-5 flex justify-end gap-2">
+          <DialogClose asChild>
+            <Button type="button" variant="outline">
+              {cancelLabel}
+            </Button>
+          </DialogClose>
+          <form action={action}>
+            <input type="hidden" name="id" value={id} />
+            <Button type="submit" variant="destructive">
+              <Trash2 className="h-4 w-4" aria-hidden="true" />
+              {confirmLabel}
+            </Button>
+          </form>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

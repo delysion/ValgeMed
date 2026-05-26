@@ -38,6 +38,7 @@ const privatePrefixes = [
 
 const publicPaths = [
   "/login",
+  "/reset-password",
   "/auth",
   "/pending-approval",
   "/api/admin/notify-pending",
@@ -71,7 +72,7 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  let response = NextResponse.next();
+  const response = NextResponse.next();
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

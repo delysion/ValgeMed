@@ -33,8 +33,9 @@ describe("per-user AI prompt limits", () => {
     expect(userOptions).toContain("aiPromptLimitChars");
     expect(executeRoute).toContain("getUserAiOptions(user.id)");
     expect(smartInput).toContain("getUserAiOptions(user.id)");
-    expect(smartInput).toContain("parseUserIntent(input, userOptions)");
-    expect(smartInput).toContain("generateReviewItemsFromText(text, subject, topic, userOptions)");
+    expect(smartInput).toContain("runAiChatWithUsage");
+    expect(smartInput).toContain("parseUserIntent(");
+    expect(smartInput).toContain("generateReviewItemsFromText(");
   });
 
   it("normalizes custom prompt limits with a bounded default range", () => {

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { aiChat } from "@/lib/ai/ollama";
 import { requireUser } from "@/lib/auth/supabase";
 import { getUserAiOptions } from "@/lib/ai/user-options";
+import { AI_USAGE_LIMIT_ERROR, runAiChatWithUsage } from "@/lib/ai/usage";
 
 export async function POST(request: NextRequest) {
   let locale = "en";
@@ -50,7 +50,12 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "Unknown tool" }, { status: 400 });
     }
 
-    const result = await aiChat(prompt, undefined, userOptions);
+    const result = await runAiChatWithUsage({
+      userId: user.id,
+      feature: `tool:${tool}`,
+      prompt,
+      userOptions,
+    });
 
     return NextResponse.json({ success: true, result });
   } catch (error) {
@@ -61,6 +66,12 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
           { error: "AI not available. Add your API key in Settings → AI Settings.", errorType: "OLLAMA_NOT_RUNNING" },
           { status: 503 }
+        );
+      }
+      if (error.name === AI_USAGE_LIMIT_ERROR) {
+        return NextResponse.json(
+          { error: "Daily AI limit reached. Ask an admin to raise your AI caps.", errorType: AI_USAGE_LIMIT_ERROR },
+          { status: 429 }
         );
       }
       if (error.message.includes("401") || error.message.includes("Unauthorized") || error.message.includes("Invalid API key")) {

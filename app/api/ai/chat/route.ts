@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { aiChat } from "@/lib/ai/ollama";
 import {
   buildStudyCopilotContext,
   buildStudyCopilotPrompt,
   sanitizeStudyCopilotMessages,
 } from "@/lib/ai/study-copilot";
+import { AI_USAGE_LIMIT_ERROR, runAiChatWithUsage } from "@/lib/ai/usage";
 import { getUserAiOptions } from "@/lib/ai/user-options";
 import { requireUser } from "@/lib/auth/supabase";
 import { getAiPageData } from "@/lib/data/queries";
@@ -27,7 +27,12 @@ export async function POST(request: NextRequest) {
     ]);
     const context = buildStudyCopilotContext(pageData);
     const prompt = buildStudyCopilotPrompt({ locale, context, messages });
-    const message = await aiChat(prompt, undefined, userOptions);
+    const message = await runAiChatWithUsage({
+      userId: user.id,
+      feature: "study_copilot",
+      prompt,
+      userOptions,
+    });
 
     return NextResponse.json({ success: true, message });
   } catch (error) {
@@ -38,6 +43,12 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
           { error: "AI not available. Add your API key in Settings -> AI Settings.", errorType: "OLLAMA_NOT_RUNNING" },
           { status: 503 },
+        );
+      }
+      if (error.name === AI_USAGE_LIMIT_ERROR) {
+        return NextResponse.json(
+          { error: "Daily AI limit reached. Ask an admin to raise your AI caps.", errorType: AI_USAGE_LIMIT_ERROR },
+          { status: 429 },
         );
       }
       if (error.message.includes("401") || error.message.includes("Unauthorized") || error.message.includes("Invalid API key")) {

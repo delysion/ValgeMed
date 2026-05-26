@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback, useEffect } from "react";
+import { createContext, useContext, useState, useCallback } from "react";
 import type React from "react";
 
 import { languageCookie, type Locale } from "@/lib/i18n/config";

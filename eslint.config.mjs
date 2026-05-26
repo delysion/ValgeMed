@@ -11,6 +11,11 @@ const eslintConfig = defineConfig([
     ".next/**",
     "out/**",
     "build/**",
+    ".agents/**",
+    ".superpowers/**",
+    ".opencode/**",
+    "scripts/**",
+    "CUsersvnthuOneDriveDocumentsValgeMed/**",
     "next-env.d.ts",
   ]),
 ]);

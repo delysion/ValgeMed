@@ -7,6 +7,7 @@ import { getDictionary, dictionaries } from "@/lib/i18n/server";
 import { TranslationProvider } from "@/lib/i18n/useTranslation";
 import { ServiceWorkerRegistration } from "./sw-register";
 import { InstallAppButton } from "@/components/install-app-button";
+import { AppUpdateReloader } from "@/components/app-update-reloader";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -73,6 +74,7 @@ export default async function RootLayout({
       </head>
       <body className="min-h-full" suppressHydrationWarning>
         <ServiceWorkerRegistration />
+        <AppUpdateReloader />
         <InstallAppButton />
         <TranslationProvider locale={locale} dictionary={dictionary} dictionaries={dictionaries}>
           {children}

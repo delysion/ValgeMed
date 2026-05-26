@@ -41,6 +41,17 @@ export default async function ImportExportPage() {
           </Card>
           <Card>
             <CardHeader>
+              <CardTitle>Export iCal</CardTitle>
+              <CardDescription>Download exams, deadlines, reviews and follow-ups as a calendar file.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button asChild variant="outline">
+                <a href="/api/export/ical">Download .ics</a>
+              </Button>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
               <CardTitle>{t("settings.exportCsv")}</CardTitle>
               <CardDescription>{t("settings.exportCsvDesc")}</CardDescription>
             </CardHeader>

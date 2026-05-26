@@ -697,11 +697,26 @@ export const profiles = pgTable("profiles", {
   aiProvider: text("ai_provider"),
   aiApiKey: text("ai_api_key"),
   aiPromptLimitChars: integer("ai_prompt_limit_chars").default(24000).notNull(),
+  aiDailyRequestLimit: integer("ai_daily_request_limit").default(40).notNull(),
+  aiDailyCharLimit: integer("ai_daily_char_limit").default(240000).notNull(),
   isAdmin: boolean("is_admin").default(false),
   notifiedAt: timestamp("notified_at", { withTimezone: true }),
   createdAt: createdAtColumn(),
   updatedAt: updatedAtColumn(),
 });
+
+export const aiUsageEvents = pgTable("ai_usage_events", {
+  id: idColumn(),
+  userId: uuid("user_id").notNull(),
+  feature: varchar("feature", { length: 100 }).notNull(),
+  provider: varchar("provider", { length: 40 }).notNull(),
+  promptChars: integer("prompt_chars").default(0).notNull(),
+  responseChars: integer("response_chars").default(0).notNull(),
+  createdAt: createdAtColumn(),
+}, (table) => [
+  index("ai_usage_events_user_id_created_idx").on(table.userId, table.createdAt),
+  index("ai_usage_events_user_id_feature_created_idx").on(table.userId, table.feature, table.createdAt),
+]);
 
 export const schema = {
   subjects,
@@ -732,6 +747,7 @@ export const schema = {
   methodologyRisks,
   uploads,
   profiles,
+  aiUsageEvents,
   pushSubscriptions,
 };
 
@@ -763,4 +779,5 @@ export type Manuscript = typeof manuscripts.$inferSelect;
 export type MethodologyRisk = typeof methodologyRisks.$inferSelect;
 export type Upload = typeof uploads.$inferSelect;
 export type Profile = typeof profiles.$inferSelect;
+export type AiUsageEvent = typeof aiUsageEvents.$inferSelect;
 export type PushSubscription = typeof pushSubscriptions.$inferSelect;

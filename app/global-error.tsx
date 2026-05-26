@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { AlertCircle, RefreshCw, Bug } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 export default function GlobalError({
   error,

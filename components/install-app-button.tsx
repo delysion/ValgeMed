@@ -18,19 +18,23 @@ export function useInstallPrompt() {
   useEffect(() => {
     const standalone = window.matchMedia("(display-mode: standalone)").matches
       || (window.navigator as unknown as { standalone?: boolean }).standalone === true;
-    setIsStandalone(standalone);
-    if (standalone) return;
+    if (standalone) {
+      queueMicrotask(() => setIsStandalone(true));
+      return;
+    }
 
     const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent);
-    setIsIOS(isIOSDevice);
+    queueMicrotask(() => {
+      setIsStandalone(standalone);
+      setIsIOS(isIOSDevice);
+      if (isIOSDevice) setDeferredPrompt({} as BeforeInstallPromptEvent);
+    });
 
     const handler = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
     };
     window.addEventListener("beforeinstallprompt", handler);
-
-    if (isIOSDevice) setDeferredPrompt({} as BeforeInstallPromptEvent);
 
     return () => window.removeEventListener("beforeinstallprompt", handler);
   }, []);

@@ -1,4 +1,4 @@
-import { Command, Brain, TrendingUp, Shield, Mail } from "lucide-react";
+import { Command, Brain, TrendingUp, Shield } from "lucide-react";
 import { getI18n } from "@/lib/i18n/server-i18n";
 import { LoginForm } from "./form";
 

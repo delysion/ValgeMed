@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { addDays, differenceInCalendarDays, format } from "date-fns";
-import { ArrowLeft, Brain, Clock, ShieldCheck, Target, Trash2 } from "lucide-react";
+import { ArrowLeft, Brain, Clock, ShieldCheck, Target } from "lucide-react";
 
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { QuizAttemptForm } from "@/components/forms/entity-forms";
+import { DeleteButton } from "@/components/forms/delete-button";
 import { getMasteryLevel, masteryKey, MasteryBadge } from "@/components/premium/gamification";
 import { GlassCard } from "@/components/premium/glass-card";
 import { MetricCard } from "@/components/premium/metric-card";
@@ -181,12 +182,7 @@ export default async function ExamCommandCenter({ params }: { params: Promise<{ 
                   </div>
                   <div className="flex items-center gap-2">
                     <Badge>{attempt.scorePercent.toFixed(1)}%</Badge>
-                    <form action={deleteQuizAttemptAction}>
-                      <input type="hidden" name="id" value={attempt.id} />
-                      <Button type="submit" variant="ghost" size="icon" aria-label={t("common.delete")}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </form>
+                    <DeleteButton action={deleteQuizAttemptAction} id={attempt.id} label={t("common.delete")} />
                   </div>
                 </div>
               ))}

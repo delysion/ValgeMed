@@ -130,7 +130,7 @@ export function Navigation() {
   const [loggingOut, setLoggingOut] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    queueMicrotask(() => setMounted(true));
   }, []);
 
   const toggleSection = useCallback((labelKey: string) => {

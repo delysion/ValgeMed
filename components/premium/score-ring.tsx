@@ -37,11 +37,11 @@ export function ScoreRing({
     lg: "h-40 w-40",
     xl: "h-52 w-52",
   };
-  const textSize = {
-    sm: "text-2xl",
-    md: "text-3xl",
-    lg: "text-4xl",
-    xl: "text-5xl",
+  const scoreTextSize = {
+    sm: "text-[1.65rem]",
+    md: "text-[2.1rem]",
+    lg: "text-[2.7rem]",
+    xl: "text-[3.35rem]",
   };
   const borderTone = {
     cyan: "border-cyan/25",
@@ -98,9 +98,9 @@ export function ScoreRing({
           filter="drop-shadow(0 0 6px currentColor)"
         />
       </svg>
-      <div className="relative text-center">
-        <div className={cn("font-mono font-bold text-text-primary tracking-tight drop-shadow-sm", textSize[size])}>{safe.toFixed(1)}</div>
-        <div className="mt-0.5 text-[11px] font-bold uppercase tracking-[0.12em] text-text-secondary">{label}</div>
+      <div className="relative max-w-[72%] text-center">
+        <div className={cn("font-mono font-bold leading-none tabular-nums text-text-primary tracking-normal drop-shadow-sm", scoreTextSize[size])}>{safe.toFixed(1)}</div>
+        <div className="mt-2 text-[10px] font-bold uppercase tracking-[0.16em] text-text-secondary">{label}</div>
         {caption ? <div className="mt-1.5 text-xs leading-snug text-text-muted">{caption}</div> : null}
       </div>
     </div>

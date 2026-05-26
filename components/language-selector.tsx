@@ -1,7 +1,6 @@
 "use client";
 
 import { useTranslation } from "@/lib/i18n/useTranslation";
-import type { Locale } from "@/lib/i18n/config";
 import { cn } from "@/lib/utils";
 
 export function LanguageSelector({

@@ -14,6 +14,8 @@ export type AiChatOptions = {
   promptLimitChars?: number | null;
 }
 
+type AiTextRunner = (prompt: string) => Promise<string>;
+
 export async function aiChat(prompt: string, model?: string, userOptions?: AiChatOptions): Promise<string> {
   const provider = userOptions?.provider || process.env.AI_PROVIDER || "ollama";
   const apiKey = userOptions?.apiKey || process.env.OPENAI_API_KEY || process.env.GROQ_API_KEY || "";
@@ -65,13 +67,44 @@ export async function aiChat(prompt: string, model?: string, userOptions?: AiCha
 // ─── Parsing Utilities ───
 
 export interface ParsedStudyIntent {
-  action: "study_session" | "review_item" | "subject" | "topic" | "unknown";
+  action: "study_session" | "review_item" | "subject" | "topic" | "exam" | "task" | "life_admin" | "opportunity" | "error_log" | "daily_log" | "health_log" | "language_progress" | "contact" | "time_block" | "unknown";
   subject?: string;
   topic?: string;
+  title?: string;
   durationMinutes?: number;
   question?: string;
   answer?: string;
   notes?: string;
+  description?: string;
+  dueAt?: string;
+  deadline?: string;
+  examDate?: string;
+  date?: string;
+  nextPracticeAt?: string;
+  nextFollowUpAt?: string;
+  priority?: number;
+  severity?: number;
+  energyLevel?: number;
+  stressLevel?: number;
+  moodLevel?: number;
+  studyMinutes?: number;
+  activeRecallMinutes?: number;
+  passiveStudyMinutes?: number;
+  sleepQuality?: number;
+  cognitiveFatigue?: number;
+  recoveryQuality?: number;
+  foodQuality?: number;
+  minutes?: number;
+  confidence?: number;
+  name?: string;
+  category?: "documents" | "housing" | "finance" | "health" | "university" | "travel" | "other";
+  opportunityType?: "research" | "internship" | "shadowing" | "conference" | "scholarship" | "volunteering" | "student_org" | "mentorship" | "clinical_exposure" | "language_course" | "other";
+  nextAction?: string;
+  language?: "estonian" | "latin" | "english";
+  role?: string;
+  institution?: string;
+  blockType?: "study" | "review" | "simulation" | "recovery" | "life_admin" | "language" | "opportunity";
+  plannedMinutes?: number;
 }
 
 const SYSTEM_PROMPT = `You are a study assistant that parses natural language into structured data. 
@@ -81,16 +114,30 @@ Valid actions:
 - "review_item": User wants to add a flashcard/review item (needs question and optionally answer, subject, topic)
 - "subject": User wants to create a new subject/course (needs subject name)
 - "topic": User wants to create a topic under a subject (needs subject and topic name)
+- "exam": User wants to create an exam/deadline (needs title, optional subject, examDate)
+- "task": User wants to create a task/to-do (needs title, optional dueAt)
+- "life_admin": User wants to track documents, permits, housing, finance, university or travel admin (needs title, optional dueAt)
+- "opportunity": User wants to track research, scholarship, internship, conference or mentorship opportunity (needs title, optional deadline)
+- "error_log": User wants to save a mistake/error pattern (needs title, optional subject/topic)
+- "daily_log": User wants to log daily energy, stress, mood or study minutes
+- "health_log": User wants to log sleep, fatigue, recovery, food or health status
+- "language_progress": User wants to log language practice (needs title, optional minutes/confidence)
+- "contact": User wants to add or follow up with a person (needs name, optional dueAt)
+- "time_block": User wants to schedule or log a time block (needs title, optional date/durationMinutes)
 - "unknown": Can't determine intent
 
 Response format:
-{"action": "...", "subject": "...", "topic": "...", "durationMinutes": ..., "question": "...", "answer": "...", "notes": "..."}
-Use null for missing fields. durationMinutes should be a number if provided.`;
+{"action": "...", "title": "...", "subject": "...", "topic": "...", "durationMinutes": ..., "question": "...", "answer": "...", "date": "YYYY-MM-DD", "dueAt": "YYYY-MM-DD", "deadline": "YYYY-MM-DD", "examDate": "YYYY-MM-DD", "name": "...", "priority": ..., "severity": ..., "minutes": ..., "confidence": ..., "notes": "..."}
+Use null for missing fields. Durations and scores should be numbers if provided.`;
 
-export async function parseUserIntent(text: string, userOptions?: AiChatOptions): Promise<ParsedStudyIntent> {
+export async function parseUserIntent(
+  text: string,
+  userOptions?: AiChatOptions,
+  runner?: AiTextRunner,
+): Promise<ParsedStudyIntent> {
   try {
     const fullPrompt = `${SYSTEM_PROMPT}\n\nUser input: "${text}"\n\nRespond with ONLY JSON.`;
-    const response = await aiChat(fullPrompt, undefined, userOptions);
+    const response = runner ? await runner(fullPrompt) : await aiChat(fullPrompt, undefined, userOptions);
     const cleaned = response.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
     return JSON.parse(cleaned) as ParsedStudyIntent;
   } catch {
@@ -103,6 +150,7 @@ export async function generateReviewItemsFromText(
   subject?: string,
   topic?: string,
   userOptions?: AiChatOptions,
+  runner?: AiTextRunner,
 ): Promise<Array<{ question: string; answer: string; notes: string }>> {
   try {
     const prompt = `Generate 3-5 review flashcards from the following study material. 
@@ -114,7 +162,7 @@ ${text}
 ${subject ? `\nSubject: ${subject}` : ""}
 ${topic ? `\nTopic: ${topic}` : ""}`;
 
-    const response = await aiChat(prompt, undefined, userOptions);
+    const response = runner ? await runner(prompt) : await aiChat(prompt, undefined, userOptions);
     const cleaned = response.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
     return JSON.parse(cleaned);
   } catch {

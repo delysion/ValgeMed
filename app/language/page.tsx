@@ -23,7 +23,6 @@ export default async function LanguagePage({ searchParams }: { searchParams: Pro
   const languageProgress = await getLanguageProgress();
   const editing = languageProgress.find((item) => item.id === params.edit);
 
-  const totalMinutes = languageProgress.reduce((sum, item) => sum + item.minutes, 0);
   const avgConfidence = languageProgress.length > 0
     ? (languageProgress.reduce((sum, item) => sum + item.confidence, 0) / languageProgress.length).toFixed(1)
     : "-";

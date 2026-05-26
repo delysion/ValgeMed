@@ -1,6 +1,7 @@
-import { Edit3, Trash2 } from "lucide-react";
+import { Edit3 } from "lucide-react";
 import type React from "react";
 
+import { DeleteButton } from "@/components/forms/delete-button";
 import { EmptyState } from "@/components/premium/empty-state";
 import { Button } from "@/components/ui/button";
 
@@ -67,12 +68,7 @@ export function ResourceTable<T extends { id: string }>({
                     <Edit3 className="h-4 w-4" />
                   </a>
                 </Button>
-                <form action={deleteAction}>
-                  <input type="hidden" name="id" value={row.id} />
-                  <Button type="submit" variant="destructive" size="icon" aria-label={labels.delete}>
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </form>
+                <DeleteButton action={deleteAction} id={row.id} label={labels.delete} />
               </div>
             </article>
           ))
@@ -118,17 +114,7 @@ export function ResourceTable<T extends { id: string }>({
                         <Edit3 className="h-4 w-4" />
                       </a>
                     </Button>
-                    <form action={deleteAction}>
-                      <input type="hidden" name="id" value={row.id} />
-                      <Button
-                        type="submit"
-                        variant="destructive"
-                        size="icon"
-                        aria-label={labels.delete}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </form>
+                    <DeleteButton action={deleteAction} id={row.id} label={labels.delete} />
                   </div>
                 </td>
               </tr>

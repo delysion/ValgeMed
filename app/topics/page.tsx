@@ -1,6 +1,7 @@
-import { ArrowRight, Filter, Trash2 } from "lucide-react";
+import { ArrowRight, Filter } from "lucide-react";
 
 import { AppShell, PageHeader } from "@/components/app-shell";
+import { DeleteButton } from "@/components/forms/delete-button";
 import { TopicForm } from "@/components/forms/entity-forms";
 import { getMasteryLevel, masteryKey, MasteryBadge } from "@/components/premium/gamification";
 import { GlassCard } from "@/components/premium/glass-card";
@@ -94,12 +95,7 @@ export default async function TopicsPage({
                           <ArrowRight className="h-4 w-4" />
                         </a>
                       </Button>
-                      <form action={deleteTopicAction}>
-                        <input type="hidden" name="id" value={topic.id} />
-                        <Button type="submit" variant="destructive" size="icon" aria-label={t("common.delete")}>
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </form>
+                      <DeleteButton action={deleteTopicAction} id={topic.id} label={t("common.delete")} />
                     </div>
                   </div>
                 </GlassCard>
