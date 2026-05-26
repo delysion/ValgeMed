@@ -9,9 +9,15 @@ import { DeleteButton } from "@/components/forms/delete-button";
 
 export const dynamic = "force-dynamic";
 
-export default async function LiteratureMapPage() {
+export default async function LiteratureMapPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ editGap?: string }>;
+}) {
   const { t } = await getI18n();
+  const params = await searchParams;
   const gaps = await getLiteratureGaps();
+  const editingGap = gaps.find((gap) => gap.id === params.editGap);
 
   return (
     <div className="flex flex-col gap-6">
@@ -32,7 +38,16 @@ export default async function LiteratureMapPage() {
                   </p>
                   {gap.description && <p className="mt-1 text-xs text-text-secondary line-clamp-2">{gap.description}</p>}
                 </div>
-                <DeleteButton action={deleteLiteratureGapAction} id={gap.id} />
+                <div className="flex items-center gap-1">
+                  <a
+                    href={`/research/literature?editGap=${gap.id}`}
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-md text-text-muted hover:bg-bg-subtle hover:text-text-primary transition-colors"
+                    aria-label={t("common.edit")}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.844a.5.5 0 0 1-.62-.62l.844-2.872a2 2 0 0 1 .506-.855z"/></svg>
+                  </a>
+                  <DeleteButton action={deleteLiteratureGapAction} id={gap.id} />
+                </div>
               </div>
             ))
           ) : (
@@ -43,9 +58,9 @@ export default async function LiteratureMapPage() {
         <GlassCard>
           <div className="flex items-center gap-2 mb-4">
             <Lightbulb className="h-5 w-5 text-primary" />
-            <h3 className="text-base font-semibold text-text-primary">{t("common.create")}</h3>
+            <h3 className="text-base font-semibold text-text-primary">{editingGap ? t("common.edit") : t("common.create")}</h3>
           </div>
-          <LiteratureGapForm />
+          <LiteratureGapForm gap={editingGap} />
         </GlassCard>
       </div>
     </div>

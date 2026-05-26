@@ -257,6 +257,15 @@ export async function createQuizAttemptAction(formData: FormData) {
   refresh(["/exams", "/dashboard"]);
 }
 
+export async function updateQuizAttemptAction(formData: FormData) {
+  const { db, userId } = await authorizedDb();
+  const recordId = parseId(formData);
+  const data = parseForm(quizAttemptSchema, formData);
+  await db.update(quizAttempts).set(data).where(and(eq(quizAttempts.id, recordId), eq(quizAttempts.userId, userId)));
+  refresh(["/exams", "/dashboard"]);
+  redirect("/exams");
+}
+
 export async function deleteQuizAttemptAction(formData: FormData) {
   const { db, userId } = await authorizedDb();
   await db.delete(quizAttempts).where(and(eq(quizAttempts.id, parseId(formData)), eq(quizAttempts.userId, userId)));

@@ -22,10 +22,11 @@ import { buildExamReadiness } from "@/lib/scoring/engine";
 
 export const dynamic = "force-dynamic";
 
-export default async function ExamCommandCenter({ params }: { params: Promise<{ id: string }> }) {
+export default async function ExamCommandCenter({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ editQuiz?: string }> }) {
   const user = await requireUser();
   const { t } = await getI18n();
   const { id } = await params;
+  const sp = await searchParams;
   const data = await getExamPageData();
   const exam = data.exams.find((item) => item.id === id);
 
@@ -45,6 +46,7 @@ export default async function ExamCommandCenter({ params }: { params: Promise<{ 
   const examErrors = data.errorLogs.filter((error) => error.examId === exam.id);
   const openErrors = examErrors.filter((error) => !error.resolved);
   const examQuiz = data.quizAttempts.filter((attempt) => attempt.examId === exam.id);
+  const editingQuiz = examQuiz.find((attempt) => attempt.id === sp.editQuiz);
   const examSessions = data.studySessions.filter((studySession) => studySession.examId === exam.id);
   const readiness = buildExamReadiness({
     topics: examTopics,
@@ -170,11 +172,11 @@ export default async function ExamCommandCenter({ params }: { params: Promise<{ 
         </div>
 
         <div className="space-y-5">
-          <QuizAttemptForm subjects={data.subjects} topics={data.topics} exams={data.exams} examId={exam.id} t={t as (key: string) => string} />
+          <QuizAttemptForm attempt={editingQuiz} subjects={data.subjects} topics={data.topics} exams={data.exams} examId={exam.id} t={t as (key: string) => string} />
           <GlassCard tone="emerald">
             <h3 className="text-xl font-semibold text-text-primary">{t("examRoom.simulation")}</h3>
             <div className="mt-4 space-y-3">
-              {examQuiz.map((attempt) => (
+{examQuiz.map((attempt) => (
                 <div key={attempt.id} className="flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-white/[0.045] p-4">
                   <div>
                     <p className="font-medium text-text-primary">{fmtDate(attempt.date)}</p>
@@ -182,6 +184,13 @@ export default async function ExamCommandCenter({ params }: { params: Promise<{ 
                   </div>
                   <div className="flex items-center gap-2">
                     <Badge>{attempt.scorePercent.toFixed(1)}%</Badge>
+                    <a
+                      href={`/exams/${exam.id}?editQuiz=${attempt.id}`}
+                      className="inline-flex h-9 w-9 items-center justify-center rounded-md text-text-muted hover:bg-bg-subtle hover:text-text-primary transition-colors"
+                      aria-label={t("common.edit")}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.376 3.622a1 1 0 0 1 3.002 3.002L7.368 18.635a2 2 0 0 1-.855.506l-2.872.844a.5.5 0 0 1-.62-.62l.844-2.872a2 2 0 0 1 .506-.855z"/></svg>
+                    </a>
                     <DeleteButton action={deleteQuizAttemptAction} id={attempt.id} label={t("common.delete")} />
                   </div>
                 </div>

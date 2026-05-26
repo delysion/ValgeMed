@@ -19,6 +19,7 @@ import {
   updateExamAction,
   updateGoalAction,
   updateIdentityNoteAction,
+  updateQuizAttemptAction,
   updateReviewItemAction,
   updateStudySessionAction,
   updateSubjectAction,
@@ -32,6 +33,7 @@ import type {
   Exam,
   Goal,
   IdentityNote,
+  QuizAttempt,
   ReviewItem,
   StudySession,
   Subject,
@@ -76,7 +78,7 @@ function relationOptions<T extends { id: string; title?: string; name?: string }
   ];
 }
 
-function FormCard({
+export function FormCard({
   title,
   description,
   children,
@@ -318,12 +320,14 @@ export function ErrorLogForm({
 }
 
 export function QuizAttemptForm({
+  attempt,
   subjects,
   topics,
   exams,
   examId,
   t,
 }: {
+  attempt?: QuizAttempt;
   subjects: Subject[];
   topics: Topic[];
   exams: Exam[];
@@ -331,18 +335,22 @@ export function QuizAttemptForm({
   t: TFunc;
 }) {
   return (
-    <FormCard title={t("form.quizAttempt.title")} description={t("form.quizAttempt.description")}>
-      <form action={createQuizAttemptAction} className="space-y-6">
+    <FormCard
+      title={attempt ? t("form.quizAttempt.editTitle") : t("form.quizAttempt.createTitle") ?? t("form.quizAttempt.title")}
+      description={t("form.quizAttempt.description")}
+    >
+      <form action={attempt ? updateQuizAttemptAction : createQuizAttemptAction} className="space-y-6">
+        {attempt ? <input type="hidden" name="id" value={attempt.id} /> : null}
         <FieldGrid>
-          <NativeSelectField label={t("form.quizAttempt.subjectLabel")} name="subjectId" options={relationOptions(subjects, t("form.quizAttempt.subjectEmpty"))} defaultValue={exams.find((exam) => exam.id === examId)?.subjectId} description={t("form.quizAttempt.subjectDescription")} />
-          <NativeSelectField label={t("form.quizAttempt.topicLabel")} name="topicId" options={relationOptions(topics, t("form.quizAttempt.topicEmpty"))} description={t("form.quizAttempt.topicDescription")} />
-          <NativeSelectField label={t("form.quizAttempt.examLabel")} name="examId" options={relationOptions(exams, t("form.quizAttempt.examEmpty"))} defaultValue={examId} description={t("form.quizAttempt.examDescription")} />
-          <TextField label={t("form.quizAttempt.dateLabel")} name="date" type="date" defaultValue={formatISO(new Date(), { representation: "date" })} description={t("form.quizAttempt.dateDescription")} />
-          <TextField label={t("form.quizAttempt.totalLabel")} name="totalQuestions" type="number" defaultValue={20} description={t("form.quizAttempt.totalDescription")} />
-          <TextField label={t("form.quizAttempt.correctLabel")} name="correctAnswers" type="number" defaultValue={0} description={t("form.quizAttempt.correctDescription")} />
+          <NativeSelectField label={t("form.quizAttempt.subjectLabel")} name="subjectId" options={relationOptions(subjects, t("form.quizAttempt.subjectEmpty"))} defaultValue={attempt?.subjectId ?? exams.find((exam) => exam.id === examId)?.subjectId} description={t("form.quizAttempt.subjectDescription")} />
+          <NativeSelectField label={t("form.quizAttempt.topicLabel")} name="topicId" options={relationOptions(topics, t("form.quizAttempt.topicEmpty"))} defaultValue={attempt?.topicId} description={t("form.quizAttempt.topicDescription")} />
+          <NativeSelectField label={t("form.quizAttempt.examLabel")} name="examId" options={relationOptions(exams, t("form.quizAttempt.examEmpty"))} defaultValue={attempt?.examId ?? examId} description={t("form.quizAttempt.examDescription")} />
+          <TextField label={t("form.quizAttempt.dateLabel")} name="date" type="date" defaultValue={attempt?.date ?? formatISO(new Date(), { representation: "date" })} description={t("form.quizAttempt.dateDescription")} />
+          <TextField label={t("form.quizAttempt.totalLabel")} name="totalQuestions" type="number" defaultValue={attempt?.totalQuestions ?? 20} description={t("form.quizAttempt.totalDescription")} />
+          <TextField label={t("form.quizAttempt.correctLabel")} name="correctAnswers" type="number" defaultValue={attempt?.correctAnswers ?? 0} description={t("form.quizAttempt.correctDescription")} />
         </FieldGrid>
-        <TextAreaField label={t("form.quizAttempt.reflectionsLabel")} name="notes" placeholder={t("form.quizAttempt.reflectionsPlaceholder")} description={t("form.quizAttempt.reflectionsDescription")} />
-        <SubmitBar label={t("form.quizAttempt.submit")} pendingLabel={t("form.quizAttempt.pending")} />
+        <TextAreaField label={t("form.quizAttempt.reflectionsLabel")} name="notes" defaultValue={attempt?.notes} placeholder={t("form.quizAttempt.reflectionsPlaceholder")} description={t("form.quizAttempt.reflectionsDescription")} />
+        <SubmitBar label={attempt ? t("form.quizAttempt.editSubmit") : t("form.quizAttempt.submit")} pendingLabel={attempt ? t("form.quizAttempt.editPending") : t("form.quizAttempt.pending")} cancelHref={attempt ? "/exams" : undefined} cancelLabel={t("common.cancel")} />
       </form>
     </FormCard>
   );

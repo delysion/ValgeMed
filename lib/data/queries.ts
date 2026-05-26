@@ -11,10 +11,12 @@ import {
   exams,
   goals,
   healthLogs,
+  hypotheses,
   identityNotes,
   languageProgress,
   lifeAdminItems,
   literatureGaps,
+  manuscripts,
   opportunities,
   portfolioItems,
   professionalContacts,
@@ -33,9 +35,12 @@ import {
   type Exam,
   type Goal,
   type HealthLog,
+  type Hypothesis,
   type IdentityNote,
   type LanguageProgress,
   type LifeAdminItem,
+  type LiteratureGap,
+  type Manuscript,
   type Opportunity,
   type PortfolioItem,
   type ProfessionalContact,
@@ -49,7 +54,6 @@ import {
   type Task,
   type TimeBlock,
   type Topic,
-  type LiteratureGap,
 } from "@/lib/db/schema";
 
 export type CoreData = {
@@ -181,6 +185,20 @@ export async function getLiteratureGaps() {
   const userId = await getUserIdOrThrow();
   return withDb<LiteratureGap[]>((db) => {
     return db.select().from(literatureGaps).where(eq(literatureGaps.userId, userId)).orderBy(desc(literatureGaps.priority), asc(literatureGaps.createdAt)).limit(100);
+  }, []);
+}
+
+export async function getHypotheses() {
+  const userId = await getUserIdOrThrow();
+  return withDb<Hypothesis[]>((db) => {
+    return db.select().from(hypotheses).where(eq(hypotheses.userId, userId)).orderBy(desc(hypotheses.createdAt)).limit(100);
+  }, []);
+}
+
+export async function getManuscripts() {
+  const userId = await getUserIdOrThrow();
+  return withDb<Manuscript[]>((db) => {
+    return db.select().from(manuscripts).where(eq(manuscripts.userId, userId)).orderBy(desc(manuscripts.createdAt)).limit(100);
   }, []);
 }
 
