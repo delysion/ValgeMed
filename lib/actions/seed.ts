@@ -6,6 +6,7 @@ import { getDb } from "@/lib/db";
 import { subjects, topics, reviewItems, studySessions, dailyLogs } from "@/lib/db/schema";
 import { getNextReviewSchedule } from "@/lib/scheduling/reviews";
 import { startOfToday, formatISO } from "date-fns";
+import { eq } from "drizzle-orm";
 import type { Locale } from "@/lib/i18n/config";
 
 export interface SeedResult {
@@ -44,7 +45,7 @@ export async function seedSampleDataAction(locale: Locale = "en"): Promise<SeedR
     const db = getDb();
     const today = startOfToday();
 
-    const existingSubjects = await db.select().from(subjects);
+    const existingSubjects = await db.select().from(subjects).where(eq(subjects.userId, userId));
     if (existingSubjects.length > 0) {
       return {
         success: false,

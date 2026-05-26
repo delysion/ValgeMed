@@ -1,0 +1,1 @@
+ALTER TABLE "profiles" ADD COLUMN "ai_prompt_limit_chars" integer DEFAULT 24000 NOT NULL;

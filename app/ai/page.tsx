@@ -8,6 +8,7 @@ import { OllamaStatusBadge } from "@/components/ollama-status";
 import { AiStatusCard } from "@/components/ollama-status-card";
 import { AiToolCard } from "@/components/ai-tool-card";
 import { AiFlashcardGenerator } from "@/components/ai-flashcard-generator";
+import { StudyCopilotChat } from "@/components/study-copilot-chat";
 import { FileUploadZone } from "@/components/file-upload-zone";
 import { GlassCard } from "@/components/premium/glass-card";
 import { requireUser } from "@/lib/auth/supabase";
@@ -18,7 +19,7 @@ export const dynamic = "force-dynamic";
 
 export default async function AiPage() {
   const user = await requireUser();
-  const { t, locale } = await getI18n();
+  const { t } = await getI18n();
   const data = await getAiPageData();
   const subjects = data.subjects;
 
@@ -60,6 +61,8 @@ export default async function AiPage() {
       <div className="flex flex-col gap-5">
         {/* Ollama Status Card */}
         <AiStatusCard />
+
+        <StudyCopilotChat />
 
         {/* Quick Flashcard Generator */}
         <AiFlashcardGenerator />

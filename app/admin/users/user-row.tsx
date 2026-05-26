@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Check, X, Shield, Ban } from "lucide-react";
-import { approveUserAction } from "@/lib/actions/admin";
+import { Check, X, Shield, Ban, Save } from "lucide-react";
+import { approveUserAction, updateUserAiPromptLimitAction } from "@/lib/actions/admin";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 
 type Profile = {
@@ -12,6 +12,7 @@ type Profile = {
   approved: boolean | null;
   rejectedAt: Date | null;
   isAdmin: boolean | null;
+  aiPromptLimitChars: number;
   createdAt: Date | null;
 };
 
@@ -19,6 +20,8 @@ export function UserRow({ profile: initial }: { profile: Profile }) {
   const { t } = useTranslation();
   const [profile, setProfile] = useState(initial);
   const [busy, setBusy] = useState(false);
+  const [limitBusy, setLimitBusy] = useState(false);
+  const [promptLimit, setPromptLimit] = useState(initial.aiPromptLimitChars);
   const [toast, setToast] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
@@ -78,13 +81,27 @@ export function UserRow({ profile: initial }: { profile: Profile }) {
     }
   };
 
+  const handleSavePromptLimit = async () => {
+    setLimitBusy(true);
+    try {
+      const res = await updateUserAiPromptLimitAction(profile.id, promptLimit);
+      if (res.success) {
+        setProfile((p) => ({ ...p, aiPromptLimitChars: res.aiPromptLimitChars }));
+        setPromptLimit(res.aiPromptLimitChars);
+        showToast(t("admin.promptLimitSaved"));
+      }
+    } finally {
+      setLimitBusy(false);
+    }
+  };
+
   const isPending = !profile.approved && !profile.rejectedAt;
   const isApproved = profile.approved === true;
   const isRejected = !profile.approved && !!profile.rejectedAt;
   const isAdminUser = !!profile.isAdmin;
 
   return (
-    <div className="relative flex items-center justify-between rounded-xl border border-border/60 bg-bg-surface/80 p-4">
+    <div className="relative flex flex-col gap-4 rounded-xl border border-border/60 bg-bg-surface/80 p-4 sm:flex-row sm:items-center sm:justify-between">
       {toast && (
         <div className="absolute -top-2 right-2 rounded-lg bg-text-primary px-3 py-1 text-xs font-medium text-bg-page shadow-md animate-in fade-in slide-in-from-top-1">
           {toast}
@@ -106,7 +123,32 @@ export function UserRow({ profile: initial }: { profile: Profile }) {
           {profile.createdAt && ` · ${new Date(profile.createdAt).toLocaleDateString()}`}
         </p>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex flex-col items-start gap-2 sm:items-end">
+        <div className="flex items-center gap-2">
+          <label htmlFor={`prompt-limit-${profile.id}`} className="text-xs font-medium text-text-muted">
+            {t("admin.promptLimit")}
+          </label>
+          <input
+            id={`prompt-limit-${profile.id}`}
+            type="number"
+            min={1000}
+            max={500000}
+            step={1000}
+            value={promptLimit}
+            onChange={(event) => setPromptLimit(Number(event.target.value))}
+            className="h-9 w-28 rounded-lg border border-border/60 bg-bg-page px-2 text-sm text-text-primary outline-none focus:border-primary"
+          />
+          <button
+            onClick={handleSavePromptLimit}
+            disabled={limitBusy || busy}
+            className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border/60 px-3 text-xs font-semibold text-text-secondary transition-colors hover:bg-bg-page disabled:opacity-50"
+            title={t("admin.saveLimit")}
+          >
+            <Save className="h-3.5 w-3.5" />
+            {t("admin.saveLimit")}
+          </button>
+        </div>
+        <div className="flex items-center gap-2">
         {isPending && (
           <>
             <button
@@ -143,6 +185,7 @@ export function UserRow({ profile: initial }: { profile: Profile }) {
             <span className="flex items-center gap-1.5"><Check className="h-4 w-4" /> {t("admin.approve")}</span>
           </button>
         )}
+        </div>
       </div>
     </div>
   );

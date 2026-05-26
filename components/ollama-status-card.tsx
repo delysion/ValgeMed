@@ -1,7 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
-import { Wifi, WifiOff, RefreshCw, Copy, Check, Cpu, Cloud } from "lucide-react";
+import { WifiOff, RefreshCw, Cpu, Cloud } from "lucide-react";
 import { GlassCard } from "@/components/premium/glass-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,17 +9,8 @@ import { useOllamaStatus } from "@/components/ollama-status";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 
 export function AiStatusCard() {
-  const { t, locale } = useTranslation();
+  const { locale } = useTranslation();
   const { status, checking, checkStatus } = useOllamaStatus();
-  const [copied, setCopied] = useState(false);
-
-  const copyCommand = useCallback(async () => {
-    try {
-      await navigator.clipboard.writeText("ollama serve");
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {}
-  }, []);
 
   const isOnline = status?.online ?? false;
   const provider = status?.provider || "AI";
@@ -74,7 +64,7 @@ export function AiStatusCard() {
           )}
         </div>
 
-        <Button variant="outline" size="sm" onClick={checkStatus} disabled={checking} className="gap-1.5 shrink-0">
+        <Button variant="outline" size="sm" onClick={() => checkStatus()} disabled={checking} className="gap-1.5 shrink-0">
           <RefreshCw className={cn("h-3.5 w-3.5", checking && "animate-spin")} />
           {checking ? (locale === "et" ? "Kontrollin..." : "Checking...") : (locale === "et" ? "Kontrolli" : "Refresh")}
         </Button>

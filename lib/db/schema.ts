@@ -2,12 +2,14 @@ import {
   boolean,
   date,
   doublePrecision,
+  index,
   integer,
   pgEnum,
   pgTable,
   text,
   timestamp,
   uuid,
+  uniqueIndex,
   varchar,
 } from "drizzle-orm/pg-core";
 
@@ -205,7 +207,9 @@ export const subjects = pgTable("subjects", {
   importance: integer("importance").default(0).notNull(),
   createdAt: createdAtColumn(),
   updatedAt: updatedAtColumn(),
-});
+}, (table) => [
+  index("subjects_user_id_name_idx").on(table.userId, table.name),
+]);
 
 export const exams = pgTable("exams", {
   id: idColumn(),
@@ -224,7 +228,9 @@ export const exams = pgTable("exams", {
   notes: text("notes"),
   createdAt: createdAtColumn(),
   updatedAt: updatedAtColumn(),
-});
+}, (table) => [
+  index("exams_user_id_exam_date_idx").on(table.userId, table.examDate),
+]);
 
 export const topics = pgTable("topics", {
   id: idColumn(),
@@ -243,7 +249,10 @@ export const topics = pgTable("topics", {
   nextReviewAt: timestamp("next_review_at", { withTimezone: true }),
   createdAt: createdAtColumn(),
   updatedAt: updatedAtColumn(),
-});
+}, (table) => [
+  index("topics_user_id_priority_title_idx").on(table.userId, table.priority, table.title),
+  index("topics_user_id_subject_id_idx").on(table.userId, table.subjectId),
+]);
 
 export const studySessions = pgTable("study_sessions", {
   id: idColumn(),
@@ -262,7 +271,9 @@ export const studySessions = pgTable("study_sessions", {
   outputQuality: integer("output_quality").default(0).notNull(),
   notes: text("notes"),
   createdAt: createdAtColumn(),
-});
+}, (table) => [
+  index("study_sessions_user_id_started_at_idx").on(table.userId, table.startedAt),
+]);
 
 export const reviewItems = pgTable("review_items", {
   id: idColumn(),
@@ -282,7 +293,9 @@ export const reviewItems = pgTable("review_items", {
   isActive: boolean("is_active").default(true).notNull(),
   createdAt: createdAtColumn(),
   updatedAt: updatedAtColumn(),
-});
+}, (table) => [
+  index("review_items_user_id_active_due_idx").on(table.userId, table.isActive, table.dueAt),
+]);
 
 export const errorLogs = pgTable("error_logs", {
   id: idColumn(),
@@ -304,7 +317,14 @@ export const errorLogs = pgTable("error_logs", {
   recurrenceCount: integer("recurrence_count").default(0).notNull(),
   createdAt: createdAtColumn(),
   updatedAt: updatedAtColumn(),
-});
+}, (table) => [
+  index("error_logs_user_id_resolved_severity_created_idx").on(
+    table.userId,
+    table.resolved,
+    table.severity,
+    table.createdAt,
+  ),
+]);
 
 export const quizAttempts = pgTable("quiz_attempts", {
   id: idColumn(),
@@ -320,12 +340,14 @@ export const quizAttempts = pgTable("quiz_attempts", {
   scorePercent: doublePrecision("score_percent").notNull(),
   notes: text("notes"),
   createdAt: createdAtColumn(),
-});
+}, (table) => [
+  index("quiz_attempts_user_id_date_idx").on(table.userId, table.date),
+]);
 
 export const dailyLogs = pgTable("daily_logs", {
   id: idColumn(),
   userId: uuid("user_id").notNull(),
-  date: date("date").notNull().unique(),
+  date: date("date").notNull(),
   sleepHours: doublePrecision("sleep_hours"),
   energyLevel: integer("energy_level"),
   stressLevel: integer("stress_level"),
@@ -337,7 +359,9 @@ export const dailyLogs = pgTable("daily_logs", {
   notes: text("notes"),
   createdAt: createdAtColumn(),
   updatedAt: updatedAtColumn(),
-});
+}, (table) => [
+  uniqueIndex("daily_logs_user_id_date_unique").on(table.userId, table.date),
+]);
 
 export const goals = pgTable("goals", {
   id: idColumn(),
@@ -350,7 +374,9 @@ export const goals = pgTable("goals", {
   priority: integer("priority").default(0).notNull(),
   createdAt: createdAtColumn(),
   updatedAt: updatedAtColumn(),
-});
+}, (table) => [
+  index("goals_user_id_priority_created_idx").on(table.userId, table.priority, table.createdAt),
+]);
 
 export const tasks = pgTable("tasks", {
   id: idColumn(),
@@ -371,7 +397,9 @@ export const tasks = pgTable("tasks", {
   }),
   createdAt: createdAtColumn(),
   updatedAt: updatedAtColumn(),
-});
+}, (table) => [
+  index("tasks_user_id_priority_due_idx").on(table.userId, table.priority, table.dueAt),
+]);
 
 export const identityNotes = pgTable("identity_notes", {
   id: idColumn(),
@@ -383,7 +411,9 @@ export const identityNotes = pgTable("identity_notes", {
     .notNull(),
   createdAt: createdAtColumn(),
   updatedAt: updatedAtColumn(),
-});
+}, (table) => [
+  index("identity_notes_user_id_created_idx").on(table.userId, table.createdAt),
+]);
 
 export const tartuNotes = pgTable("tartu_notes", {
   id: idColumn(),
@@ -395,7 +425,9 @@ export const tartuNotes = pgTable("tartu_notes", {
   status: taskStatusEnum("status").default("todo").notNull(),
   createdAt: createdAtColumn(),
   updatedAt: updatedAtColumn(),
-});
+}, (table) => [
+  index("tartu_notes_user_id_priority_created_idx").on(table.userId, table.priority, table.createdAt),
+]);
 
 export const timeBlocks = pgTable("time_blocks", {
   id: idColumn(),
@@ -410,12 +442,14 @@ export const timeBlocks = pgTable("time_blocks", {
   notes: text("notes"),
   createdAt: createdAtColumn(),
   updatedAt: updatedAtColumn(),
-});
+}, (table) => [
+  index("time_blocks_user_id_date_created_idx").on(table.userId, table.date, table.createdAt),
+]);
 
 export const healthLogs = pgTable("health_logs", {
   id: idColumn(),
   userId: uuid("user_id").notNull(),
-  date: date("date").notNull().unique(),
+  date: date("date").notNull(),
   sleepQuality: integer("sleep_quality"),
   cognitiveFatigue: integer("cognitive_fatigue"),
   recoveryQuality: integer("recovery_quality"),
@@ -425,7 +459,9 @@ export const healthLogs = pgTable("health_logs", {
   notes: text("notes"),
   createdAt: createdAtColumn(),
   updatedAt: updatedAtColumn(),
-});
+}, (table) => [
+  uniqueIndex("health_logs_user_id_date_unique").on(table.userId, table.date),
+]);
 
 export const languageProgress = pgTable("language_progress", {
   id: idColumn(),
@@ -440,7 +476,9 @@ export const languageProgress = pgTable("language_progress", {
   notes: text("notes"),
   createdAt: createdAtColumn(),
   updatedAt: updatedAtColumn(),
-});
+}, (table) => [
+  index("language_progress_user_id_next_practice_idx").on(table.userId, table.nextPracticeAt, table.createdAt),
+]);
 
 export const reputationEvents = pgTable("reputation_events", {
   id: idColumn(),
@@ -455,7 +493,9 @@ export const reputationEvents = pgTable("reputation_events", {
   status: taskStatusEnum("status").default("done").notNull(),
   createdAt: createdAtColumn(),
   updatedAt: updatedAtColumn(),
-});
+}, (table) => [
+  index("reputation_events_user_id_event_impact_idx").on(table.userId, table.eventDate, table.impact),
+]);
 
 export const opportunities = pgTable("opportunities", {
   id: idColumn(),
@@ -471,7 +511,9 @@ export const opportunities = pgTable("opportunities", {
   status: opportunityStatusEnum("status").default("watching").notNull(),
   createdAt: createdAtColumn(),
   updatedAt: updatedAtColumn(),
-});
+}, (table) => [
+  index("opportunities_user_id_deadline_upside_idx").on(table.userId, table.deadline, table.strategicUpside),
+]);
 
 export const professionalContacts = pgTable("professional_contacts", {
   id: idColumn(),
@@ -485,7 +527,13 @@ export const professionalContacts = pgTable("professional_contacts", {
   notes: text("notes"),
   createdAt: createdAtColumn(),
   updatedAt: updatedAtColumn(),
-});
+}, (table) => [
+  index("professional_contacts_user_id_strength_followup_idx").on(
+    table.userId,
+    table.relationshipStrength,
+    table.nextFollowUpAt,
+  ),
+]);
 
 export const lifeAdminItems = pgTable("life_admin_items", {
   id: idColumn(),
@@ -496,9 +544,13 @@ export const lifeAdminItems = pgTable("life_admin_items", {
   dueAt: timestamp("due_at", { withTimezone: true }),
   status: taskStatusEnum("status").default("todo").notNull(),
   priority: integer("priority").default(0).notNull(),
+  fileUrl: text("file_url"),
+  fileName: varchar("file_name", { length: 255 }),
   createdAt: createdAtColumn(),
   updatedAt: updatedAtColumn(),
-});
+}, (table) => [
+  index("life_admin_items_user_id_priority_due_idx").on(table.userId, table.priority, table.dueAt),
+]);
 
 export const portfolioItems = pgTable("portfolio_items", {
   id: idColumn(),
@@ -512,7 +564,9 @@ export const portfolioItems = pgTable("portfolio_items", {
   status: portfolioStatusEnum("status").default("active").notNull(),
   createdAt: createdAtColumn(),
   updatedAt: updatedAtColumn(),
-});
+}, (table) => [
+  index("portfolio_items_user_id_date_created_idx").on(table.userId, table.date, table.createdAt),
+]);
 
 export const strategicReviews = pgTable("strategic_reviews", {
   id: idColumn(),
@@ -526,7 +580,9 @@ export const strategicReviews = pgTable("strategic_reviews", {
   eliteIndexSnapshot: doublePrecision("elite_index_snapshot").default(0).notNull(),
   createdAt: createdAtColumn(),
   updatedAt: updatedAtColumn(),
-});
+}, (table) => [
+  index("strategic_reviews_user_id_date_idx").on(table.userId, table.date),
+]);
 
 export const researchAreas = pgTable("research_areas", {
   id: idColumn(),
@@ -539,7 +595,9 @@ export const researchAreas = pgTable("research_areas", {
   methodologicallyWeak: text("methodologically_weak"),
   createdAt: createdAtColumn(),
   updatedAt: updatedAtColumn(),
-});
+}, (table) => [
+  index("research_areas_user_id_created_idx").on(table.userId, table.createdAt),
+]);
 
 export const literatureGaps = pgTable("literature_gaps", {
   id: idColumn(),
@@ -552,7 +610,9 @@ export const literatureGaps = pgTable("literature_gaps", {
   status: text("status").default("identified"),
   createdAt: createdAtColumn(),
   updatedAt: updatedAtColumn(),
-});
+}, (table) => [
+  index("literature_gaps_user_id_priority_created_idx").on(table.userId, table.priority, table.createdAt),
+]);
 
 export const hypotheses = pgTable("hypotheses", {
   id: idColumn(),
@@ -564,7 +624,9 @@ export const hypotheses = pgTable("hypotheses", {
   notes: text("notes"),
   createdAt: createdAtColumn(),
   updatedAt: updatedAtColumn(),
-});
+}, (table) => [
+  index("hypotheses_user_id_created_idx").on(table.userId, table.createdAt),
+]);
 
 export const manuscripts = pgTable("manuscripts", {
   id: idColumn(),
@@ -577,7 +639,9 @@ export const manuscripts = pgTable("manuscripts", {
   notes: text("notes"),
   createdAt: createdAtColumn(),
   updatedAt: updatedAtColumn(),
-});
+}, (table) => [
+  index("manuscripts_user_id_deadline_idx").on(table.userId, table.deadline),
+]);
 
 export const methodologyRisks = pgTable("methodology_risks", {
   id: idColumn(),
@@ -590,7 +654,9 @@ export const methodologyRisks = pgTable("methodology_risks", {
   mitigated: boolean("mitigated").default(false),
   mitigationNotes: text("mitigation_notes"),
   createdAt: createdAtColumn(),
-});
+}, (table) => [
+  index("methodology_risks_user_id_created_idx").on(table.userId, table.createdAt),
+]);
 
 export const uploads = pgTable("uploads", {
   id: idColumn(),
@@ -605,7 +671,9 @@ export const uploads = pgTable("uploads", {
   processed: boolean("processed").default(false).notNull(),
   flashcardsGenerated: integer("flashcards_generated").default(0).notNull(),
   createdAt: createdAtColumn(),
-});
+}, (table) => [
+  index("uploads_user_id_created_idx").on(table.userId, table.createdAt),
+]);
 
 export const pushSubscriptions = pgTable("push_subscriptions", {
   id: idColumn(),
@@ -616,7 +684,9 @@ export const pushSubscriptions = pgTable("push_subscriptions", {
   userAgent: text("user_agent"),
   createdAt: createdAtColumn(),
   updatedAt: updatedAtColumn(),
-});
+}, (table) => [
+  index("push_subscriptions_user_id_endpoint_idx").on(table.userId, table.endpoint),
+]);
 
 export const profiles = pgTable("profiles", {
   id: uuid("id").primaryKey(),
@@ -626,6 +696,7 @@ export const profiles = pgTable("profiles", {
   rejectedAt: timestamp("rejected_at", { withTimezone: true }),
   aiProvider: text("ai_provider"),
   aiApiKey: text("ai_api_key"),
+  aiPromptLimitChars: integer("ai_prompt_limit_chars").default(24000).notNull(),
   isAdmin: boolean("is_admin").default(false),
   notifiedAt: timestamp("notified_at", { withTimezone: true }),
   createdAt: createdAtColumn(),

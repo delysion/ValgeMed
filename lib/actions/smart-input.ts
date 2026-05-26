@@ -2,11 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { parseUserIntent, generateReviewItemsFromText, type ParsedStudyIntent } from "@/lib/ai/ollama";
+import { getUserAiOptions } from "@/lib/ai/user-options";
 import { requireUser } from "@/lib/auth/supabase";
 import { getDb } from "@/lib/db";
 import { subjects, topics, studySessions, reviewItems } from "@/lib/db/schema";
 import { getNextReviewSchedule } from "@/lib/scheduling/reviews";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import type { Locale } from "@/lib/i18n/config";
 
 export interface SmartInputResult {
@@ -70,23 +71,23 @@ async function findOrCreateSubject(userId: string, subjectName: string): Promise
   const db = getDb();
   const normalizedName = subjectName.trim();
 
-    const existing = await db
-      .select()
-      .from(subjects)
-      .where(eq(subjects.name, normalizedName))
-      .limit(1);
+  const existing = await db
+    .select()
+    .from(subjects)
+    .where(and(eq(subjects.userId, userId), eq(subjects.name, normalizedName)))
+    .limit(1);
 
-    if (existing.length > 0) {
-      return existing[0].id;
-    }
+  if (existing.length > 0) {
+    return existing[0].id;
+  }
 
-    const [newSubject] = await db
-      .insert(subjects)
-      .values({
-        userId,
-        name: normalizedName,
-        description: `Materia: ${normalizedName}`,
-      })
+  const [newSubject] = await db
+    .insert(subjects)
+    .values({
+      userId,
+      name: normalizedName,
+      description: `Materia: ${normalizedName}`,
+    })
     .returning();
 
   return newSubject.id;
@@ -101,7 +102,13 @@ async function findOrCreateTopic(userId: string, subjectId: string, topicName: s
   const existing = await db
     .select()
     .from(topics)
-    .where(eq(topics.title, normalizedName))
+    .where(
+      and(
+        eq(topics.userId, userId),
+        eq(topics.subjectId, subjectId),
+        eq(topics.title, normalizedName),
+      ),
+    )
     .limit(1);
 
   if (existing.length > 0) {
@@ -126,8 +133,9 @@ export async function processSmartInputAction(input: string, locale: Locale = "e
 
   try {
     const user = await requireUser();
+    const userOptions = await getUserAiOptions(user.id);
 
-    const parsed: ParsedStudyIntent = await parseUserIntent(input);
+    const parsed: ParsedStudyIntent = await parseUserIntent(input, userOptions);
 
     if (parsed.action === "unknown" || !parsed.action) {
       return {
@@ -301,8 +309,9 @@ export async function generateFlashcardsFromTextAction(
 
   try {
     const user = await requireUser();
+    const userOptions = await getUserAiOptions(user.id);
 
-    const items = await generateReviewItemsFromText(text, subject, topic);
+    const items = await generateReviewItemsFromText(text, subject, topic, userOptions);
 
     if (items.length === 0) {
       return {

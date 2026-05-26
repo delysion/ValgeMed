@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { aiChat } from "@/lib/ai/ollama";
 import { requireUser } from "@/lib/auth/supabase";
-import { getDb } from "@/lib/db";
-import { profiles } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { getUserAiOptions } from "@/lib/ai/user-options";
 
 export async function POST(request: NextRequest) {
   let locale = "en";
@@ -17,10 +15,7 @@ export async function POST(request: NextRequest) {
     };
     locale = reqLocale;
 
-    // Get user's AI settings
-    const db = getDb();
-    const [profile] = await db.select({ aiProvider: profiles.aiProvider, aiApiKey: profiles.aiApiKey }).from(profiles).where(eq(profiles.id, user.id)).limit(1);
-    const userOptions = profile?.aiApiKey ? { provider: profile.aiProvider || undefined, apiKey: profile.aiApiKey } : undefined;
+    const userOptions = await getUserAiOptions(user.id);
 
     if (!tool || !input) {
       return NextResponse.json({ error: "Missing tool or input" }, { status: 400 });

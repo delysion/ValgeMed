@@ -2,8 +2,10 @@
 
 import { formatISO } from "date-fns";
 import type React from "react";
+import { useState } from "react";
 
 import { useTranslation } from "@/lib/i18n/useTranslation";
+import { GoogleDrivePicker } from "@/components/google-drive-picker";
 
 import {
   createHealthLogAction,
@@ -240,10 +242,15 @@ export function ProfessionalContactForm({ contact }: { contact?: ProfessionalCon
 
 export function LifeAdminItemForm({ item }: { item?: LifeAdminItem }) {
   const { t } = useTranslation();
+  const [fileUrl, setFileUrl] = useState(item?.fileUrl ?? "");
+  const [fileName, setFileName] = useState(item?.fileName ?? "");
+
   return (
     <FormCard title={item ? t("lifeForm.lifeAdmin.editTitle") : t("lifeForm.lifeAdmin.title")} description={t("lifeForm.lifeAdmin.desc")}>
       <form action={item ? updateLifeAdminItemAction : createLifeAdminItemAction} className="space-y-5">
         {item ? <input type="hidden" name="id" value={item.id} /> : null}
+        <input type="hidden" name="fileUrl" value={fileUrl} />
+        <input type="hidden" name="fileName" value={fileName} />
         <FieldGrid>
           <TextField label={t("lifeForm.lifeAdmin.titleLabel")} name="title" defaultValue={item?.title} required />
           <NativeSelectField label={t("lifeForm.lifeAdmin.categoryLabel")} name="category" options={optionize(lifeAdminCategories)} defaultValue={item?.category ?? "other"} />
@@ -252,6 +259,20 @@ export function LifeAdminItemForm({ item }: { item?: LifeAdminItem }) {
           <TextField label={t("lifeForm.lifeAdmin.priorityLabel")} name="priority" type="number" min={0} max={10} defaultValue={item?.priority ?? 0} />
         </FieldGrid>
         <TextAreaField label={t("lifeForm.lifeAdmin.descriptionLabel")} name="description" defaultValue={item?.description} />
+        <Field label={t("lifeForm.lifeAdmin.documentLabel")}>
+          <GoogleDrivePicker
+            value={fileUrl}
+            fileName={fileName}
+            onPick={(file) => {
+              setFileUrl(file.url);
+              setFileName(file.name);
+            }}
+            onClear={() => {
+              setFileUrl("");
+              setFileName("");
+            }}
+          />
+        </Field>
         <SubmitBar label={item ? t("lifeForm.lifeAdmin.submitEdit") : t("lifeForm.lifeAdmin.submitCreate")} cancelHref={item ? "/life-admin" : undefined} />
       </form>
     </FormCard>

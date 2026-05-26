@@ -4,8 +4,26 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getClient } from "@/lib/supabase/client";
 import { Command, Hourglass, Loader2 } from "lucide-react";
-import { checkStatusAction } from "@/lib/actions/admin";
 import { useTranslation } from "@/lib/i18n/useTranslation";
+
+type CheckStatusResponse = {
+  hasProfile: boolean;
+  approved: boolean;
+  isAdmin: boolean;
+};
+
+async function fetchCheckStatus(signal?: AbortSignal): Promise<CheckStatusResponse> {
+  const response = await fetch("/api/admin/check-status", {
+    cache: "no-store",
+    signal,
+  });
+
+  if (!response.ok) {
+    throw new Error("Unable to check profile status");
+  }
+
+  return response.json();
+}
 
 export default function PendingApprovalPage() {
   const { t } = useTranslation();
@@ -16,6 +34,8 @@ export default function PendingApprovalPage() {
   const [error, setError] = useState(false);
 
   useEffect(() => {
+    const controller = new AbortController();
+
     const check = async () => {
       const supabase = getClient();
       const { data: { user } } = await supabase.auth.getUser();
@@ -26,21 +46,26 @@ export default function PendingApprovalPage() {
       setEmail(user.email ?? "");
 
       try {
-        const data = await checkStatusAction();
+        const data = await fetchCheckStatus(controller.signal);
         if (data.hasProfile && data.approved) {
           router.replace("/command");
           return;
         }
         setError(false);
       } catch {
+        if (controller.signal.aborted) return;
         setError(true);
       }
       setChecking(false);
       setLastChecked(new Date());
     };
+
     check();
     const interval = setInterval(check, 15_000);
-    return () => clearInterval(interval);
+    return () => {
+      controller.abort();
+      clearInterval(interval);
+    };
   }, [router]);
 
   return (

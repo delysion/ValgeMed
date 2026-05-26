@@ -6,6 +6,7 @@ import { GlassCard } from "@/components/premium/glass-card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { shouldAutoSaveAiTool } from "@/lib/ai/tool-saving";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 import { createErrorLogAction, upsertDailyLogAction, createStrategicReviewAction } from "@/lib/actions/resources";
 import { createHypothesisAction } from "@/lib/actions/research";
@@ -57,9 +58,6 @@ export function AiToolCard({
   const parsedError = tool === "error_analysis" && result ? tryParseErrorJson(result) : null;
   const parsedDaily = tool === "daily_command" && result ? tryParseDailyJson(result) : null;
   const parsedReview = tool === "weekly_review" && result ? tryParseReviewJson(result) : null;
-  const parsedExam = tool === "exam_battle_plan" && result ? tryParseExamJson(result) : null;
-  const parsedSemester = tool === "semester_plan" && result ? tryParseReviewJson(result) : null;
-  const parsedResearch = tool === "research_ideas" && result ? tryParseResearchJson(result) : null;
 
   const handleExecute = () => {
     setExpanded(true);
@@ -104,7 +102,9 @@ export function AiToolCard({
           const parsed = tryParseErrorJson(text);
           if (parsed && subjects && subjects.length > 0) {
             setSelectedSubject(subjects[0].id);
-            await autoSaveError(parsed, subjects[0].id, text);
+            if (shouldAutoSaveAiTool(tool)) {
+              await autoSaveError(parsed, subjects[0].id, text);
+            }
           }
         } else if (tool === "daily_command") {
           const parsed = tryParseDailyJson(text);
@@ -307,7 +307,7 @@ export function AiToolCard({
     } catch {}
   }
 
-  async function autoSaveExam(parsed: NonNullable<typeof parsedExam>) {
+  async function autoSaveExam(parsed: NonNullable<ReturnType<typeof tryParseExamJson>>) {
     try {
       const fd = new FormData();
       fd.set("date", new Date().toISOString().slice(0, 10));
@@ -337,7 +337,7 @@ export function AiToolCard({
     } catch {}
   }
 
-  async function autoSaveResearch(parsed: NonNullable<typeof parsedResearch>) {
+  async function autoSaveResearch(parsed: NonNullable<ReturnType<typeof tryParseResearchJson>>) {
     try {
       const fd = new FormData();
       fd.set("question", parsed.question || "Research idea");

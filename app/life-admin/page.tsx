@@ -9,6 +9,7 @@ import { requireUser } from "@/lib/auth/supabase";
 import { getLifeAdminItems } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server-i18n";
 import { fmtDate, humanize } from "@/lib/labels";
+import { FileText } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -37,6 +38,23 @@ export default async function LifeAdminPage({ searchParams }: { searchParams: Pr
                 { header: t("common.date"), render: (item) => fmtDate(item.dueAt) },
                 { header: t("common.status"), render: (item) => <Badge variant={item.status === "done" ? "success" : "muted"}>{humanize(item.status)}</Badge> },
                 { header: t("common.priority"), render: (item) => `${item.priority}/10` },
+                {
+                  header: "File",
+                  render: (item) =>
+                    item.fileUrl && item.fileName ? (
+                      <a
+                        href={item.fileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 text-sm text-ice hover:underline"
+                      >
+                        <FileText className="h-3.5 w-3.5" />
+                        {item.fileName}
+                      </a>
+                    ) : (
+                      <span className="text-text-muted">—</span>
+                    ),
+                },
               ]}
             />
           </div>

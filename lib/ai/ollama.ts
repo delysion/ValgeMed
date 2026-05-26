@@ -1,14 +1,23 @@
 "use server";
 
+import { boundPrompt } from "@/lib/ai/prompt-limits";
+
 // ─── AI Provider Abstraction ───
 // Supports: ollama (local), openai (OpenAI API), groq (Groq API)
 // Uses user's API key if provided, falls back to env vars, then Ollama.
 // To configure, users can set their key in Settings → AI Settings.
 // Admins can also set AI_PROVIDER and API key in Vercel env vars.
 
-export async function aiChat(prompt: string, model?: string, userOptions?: { provider?: string; apiKey?: string }): Promise<string> {
+export type AiChatOptions = {
+  provider?: string;
+  apiKey?: string;
+  promptLimitChars?: number | null;
+}
+
+export async function aiChat(prompt: string, model?: string, userOptions?: AiChatOptions): Promise<string> {
   const provider = userOptions?.provider || process.env.AI_PROVIDER || "ollama";
   const apiKey = userOptions?.apiKey || process.env.OPENAI_API_KEY || process.env.GROQ_API_KEY || "";
+  const boundedPrompt = boundPrompt(prompt, userOptions?.promptLimitChars);
 
   // Try cloud provider
   if (provider !== "ollama" && apiKey) {
@@ -21,7 +30,7 @@ export async function aiChat(prompt: string, model?: string, userOptions?: { pro
       const response = await fetch(`${baseUrl}/chat/completions`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
-        body: JSON.stringify({ model: selectedModel, messages: [{ role: "user", content: prompt }], temperature: 0.3, max_tokens: 2000 }),
+        body: JSON.stringify({ model: selectedModel, messages: [{ role: "user", content: boundedPrompt }], temperature: 0.3, max_tokens: 2000 }),
       });
       if (!response.ok) {
         const err = await response.text();
@@ -40,7 +49,7 @@ export async function aiChat(prompt: string, model?: string, userOptions?: { pro
     const response = await fetch("http://localhost:11434/api/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ model: model || "llama3.2", prompt, stream: false }),
+      body: JSON.stringify({ model: model || "llama3.2", prompt: boundedPrompt, stream: false }),
     });
     if (!response.ok) throw new Error(`Ollama error: ${response.status}`);
     const data = await response.json();
@@ -78,10 +87,10 @@ Response format:
 {"action": "...", "subject": "...", "topic": "...", "durationMinutes": ..., "question": "...", "answer": "...", "notes": "..."}
 Use null for missing fields. durationMinutes should be a number if provided.`;
 
-export async function parseUserIntent(text: string): Promise<ParsedStudyIntent> {
+export async function parseUserIntent(text: string, userOptions?: AiChatOptions): Promise<ParsedStudyIntent> {
   try {
     const fullPrompt = `${SYSTEM_PROMPT}\n\nUser input: "${text}"\n\nRespond with ONLY JSON.`;
-    const response = await aiChat(fullPrompt);
+    const response = await aiChat(fullPrompt, undefined, userOptions);
     const cleaned = response.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
     return JSON.parse(cleaned) as ParsedStudyIntent;
   } catch {
@@ -92,7 +101,8 @@ export async function parseUserIntent(text: string): Promise<ParsedStudyIntent> 
 export async function generateReviewItemsFromText(
   text: string,
   subject?: string,
-  topic?: string
+  topic?: string,
+  userOptions?: AiChatOptions,
 ): Promise<Array<{ question: string; answer: string; notes: string }>> {
   try {
     const prompt = `Generate 3-5 review flashcards from the following study material. 
@@ -104,7 +114,7 @@ ${text}
 ${subject ? `\nSubject: ${subject}` : ""}
 ${topic ? `\nTopic: ${topic}` : ""}`;
 
-    const response = await aiChat(prompt);
+    const response = await aiChat(prompt, undefined, userOptions);
     const cleaned = response.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
     return JSON.parse(cleaned);
   } catch {
@@ -112,10 +122,10 @@ ${topic ? `\nTopic: ${topic}` : ""}`;
   }
 }
 
-export async function summarizeText(text: string, maxLength = 200): Promise<string> {
+export async function summarizeText(text: string, maxLength = 200, userOptions?: AiChatOptions): Promise<string> {
   try {
     const prompt = `Summarize this text in no more than ${maxLength} characters. Return ONLY the summary:\n\n${text}`;
-    return await aiChat(prompt);
+    return await aiChat(prompt, undefined, userOptions);
   } catch {
     return "Summary unavailable — AI not connected";
   }

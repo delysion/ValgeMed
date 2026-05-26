@@ -1,17 +1,11 @@
-const CACHE_NAME = "valgemed-v4";
+const CACHE_NAME = "valgemed-v5";
 const STATIC_ASSETS = [
-  "/",
-  "/manifest.json",
   "/icons/icon-192.png",
   "/icons/icon-512.png",
   "/icons/apple-touch-icon.png",
 ];
 
-const CACHE_STRATEGIES = {
-  // Never cache /_next/static/ - let Next.js handle versioning
-  static: ["/icons/", "/fonts/"],
-  network: ["/api/", "/auth/", "/_next/static/"],
-};
+const CACHEABLE_PATHS = ["/icons/", "/fonts/"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -36,18 +30,27 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
 
   if (request.method !== "GET") return;
+  if (url.origin !== self.location.origin) return;
 
-  if (CACHE_STRATEGIES.network.some((p) => url.pathname.startsWith(p))) {
-    event.respondWith(networkFirst(request));
+  if (
+    request.mode === "navigate" ||
+    request.destination === "document" ||
+    request.headers.get("accept")?.includes("text/html")
+  ) {
     return;
   }
 
-  if (CACHE_STRATEGIES.static.some((p) => url.pathname.startsWith(p))) {
+  if (
+    url.pathname.startsWith("/_next/") ||
+    url.pathname.startsWith("/api/") ||
+    url.pathname.startsWith("/auth/")
+  ) {
+    return;
+  }
+
+  if (CACHEABLE_PATHS.some((p) => url.pathname.startsWith(p))) {
     event.respondWith(cacheFirst(request));
-    return;
   }
-
-  event.respondWith(staleWhileRevalidate(request));
 });
 
 async function cacheFirst(request) {
@@ -59,29 +62,6 @@ async function cacheFirst(request) {
     cache.put(request, response.clone());
   }
   return response;
-}
-
-async function networkFirst(request) {
-  try {
-    const response = await fetch(request);
-    if (response.ok) {
-      const cache = await caches.open(CACHE_NAME);
-      cache.put(request, response.clone());
-    }
-    return response;
-  } catch {
-    return (await caches.match(request)) || new Response("Offline", { status: 503 });
-  }
-}
-
-async function staleWhileRevalidate(request) {
-  const cache = await caches.open(CACHE_NAME);
-  const cached = await cache.match(request);
-  const fetchPromise = fetch(request).then((response) => {
-    if (response.ok) cache.put(request, response.clone());
-    return response;
-  }).catch(() => cached);
-  return cached || fetchPromise;
 }
 
 self.addEventListener("push", (event) => {

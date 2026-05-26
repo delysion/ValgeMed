@@ -14,7 +14,13 @@ const LONG_BREAK_INTERVAL = 4;
 
 type TimerMode = "work" | "shortBreak" | "longBreak";
 
-export function FocusTimer({ onComplete }: { onComplete?: (minutes: number) => void }) {
+export function FocusTimer({
+  onComplete,
+  compact = false,
+}: {
+  onComplete?: (minutes: number) => void;
+  compact?: boolean;
+}) {
   const { t } = useTranslation();
   const [mode, setMode] = useState<TimerMode>("work");
   const [timeLeft, setTimeLeft] = useState(WORK_DURATION);
@@ -123,8 +129,8 @@ export function FocusTimer({ onComplete }: { onComplete?: (minutes: number) => v
   const dash = (progress / 100) * circumference;
 
   return (
-    <div className="flex flex-col items-center gap-5">
-      <div className="relative grid h-48 w-48 place-items-center sm:h-56 sm:w-56">
+    <div className={cn("flex flex-col items-center", compact ? "gap-3" : "gap-5")}>
+      <div className={cn("relative grid place-items-center", compact ? "h-36 w-36 sm:h-40 sm:w-40" : "h-48 w-48 sm:h-56 sm:w-56")}>
         <svg viewBox="0 0 180 180" className="absolute inset-0 h-full w-full -rotate-90">
           <circle cx="90" cy="90" r={radius} fill="none" stroke="#E2E8F0" strokeWidth="6" />
           <circle
@@ -140,7 +146,7 @@ export function FocusTimer({ onComplete }: { onComplete?: (minutes: number) => v
           />
         </svg>
         <div className="relative text-center">
-          <p className={cn("font-mono text-5xl font-semibold sm:text-6xl", modeColors[mode])}>
+          <p className={cn("font-mono font-semibold", compact ? "text-3xl sm:text-4xl" : "text-5xl sm:text-6xl", modeColors[mode])}>
             {String(minutes).padStart(2, "0")}:{String(seconds).padStart(2, "0")}
           </p>
           <p className="mt-1 text-xs font-semibold uppercase tracking-[0.14em] text-text-secondary">{modeLabels[mode]}</p>

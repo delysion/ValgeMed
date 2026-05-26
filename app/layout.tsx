@@ -4,7 +4,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { isLocale, languageCookie, defaultLocale, type Locale } from "@/lib/i18n/config";
 import { getDictionary, dictionaries } from "@/lib/i18n/server";
-import { getTheme } from "@/lib/theme/config";
 import { TranslationProvider } from "@/lib/i18n/useTranslation";
 import { ServiceWorkerRegistration } from "./sw-register";
 import { InstallAppButton } from "@/components/install-app-button";
@@ -22,7 +21,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "ValgeMed",
   description: "A quiet command system for serious medical students.",
-  manifest: "/manifest.json",
+  manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
@@ -72,7 +71,7 @@ export default async function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="theme-color" content="#1e1b4b" />
       </head>
-      <body className="min-h-full">
+      <body className="min-h-full" suppressHydrationWarning>
         <ServiceWorkerRegistration />
         <InstallAppButton />
         <TranslationProvider locale={locale} dictionary={dictionary} dictionaries={dictionaries}>

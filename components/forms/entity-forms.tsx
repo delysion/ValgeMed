@@ -1,6 +1,8 @@
 import { formatISO } from "date-fns";
 import type React from "react";
 
+import { ColorPicker } from "@/components/ui/color-picker";
+
 import {
   createErrorLogAction,
   createExamAction,
@@ -78,18 +80,23 @@ function FormCard({
   title,
   description,
   children,
+  compact = false,
 }: {
   title: string;
   description: string;
   children: React.ReactNode;
+  compact?: boolean;
 }) {
   return (
-    <Card className="overflow-hidden">
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
-        <CardDescription>{description}</CardDescription>
+    <Card
+      variant={compact ? "premium" : "default"}
+      className={compact ? "overflow-hidden border-cyan/15 bg-gradient-to-br from-bg-surface via-bg-surface to-cyan-bg/15" : "overflow-hidden"}
+    >
+      <CardHeader className={compact ? "p-4 pb-3" : undefined}>
+        <CardTitle className={compact ? "text-sm" : undefined}>{title}</CardTitle>
+        <CardDescription className={compact ? "text-xs leading-5" : undefined}>{description}</CardDescription>
       </CardHeader>
-      <CardContent>{children}</CardContent>
+      <CardContent className={compact ? "p-4 pt-0" : undefined}>{children}</CardContent>
     </Card>
   );
 }
@@ -105,7 +112,7 @@ export function SubjectForm({ subject, t }: { subject?: Subject; t: TFunc }) {
         <FieldGrid>
           <TextField label={t("form.subject.nameLabel")} name="name" defaultValue={subject?.name} required placeholder={t("form.subject.namePlaceholder")} description={t("form.subject.nameDescription")} />
           <TextField label={t("form.subject.codeLabel")} name="code" defaultValue={subject?.code} placeholder={t("form.subject.codePlaceholder")} description={t("form.subject.codeDescription")} />
-          <TextField label={t("form.subject.colorLabel")} name="color" defaultValue={subject?.color ?? "#5746E5"} description={t("form.subject.colorDescription")} />
+          <ColorPicker name="color" value={subject?.color ?? "#5746E5"} label={t("form.subject.colorLabel")} />
           <TextField label={t("form.subject.difficultyLabel")} name="difficulty" type="number" min={0} max={10} defaultValue={subject?.difficulty ?? 5} description={t("form.subject.difficultyDescription")} />
           <TextField label={t("form.subject.importanceLabel")} name="importance" type="number" min={0} max={10} defaultValue={subject?.importance ?? 5} description={t("form.subject.importanceDescription")} />
         </FieldGrid>
@@ -190,33 +197,38 @@ export function StudySessionForm({
   topics,
   exams,
   t,
+  compact = false,
 }: {
   session?: StudySession;
   subjects: Subject[];
   topics: Topic[];
   exams: Exam[];
   t: TFunc;
+  compact?: boolean;
 }) {
+  const hideDescriptions = compact;
+
   return (
     <FormCard
       title={session ? t("form.studySession.editTitle") : t("form.studySession.createTitle")}
       description={t("form.studySession.description")}
+      compact={compact}
     >
-      <form action={session ? updateStudySessionAction : createStudySessionAction} className="space-y-6">
+      <form action={session ? updateStudySessionAction : createStudySessionAction} className={compact ? "space-y-4" : "space-y-6"}>
         {session ? <input type="hidden" name="id" value={session.id} /> : null}
-        <FieldGrid>
-          <NativeSelectField label={t("form.studySession.subjectLabel")} name="subjectId" options={relationOptions(subjects, t("form.studySession.subjectEmpty"))} defaultValue={session?.subjectId} description={t("form.studySession.subjectDescription")} />
-          <NativeSelectField label={t("form.studySession.topicLabel")} name="topicId" options={relationOptions(topics, t("form.studySession.topicEmpty"))} defaultValue={session?.topicId} description={t("form.studySession.topicDescription")} />
-          <NativeSelectField label={t("form.studySession.examLabel")} name="examId" options={relationOptions(exams, t("form.studySession.examEmpty"))} defaultValue={session?.examId} description={t("form.studySession.examDescription")} />
-          <TextField label={t("form.studySession.startLabel")} name="startedAt" type="datetime-local" defaultValue={dateTimeValue(session?.startedAt) || dateTimeValue(new Date())} required description={t("form.studySession.startDescription")} />
-          <TextField label={t("form.studySession.endLabel")} name="endedAt" type="datetime-local" defaultValue={dateTimeValue(session?.endedAt)} description={t("form.studySession.endDescription")} />
-          <TextField label={t("form.studySession.durationLabel")} name="durationMinutes" type="number" defaultValue={session?.durationMinutes ?? 50} required description={t("form.studySession.durationDescription")} />
-          <NativeSelectField label={t("form.studySession.methodLabel")} name="method" options={optionize(studyMethods)} defaultValue={session?.method ?? "mixed"} description={t("form.studySession.methodDescription")} />
-          <TextField label={t("form.studySession.focusLabel")} name="focusLevel" type="number" min={0} max={10} defaultValue={session?.focusLevel ?? 7} description={t("form.studySession.focusDescription")} />
-          <TextField label={t("form.studySession.energyLabel")} name="energyLevel" type="number" min={0} max={10} defaultValue={session?.energyLevel ?? 7} description={t("form.studySession.energyDescription")} />
-          <TextField label={t("form.studySession.outputLabel")} name="outputQuality" type="number" min={0} max={10} defaultValue={session?.outputQuality ?? 7} description={t("form.studySession.outputDescription")} />
+        <FieldGrid className={compact ? "gap-3 sm:grid-cols-2" : undefined}>
+          <NativeSelectField label={t("form.studySession.subjectLabel")} name="subjectId" options={relationOptions(subjects, t("form.studySession.subjectEmpty"))} defaultValue={session?.subjectId} description={hideDescriptions ? undefined : t("form.studySession.subjectDescription")} />
+          <NativeSelectField label={t("form.studySession.topicLabel")} name="topicId" options={relationOptions(topics, t("form.studySession.topicEmpty"))} defaultValue={session?.topicId} description={hideDescriptions ? undefined : t("form.studySession.topicDescription")} />
+          <NativeSelectField label={t("form.studySession.examLabel")} name="examId" options={relationOptions(exams, t("form.studySession.examEmpty"))} defaultValue={session?.examId} description={hideDescriptions ? undefined : t("form.studySession.examDescription")} />
+          <TextField label={t("form.studySession.startLabel")} name="startedAt" type="datetime-local" defaultValue={dateTimeValue(session?.startedAt) || dateTimeValue(new Date())} required description={hideDescriptions ? undefined : t("form.studySession.startDescription")} />
+          <TextField label={t("form.studySession.endLabel")} name="endedAt" type="datetime-local" defaultValue={dateTimeValue(session?.endedAt)} description={hideDescriptions ? undefined : t("form.studySession.endDescription")} />
+          <TextField label={t("form.studySession.durationLabel")} name="durationMinutes" type="number" defaultValue={session?.durationMinutes ?? 50} required description={hideDescriptions ? undefined : t("form.studySession.durationDescription")} />
+          <NativeSelectField label={t("form.studySession.methodLabel")} name="method" options={optionize(studyMethods)} defaultValue={session?.method ?? "mixed"} description={hideDescriptions ? undefined : t("form.studySession.methodDescription")} />
+          <TextField label={t("form.studySession.focusLabel")} name="focusLevel" type="number" min={0} max={10} defaultValue={session?.focusLevel ?? 7} description={hideDescriptions ? undefined : t("form.studySession.focusDescription")} />
+          <TextField label={t("form.studySession.energyLabel")} name="energyLevel" type="number" min={0} max={10} defaultValue={session?.energyLevel ?? 7} description={hideDescriptions ? undefined : t("form.studySession.energyDescription")} />
+          <TextField label={t("form.studySession.outputLabel")} name="outputQuality" type="number" min={0} max={10} defaultValue={session?.outputQuality ?? 7} description={hideDescriptions ? undefined : t("form.studySession.outputDescription")} />
         </FieldGrid>
-        <TextAreaField label={t("form.studySession.notesLabel")} name="notes" defaultValue={session?.notes} placeholder={t("form.studySession.notesPlaceholder")} description={t("form.studySession.notesDescription")} />
+        <TextAreaField label={t("form.studySession.notesLabel")} name="notes" defaultValue={session?.notes} placeholder={t("form.studySession.notesPlaceholder")} description={hideDescriptions ? undefined : t("form.studySession.notesDescription")} />
         <SubmitBar label={session ? t("form.studySession.editSubmit") : t("form.studySession.createSubmit")} pendingLabel={session ? t("form.studySession.editPending") : t("form.studySession.createPending")} cancelHref={session ? "/study-sessions" : undefined} cancelLabel={t("common.cancel")} />
       </form>
     </FormCard>

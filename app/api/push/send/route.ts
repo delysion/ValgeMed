@@ -1,8 +1,8 @@
-import { requireUser } from "@/lib/auth/supabase";
+import { requireAdmin } from "@/lib/auth/admin";
 import { sendPushToAll, type PushPayload } from "@/lib/push/notifications";
 
 export async function POST(request: Request) {
-  await requireUser();
+  await requireAdmin();
   const body = await request.json();
 
   const payload: PushPayload = {

@@ -3,7 +3,7 @@ import { GlassCard } from "@/components/premium/glass-card";
 import { SectionHeader } from "@/components/premium/section-header";
 import { TimelineView } from "@/components/premium/timeline-view";
 import { requireUser } from "@/lib/auth/supabase";
-import { getCoreData } from "@/lib/data/queries";
+import { getTimelinePageData } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server-i18n";
 
 export const dynamic = "force-dynamic";
@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 export default async function TimelinePage() {
   const user = await requireUser();
   const { t } = await getI18n();
-  const data = await getCoreData(user.id);
+  const data = await getTimelinePageData(user.id);
 
   return (
     <AppShell user={user}>

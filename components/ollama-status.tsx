@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Wifi, WifiOff, RefreshCw } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -45,9 +45,11 @@ export function useOllamaStatus() {
   const [status, setStatus] = useState<OllamaStatus | null>(null);
   const [checking, setChecking] = useState(false);
 
-  const checkStatus = useCallback(() => {
+  const checkStatus = useCallback((forceRefresh = true) => {
     setChecking(true);
-    try { localStorage.removeItem("ollama_status_cache"); } catch {}
+    if (forceRefresh) {
+      try { localStorage.removeItem(CACHE_KEY); } catch {}
+    }
     fetch("/api/ai/status", { signal: AbortSignal.timeout(5000) })
       .then((res) => {
         if (!res.ok) throw new Error("Status check failed");
@@ -58,12 +60,22 @@ export function useOllamaStatus() {
         setCachedStatus(data);
       })
       .catch(() => {
-        const offline = { online: false, models: [] };
+        const offline: OllamaStatus = { online: false, models: [] };
         setStatus(offline);
         setCachedStatus(offline);
       })
       .finally(() => setChecking(false));
   }, []);
+
+  useEffect(() => {
+    const cached = getCachedStatus();
+    if (cached) {
+      queueMicrotask(() => setStatus(cached));
+      return;
+    }
+
+    queueMicrotask(() => checkStatus(false));
+  }, [checkStatus]);
 
   return { status, checking, checkStatus };
 }
@@ -76,7 +88,7 @@ export function OllamaStatusBadge() {
       <Badge
         variant={status?.online ? "success" : status === null ? "muted" : "danger"}
         className="gap-1.5 cursor-pointer select-none"
-        onClick={checkStatus}
+        onClick={() => checkStatus()}
         title={status?.online ? `${status.provider || "AI"} connected` : "Check AI status"}
       >
         {status?.online ? (
@@ -94,7 +106,7 @@ export function OllamaStatusBadge() {
         variant="ghost"
         size="icon"
         className="h-7 w-7"
-        onClick={checkStatus}
+        onClick={() => checkStatus()}
         disabled={checking}
         title="Refresh AI status"
       >

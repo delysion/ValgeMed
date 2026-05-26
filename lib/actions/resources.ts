@@ -2,7 +2,6 @@
 
 import { and, eq, sql } from "drizzle-orm";
 import { redirect } from "next/navigation";
-import type { ZodType } from "zod";
 
 import { requireAuthUserId } from "@/lib/db/auth";
 import { getDb } from "@/lib/db";
@@ -35,11 +34,9 @@ import {
   dailyLogSchema,
   errorLogSchema,
   examSchema,
-  formDataToObject,
   goalSchema,
   healthLogSchema,
   identityNoteSchema,
-  idSchema,
   languageProgressSchema,
   lifeAdminItemSchema,
   opportunitySchema,
@@ -65,15 +62,11 @@ async function authorizedDb() {
 }
 
 export async function createSubjectAction(formData: FormData) {
-  try {
-    const { db, userId } = await authorizedDb();
-    const data = parseForm(subjectSchema, formData);
-    await db.insert(subjects).values({ ...data, userId });
-    refresh(["/subjects", "/dashboard"]);
-  } catch (e) {
-    console.error("createSubjectAction error:", e);
-    throw e;
-  }
+  const { db, userId } = await authorizedDb();
+  const data = parseForm(subjectSchema, formData);
+  await db.insert(subjects).values({ ...data, userId });
+  refresh(["/subjects", "/dashboard"]);
+  redirect("/subjects");
 }
 
 export async function updateSubjectAction(formData: FormData) {
@@ -191,9 +184,7 @@ export async function markReviewItemReviewedAction(formData: FormData) {
   const { id, confidence } = parseForm(reviewResultSchema, formData);
   const [item] = await db.select().from(reviewItems).where(and(eq(reviewItems.id, id), eq(reviewItems.userId, userId))).limit(1);
 
-  if (!item) {
-    throw new Error("Review item not found.");
-  }
+  if (!item) return;
 
   const nextSchedule = getNextReviewSchedule(
     confidence,
@@ -279,7 +270,7 @@ export async function upsertDailyLogAction(formData: FormData) {
     .insert(dailyLogs)
     .values({ ...data, userId })
     .onConflictDoUpdate({
-      target: dailyLogs.date,
+      target: [dailyLogs.userId, dailyLogs.date],
       set: {
         ...data,
         updatedAt: new Date(),
@@ -429,7 +420,7 @@ export async function createHealthLogAction(formData: FormData) {
     .insert(healthLogs)
     .values({ ...data, userId })
     .onConflictDoUpdate({
-      target: healthLogs.date,
+      target: [healthLogs.userId, healthLogs.date],
       set: { ...data, updatedAt: new Date() },
     });
   refresh(["/health", "/command", "/elite-index"]);

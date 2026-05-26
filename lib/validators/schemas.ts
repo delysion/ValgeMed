@@ -419,6 +419,8 @@ export const lifeAdminItemSchema = z.object({
   dueAt: nullableDate,
   status: z.enum(taskStatuses).default("todo"),
   priority: scoreSchema.default(0),
+  fileUrl: nullableText,
+  fileName: nullableText,
 });
 
 export const portfolioItemSchema = z.object({

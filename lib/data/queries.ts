@@ -389,8 +389,8 @@ export type AiPageData = {
   exams: Exam[];
 };
 
-export async function getAiPageData(): Promise<AiPageData> {
-  const userId = await getUserIdOrThrow();
+export async function getAiPageData(userIdOverride?: string): Promise<AiPageData> {
+  const userId = userIdOverride ?? await getUserIdOrThrow();
   return withDb<AiPageData>(async (db) => {
     const [s, t, er, ri, e] = await Promise.all([
       db.select().from(subjects).where(eq(subjects.userId, userId)).orderBy(asc(subjects.name)),
@@ -406,6 +406,90 @@ export async function getAiPageData(): Promise<AiPageData> {
 // ─────────────────────────────────────────────────────
 // Dashboard (already optimized, used only by /dashboard)
 // ─────────────────────────────────────────────────────
+
+export type TimelinePageData = Pick<
+  CoreData,
+  | "exams"
+  | "studySessions"
+  | "reviewItems"
+  | "tasks"
+  | "errorLogs"
+  | "professionalContacts"
+  | "opportunities"
+  | "dailyLogs"
+>;
+
+const emptyTimelinePageData: TimelinePageData = {
+  exams: [],
+  studySessions: [],
+  reviewItems: [],
+  tasks: [],
+  errorLogs: [],
+  professionalContacts: [],
+  opportunities: [],
+  dailyLogs: [],
+};
+
+export async function getTimelinePageData(userIdOverride?: string, days = 30): Promise<TimelinePageData> {
+  const userId = userIdOverride ?? await getUserIdOrThrow();
+  const today = startOfDay(new Date());
+  const pastWindow = subDays(today, days);
+  const nearPastWindow = subDays(today, 7);
+  const futureWindow = addDays(today, days);
+  const pastDate = formatISO(pastWindow, { representation: "date" });
+  const nearPastDate = formatISO(nearPastWindow, { representation: "date" });
+  const todayDate = formatISO(today, { representation: "date" });
+  const futureDate = formatISO(futureWindow, { representation: "date" });
+
+  return withDb<TimelinePageData>(async (db) => {
+    const [examRows, sessionRows, reviewRows, taskRows, errorRows, contactRows, opportunityRows, dailyRows] =
+      await Promise.all([
+        db.select().from(exams)
+          .where(and(eq(exams.userId, userId), gte(exams.examDate, subDays(today, 1)), lte(exams.examDate, futureWindow)))
+          .orderBy(asc(exams.examDate), desc(exams.importance))
+          .limit(50),
+        db.select().from(studySessions)
+          .where(and(eq(studySessions.userId, userId), gte(studySessions.startedAt, pastWindow), lte(studySessions.startedAt, futureWindow)))
+          .orderBy(asc(studySessions.startedAt))
+          .limit(200),
+        db.select().from(reviewItems)
+          .where(and(eq(reviewItems.userId, userId), eq(reviewItems.isActive, true), gte(reviewItems.dueAt, nearPastWindow), lte(reviewItems.dueAt, futureWindow)))
+          .orderBy(asc(reviewItems.dueAt))
+          .limit(200),
+        db.select().from(tasks)
+          .where(and(eq(tasks.userId, userId), gte(tasks.dueAt, nearPastWindow), lte(tasks.dueAt, futureWindow)))
+          .orderBy(asc(tasks.dueAt), desc(tasks.priority))
+          .limit(100),
+        db.select().from(errorLogs)
+          .where(and(eq(errorLogs.userId, userId), eq(errorLogs.resolved, false), gte(errorLogs.retestAt, nearPastWindow), lte(errorLogs.retestAt, futureWindow)))
+          .orderBy(asc(errorLogs.retestAt), desc(errorLogs.severity))
+          .limit(100),
+        db.select().from(professionalContacts)
+          .where(and(eq(professionalContacts.userId, userId), gte(professionalContacts.nextFollowUpAt, nearPastWindow), lte(professionalContacts.nextFollowUpAt, futureWindow)))
+          .orderBy(asc(professionalContacts.nextFollowUpAt), desc(professionalContacts.relationshipStrength))
+          .limit(100),
+        db.select().from(opportunities)
+          .where(and(eq(opportunities.userId, userId), gte(opportunities.deadline, nearPastDate), lte(opportunities.deadline, futureDate)))
+          .orderBy(asc(opportunities.deadline), desc(opportunities.strategicUpside))
+          .limit(100),
+        db.select().from(dailyLogs)
+          .where(and(eq(dailyLogs.userId, userId), gte(dailyLogs.date, pastDate), lte(dailyLogs.date, todayDate)))
+          .orderBy(desc(dailyLogs.date))
+          .limit(days + 1),
+      ]);
+
+    return {
+      exams: examRows,
+      studySessions: sessionRows,
+      reviewItems: reviewRows,
+      tasks: taskRows,
+      errorLogs: errorRows,
+      professionalContacts: contactRows,
+      opportunities: opportunityRows,
+      dailyLogs: dailyRows,
+    };
+  }, emptyTimelinePageData);
+}
 
 export type DashboardData = Pick<
   CoreData,

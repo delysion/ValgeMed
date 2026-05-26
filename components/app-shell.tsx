@@ -12,10 +12,30 @@ import { LanguageSelector } from "@/components/language-selector";
 import { LogoutButton } from "./logout-button";
 import { Command, Menu, FileDown } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
-import { checkStatusAction } from "@/lib/actions/admin";
 import { MobileNav } from "@/components/mobile-nav";
 import { MobileDrawer } from "@/components/mobile-drawer";
 import { InstallMenuItem } from "@/components/install-app-button";
+
+type CheckStatusResponse = {
+  hasProfile: boolean;
+  approved: boolean;
+  isAdmin: boolean;
+};
+
+type ClientI18n = ReturnType<typeof getI18n>;
+
+async function fetchCheckStatus(signal?: AbortSignal): Promise<CheckStatusResponse> {
+  const response = await fetch("/api/admin/check-status", {
+    cache: "no-store",
+    signal,
+  });
+
+  if (!response.ok) {
+    throw new Error("Unable to check profile status");
+  }
+
+  return response.json();
+}
 
 const pageTitleKeys: Record<string, TranslationKey> = {
   "/command": "nav.command",
@@ -57,32 +77,42 @@ export function AppShell({
   user: User;
 }) {
   const [theme, setThemeState] = useState<"light" | "dark">("dark");
-  const [i18n, setI18n] = useState<{ t: any; dictionary: any; locale: string } | null>(null);
+  const [i18n, setI18n] = useState<ClientI18n | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
     getTheme().then(setThemeState);
-    const i18n = getI18n();
-    setI18n(i18n);
+    queueMicrotask(() => setI18n(getI18n()));
   }, []);
 
-  const { t } = useMemo(() => i18n || { t: (k: string) => k }, [i18n]);
+  const t = useMemo(
+    () => i18n?.t ?? ((key: TranslationKey) => key),
+    [i18n],
+  );
 
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
+    const controller = new AbortController();
+
     const checkApproval = async () => {
       try {
-        const data = await checkStatusAction();
+        const data = await fetchCheckStatus(controller.signal);
         if (data.hasProfile && !data.approved) {
           router.replace("/pending-approval");
         }
-      } catch {}
+      } catch {
+        // Status checks are best effort; protected pages still validate on the server.
+      }
     };
+
     checkApproval();
     const interval = setInterval(checkApproval, 300_000);
-    return () => clearInterval(interval);
+    return () => {
+      controller.abort();
+      clearInterval(interval);
+    };
   }, [router]);
 
   const displayName = useMemo(() => (user.email ?? "").split("@")[0], [user.email]);

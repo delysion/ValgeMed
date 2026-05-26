@@ -13,6 +13,8 @@ import {
 } from "chart.js";
 import { Bar, Line, Doughnut } from "react-chartjs-2";
 
+import { normalizeChartNumber } from "@/lib/charts/data";
+
 ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, ArcElement, Tooltip, Filler);
 
 const lightColors = ["#7C3AED", "#06B6D4", "#10B981", "#F59E0B", "#F43F5E", "#8B5CF6"];
@@ -29,6 +31,29 @@ const tooltipOptions = {
   padding: 8,
   boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
 };
+
+function ChartFrame({
+  children,
+  height,
+}: {
+  children: React.ReactNode;
+  height: number;
+}) {
+  return (
+    <div
+      style={{
+        position: "relative",
+        height,
+        minHeight: height,
+        maxHeight: height,
+        overflow: "hidden",
+        width: "100%",
+      }}
+    >
+      {children}
+    </div>
+  );
+}
 
 export function MinutesBarChart({ data }: { data: Array<{ name: string; minutes: number }> }) {
   if (!data || data.length === 0) return null;
@@ -47,40 +72,42 @@ export function MetricBarChart({
   if (!data || data.length === 0) return null;
 
   return (
-    <Bar
-      data={{
-        labels: data.map((d) => d.name as string),
-        datasets: [{
-          label: dataKey,
-          data: data.map((d) => Number(d[dataKey])),
-          backgroundColor: "#7C3AED",
-          borderRadius: 6,
-          borderSkipped: false,
-        }],
-      }}
-      options={{
-        responsive: true,
-        maintainAspectRatio: false,
-        animation: false,
-        plugins: {
-          tooltip: tooltipOptions,
-          legend: { display: false },
-        },
-        scales: {
-          x: {
-            grid: { color: gridColor },
-            ticks: { color: textColor, font: { size: 11 } },
+    <ChartFrame height={220}>
+      <Bar
+        data={{
+          labels: data.map((d) => d.name as string),
+          datasets: [{
+            label: dataKey,
+            data: data.map((d) => normalizeChartNumber(d[dataKey], { min: domain?.[0], max: domain?.[1], fallback: 0 })),
+            backgroundColor: "#7C3AED",
+            borderRadius: 6,
+            borderSkipped: false,
+          }],
+        }}
+        options={{
+          responsive: true,
+          maintainAspectRatio: false,
+          resizeDelay: 100,
+          animation: false,
+          plugins: {
+            tooltip: tooltipOptions,
+            legend: { display: false },
           },
-          y: {
-            min: domain?.[0],
-            max: domain?.[1],
-            grid: { color: gridColor },
-            ticks: { color: textColor, font: { size: 11 } },
+          scales: {
+            x: {
+              grid: { color: gridColor },
+              ticks: { color: textColor, font: { size: 11 } },
+            },
+            y: {
+              min: domain?.[0],
+              max: domain?.[1],
+              grid: { color: gridColor },
+              ticks: { color: textColor, font: { size: 11 } },
+            },
           },
-        },
-      }}
-      height={220}
-    />
+        }}
+      />
+    </ChartFrame>
   );
 }
 
@@ -96,67 +123,72 @@ export function TrendLineChart({
   }
 
   return (
-    <Line
-      data={{
-        labels: data.map((d) => d.date as string),
-        datasets: lines.map((line, index) => ({
-          label: line.key,
-          data: data.map((d) => Number(d[line.key])),
-          borderColor: line.color ?? lightColors[index % lightColors.length],
-          backgroundColor: line.color ?? lightColors[index % lightColors.length],
-          borderWidth: 2,
-          pointRadius: 0,
-          tension: 0.3,
-        })),
-      }}
-      options={{
-        responsive: true,
-        maintainAspectRatio: false,
-        animation: false,
-        plugins: {
-          tooltip: tooltipOptions,
-          legend: { display: false },
-        },
-        scales: {
-          x: {
-            grid: { color: gridColor },
-            ticks: { color: textColor, font: { size: 11 } },
+    <ChartFrame height={220}>
+      <Line
+        data={{
+          labels: data.map((d) => d.date as string),
+          datasets: lines.map((line, index) => ({
+            label: line.key,
+            data: data.map((d) => normalizeChartNumber(d[line.key], { min: 0, max: 10 })),
+            borderColor: line.color ?? lightColors[index % lightColors.length],
+            backgroundColor: line.color ?? lightColors[index % lightColors.length],
+            borderWidth: 2,
+            pointRadius: 0,
+            spanGaps: true,
+            tension: 0.3,
+          })),
+        }}
+        options={{
+          responsive: true,
+          maintainAspectRatio: false,
+          resizeDelay: 100,
+          animation: false,
+          plugins: {
+            tooltip: tooltipOptions,
+            legend: { display: false },
           },
-          y: {
-            min: 0,
-            max: 10,
-            grid: { color: gridColor },
-            ticks: { color: textColor, font: { size: 11 } },
+          scales: {
+            x: {
+              grid: { color: gridColor },
+              ticks: { color: textColor, font: { size: 11 } },
+            },
+            y: {
+              min: 0,
+              max: 10,
+              grid: { color: gridColor },
+              ticks: { color: textColor, font: { size: 11 } },
+            },
           },
-        },
-      }}
-      height={220}
-      redraw={false}
-    />
+        }}
+        redraw={false}
+      />
+    </ChartFrame>
   );
 }
 
 export function MethodPieChart({ data }: { data: Array<{ name: string; value: number }> }) {
   return (
-    <Doughnut
-      data={{
-        labels: data.map((d) => d.name),
-        datasets: [{
-          data: data.map((d) => d.value),
-          backgroundColor: lightColors,
-          borderWidth: 0,
-        }],
-      }}
-      options={{
-        responsive: true,
-        maintainAspectRatio: false,
-        cutout: "42%",
-        plugins: {
-          tooltip: tooltipOptions,
-          legend: { display: false },
-        },
-      }}
-      height={200}
-    />
+    <ChartFrame height={200}>
+      <Doughnut
+        data={{
+          labels: data.map((d) => d.name),
+          datasets: [{
+            data: data.map((d) => normalizeChartNumber(d.value, { min: 0, fallback: 0 })),
+            backgroundColor: lightColors,
+            borderWidth: 0,
+          }],
+        }}
+        options={{
+          responsive: true,
+          maintainAspectRatio: false,
+          resizeDelay: 100,
+          cutout: "42%",
+          plugins: {
+            tooltip: tooltipOptions,
+            legend: { display: false },
+          },
+        }}
+      />
+    </ChartFrame>
   );
 }
