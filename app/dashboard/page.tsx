@@ -19,7 +19,7 @@ import { ScoreRing } from "@/components/premium/score-ring";
 import { SectionHeader } from "@/components/premium/section-header";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { requireUser } from "@/lib/auth/supabase";
+import { requireApprovedUser } from "@/lib/auth/supabase";
 import { getDashboardData } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server-i18n";
 import { fmtDate } from "@/lib/labels";
@@ -88,7 +88,7 @@ export function DashboardPageSkeleton() {
 }
 
 export default async function DashboardPage() {
-  const user = await requireUser();
+  const user = await requireApprovedUser();
   const { t } = await getI18n();
   const data = await getDashboardData();
 

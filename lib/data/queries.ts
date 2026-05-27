@@ -19,6 +19,7 @@ import {
   manuscripts,
   opportunities,
   portfolioItems,
+  profiles,
   professionalContacts,
   pushSubscriptions,
   quizAttempts,
@@ -63,6 +64,11 @@ import {
   type Topic,
   type Upload,
 } from "@/lib/db/schema";
+import {
+  DEFAULT_ELITE_TARGET_SETTINGS,
+  normalizeEliteTargetSettings,
+  type EliteTargetSettings,
+} from "@/lib/scoring/elite-performance";
 
 export type CoreData = {
   subjects: Subject[];
@@ -187,6 +193,23 @@ export async function getExportData(userIdOverride?: string): Promise<ExportData
 async function getUserIdOrThrow() {
   const uid = await getUserId();
   return uid;
+}
+
+export async function getEliteTargetSettings(userIdOverride?: string): Promise<EliteTargetSettings> {
+  const userId = userIdOverride ?? await getUserIdOrThrow();
+  return withDb<EliteTargetSettings>(async (db) => {
+    const [profile] = await db
+      .select({
+        targetLevel: profiles.targetLevel,
+        weaknessTolerance: profiles.weaknessTolerance,
+        examStrategy: profiles.examStrategy,
+      })
+      .from(profiles)
+      .where(eq(profiles.id, userId))
+      .limit(1);
+
+    return normalizeEliteTargetSettings(profile);
+  }, DEFAULT_ELITE_TARGET_SETTINGS);
 }
 
 // Small reference tables (used by many pages for forms / dropdowns)

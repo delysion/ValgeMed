@@ -9,7 +9,7 @@ import { SectionHeader } from "@/components/premium/section-header";
 import { ResourceTable } from "@/components/tables/resource-table";
 import { Badge } from "@/components/ui/badge";
 import { deleteOpportunityAction } from "@/lib/actions/resources";
-import { requireUser } from "@/lib/auth/supabase";
+import { requireApprovedUser } from "@/lib/auth/supabase";
 import { getOpportunities } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server-i18n";
 import { fmtDate, humanize } from "@/lib/labels";
@@ -17,7 +17,7 @@ import { fmtDate, humanize } from "@/lib/labels";
 export const dynamic = "force-dynamic";
 
 export default async function OpportunitiesPage({ searchParams }: { searchParams: Promise<{ edit?: string }> }) {
-  const user = await requireUser();
+  const user = await requireApprovedUser();
   const { t } = await getI18n();
   const params = await searchParams;
   const opportunities = await getOpportunities();

@@ -1,14 +1,14 @@
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { requireUser } from "@/lib/auth/supabase";
+import { requireApprovedUser } from "@/lib/auth/supabase";
 import { getI18n } from "@/lib/i18n/server-i18n";
 import { ExportButtons } from "@/components/export-buttons";
 
 export const dynamic = "force-dynamic";
 
 export default async function ImportExportPage() {
-  const user = await requireUser();
+  const user = await requireApprovedUser();
   const { t } = await getI18n();
 
   return (

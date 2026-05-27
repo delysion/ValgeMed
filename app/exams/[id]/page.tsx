@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { addDays, differenceInCalendarDays, format } from "date-fns";
+import { addDays, differenceInCalendarDays } from "date-fns";
 import { ArrowLeft, Brain, Clock, ShieldCheck, Target } from "lucide-react";
 
 import { AppShell, PageHeader } from "@/components/app-shell";
@@ -14,20 +14,21 @@ import { ScoreBreakdown } from "@/components/score-breakdown";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { deleteQuizAttemptAction } from "@/lib/actions/resources";
-import { requireUser } from "@/lib/auth/supabase";
-import { getExamPageData } from "@/lib/data/queries";
+import { requireApprovedUser } from "@/lib/auth/supabase";
+import { getEliteTargetSettings, getExamPageData } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server-i18n";
 import { fmtDate, humanize } from "@/lib/labels";
 import { buildExamReadiness } from "@/lib/scoring/engine";
+import { buildElitePerformanceCommand } from "@/lib/scoring/elite-performance";
 
 export const dynamic = "force-dynamic";
 
 export default async function ExamCommandCenter({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ editQuiz?: string }> }) {
-  const user = await requireUser();
+  const user = await requireApprovedUser();
   const { t } = await getI18n();
   const { id } = await params;
   const sp = await searchParams;
-  const data = await getExamPageData();
+  const [data, settings] = await Promise.all([getExamPageData(), getEliteTargetSettings(user.id)]);
   const exam = data.exams.find((item) => item.id === id);
 
   if (!exam) {
@@ -67,6 +68,20 @@ export default async function ExamCommandCenter({ params, searchParams }: { para
   const last48 = weakTopics.slice(0, 3).map((topic) => `${t("study.activeRecall")}: ${topic.title}`);
   const quizAverage = examQuiz.length === 0 ? 0 : examQuiz.reduce((sum, attempt) => sum + attempt.scorePercent, 0) / examQuiz.length;
   const confidenceAverage = examTopics.length === 0 ? 0 : examTopics.reduce((sum, topic) => sum + topic.confidence, 0) / examTopics.length;
+  const command = buildElitePerformanceCommand({
+    settings,
+    exams: data.exams.map((item) => ({
+      ...item,
+      liveReadiness: item.id === exam.id ? readiness.score : item.readinessScore,
+    })),
+    topics: data.topics,
+    studySessions: data.studySessions,
+    reviewItems: [],
+    errorLogs: data.errorLogs,
+    quizAttempts: data.quizAttempts,
+    dailyLogs: data.dailyLogs,
+  });
+  const examPlan = command.examPlans.find((item) => item.examId === exam.id);
 
   return (
     <AppShell user={user}>
@@ -109,14 +124,53 @@ export default async function ExamCommandCenter({ params, searchParams }: { para
       <div className="mt-5 grid gap-5 xl:grid-cols-[1fr_0.86fr]">
         <div className="space-y-5">
           <GlassCard tone="gold">
-            <h3 className="text-xl font-semibold text-text-primary">{t("examRoom.last7")}</h3>
+            <h3 className="text-xl font-semibold text-text-primary">Exam Performance Plan</h3>
+            <p className="mt-2 text-sm leading-6 text-text-secondary">
+              Deterministic plan for the selected elite target. AI can assist later; this plan does not depend on AI.
+            </p>
             <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-              {plan.map((item) => (
-                <div key={item.date.toISOString()} className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
-                  <div className="text-xs uppercase tracking-[0.14em] text-text-secondary">{format(item.date, "EEE dd")}</div>
-                  <div className="mt-3 text-sm font-medium text-text-primary">{item.action}</div>
-                </div>
-              ))}
+              <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
+                <div className="text-xs uppercase tracking-[0.14em] text-text-secondary">Readiness gap</div>
+                <div className="mt-3 text-2xl font-semibold text-text-primary">{examPlan?.eliteReadinessGap.toFixed(1) ?? "0.0"}</div>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
+                <div className="text-xs uppercase tracking-[0.14em] text-text-secondary">Active recall</div>
+                <div className="mt-3 text-2xl font-semibold text-text-primary">{examPlan?.activeRecallCoverage.toFixed(1) ?? "0.0"}</div>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
+                <div className="text-xs uppercase tracking-[0.14em] text-text-secondary">Simulation status</div>
+                <div className="mt-3 text-sm font-medium text-text-primary">{examPlan?.simulationStatus ?? "Simulation required"}</div>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
+                <div className="text-xs uppercase tracking-[0.14em] text-text-secondary">Recovery constraint</div>
+                <div className="mt-3 text-sm font-medium text-text-primary">{examPlan?.recoveryConstraints[0] ?? "Protect tomorrow's recall."}</div>
+              </div>
+            </div>
+            <div className="mt-4 grid gap-3 md:grid-cols-3">
+              <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
+                <h4 className="text-sm font-semibold text-text-primary">High-risk topics</h4>
+                <ul className="mt-3 space-y-2 text-sm text-text-secondary">
+                  {(examPlan?.highRiskTopics.length ? examPlan.highRiskTopics : weakTopics.slice(0, 3).map((topic) => topic.title)).map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
+                <h4 className="text-sm font-semibold text-text-primary">72h pre-exam plan</h4>
+                <ul className="mt-3 space-y-2 text-sm text-text-secondary">
+                  {(examPlan?.seventyTwoHourPlan ?? plan.slice(0, 3).map((item) => item.action)).map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
+                <h4 className="text-sm font-semibold text-text-primary">Final retest checklist</h4>
+                <ul className="mt-3 space-y-2 text-sm text-text-secondary">
+                  {(examPlan?.finalRetestChecklist ?? last48).map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
             </div>
           </GlassCard>
 

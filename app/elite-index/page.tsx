@@ -6,7 +6,7 @@ import { GlassCard } from "@/components/premium/glass-card";
 import { MomentumBar } from "@/components/premium/momentum-bar";
 import { ScoreRing } from "@/components/premium/score-ring";
 import { ScoreBreakdown } from "@/components/score-breakdown";
-import { requireUser } from "@/lib/auth/supabase";
+import { requireApprovedUser } from "@/lib/auth/supabase";
 import { getEliteIndexPageData } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server-i18n";
 import { buildEliteIndex, type ScoreResult } from "@/lib/scoring/engine";
@@ -17,7 +17,7 @@ export const dynamic = "force-dynamic";
 type TFunc = (key: string) => string;
 
 export default async function EliteIndexPage() {
-  const user = await requireUser();
+  const user = await requireApprovedUser();
   const { t } = await getI18n();
   const data = await getEliteIndexPageData(user.id);
   const elite = buildEliteIndex(data);

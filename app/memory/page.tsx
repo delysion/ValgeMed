@@ -8,14 +8,14 @@ import { GlassCard } from "@/components/premium/glass-card";
 import { NoteVault } from "@/components/premium/note-vault";
 import { SectionHeader } from "@/components/premium/section-header";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { requireUser } from "@/lib/auth/supabase";
+import { requireApprovedUser } from "@/lib/auth/supabase";
 import { getIdentityNotes, getTartuNotes } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server-i18n";
 
 export const dynamic = "force-dynamic";
 
 export default async function MemoryPage({ searchParams }: { searchParams: Promise<{ edit?: string; editTartu?: string }> }) {
-  const user = await requireUser();
+  const user = await requireApprovedUser();
   const { t } = await getI18n();
   const params = await searchParams;
   const [identityNotes, tartuNotes] = await Promise.all([getIdentityNotes(), getTartuNotes()]);

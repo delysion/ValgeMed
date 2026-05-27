@@ -8,6 +8,7 @@ const privatePrefixes = [
   "/command",
   "/dashboard",
   "/elite-index",
+  "/performance-blockers",
   "/subjects",
   "/exams",
   "/topics",

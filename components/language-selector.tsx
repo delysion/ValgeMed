@@ -15,7 +15,7 @@ export function LanguageSelector({
   return (
     <div
       className={cn(
-        "inline-flex items-center gap-1 rounded-full border border-border bg-bg-subtle p-1",
+        "inline-flex items-center gap-1 rounded-full border border-border bg-bg-subtle p-1"
       )}
       aria-label={label}
     >
@@ -29,7 +29,7 @@ export function LanguageSelector({
             locale === l
               ? "bg-gradient-to-br from-bg-surface to-bg-subtle/40 text-text-primary shadow-sm"
               : "text-text-muted hover:bg-gradient-to-br hover:from-bg-surface hover:to-bg-subtle/40 hover:text-text-secondary",
-            compact && "px-2 py-0.5",
+            compact && "px-2 py-0.5"
           )}
         >
           {l.toUpperCase()}

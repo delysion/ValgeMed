@@ -5,13 +5,13 @@ import { saveAiSettingsAction } from "@/lib/actions/settings";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-export function AiSettingsForm({ initialProvider, initialKey }: { initialProvider?: string | null; initialKey?: string | null }) {
+export function AiSettingsForm({ initialProvider, hasSavedKey = false }: { initialProvider?: string | null; hasSavedKey?: boolean }) {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [provider, setProvider] = useState(initialProvider || "");
-  const [apiKey, setApiKey] = useState(initialKey || "");
-  const hasKey = !!initialKey;
+  const [apiKey, setApiKey] = useState("");
+  const hasKey = hasSavedKey;
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();

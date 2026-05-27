@@ -4,7 +4,7 @@ import { ResourceTable } from "@/components/tables/resource-table";
 import { GlassCard } from "@/components/premium/glass-card";
 import { SectionHeader } from "@/components/premium/section-header";
 import { deleteIdentityNoteAction } from "@/lib/actions/resources";
-import { requireUser } from "@/lib/auth/supabase";
+import { requireApprovedUser } from "@/lib/auth/supabase";
 import { getIdentityNotes } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server-i18n";
 import { humanize } from "@/lib/labels";
@@ -12,7 +12,7 @@ import { humanize } from "@/lib/labels";
 export const dynamic = "force-dynamic";
 
 export default async function IdentityPage({ searchParams }: { searchParams: Promise<{ editNote?: string }> }) {
-  const user = await requireUser();
+  const user = await requireApprovedUser();
   const { t } = await getI18n();
   const params = await searchParams;
   const identityNotes = await getIdentityNotes();

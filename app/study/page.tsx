@@ -8,7 +8,7 @@ import { GlassCard } from "@/components/premium/glass-card";
 import { MomentumBar } from "@/components/premium/momentum-bar";
 import { SectionHeader } from "@/components/premium/section-header";
 import { Badge } from "@/components/ui/badge";
-import { requireUser } from "@/lib/auth/supabase";
+import { requireApprovedUser } from "@/lib/auth/supabase";
 import { getReferenceData, getStudySessions } from "@/lib/data/queries";
 import type { StudySession, Subject } from "@/lib/db/schema";
 import { getI18n } from "@/lib/i18n/server-i18n";
@@ -21,7 +21,7 @@ const activeMethods = new Set(["active_recall", "quiz", "simulation", "error_rev
 type TFunc = (key: string) => string;
 
 export default async function StudyPage({ searchParams }: { searchParams: Promise<{ edit?: string }> }) {
-  const user = await requireUser();
+  const user = await requireApprovedUser();
   const { t } = await getI18n();
   const params = await searchParams;
   const [ref, studySessions] = await Promise.all([getReferenceData(), getStudySessions()]);

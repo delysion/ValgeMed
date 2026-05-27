@@ -3,6 +3,7 @@ import { randomUUID } from "crypto";
 import { getDb } from "@/lib/db";
 import { uploads } from "@/lib/db/schema";
 import { requireApprovedUserId } from "@/lib/db/auth";
+import { assertOwnedRelations, FORBIDDEN_RELATION_MESSAGE } from "@/lib/db/ownership";
 
 export async function POST(request: NextRequest) {
   try {
@@ -48,6 +49,7 @@ export async function POST(request: NextRequest) {
 
     const db = getDb();
     const userId = await requireApprovedUserId();
+    await assertOwnedRelations(db, userId, { subjectId, topicId });
     const uniqueName = `extracted-${randomUUID()}.${ext || "txt"}`;
     const [upload] = await db
       .insert(uploads)
@@ -76,6 +78,9 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Upload error:", error);
+    if (error instanceof Error && error.message.startsWith(FORBIDDEN_RELATION_MESSAGE)) {
+      return NextResponse.json({ error: FORBIDDEN_RELATION_MESSAGE }, { status: 403 });
+    }
     return NextResponse.json({ error: "Upload failed" }, { status: 500 });
   }
 }

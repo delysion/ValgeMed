@@ -1,30 +1,49 @@
-import { Bell, FolderOpen, HardDrive, RefreshCw, Cpu } from "lucide-react";
+import { Bell, FolderOpen, HardDrive, RefreshCw, Cpu, Target } from "lucide-react";
 
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { GlassCard } from "@/components/premium/glass-card";
 import { SectionHeader } from "@/components/premium/section-header";
 import { Button } from "@/components/ui/button";
-import { requireUser } from "@/lib/auth/supabase";
 import { getI18n } from "@/lib/i18n/server-i18n";
 import { LanguageSelector } from "@/components/language-selector";
 import { OnboardingReplayButton } from "@/components/onboarding-replay-button";
 import { PushNotificationButton } from "@/components/push-notification-button";
 import { AiSettingsForm } from "@/components/ai-settings-form";
+import { EliteTargetSettingsForm } from "@/components/elite-target-settings-form";
 import { getDb } from "@/lib/db";
 import { profiles } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
+import { normalizeEliteTargetSettings } from "@/lib/scoring/elite-performance";
+import { requireApprovedUser } from "@/lib/auth/supabase";
 
 export const dynamic = "force-dynamic";
 
 export default async function SettingsPage() {
-  const user = await requireUser();
+  const user = await requireApprovedUser();
   const { t } = await getI18n();
-  let profile = { aiProvider: null as string | null, aiApiKey: null as string | null };
+  let profile = {
+    aiProvider: null as string | null,
+    aiApiKey: null as string | null,
+    targetLevel: null as string | null,
+    weaknessTolerance: null as string | null,
+    examStrategy: null as string | null,
+  };
   try {
     const db = getDb();
-    const [p] = await db.select({ aiProvider: profiles.aiProvider, aiApiKey: profiles.aiApiKey }).from(profiles).where(eq(profiles.id, user.id)).limit(1);
+    const [p] = await db.select({
+      aiProvider: profiles.aiProvider,
+      aiApiKey: profiles.aiApiKey,
+      targetLevel: profiles.targetLevel,
+      weaknessTolerance: profiles.weaknessTolerance,
+      examStrategy: profiles.examStrategy,
+    }).from(profiles).where(eq(profiles.id, user.id)).limit(1);
     if (p) profile = p;
   } catch {} // columns may not exist yet
+  const eliteTargetSettings = normalizeEliteTargetSettings({
+    targetLevel: profile.targetLevel,
+    weaknessTolerance: profile.weaknessTolerance,
+    examStrategy: profile.examStrategy,
+  });
 
   return (
     <AppShell user={user}>
@@ -44,7 +63,19 @@ export default async function SettingsPage() {
         <GlassCard tone="violet">
           <SectionHeader title="AI Settings" description="Use your own API key for AI features" icon={Cpu} />
           <div className="mt-4">
-            <AiSettingsForm key={profile?.aiApiKey || "empty"} initialProvider={profile?.aiProvider} initialKey={profile?.aiApiKey} />
+            <AiSettingsForm key={profile?.aiApiKey || "empty"} initialProvider={profile?.aiProvider} hasSavedKey={!!profile?.aiApiKey} />
+          </div>
+        </GlassCard>
+
+        {/* Elite Target Mode */}
+        <GlassCard tone="cyan">
+          <SectionHeader
+            title="Elite Target Mode"
+            description="Private target calibration for the command engine. No public ranking, no comparison."
+            icon={Target}
+          />
+          <div className="mt-4">
+            <EliteTargetSettingsForm settings={eliteTargetSettings} />
           </div>
         </GlassCard>
 

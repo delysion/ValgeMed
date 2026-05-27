@@ -5,7 +5,7 @@ import { ResourceTable } from "@/components/tables/resource-table";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { deleteDailyLogAction } from "@/lib/actions/resources";
-import { requireUser } from "@/lib/auth/supabase";
+import { requireApprovedUser } from "@/lib/auth/supabase";
 import { getDailyLogs } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server-i18n";
 import { fmtDate } from "@/lib/labels";
@@ -17,7 +17,7 @@ export default async function DailyLogPage({
 }: {
   searchParams: Promise<{ edit?: string }>;
 }) {
-  const user = await requireUser();
+  const user = await requireApprovedUser();
   const { t } = await getI18n();
   const params = await searchParams;
   const dailyLogs = await getDailyLogs();

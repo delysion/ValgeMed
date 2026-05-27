@@ -67,8 +67,9 @@ const sections: NavSection[] = [
     labelKey: "nav.sectionCommand",
     items: [
       { href: "/command", label: "nav.command", icon: Command },
-      { href: "/dashboard", label: "nav.dashboard", icon: LayoutDashboard },
+      { href: "/performance-blockers", label: "nav.performanceBlockers", icon: AlertTriangle },
       { href: "/elite-index", label: "nav.eliteIndex", icon: Trophy },
+      { href: "/dashboard", label: "nav.dashboard", icon: LayoutDashboard },
       { href: "/strategic-review", label: "nav.strategicReview", icon: CalendarCheck },
     ],
   },

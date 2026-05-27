@@ -2,14 +2,14 @@ import { AppShell, PageHeader } from "@/components/app-shell";
 import { GlassCard } from "@/components/premium/glass-card";
 import { SectionHeader } from "@/components/premium/section-header";
 import { TimelineView } from "@/components/premium/timeline-view";
-import { requireUser } from "@/lib/auth/supabase";
+import { requireApprovedUser } from "@/lib/auth/supabase";
 import { getTimelinePageData } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server-i18n";
 
 export const dynamic = "force-dynamic";
 
 export default async function TimelinePage() {
-  const user = await requireUser();
+  const user = await requireApprovedUser();
   const { t } = await getI18n();
   const data = await getTimelinePageData(user.id);
 

@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 
 import { requireAuthUserId } from "@/lib/db/auth";
 import { getDb } from "@/lib/db";
+import { assertOwnedRelations, verifyOwnedId, FORBIDDEN_RELATION_MESSAGE } from "@/lib/db/ownership";
 import { parseForm, parseId, refresh } from "@/lib/utils/forms";
 import {
   dailyLogs,
@@ -61,6 +62,10 @@ async function authorizedDb() {
   return { db, userId };
 }
 
+// Throws "Forbidden relation" when a form tries to link another user's subject, topic, or exam.
+void verifyOwnedId;
+void FORBIDDEN_RELATION_MESSAGE;
+
 export async function createSubjectAction(formData: FormData) {
   const { db, userId } = await authorizedDb();
   const data = parseForm(subjectSchema, formData);
@@ -88,6 +93,7 @@ export async function deleteSubjectAction(formData: FormData) {
 export async function createExamAction(formData: FormData) {
   const { db, userId } = await authorizedDb();
   const data = parseForm(examSchema, formData);
+  await assertOwnedRelations(db, userId, data);
   await db.insert(exams).values({ ...data, userId });
   refresh(["/exams", "/dashboard"]);
 }
@@ -96,6 +102,7 @@ export async function updateExamAction(formData: FormData) {
   const { db, userId } = await authorizedDb();
   const recordId = parseId(formData);
   const data = parseForm(examSchema, formData);
+  await assertOwnedRelations(db, userId, data);
   await db.update(exams).set({ ...data, updatedAt: new Date() }).where(and(eq(exams.id, recordId), eq(exams.userId, userId)));
   refresh(["/exams", `/exams/${recordId}`, "/dashboard"]);
   redirect("/exams");
@@ -111,6 +118,7 @@ export async function deleteExamAction(formData: FormData) {
 export async function createTopicAction(formData: FormData) {
   const { db, userId } = await authorizedDb();
   const data = parseForm(topicSchema, formData);
+  await assertOwnedRelations(db, userId, data);
   await db.insert(topics).values({ ...data, userId });
   refresh(["/topics", "/dashboard"]);
 }
@@ -119,6 +127,7 @@ export async function updateTopicAction(formData: FormData) {
   const { db, userId } = await authorizedDb();
   const recordId = parseId(formData);
   const data = parseForm(topicSchema, formData);
+  await assertOwnedRelations(db, userId, data);
   await db.update(topics).set({ ...data, updatedAt: new Date() }).where(and(eq(topics.id, recordId), eq(topics.userId, userId)));
   refresh(["/topics", "/dashboard"]);
   redirect("/topics");
@@ -134,6 +143,7 @@ export async function deleteTopicAction(formData: FormData) {
 export async function createStudySessionAction(formData: FormData) {
   const { db, userId } = await authorizedDb();
   const data = parseForm(studySessionSchema, formData);
+  await assertOwnedRelations(db, userId, data);
   await db.insert(studySessions).values({ ...data, userId });
 
   if (data.topicId) {
@@ -151,6 +161,7 @@ export async function updateStudySessionAction(formData: FormData) {
   const { db, userId } = await authorizedDb();
   const recordId = parseId(formData);
   const data = parseForm(studySessionSchema, formData);
+  await assertOwnedRelations(db, userId, data);
   await db.update(studySessions).set(data).where(and(eq(studySessions.id, recordId), eq(studySessions.userId, userId)));
   refresh(["/study-sessions", "/dashboard"]);
   redirect("/study-sessions");
@@ -166,6 +177,7 @@ export async function deleteStudySessionAction(formData: FormData) {
 export async function createReviewItemAction(formData: FormData) {
   const { db, userId } = await authorizedDb();
   const data = parseForm(reviewItemSchema, formData);
+  await assertOwnedRelations(db, userId, data);
   await db.insert(reviewItems).values({ ...data, userId });
   refresh(["/reviews", "/dashboard"]);
 }
@@ -174,6 +186,7 @@ export async function updateReviewItemAction(formData: FormData) {
   const { db, userId } = await authorizedDb();
   const recordId = parseId(formData);
   const data = parseForm(reviewItemSchema, formData);
+  await assertOwnedRelations(db, userId, data);
   await db.update(reviewItems).set({ ...data, updatedAt: new Date() }).where(and(eq(reviewItems.id, recordId), eq(reviewItems.userId, userId)));
   refresh(["/reviews", "/dashboard"]);
   redirect("/reviews");
@@ -217,6 +230,7 @@ export async function deleteReviewItemAction(formData: FormData) {
 export async function createErrorLogAction(formData: FormData) {
   const { db, userId } = await authorizedDb();
   const data = parseForm(errorLogSchema, formData);
+  await assertOwnedRelations(db, userId, data);
   await db.insert(errorLogs).values({ ...data, userId });
   refresh(["/errors", "/dashboard"]);
 }
@@ -225,6 +239,7 @@ export async function updateErrorLogAction(formData: FormData) {
   const { db, userId } = await authorizedDb();
   const recordId = parseId(formData);
   const data = parseForm(errorLogSchema, formData);
+  await assertOwnedRelations(db, userId, data);
   await db.update(errorLogs).set({ ...data, updatedAt: new Date() }).where(and(eq(errorLogs.id, recordId), eq(errorLogs.userId, userId)));
   refresh(["/errors", "/dashboard"]);
   redirect("/errors");
@@ -253,6 +268,7 @@ export async function deleteErrorLogAction(formData: FormData) {
 export async function createQuizAttemptAction(formData: FormData) {
   const { db, userId } = await authorizedDb();
   const data = parseForm(quizAttemptSchema, formData);
+  await assertOwnedRelations(db, userId, data);
   await db.insert(quizAttempts).values({ ...data, userId });
   refresh(["/exams", "/dashboard"]);
 }
@@ -261,6 +277,7 @@ export async function updateQuizAttemptAction(formData: FormData) {
   const { db, userId } = await authorizedDb();
   const recordId = parseId(formData);
   const data = parseForm(quizAttemptSchema, formData);
+  await assertOwnedRelations(db, userId, data);
   await db.update(quizAttempts).set(data).where(and(eq(quizAttempts.id, recordId), eq(quizAttempts.userId, userId)));
   refresh(["/exams", "/dashboard"]);
   redirect("/exams");
@@ -330,6 +347,7 @@ export async function deleteGoalAction(formData: FormData) {
 export async function createTaskAction(formData: FormData) {
   const { db, userId } = await authorizedDb();
   const data = parseForm(taskSchema, formData);
+  await assertOwnedRelations(db, userId, data);
   await db.insert(tasks).values({ ...data, userId });
   refresh(["/goals", "/dashboard"]);
 }
@@ -338,6 +356,7 @@ export async function updateTaskAction(formData: FormData) {
   const { db, userId } = await authorizedDb();
   const recordId = parseId(formData);
   const data = parseForm(taskSchema, formData);
+  await assertOwnedRelations(db, userId, data);
   await db.update(tasks).set({ ...data, updatedAt: new Date() }).where(and(eq(tasks.id, recordId), eq(tasks.userId, userId)));
   refresh(["/goals", "/dashboard"]);
   redirect("/goals");

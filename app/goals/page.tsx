@@ -9,7 +9,7 @@ import {
   deleteIdentityNoteAction,
   deleteTaskAction,
 } from "@/lib/actions/resources";
-import { requireUser } from "@/lib/auth/supabase";
+import { requireApprovedUser } from "@/lib/auth/supabase";
 import { getGoalPageData } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server-i18n";
 import { fmtDate, humanize } from "@/lib/labels";
@@ -21,7 +21,7 @@ export default async function GoalsPage({
 }: {
   searchParams: Promise<{ editGoal?: string; editTask?: string; editNote?: string }>;
 }) {
-  const user = await requireUser();
+  const user = await requireApprovedUser();
   const { t } = await getI18n();
   const params = await searchParams;
   const data = await getGoalPageData();

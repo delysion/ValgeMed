@@ -6,6 +6,7 @@ import { getDb } from "@/lib/db";
 import { profiles } from "@/lib/db/schema";
 import type { AiChatOptions } from "@/lib/ai/ollama";
 import { normalizeAiPromptLimit } from "@/lib/ai/prompt-limits";
+import { decryptSecret } from "@/lib/security/crypto";
 
 export async function getUserAiOptions(userId: string): Promise<AiChatOptions> {
   const db = getDb();
@@ -19,9 +20,11 @@ export async function getUserAiOptions(userId: string): Promise<AiChatOptions> {
     .where(eq(profiles.id, userId))
     .limit(1);
 
+  const apiKey = decryptSecret(profile?.aiApiKey);
+
   return {
-    provider: profile?.aiApiKey ? profile.aiProvider || undefined : undefined,
-    apiKey: profile?.aiApiKey || undefined,
+    provider: apiKey ? profile?.aiProvider || undefined : undefined,
+    apiKey: apiKey || undefined,
     promptLimitChars: normalizeAiPromptLimit(profile?.aiPromptLimitChars),
   };
 }

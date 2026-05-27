@@ -9,7 +9,7 @@ import { MomentumBar } from "@/components/premium/momentum-bar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { deleteTopicAction } from "@/lib/actions/resources";
-import { requireUser } from "@/lib/auth/supabase";
+import { requireApprovedUser } from "@/lib/auth/supabase";
 import { getErrorLogs, getExams, getSubjects, getTopics } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server-i18n";
 import { fmtDate, humanize } from "@/lib/labels";
@@ -21,7 +21,7 @@ export default async function TopicsPage({
 }: {
   searchParams: Promise<{ edit?: string; subject?: string; status?: string; priority?: string }>;
 }) {
-  const user = await requireUser();
+  const user = await requireApprovedUser();
   const { t } = await getI18n();
   const params = await searchParams;
   const [subjects, exams, topics, errorLogs] = await Promise.all([getSubjects(), getExams(), getTopics(), getErrorLogs()]);
