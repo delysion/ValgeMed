@@ -14,6 +14,7 @@ export default function manifest(): MetadataRoute.Manifest {
     categories: ["education", "productivity"],
     lang: "en",
     dir: "ltr",
+    id: "/",
     icons: [
       {
         src: "/icons/icon-192.png",
@@ -34,6 +35,18 @@ export default function manifest(): MetadataRoute.Manifest {
         purpose: "maskable",
       },
     ],
-    screenshots: [],
+    screenshots: [
+      {
+        src: "/screenshots/desktop-wide.png",
+        sizes: "1280x720",
+        type: "image/png",
+        form_factor: "wide",
+      },
+      {
+        src: "/screenshots/mobile-portrait.png",
+        sizes: "750x1334",
+        type: "image/png",
+      },
+    ],
   };
 }

@@ -18,9 +18,18 @@ const nextConfig: NextConfig = {
             key: "Service-Worker-Allowed",
             value: "/",
           },
+        ],
+      },
+      {
+        source: "/manifest.webmanifest",
+        headers: [
           {
-            key: "Content-Security-Policy",
-            value: "default-src 'self'; script-src 'self'",
+            key: "Content-Type",
+            value: "application/manifest+json",
+          },
+          {
+            key: "Cache-Control",
+            value: "public, max-age=86400",
           },
         ],
       },

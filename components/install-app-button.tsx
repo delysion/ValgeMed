@@ -10,8 +10,21 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
+declare global {
+  interface Window {
+    __deferredInstallPrompt: BeforeInstallPromptEvent | null;
+  }
+}
+
 export function useInstallPrompt() {
-  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(() => {
+    if (typeof window !== "undefined" && window.__deferredInstallPrompt) {
+      const prompt = window.__deferredInstallPrompt;
+      window.__deferredInstallPrompt = null;
+      return prompt;
+    }
+    return null;
+  });
   const [isIOS, setIsIOS] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
 
