@@ -56,8 +56,8 @@ describe("product hardening flows", () => {
   it("uses one confirmation dialog for destructive deletes across shared and custom lists", () => {
     const deleteButton = source("components", "forms", "delete-button.tsx");
     const resourceTable = source("components", "tables", "resource-table.tsx");
-    const topicsPage = source("app", "topics", "page.tsx");
-    const literaturePage = source("app", "research", "literature", "page.tsx");
+    const topicsList = source("components", "topics-grid.tsx");
+    const literatureList = source("components", "research", "literature-list.tsx");
     const examDetailPage = source("app", "exams", "[id]", "page.tsx");
 
     expect(deleteButton).toContain("Dialog");
@@ -65,8 +65,8 @@ describe("product hardening flows", () => {
     expect(deleteButton).not.toContain("confirm(");
     expect(resourceTable).toContain("DeleteButton");
     expect(resourceTable).not.toContain("<form action={deleteAction}>");
-    expect(topicsPage).toContain("DeleteButton");
-    expect(literaturePage).toContain("DeleteButton");
+    expect(topicsList).toContain("DeleteButton");
+    expect(literatureList).toContain("DeleteButton");
     expect(examDetailPage).toContain("DeleteButton");
   });
 

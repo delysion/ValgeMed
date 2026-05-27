@@ -1,7 +1,6 @@
 import { Lightbulb } from "lucide-react";
 import { GlassCard } from "@/components/premium/glass-card";
 import { LiteratureList } from "@/components/research/literature-list";
-import { DeleteButton } from "@/components/forms/delete-button";
 import { getI18n } from "@/lib/i18n/server-i18n";
 import { getResearchPipelineData } from "@/lib/data/queries";
 import { LiteratureGapForm } from "@/components/forms/research-forms";

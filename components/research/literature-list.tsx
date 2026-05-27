@@ -2,7 +2,7 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
-import { BookOpen } from "lucide-react";
+import { BookOpen, Eye } from "lucide-react";
 import { RecordDrawer } from "@/components/ui/record-drawer";
 import { DeleteButton } from "@/components/forms/delete-button";
 import { EmptyState } from "@/components/premium/empty-state";
@@ -39,6 +39,17 @@ export function LiteratureList({ gaps, areaNames, t }: LiteratureListProps) {
                 {gap.description && <p className="mt-1 text-xs text-text-secondary line-clamp-2">{gap.description}</p>}
               </div>
               <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelected(gap);
+                  }}
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-md text-text-muted transition-colors hover:bg-bg-subtle hover:text-text-primary"
+                  aria-label={t("common.open")}
+                >
+                  <Eye className="h-4 w-4" />
+                </button>
                 <a
                   href={`/research/literature?editGap=${gap.id}`}
                   onClick={(e) => e.stopPropagation()}

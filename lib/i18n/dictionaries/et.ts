@@ -356,6 +356,7 @@ export const et: Dictionary = {
   "common.save": "Salvesta",
   "common.create": "Loo",
   "common.edit": "Muuda",
+  "common.actions": "Toimingud",
   "common.delete": "Kustuta",
   "common.yes": "Jah",
   "common.no": "Ei",

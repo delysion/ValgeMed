@@ -354,6 +354,7 @@ export const en = {
   "common.save": "Save",
   "common.create": "Create",
   "common.edit": "Edit",
+  "common.actions": "Actions",
   "common.delete": "Delete",
   "common.yes": "Yes",
   "common.no": "No",

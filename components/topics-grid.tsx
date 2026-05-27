@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRight } from "lucide-react";
+import { Edit3, Eye } from "lucide-react";
 import { RecordDrawer } from "@/components/ui/record-drawer";
 import { DeleteButton } from "@/components/forms/delete-button";
 import { getMasteryLevel, masteryKey, MasteryBadge } from "@/components/premium/gamification";
@@ -62,12 +62,24 @@ export function TopicsGrid({ topics, subjects, exams, errorLogs, t }: TopicsGrid
               <div className="mt-auto flex items-center justify-between gap-3 border-t border-white/10 pt-4">
                 <Badge variant="muted">{suggestedAction}</Badge>
                 <div className="flex gap-1">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    aria-label={t("common.open")}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelected(topic);
+                    }}
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Button>
                   <Button asChild variant="ghost" size="icon" aria-label={t("common.edit")}>
-                    <a href={`/topics?edit=${topic.id}`}>
-                      <ArrowRight className="h-4 w-4" />
+                    <a href={`/topics?edit=${topic.id}`} onClick={(e) => e.stopPropagation()}>
+                      <Edit3 className="h-4 w-4" />
                     </a>
                   </Button>
-                  <DeleteButton action={deleteTopicAction} id={topic.id} label={t("common.delete")} />
+                  <DeleteButton action={deleteTopicAction} id={topic.id} label={t("common.delete")} onClick={(e) => e.stopPropagation()} />
                 </div>
               </div>
             </GlassCard>

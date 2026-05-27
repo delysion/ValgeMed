@@ -5,7 +5,6 @@ import { TopicForm } from "@/components/forms/entity-forms";
 import { TopicsGrid } from "@/components/topics-grid";
 import { GlassCard } from "@/components/premium/glass-card";
 import { Button } from "@/components/ui/button";
-import { DeleteButton } from "@/components/forms/delete-button";
 import { requireApprovedUser } from "@/lib/auth/supabase";
 import { getErrorLogs, getExams, getSubjects, getTopics } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server-i18n";

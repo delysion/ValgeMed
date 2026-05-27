@@ -5,14 +5,14 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { fmtDate, humanize } from "@/lib/labels";
-import type { Topic, Hypothesis, LiteratureGap, Manuscript } from "@/lib/db/schema";
+import type { Topic, Hypothesis, LiteratureGap, Manuscript, ReviewItem } from "@/lib/db/schema";
 
-type RecordType = "topic" | "hypothesis" | "literature-gap" | "manuscript";
+type RecordType = "topic" | "review" | "hypothesis" | "literature-gap" | "manuscript";
 
 interface RecordDrawerProps {
   open: boolean;
   onClose: () => void;
-  record: Topic | Hypothesis | LiteratureGap | Manuscript | null;
+  record: Topic | ReviewItem | Hypothesis | LiteratureGap | Manuscript | null;
   type: RecordType;
   editBasePath?: string;
 }
@@ -56,6 +56,57 @@ function TopicDetail({ topic }: { topic: Topic }) {
         <div className="rounded-xl border border-border/50 p-3">
           <p className="text-xs text-text-muted mb-1">Description</p>
           <p className="text-sm text-text-secondary">{topic.description}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ReviewDetail({ item }: { item: ReviewItem }) {
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 gap-3">
+        <div className="rounded-xl bg-white/[0.04] p-3">
+          <p className="text-xs text-text-muted">{item.confidence}/10</p>
+          <p className="mt-0.5 text-sm font-medium text-text-primary">Confidence</p>
+        </div>
+        <div className="rounded-xl bg-white/[0.04] p-3">
+          <p className="text-xs text-text-muted">{item.intervalDays}d</p>
+          <p className="mt-0.5 text-sm font-medium text-text-primary">Interval</p>
+        </div>
+      </div>
+      <div className="space-y-2 text-sm">
+        <div className="flex justify-between rounded-lg bg-white/[0.04] px-3 py-2">
+          <span className="text-text-muted">Type</span>
+          <span className="text-text-primary">{humanize(item.reviewType)}</span>
+        </div>
+        <div className="flex justify-between rounded-lg bg-white/[0.04] px-3 py-2">
+          <span className="text-text-muted">Due</span>
+          <span className="text-text-primary">{fmtDate(item.dueAt)}</span>
+        </div>
+        <div className="flex justify-between rounded-lg bg-white/[0.04] px-3 py-2">
+          <span className="text-text-muted">Times reviewed</span>
+          <span className="text-text-primary">{item.timesReviewed}</span>
+        </div>
+        <div className="flex justify-between rounded-lg bg-white/[0.04] px-3 py-2">
+          <span className="text-text-muted">Active</span>
+          <span className="text-text-primary">{item.isActive ? "Yes" : "No"}</span>
+        </div>
+        {item.lastReviewedAt && (
+          <div className="flex justify-between rounded-lg bg-white/[0.04] px-3 py-2">
+            <span className="text-text-muted">Last reviewed</span>
+            <span className="text-text-primary">{fmtDate(item.lastReviewedAt)}</span>
+          </div>
+        )}
+      </div>
+      <div className="rounded-xl border border-border/50 p-3">
+        <p className="mb-1 text-xs text-text-muted">Question</p>
+        <p className="text-sm text-text-secondary">{item.question}</p>
+      </div>
+      {item.answer && (
+        <div className="rounded-xl border border-border/50 p-3">
+          <p className="mb-1 text-xs text-text-muted">Answer</p>
+          <p className="whitespace-pre-wrap text-sm text-text-secondary">{item.answer}</p>
         </div>
       )}
     </div>
@@ -166,7 +217,12 @@ export function RecordDrawer({ open, onClose, record, type, editBasePath }: Reco
   if (!record) return null;
 
   const title = "title" in record ? record.title : "question" in record ? record.question : "Record";
-  const editHref = editBasePath ? `${editBasePath}?${type === "topic" ? "edit" : type === "hypothesis" ? "editHypothesis" : type === "literature-gap" ? "editGap" : "editManuscript"}=${record.id}` : "#";
+  const editParam =
+    type === "hypothesis" ? "editHypothesis" :
+    type === "literature-gap" ? "editGap" :
+    type === "manuscript" ? "editManuscript" :
+    "edit";
+  const editHref = editBasePath ? `${editBasePath}?${editParam}=${record.id}` : "#";
 
   return (
     <Sheet open={open} onOpenChange={(v) => !v && onClose()}>
@@ -186,6 +242,7 @@ export function RecordDrawer({ open, onClose, record, type, editBasePath }: Reco
         </SheetHeader>
         <div className="flex-1 overflow-y-auto px-5 py-4">
           {type === "topic" && <TopicDetail topic={record as Topic} />}
+          {type === "review" && <ReviewDetail item={record as ReviewItem} />}
           {type === "hypothesis" && <HypothesisDetail hypothesis={record as Hypothesis} />}
           {type === "literature-gap" && <LiteratureGapDetail gap={record as LiteratureGap} />}
           {type === "manuscript" && <ManuscriptDetail manuscript={record as Manuscript} />}

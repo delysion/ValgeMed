@@ -1,20 +1,13 @@
 import { isBefore, isToday, startOfToday } from "date-fns";
-import { RotateCw } from "lucide-react";
 
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { ReviewItemForm } from "@/components/forms/entity-forms";
-import { ResourceTable } from "@/components/tables/resource-table";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { ReviewsList } from "@/components/reviews-list";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  deleteReviewItemAction,
-  markReviewItemReviewedAction,
-} from "@/lib/actions/resources";
 import { requireApprovedUser } from "@/lib/auth/supabase";
 import { getReviewItems, getSubjects, getTopics } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server-i18n";
-import { fmtDate, humanize } from "@/lib/labels";
+import { fmtDate } from "@/lib/labels";
 
 export const dynamic = "force-dynamic";
 
@@ -75,34 +68,26 @@ export default async function ReviewsPage({
               <CardTitle>{t("reviews.title")}</CardTitle>
             </CardHeader>
             <CardContent>
-              <ResourceTable
-                rows={reviewItems}
-                editBasePath="/reviews"
-                deleteAction={deleteReviewItemAction}
-                extraActions={(item) => (
-                  <form action={markReviewItemReviewedAction} className="flex items-center gap-1">
-                    <input type="hidden" name="id" value={item.id} />
-                    <input
-                      name="confidence"
-                      type="number"
-                      min={0}
-                      max={10}
-                      defaultValue={item.confidence}
-                      className="h-8 w-14 rounded-md border border-border bg-bg-subtle px-2 text-xs text-text-primary"
-                    />
-                      <Button type="submit" variant="ghost" size="icon" aria-label={t("reviews.markReviewed")}>
-                      <RotateCw className="h-4 w-4" />
-                    </Button>
-                  </form>
-                )}
-                columns={[
-                  { header: t("common.question"), render: (item) => <span className="line-clamp-2 text-text-primary">{item.question}</span> },
-                  { header: t("common.subject"), render: (item) => subjectById.get(item.subjectId)?.name ?? "-" },
-                  { header: t("common.type"), render: (item) => humanize(item.reviewType) },
-                  { header: t("common.date"), render: (item) => fmtDate(item.dueAt) },
-                  { header: t("common.confidence"), render: (item) => <Badge>{item.confidence}/10</Badge> },
-                  { header: t("common.interval"), render: (item) => `${item.intervalDays}d` },
-                ]}
+              <ReviewsList
+                reviewItems={reviewItems}
+                subjects={subjects}
+                labels={{
+                  question: t("common.question"),
+                  subject: t("common.subject"),
+                  type: t("common.type"),
+                  date: t("common.date"),
+                  confidence: t("common.confidence"),
+                  interval: t("common.interval"),
+                  actions: t("common.actions"),
+                  open: t("common.open"),
+                  edit: t("common.edit"),
+                  delete: t("common.delete"),
+                  markReviewed: t("reviews.markReviewed"),
+                  emptyTitle: t("common.emptyTitle"),
+                  emptyBody: t("common.emptyBody"),
+                  active: t("status.active"),
+                  inactive: t("common.no"),
+                }}
               />
             </CardContent>
           </Card>
