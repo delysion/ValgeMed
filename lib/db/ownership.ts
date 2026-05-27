@@ -3,11 +3,11 @@ import "server-only";
 import { and, eq } from "drizzle-orm";
 
 import type { AppDb } from "@/lib/db";
-import { exams, subjects, topics } from "@/lib/db/schema";
+import { exams, hypotheses, manuscripts, researchAreas, subjects, topics } from "@/lib/db/schema";
 
 export const FORBIDDEN_RELATION_MESSAGE = "Forbidden relation";
 
-type RelationKind = "subject" | "topic" | "exam";
+type RelationKind = "subject" | "topic" | "exam" | "researchArea" | "hypothesis" | "manuscript";
 
 async function hasOwnedRecord(db: AppDb, userId: string, kind: RelationKind, id: string) {
   if (kind === "subject") {
@@ -24,6 +24,33 @@ async function hasOwnedRecord(db: AppDb, userId: string, kind: RelationKind, id:
       .select({ id: topics.id })
       .from(topics)
       .where(and(eq(topics.id, id), eq(topics.userId, userId)))
+      .limit(1);
+    return !!record;
+  }
+
+  if (kind === "researchArea") {
+    const [record] = await db
+      .select({ id: researchAreas.id })
+      .from(researchAreas)
+      .where(and(eq(researchAreas.id, id), eq(researchAreas.userId, userId)))
+      .limit(1);
+    return !!record;
+  }
+
+  if (kind === "hypothesis") {
+    const [record] = await db
+      .select({ id: hypotheses.id })
+      .from(hypotheses)
+      .where(and(eq(hypotheses.id, id), eq(hypotheses.userId, userId)))
+      .limit(1);
+    return !!record;
+  }
+
+  if (kind === "manuscript") {
+    const [record] = await db
+      .select({ id: manuscripts.id })
+      .from(manuscripts)
+      .where(and(eq(manuscripts.id, id), eq(manuscripts.userId, userId)))
       .limit(1);
     return !!record;
   }
@@ -55,11 +82,17 @@ export async function assertOwnedRelations(
     relatedSubjectId?: string | null;
     relatedTopicId?: string | null;
     relatedExamId?: string | null;
+    researchAreaId?: string | null;
+    hypothesisId?: string | null;
+    manuscriptId?: string | null;
   },
 ) {
   await Promise.all([
     verifyOwnedId(db, userId, "subject", data.subjectId ?? data.relatedSubjectId),
     verifyOwnedId(db, userId, "topic", data.topicId ?? data.relatedTopicId),
     verifyOwnedId(db, userId, "exam", data.examId ?? data.relatedExamId),
+    verifyOwnedId(db, userId, "researchArea", data.researchAreaId),
+    verifyOwnedId(db, userId, "hypothesis", data.hypothesisId),
+    verifyOwnedId(db, userId, "manuscript", data.manuscriptId),
   ]);
 }

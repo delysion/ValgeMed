@@ -125,6 +125,42 @@ describe("product hardening flows", () => {
     expect(settings).toContain("/api/export/ical");
   });
 
+  it("neutralizes spreadsheet formulas in CSV exports", async () => {
+    const { buildCsvExport } = await import("@/lib/export/serialize");
+    const emptyTables = {
+      subjects: [{ name: "=HYPERLINK(\"https://evil.example\",\"open\")" }],
+      exams: [],
+      topics: [],
+      studySessions: [],
+      reviewItems: [],
+      errorLogs: [],
+      quizAttempts: [],
+      dailyLogs: [],
+      goals: [],
+      tasks: [],
+      identityNotes: [],
+      tartuNotes: [],
+      timeBlocks: [],
+      healthLogs: [],
+      languageProgress: [],
+      reputationEvents: [],
+      opportunities: [],
+      professionalContacts: [],
+      lifeAdminItems: [],
+      portfolioItems: [],
+      strategicReviews: [],
+      researchAreas: [],
+      literatureGaps: [],
+      hypotheses: [],
+      manuscripts: [],
+      methodologyRisks: [],
+      uploads: [],
+      pushSubscriptions: [],
+    };
+
+    expect(buildCsvExport(emptyTables as never)).toContain("'=HYPERLINK");
+  });
+
   it("keeps the Elite Index ring number visually balanced", () => {
     const ring = source("components", "premium", "score-ring.tsx");
 

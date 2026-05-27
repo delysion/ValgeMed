@@ -168,6 +168,18 @@ const emptyToNull = (value: unknown) => {
 const nullableText = z.preprocess(emptyToNull, z.string().trim().nullable());
 const nullableShortText = (max: number) =>
   z.preprocess(emptyToNull, z.string().trim().max(max).nullable());
+const nullableHttpUrlText = z.preprocess((value) => {
+  const normalized = emptyToNull(value);
+  if (normalized === null) return null;
+  const text = String(normalized).trim();
+
+  try {
+    const url = new URL(text);
+    return url.protocol === "http:" || url.protocol === "https:" ? text : null;
+  } catch {
+    return null;
+  }
+}, z.string().max(2048).nullable());
 const nullableDate = z.preprocess((value) => {
   if (value === "" || value === undefined || value === null) {
     return null;
@@ -385,7 +397,7 @@ export const reputationEventSchema = z.object({
   eventType: z.enum(reputationEventTypes).default("reliability_signal"),
   eventDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   impact: scoreSchema.default(0),
-  evidenceUrl: nullableText,
+  evidenceUrl: nullableHttpUrlText,
   followUpAt: nullableDate,
   status: z.enum(taskStatuses).default("done"),
 });
@@ -419,7 +431,7 @@ export const lifeAdminItemSchema = z.object({
   dueAt: nullableDate,
   status: z.enum(taskStatuses).default("todo"),
   priority: scoreSchema.default(0),
-  fileUrl: nullableText,
+  fileUrl: nullableHttpUrlText,
   fileName: nullableText,
 });
 
@@ -428,7 +440,7 @@ export const portfolioItemSchema = z.object({
   description: nullableText,
   itemType: z.enum(portfolioItemTypes).default("other"),
   date: nullableDateString,
-  evidenceUrl: nullableText,
+  evidenceUrl: nullableHttpUrlText,
   strategicValue: scoreSchema.default(0),
   status: z.enum(portfolioStatuses).default("active"),
 });

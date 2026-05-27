@@ -44,12 +44,16 @@ function normalize(value: unknown): string {
 }
 
 function escapeCsv(value: unknown) {
-  const normalized = normalize(value);
+  const normalized = neutralizeSpreadsheetFormula(normalize(value));
   if (/[",\n\r]/.test(normalized)) {
     return `"${normalized.replaceAll('"', '""')}"`;
   }
 
   return normalized;
+}
+
+function neutralizeSpreadsheetFormula(value: string) {
+  return /^[\t\r\n ]*[=+\-@]/.test(value) ? `'${value}` : value;
 }
 
 export function buildJsonExport(data: ExportData) {

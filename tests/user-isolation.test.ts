@@ -69,4 +69,17 @@ describe("user data isolation guards", () => {
     expect(schema).toContain('uniqueIndex("daily_logs_user_id_date_unique").on(table.userId, table.date)');
     expect(schema).toContain('uniqueIndex("health_logs_user_id_date_unique").on(table.userId, table.date)');
   });
+
+  it("checks Research relation ids before linking records", () => {
+    const researchActions = source("lib", "actions", "research.ts");
+    const ownership = source("lib", "db", "ownership.ts");
+
+    expect(ownership).toContain('"researchArea"');
+    expect(ownership).toContain('"hypothesis"');
+    expect(researchActions).toContain("assertOwnedRelations");
+    expect(researchActions).toMatch(/createLiteratureGapAction[\s\S]*await assertOwnedRelations\(db,\s*userId,\s*data\)/);
+    expect(researchActions).toMatch(/updateLiteratureGapAction[\s\S]*await assertOwnedRelations\(db,\s*userId,\s*data\)/);
+    expect(researchActions).toMatch(/createManuscriptAction[\s\S]*await assertOwnedRelations\(db,\s*userId,\s*data\)/);
+    expect(researchActions).toMatch(/updateManuscriptAction[\s\S]*await assertOwnedRelations\(db,\s*userId,\s*data\)/);
+  });
 });

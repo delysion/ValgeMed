@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 
 import { requireAuthUserId } from "@/lib/db/auth";
 import { getDb } from "@/lib/db";
+import { assertOwnedRelations } from "@/lib/db/ownership";
 import { literatureGaps, hypotheses, manuscripts, researchAreas } from "@/lib/db/schema";
 import { literatureGapSchema, hypothesisSchema, manuscriptSchema, researchAreaSchema } from "@/lib/validators/schemas";
 import { parseForm, parseId, refresh } from "@/lib/utils/forms";
@@ -33,6 +34,7 @@ export async function createLiteratureGapAction(formData: FormData) {
   const userId = await requireAuthUserId();
   const db = getDb();
   const data = parseForm(literatureGapSchema, formData);
+  await assertOwnedRelations(db, userId, data);
   await db.insert(literatureGaps).values({ ...data, userId });
   refresh(researchPaths);
 }
@@ -42,6 +44,7 @@ export async function updateLiteratureGapAction(formData: FormData) {
   const db = getDb();
   const recordId = parseId(formData);
   const data = parseForm(literatureGapSchema, formData);
+  await assertOwnedRelations(db, userId, data);
   await db.update(literatureGaps).set({ ...data, updatedAt: new Date() }).where(and(eq(literatureGaps.id, recordId), eq(literatureGaps.userId, userId)));
   refresh(researchPaths);
   redirect("/research/literature");
@@ -89,6 +92,7 @@ export async function createManuscriptAction(formData: FormData) {
   const userId = await requireAuthUserId();
   const db = getDb();
   const data = parseForm(manuscriptSchema, formData);
+  await assertOwnedRelations(db, userId, data);
   await db.insert(manuscripts).values({ ...data, userId });
   refresh(researchPaths);
 }
@@ -98,6 +102,7 @@ export async function updateManuscriptAction(formData: FormData) {
   const db = getDb();
   const recordId = parseId(formData);
   const data = parseForm(manuscriptSchema, formData);
+  await assertOwnedRelations(db, userId, data);
   await db.update(manuscripts).set({ ...data, updatedAt: new Date() }).where(and(eq(manuscripts.id, recordId), eq(manuscripts.userId, userId)));
   refresh(researchPaths);
   redirect("/research/manuscripts");

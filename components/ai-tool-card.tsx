@@ -58,6 +58,9 @@ export function AiToolCard({
   const parsedError = tool === "error_analysis" && result ? tryParseErrorJson(result) : null;
   const parsedDaily = tool === "daily_command" && result ? tryParseDailyJson(result) : null;
   const parsedReview = tool === "weekly_review" && result ? tryParseReviewJson(result) : null;
+  const parsedSemester = tool === "semester_plan" && result ? tryParseReviewJson(result) : null;
+  const parsedExam = tool === "exam_battle_plan" && result ? tryParseExamJson(result) : null;
+  const parsedResearch = tool === "research_ideas" && result ? tryParseResearchJson(result) : null;
 
   const handleExecute = () => {
     setExpanded(true);
@@ -108,19 +111,19 @@ export function AiToolCard({
           }
         } else if (tool === "daily_command") {
           const parsed = tryParseDailyJson(text);
-          if (parsed) await autoSaveDaily(parsed);
+          if (parsed && shouldAutoSaveAiTool(tool)) await autoSaveDaily(parsed);
         } else if (tool === "weekly_review") {
           const parsed = tryParseReviewJson(text);
-          if (parsed) await autoSaveReview(parsed);
+          if (parsed && shouldAutoSaveAiTool(tool)) await autoSaveReview(parsed);
         } else if (tool === "exam_battle_plan") {
           const parsed = tryParseExamJson(text);
-          if (parsed) await autoSaveExam(parsed);
+          if (parsed && shouldAutoSaveAiTool(tool)) await autoSaveExam(parsed);
         } else if (tool === "semester_plan") {
           const parsed = tryParseReviewJson(text);
-          if (parsed) await autoSaveStrategic(parsed, "semester");
+          if (parsed && shouldAutoSaveAiTool(tool)) await autoSaveStrategic(parsed, "semester");
         } else if (tool === "research_ideas") {
           const parsed = tryParseResearchJson(text);
-          if (parsed) await autoSaveResearch(parsed);
+          if (parsed && shouldAutoSaveAiTool(tool)) await autoSaveResearch(parsed);
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Execution failed");
@@ -234,16 +237,17 @@ export function AiToolCard({
   }
 
   async function handleSaveReview() {
-    if (!parsedReview) return;
+    const parsed = parsedReview || parsedSemester;
+    if (!parsed) return;
     setSaving(true);
     try {
       const fd = new FormData();
       fd.set("date", new Date().toISOString().slice(0, 10));
-      fd.set("reviewType", "weekly");
-      fd.set("wins", parsedReview.wins || "");
-      fd.set("weaknesses", parsedReview.weaknesses || "");
-      fd.set("nextFocus", parsedReview.nextFocus || "");
-      fd.set("decisions", parsedReview.decisions || "");
+      fd.set("reviewType", tool === "semester_plan" ? "semester" : "weekly");
+      fd.set("wins", parsed.wins || "");
+      fd.set("weaknesses", parsed.weaknesses || "");
+      fd.set("nextFocus", parsed.nextFocus || "");
+      fd.set("decisions", parsed.decisions || "");
       fd.set("eliteIndexSnapshot", "0");
       await createStrategicReviewAction(fd);
       setSaved(true);
@@ -251,6 +255,28 @@ export function AiToolCard({
       setTimeout(() => setSaved(false), 3000);
     } catch {
       setError(t("ai.failedToLoad"));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleSaveExam() {
+    if (!parsedExam) return;
+    setSaving(true);
+    try {
+      await autoSaveExam(parsedExam);
+      setShowSaveForm(false);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleSaveResearch() {
+    if (!parsedResearch) return;
+    setSaving(true);
+    try {
+      await autoSaveResearch(parsedResearch);
+      setShowSaveForm(false);
     } finally {
       setSaving(false);
     }
@@ -450,19 +476,29 @@ export function AiToolCard({
                       <p className="text-xs">Active recall: {parsedDaily.activeRecallMinutes}m · Passive: {parsedDaily.passiveStudyMinutes}m</p>
                       <p className="text-xs">Energy: {parsedDaily.energyLevel}/10 · Stress: {parsedDaily.stressLevel}/10</p>
                     </div>
-                  ) : parsedReview ? (
+                  ) : parsedReview || parsedSemester ? (
                     <div className="space-y-2">
-                      <p className="font-semibold">Weekly Review</p>
-                      {parsedReview.wins && <p className="text-xs"><span className="font-medium">Wins:</span> {parsedReview.wins}</p>}
-                      {parsedReview.weaknesses && <p className="text-xs"><span className="font-medium">Weaknesses:</span> {parsedReview.weaknesses}</p>}
-                      {parsedReview.nextFocus && <p className="text-xs"><span className="font-medium">Next focus:</span> {parsedReview.nextFocus}</p>}
+                      <p className="font-semibold">{parsedSemester ? "Semester Plan" : "Weekly Review"}</p>
+                      {(parsedReview || parsedSemester)?.wins && <p className="text-xs"><span className="font-medium">Wins:</span> {(parsedReview || parsedSemester)?.wins}</p>}
+                      {(parsedReview || parsedSemester)?.weaknesses && <p className="text-xs"><span className="font-medium">Weaknesses:</span> {(parsedReview || parsedSemester)?.weaknesses}</p>}
+                      {(parsedReview || parsedSemester)?.nextFocus && <p className="text-xs"><span className="font-medium">Next focus:</span> {(parsedReview || parsedSemester)?.nextFocus}</p>}
+                    </div>
+                  ) : parsedExam ? (
+                    <div className="space-y-2">
+                      <p className="font-semibold">{parsedExam.title}</p>
+                      <p className="text-xs">{parsedExam.plan}</p>
+                    </div>
+                  ) : parsedResearch ? (
+                    <div className="space-y-2">
+                      <p className="font-semibold">{parsedResearch.question}</p>
+                      {parsedResearch.notes && <p className="text-xs">{parsedResearch.notes}</p>}
                     </div>
                   ) : (
                     result
                   )}
                 </div>
                 <div className="flex items-center gap-1 shrink-0">
-                  {(parsedError || parsedDaily || parsedReview) && !saved && (
+                  {(parsedError || parsedDaily || parsedReview || parsedSemester || parsedExam || parsedResearch) && !saved && (
                     <Button
                       variant="outline"
                       size="sm"
@@ -506,10 +542,24 @@ export function AiToolCard({
                   </Button>
                 </div>
               )}
-              {showSaveForm && parsedReview && (
+              {showSaveForm && (parsedReview || parsedSemester) && (
                 <div className="mt-3">
                   <Button size="sm" onClick={handleSaveReview} disabled={saving} className="h-9 text-xs">
-                    {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : "Save as Weekly Review"}
+                    {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : parsedSemester ? "Save as Semester Review" : "Save as Weekly Review"}
+                  </Button>
+                </div>
+              )}
+              {showSaveForm && parsedExam && (
+                <div className="mt-3">
+                  <Button size="sm" onClick={handleSaveExam} disabled={saving} className="h-9 text-xs">
+                    {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : "Save as Strategic Review"}
+                  </Button>
+                </div>
+              )}
+              {showSaveForm && parsedResearch && (
+                <div className="mt-3">
+                  <Button size="sm" onClick={handleSaveResearch} disabled={saving} className="h-9 text-xs">
+                    {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : "Save as Hypothesis"}
                   </Button>
                 </div>
               )}

@@ -35,11 +35,18 @@ const VALID_REDIRECT_PATHS = [
   "/subjects/[id]",
 ];
 
+const allowedForwardedHosts = new Set(["localhost", "127.0.0.1", "valgemed.vercel.app"]);
+
 function isValidRedirect(path: string): boolean {
   if (!path.startsWith("/")) return false;
   if (path.includes("//") || path.includes("://")) return false;
   if (path.length > 200) return false;
   return VALID_REDIRECT_PATHS.includes(path) || path.startsWith("/exams/") || path.startsWith("/subjects/");
+}
+
+function getTrustedForwardedHost(value: string | null) {
+  const host = value?.split(",")[0]?.trim().toLowerCase().split(":")[0] ?? "";
+  return allowedForwardedHosts.has(host) ? host : null;
 }
 
 export async function GET(request: NextRequest) {
@@ -55,12 +62,12 @@ export async function GET(request: NextRequest) {
     if (!error) {
       const forwardedHost = request.headers.get("x-forwarded-host");
       const isLocalHost = process.env.NODE_ENV === "development";
-      const allowedHosts = ["localhost", "127.0.0.1", "valgemed.vercel.app"];
+      const trustedForwardedHost = getTrustedForwardedHost(forwardedHost);
 
       if (isLocalHost) {
         return NextResponse.redirect(`${origin}${next}`);
-      } else if (forwardedHost && allowedHosts.some((h) => forwardedHost.includes(h))) {
-        return NextResponse.redirect(`https://${forwardedHost}${next}`);
+      } else if (trustedForwardedHost) {
+        return NextResponse.redirect(`https://${trustedForwardedHost}${next}`);
       } else {
         return NextResponse.redirect(`${origin}${next}`);
       }

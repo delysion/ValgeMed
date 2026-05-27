@@ -86,4 +86,21 @@ describe("Next routing guards", () => {
     expect(source).toContain('request.destination === "document"');
     expect(source).not.toContain("staleWhileRevalidate(request)");
   });
+
+  it("does not trust partial forwarded-host matches during auth callback redirects", () => {
+    const source = readFileSync(join(rootDir, "app/auth/callback/route.ts"), "utf-8");
+
+    expect(source).toContain("getTrustedForwardedHost");
+    expect(source).toContain("allowedForwardedHosts.has(host)");
+    expect(source).not.toContain("forwardedHost.includes");
+  });
+
+  it("sets baseline browser security headers", () => {
+    const source = readFileSync(join(rootDir, "next.config.ts"), "utf-8");
+
+    expect(source).toContain("X-Content-Type-Options");
+    expect(source).toContain("Referrer-Policy");
+    expect(source).toContain("X-Frame-Options");
+    expect(source).toContain("Permissions-Policy");
+  });
 });
