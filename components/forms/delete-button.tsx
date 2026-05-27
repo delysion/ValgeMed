@@ -20,6 +20,7 @@ export function DeleteButton({
   description = "This action cannot be undone.",
   confirmLabel = "Delete",
   cancelLabel = "Cancel",
+  onClick,
 }: {
   action: (formData: FormData) => void | Promise<void>;
   id: string;
@@ -28,11 +29,12 @@ export function DeleteButton({
   description?: string;
   confirmLabel?: string;
   cancelLabel?: string;
+  onClick?: (e: React.MouseEvent) => void;
 }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button type="button" variant="destructive" size="icon" aria-label={label}>
+        <Button type="button" variant="destructive" size="icon" aria-label={label} onClick={onClick}>
           <Trash2 className="h-4 w-4" aria-hidden="true" />
         </Button>
       </DialogTrigger>
