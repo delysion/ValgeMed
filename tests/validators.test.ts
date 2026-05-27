@@ -3,8 +3,11 @@ import { describe, expect, it } from "vitest";
 import {
   dailyLogSchema,
   errorLogSchema,
+  lifeAdminItemSchema,
   opportunitySchema,
+  portfolioItemSchema,
   quizAttemptSchema,
+  reputationEventSchema,
   subjectSchema,
   topicSchema,
 } from "@/lib/validators/schemas";
@@ -105,5 +108,41 @@ describe("validators", () => {
     expect(error.recurrenceCount).toBe(2);
     expect(opportunity.description).toBeNull();
     expect(opportunity.strategicUpside).toBe(9);
+  });
+
+  it("only keeps http(s) URLs for user-provided link fields", () => {
+    const lifeAdmin = lifeAdminItemSchema.parse({
+      title: "Residence permit",
+      description: "",
+      category: "documents",
+      dueAt: "",
+      status: "todo",
+      priority: "5",
+      fileUrl: "javascript:alert(1)",
+      fileName: "permit",
+    });
+    const portfolio = portfolioItemSchema.parse({
+      title: "Research evidence",
+      description: "",
+      itemType: "research",
+      date: "",
+      evidenceUrl: "https://drive.google.com/file/d/example/view",
+      strategicValue: "7",
+      status: "active",
+    });
+    const reputation = reputationEventSchema.parse({
+      title: "Presentation",
+      description: "",
+      eventType: "presentation",
+      eventDate: "2026-05-27",
+      impact: "6",
+      evidenceUrl: "data:text/html,phish",
+      followUpAt: "",
+      status: "done",
+    });
+
+    expect(lifeAdmin.fileUrl).toBeNull();
+    expect(portfolio.evidenceUrl).toBe("https://drive.google.com/file/d/example/view");
+    expect(reputation.evidenceUrl).toBeNull();
   });
 });

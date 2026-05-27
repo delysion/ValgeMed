@@ -46,7 +46,6 @@ const publicPaths = [
   "/auth",
   "/pending-approval",
   "/api/admin/check-status",
-  "/api/auth/check-profile",
 ];
 
 export async function proxy(request: NextRequest) {
