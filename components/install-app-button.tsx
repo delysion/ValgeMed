@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { Download, X, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -27,8 +27,13 @@ export function useInstallPrompt() {
   });
   const [isIOS, setIsIOS] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
+  const [swActive, setSwActive] = useState(false);
+  const consumedRef = useRef(false);
 
   useEffect(() => {
+    if (consumedRef.current) return;
+    consumedRef.current = true;
+
     const standalone = window.matchMedia("(display-mode: standalone)").matches
       || (window.navigator as unknown as { standalone?: boolean }).standalone === true;
     if (standalone) {
@@ -49,10 +54,14 @@ export function useInstallPrompt() {
     };
     window.addEventListener("beforeinstallprompt", handler);
 
+    if (navigator.serviceWorker) {
+      navigator.serviceWorker.ready.then(() => setSwActive(true));
+    }
+
     return () => window.removeEventListener("beforeinstallprompt", handler);
   }, []);
 
-  const canInstall = !isStandalone && deferredPrompt !== null;
+  const canInstall = !isStandalone && (deferredPrompt !== null || swActive);
 
   return { canInstall, isIOS, isStandalone, deferredPrompt };
 }
