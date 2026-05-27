@@ -1,13 +1,23 @@
 "use client";
 
+import type React from "react";
 import { Edit3 } from "lucide-react";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+
 import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { fmtDate, humanize } from "@/lib/labels";
 import type { Topic, Hypothesis, LiteratureGap, Manuscript, ReviewItem } from "@/lib/db/schema";
 
 type RecordType = "topic" | "review" | "hypothesis" | "literature-gap" | "manuscript";
+
+interface RecordContext {
+  subjectName?: string;
+  topicTitle?: string;
+  examTitle?: string;
+  researchAreaName?: string;
+  hypothesisQuestion?: string;
+}
 
 interface RecordDrawerProps {
   open: boolean;
@@ -15,100 +25,140 @@ interface RecordDrawerProps {
   record: Topic | ReviewItem | Hypothesis | LiteratureGap | Manuscript | null;
   type: RecordType;
   editBasePath?: string;
+  context?: RecordContext;
 }
 
-function TopicDetail({ topic }: { topic: Topic }) {
+function typeLabel(type: RecordType) {
+  switch (type) {
+    case "topic":
+      return "Topic";
+    case "review":
+      return "Review Record";
+    case "hypothesis":
+      return "Hypothesis";
+    case "literature-gap":
+      return "Literature Gap";
+    case "manuscript":
+      return "Manuscript";
+  }
+}
+
+function MetricTile({ label, value, tone = "default" }: { label: string; value: string | number; tone?: "default" | "danger" | "success" | "warning" }) {
+  const toneClass =
+    tone === "danger" ? "border-rose/25 bg-rose-bg/20 text-rose" :
+    tone === "success" ? "border-emerald/25 bg-emerald-bg/20 text-emerald" :
+    tone === "warning" ? "border-gold/25 bg-gold-bg/20 text-gold" :
+    "border-border/70 bg-bg-elevated/60 text-text-primary";
+
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-3">
-        <div className="rounded-xl bg-white/[0.04] p-3">
-          <p className="text-xs text-text-muted">{topic.confidence}/10</p>
-          <p className="mt-0.5 text-sm font-medium text-text-primary">Confidence</p>
-        </div>
-        <div className="rounded-xl bg-white/[0.04] p-3">
-          <p className="text-xs text-text-muted">{topic.priority}/10</p>
-          <p className="mt-0.5 text-sm font-medium text-text-primary">Priority</p>
-        </div>
-      </div>
-      <div className="space-y-2 text-sm">
-        <div className="flex justify-between rounded-lg bg-white/[0.04] px-3 py-2">
-          <span className="text-text-muted">Status</span>
-          <span className="text-text-primary">{humanize(topic.status)}</span>
-        </div>
-        <div className="flex justify-between rounded-lg bg-white/[0.04] px-3 py-2">
-          <span className="text-text-muted">Next Review</span>
-          <span className="text-text-primary">{fmtDate(topic.nextReviewAt)}</span>
-        </div>
-        {topic.examId && (
-          <div className="flex justify-between rounded-lg bg-white/[0.04] px-3 py-2">
-            <span className="text-text-muted">Exam ID</span>
-            <span className="text-text-primary truncate">{topic.examId}</span>
-          </div>
-        )}
-        {topic.subjectId && (
-          <div className="flex justify-between rounded-lg bg-white/[0.04] px-3 py-2">
-            <span className="text-text-muted">Subject ID</span>
-            <span className="text-text-primary truncate">{topic.subjectId}</span>
-          </div>
-        )}
-      </div>
-      {topic.description && (
-        <div className="rounded-xl border border-border/50 p-3">
-          <p className="text-xs text-text-muted mb-1">Description</p>
-          <p className="text-sm text-text-secondary">{topic.description}</p>
-        </div>
-      )}
+    <div className={`min-w-0 rounded-lg border px-3 py-2.5 ${toneClass}`}>
+      <p className="truncate text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-text-muted">{label}</p>
+      <p className="mt-1 truncate font-mono text-lg font-semibold tabular-nums">{value}</p>
     </div>
   );
 }
 
-function ReviewDetail({ item }: { item: ReviewItem }) {
+function MetaRow({ label, value }: { label: string; value?: string | number | null }) {
+  if (value === null || value === undefined || value === "") return null;
+
+  return (
+    <div className="grid grid-cols-[130px_minmax(0,1fr)] gap-3 rounded-lg border border-border/50 bg-bg-elevated/35 px-3 py-2 text-sm">
+      <span className="text-text-muted">{label}</span>
+      <span className="min-w-0 break-words text-text-primary">{value}</span>
+    </div>
+  );
+}
+
+function DetailSection({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className="rounded-lg border border-border/60 bg-bg-surface/70 p-4">
+      <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-text-muted">{title}</h3>
+      <div className="mt-3">{children}</div>
+    </section>
+  );
+}
+
+function RichText({ children, muted = false }: { children?: string | null; muted?: boolean }) {
+  if (!children) {
+    return <p className="text-sm text-text-muted">No details recorded yet.</p>;
+  }
+
+  return (
+    <p className={`whitespace-pre-wrap break-words text-sm leading-6 ${muted ? "text-text-secondary" : "text-text-primary"}`}>
+      {children}
+    </p>
+  );
+}
+
+function ContextBar({ context }: { context?: RecordContext }) {
+  const items = [
+    ["Subject", context?.subjectName],
+    ["Topic", context?.topicTitle],
+    ["Exam", context?.examTitle],
+    ["Research Area", context?.researchAreaName],
+    ["Hypothesis", context?.hypothesisQuestion],
+  ].filter(([, value]) => value);
+
+  if (items.length === 0) return null;
+
+  return (
+    <div className="flex flex-wrap gap-2">
+      {items.map(([label, value]) => (
+        <span key={label} className="inline-flex max-w-full items-center gap-2 rounded-lg border border-border/60 bg-bg-elevated/60 px-2.5 py-1 text-xs text-text-secondary">
+          <span className="shrink-0 text-text-muted">{label}</span>
+          <span className="min-w-0 truncate text-text-primary">{value}</span>
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function TopicDetail({ topic, context }: { topic: Topic; context?: RecordContext }) {
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-3">
-        <div className="rounded-xl bg-white/[0.04] p-3">
-          <p className="text-xs text-text-muted">{item.confidence}/10</p>
-          <p className="mt-0.5 text-sm font-medium text-text-primary">Confidence</p>
-        </div>
-        <div className="rounded-xl bg-white/[0.04] p-3">
-          <p className="text-xs text-text-muted">{item.intervalDays}d</p>
-          <p className="mt-0.5 text-sm font-medium text-text-primary">Interval</p>
-        </div>
+      <ContextBar context={context} />
+      <div className="grid gap-3 sm:grid-cols-3">
+        <MetricTile label="Confidence" value={`${topic.confidence}/10`} tone={topic.confidence <= 3 ? "danger" : "default"} />
+        <MetricTile label="Priority" value={`${topic.priority}/10`} tone={topic.priority >= 7 ? "warning" : "default"} />
+        <MetricTile label="Difficulty" value={`${topic.difficulty}/10`} />
       </div>
-      <div className="space-y-2 text-sm">
-        <div className="flex justify-between rounded-lg bg-white/[0.04] px-3 py-2">
-          <span className="text-text-muted">Type</span>
-          <span className="text-text-primary">{humanize(item.reviewType)}</span>
+      <DetailSection title="Status">
+        <div className="space-y-2">
+          <MetaRow label="Current stage" value={humanize(topic.status)} />
+          <MetaRow label="Next review" value={fmtDate(topic.nextReviewAt)} />
+          <MetaRow label="Last studied" value={fmtDate(topic.lastStudiedAt)} />
         </div>
-        <div className="flex justify-between rounded-lg bg-white/[0.04] px-3 py-2">
-          <span className="text-text-muted">Due</span>
-          <span className="text-text-primary">{fmtDate(item.dueAt)}</span>
-        </div>
-        <div className="flex justify-between rounded-lg bg-white/[0.04] px-3 py-2">
-          <span className="text-text-muted">Times reviewed</span>
-          <span className="text-text-primary">{item.timesReviewed}</span>
-        </div>
-        <div className="flex justify-between rounded-lg bg-white/[0.04] px-3 py-2">
-          <span className="text-text-muted">Active</span>
-          <span className="text-text-primary">{item.isActive ? "Yes" : "No"}</span>
-        </div>
-        {item.lastReviewedAt && (
-          <div className="flex justify-between rounded-lg bg-white/[0.04] px-3 py-2">
-            <span className="text-text-muted">Last reviewed</span>
-            <span className="text-text-primary">{fmtDate(item.lastReviewedAt)}</span>
-          </div>
-        )}
+      </DetailSection>
+      <DetailSection title="Description">
+        <RichText muted>{topic.description}</RichText>
+      </DetailSection>
+    </div>
+  );
+}
+
+function ReviewDetail({ item, context }: { item: ReviewItem; context?: RecordContext }) {
+  return (
+    <div className="space-y-4">
+      <ContextBar context={context} />
+      <div className="grid gap-3 sm:grid-cols-4">
+        <MetricTile label="Confidence" value={`${item.confidence}/10`} tone={item.confidence <= 3 ? "danger" : "default"} />
+        <MetricTile label="Interval" value={`${item.intervalDays}d`} />
+        <MetricTile label="Reviewed" value={item.timesReviewed} />
+        <MetricTile label="Active" value={item.isActive ? "Yes" : "No"} tone={item.isActive ? "success" : "default"} />
       </div>
-      <div className="rounded-xl border border-border/50 p-3">
-        <p className="mb-1 text-xs text-text-muted">Question</p>
-        <p className="text-sm text-text-secondary">{item.question}</p>
-      </div>
-      {item.answer && (
-        <div className="rounded-xl border border-border/50 p-3">
-          <p className="mb-1 text-xs text-text-muted">Answer</p>
-          <p className="whitespace-pre-wrap text-sm text-text-secondary">{item.answer}</p>
+      <DetailSection title="Question">
+        <RichText>{item.question}</RichText>
+      </DetailSection>
+      <DetailSection title="Answer">
+        <RichText muted>{item.answer}</RichText>
+      </DetailSection>
+      <DetailSection title="Schedule">
+        <div className="space-y-2">
+          <MetaRow label="Type" value={humanize(item.reviewType)} />
+          <MetaRow label="Due" value={fmtDate(item.dueAt)} />
+          <MetaRow label="Last reviewed" value={fmtDate(item.lastReviewedAt)} />
         </div>
-      )}
+      </DetailSection>
     </div>
   );
 }
@@ -116,104 +166,56 @@ function ReviewDetail({ item }: { item: ReviewItem }) {
 function HypothesisDetail({ hypothesis }: { hypothesis: Hypothesis }) {
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-3">
-        <div className="rounded-xl bg-white/[0.04] p-3">
-          <p className="text-xs text-text-muted">{hypothesis.status}</p>
-          <p className="mt-0.5 text-sm font-medium text-text-primary">Status</p>
-        </div>
-        {hypothesis.totalScore !== null && (
-          <div className="rounded-xl bg-white/[0.04] p-3">
-            <p className="text-xs text-text-muted">{hypothesis.totalScore}/10</p>
-            <p className="mt-0.5 text-sm font-medium text-text-primary">Paper Potential</p>
-          </div>
-        )}
+      <div className="grid gap-3 sm:grid-cols-3">
+        <MetricTile label="Status" value={humanize(hypothesis.status ?? "draft")} />
+        <MetricTile label="Paper Potential" value={hypothesis.totalScore !== null ? `${hypothesis.totalScore}/10` : "-"} tone={(hypothesis.totalScore ?? 0) >= 7 ? "success" : "default"} />
+        <MetricTile label="Output" value={hypothesis.output ?? "-"} />
       </div>
-      {hypothesis.output && (
-        <div className="rounded-xl bg-white/[0.04] px-3 py-2">
-          <p className="text-xs text-text-muted">Target Output</p>
-          <p className="text-sm text-text-primary">{hypothesis.output}</p>
-        </div>
-      )}
-      {hypothesis.notes && (
-        <div className="rounded-xl border border-border/50 p-3">
-          <p className="text-xs text-text-muted mb-1">Notes</p>
-          <p className="text-sm text-text-secondary">{hypothesis.notes}</p>
-        </div>
-      )}
+      <DetailSection title="Research Question">
+        <RichText>{hypothesis.question}</RichText>
+      </DetailSection>
+      <DetailSection title="Notes">
+        <RichText muted>{hypothesis.notes}</RichText>
+      </DetailSection>
     </div>
   );
 }
 
-function LiteratureGapDetail({ gap }: { gap: LiteratureGap }) {
+function LiteratureGapDetail({ gap, context }: { gap: LiteratureGap; context?: RecordContext }) {
+  const priority = gap.priority ?? 0;
+
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-3">
-        <div className="rounded-xl bg-white/[0.04] p-3">
-          <p className="text-xs text-text-muted">{gap.priority}/10</p>
-          <p className="mt-0.5 text-sm font-medium text-text-primary">Priority</p>
-        </div>
-        <div className="rounded-xl bg-white/[0.04] p-3">
-          <p className="text-xs text-text-muted">{gap.status}</p>
-          <p className="mt-0.5 text-sm font-medium text-text-primary">Status</p>
-        </div>
+      <ContextBar context={context} />
+      <div className="grid gap-3 sm:grid-cols-3">
+        <MetricTile label="Priority" value={`${priority}/10`} tone={priority >= 7 ? "warning" : "default"} />
+        <MetricTile label="Status" value={humanize(gap.status)} />
+        <MetricTile label="Publishable" value={gap.publishableForStudent ? "Yes" : "No"} tone={gap.publishableForStudent ? "success" : "default"} />
       </div>
-      {gap.researchAreaId && (
-        <div className="rounded-xl bg-white/[0.04] px-3 py-2">
-          <p className="text-xs text-text-muted">Research Area ID</p>
-          <p className="text-sm text-text-primary truncate">{gap.researchAreaId}</p>
-        </div>
-      )}
-      {gap.publishableForStudent && (
-        <Badge variant="default" className="w-fit">Publishable for student</Badge>
-      )}
-      {gap.description && (
-        <div className="rounded-xl border border-border/50 p-3">
-          <p className="text-xs text-text-muted mb-1">Description</p>
-          <p className="text-sm text-text-secondary">{gap.description}</p>
-        </div>
-      )}
+      <DetailSection title="Gap Description">
+        <RichText muted>{gap.description}</RichText>
+      </DetailSection>
     </div>
   );
 }
 
-function ManuscriptDetail({ manuscript }: { manuscript: Manuscript }) {
+function ManuscriptDetail({ manuscript, context }: { manuscript: Manuscript; context?: RecordContext }) {
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-3">
-        <div className="rounded-xl bg-white/[0.04] p-3">
-          <p className="text-xs text-text-muted">{manuscript.stage.replace(/_/g, " ")}</p>
-          <p className="mt-0.5 text-sm font-medium text-text-primary">Stage</p>
-        </div>
-        {manuscript.deadline && (
-          <div className="rounded-xl bg-white/[0.04] p-3">
-            <p className="text-xs text-text-muted">{fmtDate(manuscript.deadline)}</p>
-            <p className="mt-0.5 text-sm font-medium text-text-primary">Deadline</p>
-          </div>
-        )}
+      <ContextBar context={context} />
+      <div className="grid gap-3 sm:grid-cols-3">
+        <MetricTile label="Stage" value={humanize(manuscript.stage)} />
+        <MetricTile label="Deadline" value={fmtDate(manuscript.deadline)} tone={manuscript.deadline ? "warning" : "default"} />
+        <MetricTile label="Journal" value={manuscript.journal ?? "-"} />
       </div>
-      {manuscript.journal && (
-        <div className="rounded-xl bg-white/[0.04] px-3 py-2">
-          <p className="text-xs text-text-muted">Journal</p>
-          <p className="text-sm text-text-primary">{manuscript.journal}</p>
-        </div>
-      )}
-      {manuscript.hypothesisId && (
-        <div className="rounded-xl bg-white/[0.04] px-3 py-2">
-          <p className="text-xs text-text-muted">Hypothesis ID</p>
-          <p className="text-sm text-text-primary truncate">{manuscript.hypothesisId}</p>
-        </div>
-      )}
-      {manuscript.notes && (
-        <div className="rounded-xl border border-border/50 p-3">
-          <p className="text-xs text-text-muted mb-1">Notes</p>
-          <p className="text-sm text-text-secondary">{manuscript.notes}</p>
-        </div>
-      )}
+      <DetailSection title="Production Notes">
+        <RichText muted>{manuscript.notes}</RichText>
+      </DetailSection>
     </div>
   );
 }
 
-export function RecordDrawer({ open, onClose, record, type, editBasePath }: RecordDrawerProps) {
+export function RecordDrawer({ open, onClose, record, type, editBasePath, context }: RecordDrawerProps) {
   if (!record) return null;
 
   const title = "title" in record ? record.title : "question" in record ? record.question : "Record";
@@ -226,26 +228,31 @@ export function RecordDrawer({ open, onClose, record, type, editBasePath }: Reco
 
   return (
     <Sheet open={open} onOpenChange={(v) => !v && onClose()}>
-      <SheetContent className="flex flex-col gap-0 p-0">
-        <SheetHeader className="border-b border-border px-5 py-4">
-          <div className="flex items-center justify-between">
-            <SheetTitle className="text-base">{title}</SheetTitle>
+      <SheetContent className="flex w-[min(96vw,680px)] max-w-none flex-col gap-0 overflow-hidden overscroll-contain bg-bg-page p-0">
+        <SheetHeader className="border-b border-border bg-gradient-to-br from-bg-surface via-bg-surface to-bg-elevated px-5 py-5 pr-14 sm:px-6">
+          <div className="flex min-w-0 items-start justify-between gap-4">
+            <div className="min-w-0">
+              <Badge variant="outline">{typeLabel(type)}</Badge>
+              <SheetTitle className="mt-3 text-balance text-xl leading-7 sm:text-2xl">
+                {title}
+              </SheetTitle>
+            </div>
             {editBasePath && (
-              <Button asChild variant="ghost" size="sm">
+              <Button asChild variant="outline" size="sm" className="shrink-0">
                 <a href={editHref}>
-                  <Edit3 className="h-4 w-4" />
+                  <Edit3 className="h-4 w-4" aria-hidden="true" />
                   Edit
                 </a>
               </Button>
             )}
           </div>
         </SheetHeader>
-        <div className="flex-1 overflow-y-auto px-5 py-4">
-          {type === "topic" && <TopicDetail topic={record as Topic} />}
-          {type === "review" && <ReviewDetail item={record as ReviewItem} />}
+        <div className="flex-1 overflow-y-auto px-5 py-5 sm:px-6">
+          {type === "topic" && <TopicDetail topic={record as Topic} context={context} />}
+          {type === "review" && <ReviewDetail item={record as ReviewItem} context={context} />}
           {type === "hypothesis" && <HypothesisDetail hypothesis={record as Hypothesis} />}
-          {type === "literature-gap" && <LiteratureGapDetail gap={record as LiteratureGap} />}
-          {type === "manuscript" && <ManuscriptDetail manuscript={record as Manuscript} />}
+          {type === "literature-gap" && <LiteratureGapDetail gap={record as LiteratureGap} context={context} />}
+          {type === "manuscript" && <ManuscriptDetail manuscript={record as Manuscript} context={context} />}
         </div>
       </SheetContent>
     </Sheet>

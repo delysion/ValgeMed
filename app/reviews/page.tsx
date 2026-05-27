@@ -71,6 +71,7 @@ export default async function ReviewsPage({
               <ReviewsList
                 reviewItems={reviewItems}
                 subjects={subjects}
+                topics={topics}
                 labels={{
                   question: t("common.question"),
                   subject: t("common.subject"),

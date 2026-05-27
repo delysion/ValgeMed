@@ -93,6 +93,10 @@ export function TopicsGrid({ topics, subjects, exams, errorLogs, t }: TopicsGrid
         record={selected}
         type="topic"
         editBasePath="/topics"
+        context={selected ? {
+          subjectName: subjectById.get(selected.subjectId)?.name,
+          examTitle: selected.examId ? examById.get(selected.examId)?.title : undefined,
+        } : undefined}
       />
     </>
   );

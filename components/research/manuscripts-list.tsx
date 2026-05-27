@@ -83,6 +83,9 @@ export function ManuscriptsList({ manuscripts, hypothesisNames, labels }: Manusc
         record={selected}
         type="manuscript"
         editBasePath="/research/manuscripts"
+        context={selected ? {
+          hypothesisQuestion: hypothesisNames[selected.hypothesisId ?? ""],
+        } : undefined}
       />
     </>
   );

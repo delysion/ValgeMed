@@ -12,12 +12,13 @@ import {
   deleteReviewItemAction,
   markReviewItemReviewedAction,
 } from "@/lib/actions/resources";
-import type { ReviewItem, Subject } from "@/lib/db/schema";
+import type { ReviewItem, Subject, Topic } from "@/lib/db/schema";
 import { fmtDate, humanize } from "@/lib/labels";
 
 interface ReviewsListProps {
   reviewItems: ReviewItem[];
   subjects: Subject[];
+  topics: Topic[];
   labels: {
     question: string;
     subject: string;
@@ -37,9 +38,10 @@ interface ReviewsListProps {
   };
 }
 
-export function ReviewsList({ reviewItems, subjects, labels }: ReviewsListProps) {
+export function ReviewsList({ reviewItems, subjects, topics, labels }: ReviewsListProps) {
   const [selected, setSelected] = useState<ReviewItem | null>(null);
   const subjectById = new Map(subjects.map((subject) => [subject.id, subject]));
+  const topicById = new Map(topics.map((topic) => [topic.id, topic]));
 
   const renderActions = (item: ReviewItem) => (
     <div className="flex justify-end gap-1">
@@ -157,6 +159,10 @@ export function ReviewsList({ reviewItems, subjects, labels }: ReviewsListProps)
         record={selected}
         type="review"
         editBasePath="/reviews"
+        context={selected ? {
+          subjectName: subjectById.get(selected.subjectId)?.name,
+          topicTitle: selected.topicId ? topicById.get(selected.topicId)?.title : undefined,
+        } : undefined}
       />
     </>
   );

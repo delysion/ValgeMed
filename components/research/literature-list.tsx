@@ -83,6 +83,9 @@ export function LiteratureList({ gaps, areaNames, labels }: LiteratureListProps)
         record={selected}
         type="literature-gap"
         editBasePath="/research/literature"
+        context={selected ? {
+          researchAreaName: areaNames[selected.researchAreaId ?? ""],
+        } : undefined}
       />
     </>
   );
