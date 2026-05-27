@@ -31,9 +31,26 @@ describe("record opening UX", () => {
     const literatureList = source("components", "research", "literature-list.tsx");
     const manuscriptsList = source("components", "research", "manuscripts-list.tsx");
 
+    expect(topicsGrid).toContain('aria-label={t("common.open")}');
+    for (const list of [hypothesesList, literatureList, manuscriptsList]) {
+      expect(list).toContain("aria-label={labels.open}");
+    }
     for (const list of [topicsGrid, hypothesesList, literatureList, manuscriptsList]) {
-      expect(list).toContain('aria-label={t("common.open")}');
       expect(list).toContain("setSelected(");
     }
+  });
+
+  it("does not pass server-only translation functions or Map objects into research client lists", () => {
+    const hypothesesPage = source("app", "research", "hypotheses", "page.tsx");
+    const literaturePage = source("app", "research", "literature", "page.tsx");
+    const manuscriptsPage = source("app", "research", "manuscripts", "page.tsx");
+
+    for (const page of [hypothesesPage, literaturePage, manuscriptsPage]) {
+      expect(page).not.toContain(" t={t}");
+      expect(page).toContain("labels={{");
+    }
+
+    expect(literaturePage).not.toContain("new Map(");
+    expect(manuscriptsPage).not.toContain("new Map(");
   });
 });

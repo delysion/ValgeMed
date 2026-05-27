@@ -379,6 +379,8 @@ export const et: Dictionary = {
   "common.focus": "Fookus",
   "common.output": "Väljund",
   "common.question": "Küsimus",
+  "common.score": "Skoor",
+  "common.stage": "Etapp",
   "common.interval": "Intervall",
   "common.subject": "Aine",
   "common.topic": "Teema",
@@ -477,6 +479,9 @@ export const et: Dictionary = {
   "research.methodWeak": "Metoodiliselt nõrk",
   "research.methodWeakDesc": "Märgi disainiprobleemidega uuringud",
   "research.noGaps": "Lünki pole veel kaardistatud",
+  "research.noArea": "Valdkonda pole",
+  "research.publishable": "avaldatav",
+  "research.noHypothesis": "Hüpoteesi pole",
   "research.noGapsDesc": "Alusta uurimisvaldkonna tuvastamisega ja kaardista, mida kirjandus ütleb — ja mida mitte.",
 
   "command.title": "Käsklus",

@@ -17,7 +17,7 @@ export default async function LiteratureMapPage({
   const data = await getResearchPipelineData();
   const gaps = data.literatureGaps;
   const editingGap = gaps.find((gap) => gap.id === params.editGap);
-  const areaById = new Map(data.researchAreas.map((area) => [area.id, area.name]));
+  const areaById = Object.fromEntries(data.researchAreas.map((area) => [area.id, area.name]));
 
   return (
     <div className="flex flex-col gap-6">
@@ -27,7 +27,21 @@ export default async function LiteratureMapPage({
       </GlassCard>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
-        <LiteratureList gaps={gaps} areaNames={areaById} t={t} />
+        <LiteratureList
+          gaps={gaps}
+          areaNames={areaById}
+          labels={{
+            priority: t("common.priority"),
+            status: t("common.status"),
+            open: t("common.open"),
+            edit: t("common.edit"),
+            delete: t("common.delete"),
+            noArea: t("research.noArea"),
+            publishable: t("research.publishable"),
+            emptyTitle: t("research.noGaps"),
+            emptyBody: t("research.noGapsDesc"),
+          }}
+        />
 
         <GlassCard>
           <div className="flex items-center gap-2 mb-4">

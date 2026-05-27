@@ -377,6 +377,8 @@ export const en = {
   "common.focus": "Focus",
   "common.output": "Output",
   "common.question": "Question",
+  "common.score": "Score",
+  "common.stage": "Stage",
   "common.interval": "Interval",
   "common.subject": "Subject",
   "common.topic": "Topic",
@@ -475,6 +477,9 @@ export const en = {
   "research.methodWeak": "Methodologically weak",
   "research.methodWeakDesc": "Flag studies with design issues",
   "research.noGaps": "No gaps mapped yet",
+  "research.noArea": "No area",
+  "research.publishable": "publishable",
+  "research.noHypothesis": "No hypothesis",
   "research.noGapsDesc": "Start by identifying a research area and mapping what the literature says — and what it doesn't.",
 
   "command.title": "Command",

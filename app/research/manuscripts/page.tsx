@@ -16,7 +16,7 @@ export default async function ManuscriptPipelinePage({
   const data = await getResearchPipelineData();
   const manuscripts = data.manuscripts;
   const editingManuscript = manuscripts.find((m) => m.id === params.editManuscript);
-  const hypothesisById = new Map(data.hypotheses.map((hypothesis) => [hypothesis.id, hypothesis.question]));
+  const hypothesisById = Object.fromEntries(data.hypotheses.map((hypothesis) => [hypothesis.id, hypothesis.question]));
 
   return (
     <div className="flex flex-col gap-6">
@@ -26,7 +26,19 @@ export default async function ManuscriptPipelinePage({
       </GlassCard>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
-        <ManuscriptsList manuscripts={manuscripts} hypothesisNames={hypothesisById} t={t} />
+        <ManuscriptsList
+          manuscripts={manuscripts}
+          hypothesisNames={hypothesisById}
+          labels={{
+            stage: t("common.stage"),
+            open: t("common.open"),
+            edit: t("common.edit"),
+            delete: t("common.delete"),
+            noHypothesis: t("research.noHypothesis"),
+            emptyTitle: t("common.emptyTitle"),
+            emptyBody: t("common.emptyBody"),
+          }}
+        />
 
         <GlassCard>
           <h3 className="text-sm font-semibold text-text-primary mb-4">{editingManuscript ? t("common.edit") : t("common.create")}</h3>

@@ -24,7 +24,18 @@ export default async function HypothesisEnginePage({
       </GlassCard>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
-        <HypothesesList hypotheses={hypotheses} t={t} />
+        <HypothesesList
+          hypotheses={hypotheses}
+          labels={{
+            status: t("common.status"),
+            score: t("common.score"),
+            output: t("common.output"),
+            open: t("common.open"),
+            edit: t("common.edit"),
+            emptyTitle: t("common.emptyTitle"),
+            emptyBody: t("common.emptyBody"),
+          }}
+        />
 
         <GlassCard>
           <h3 className="text-sm font-semibold text-text-primary mb-4">{editingHypothesis ? t("common.edit") : t("common.create")}</h3>
