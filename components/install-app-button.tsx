@@ -70,8 +70,11 @@ export function InstallAppButton() {
   const pathname = usePathname();
   const { canInstall, isIOS, deferredPrompt } = useInstallPrompt();
   const [dismissed, setDismissed] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  if (!canInstall || dismissed || pathname !== "/login") return null;
+  useEffect(() => { setMounted(true); }, []);
+
+  if (!canInstall || dismissed || pathname !== "/login" || !mounted) return null;
 
   async function handleInstall() {
     if (!deferredPrompt) return;
@@ -115,8 +118,11 @@ export function InstallAppButton() {
 
 export function InstallMenuItem() {
   const { canInstall, isIOS } = useInstallPrompt();
+  const [mounted, setMounted] = useState(false);
 
-  if (!canInstall) return null;
+  useEffect(() => { setMounted(true); }, []);
+
+  if (!canInstall || !mounted) return null;
 
   return (
     <button
