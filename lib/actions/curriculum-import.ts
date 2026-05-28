@@ -87,7 +87,12 @@ export async function parseCurriculumAction(
       return { success: false, error: locale === "et" ? "Vigane JSON vastus" : "Invalid JSON response" };
     }
 
-    const validated = curriculumImportSchema.safeParse(parsed);
+    const normalized = (raw: unknown): unknown => {
+      if (Array.isArray(raw)) return { records: raw };
+      return raw;
+    };
+
+    const validated = curriculumImportSchema.safeParse(normalized(parsed));
     if (!validated.success) {
       return { success: false, error: locale === "et" ? "Vigane kirje struktuur" : "Invalid record structure" };
     }
