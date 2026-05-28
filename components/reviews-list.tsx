@@ -108,15 +108,15 @@ export function ReviewsList({ reviewItems, subjects, topics, labels }: ReviewsLi
       </div>
 
       <div className="hidden max-w-full overflow-x-auto rounded-2xl border border-border md:block">
-        <table className="w-full min-w-[700px] table-fixed border-collapse text-sm">
+        <table className="w-full min-w-[800px] table-fixed border-collapse text-sm">
           <thead className="bg-bg-subtle text-xs uppercase tracking-[0.12em] text-text-secondary">
             <tr>
-              <th className="w-[24%] px-3 py-2 text-left font-medium">{labels.question}</th>
-              <th className="w-[16%] px-3 py-2 text-left font-medium">{labels.subject}</th>
-              <th className="w-[13%] px-3 py-2 text-left font-medium">{labels.type}</th>
+              <th className="w-[22%] px-3 py-2 text-left font-medium">{labels.question}</th>
+              <th className="w-[14%] px-3 py-2 text-left font-medium">{labels.subject}</th>
+              <th className="w-[12%] px-3 py-2 text-left font-medium">{labels.type}</th>
               <th className="w-[12%] px-3 py-2 text-left font-medium">{labels.date}</th>
-              <th className="w-[11%] px-3 py-2 text-left font-medium">{labels.confidence}</th>
-              <th className="w-[8%] px-3 py-2 text-left font-medium">{labels.interval}</th>
+              <th className="w-[10%] px-3 py-2 text-left font-medium">{labels.confidence}</th>
+              <th className="w-[10%] px-3 py-2 text-left font-medium">{labels.interval}</th>
               <th className="w-[220px] px-3 py-2 text-right font-medium">{labels.actions}</th>
             </tr>
           </thead>
