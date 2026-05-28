@@ -4,8 +4,7 @@ import { useState } from "react";
 import { Edit3, Eye } from "lucide-react";
 import { RecordDrawer } from "@/components/ui/record-drawer";
 import { DeleteButton } from "@/components/forms/delete-button";
-import { getMasteryLevel, masteryKey, MasteryBadge } from "@/components/premium/gamification";
-import type { TFunction } from "@/components/premium/gamification";
+import { getMasteryLevel, MasteryBadge, type MasteryLevel } from "@/components/premium/gamification";
 import { GlassCard } from "@/components/premium/glass-card";
 import { MomentumBar } from "@/components/premium/momentum-bar";
 import { Badge } from "@/components/ui/badge";
@@ -19,10 +18,24 @@ interface TopicsGridProps {
   subjects: Subject[];
   exams: Exam[];
   errorLogs: ErrorLog[];
-  t: TFunction;
+  labels: {
+    subject: string;
+    linkedExam: string;
+    activeRecall: string;
+    errorReview: string;
+    reviews: string;
+    confidence: string;
+    priority: string;
+    nextReview: string;
+    unresolved: string;
+    open: string;
+    edit: string;
+    delete: string;
+    mastery: Record<MasteryLevel, string>;
+  };
 }
 
-export function TopicsGrid({ topics, subjects, exams, errorLogs, t }: TopicsGridProps) {
+export function TopicsGrid({ topics, subjects, exams, errorLogs, labels }: TopicsGridProps) {
   const [selected, setSelected] = useState<Topic | null>(null);
 
   const subjectById = new Map(subjects.map((s) => [s.id, s]));
@@ -34,7 +47,7 @@ export function TopicsGrid({ topics, subjects, exams, errorLogs, t }: TopicsGrid
         {topics.map((topic) => {
           const openErrors = errorLogs.filter((e) => e.topicId === topic.id && !e.resolved).length;
           const level = getMasteryLevel({ confidence: topic.confidence, status: topic.status, openErrors });
-          const suggestedAction = topic.confidence <= 3 ? t("nba.active_recall.title") : openErrors > 0 ? t("nba.error_review.title") : t("reviews.title");
+          const suggestedAction = topic.confidence <= 3 ? labels.activeRecall : openErrors > 0 ? labels.errorReview : labels.reviews;
 
           return (
             <GlassCard
@@ -45,19 +58,19 @@ export function TopicsGrid({ topics, subjects, exams, errorLogs, t }: TopicsGrid
             >
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="text-xs uppercase tracking-[0.14em] text-text-secondary">{subjectById.get(topic.subjectId)?.name ?? t("common.subject")}</p>
+                  <p className="text-xs uppercase tracking-[0.14em] text-text-secondary">{subjectById.get(topic.subjectId)?.name ?? labels.subject}</p>
                   <h3 className="mt-2 text-xl font-semibold text-text-primary">{topic.title}</h3>
-                  <p className="mt-1 text-sm text-text-secondary">{topic.examId ? examById.get(topic.examId)?.title : t("topics.linkedExam")}</p>
+                  <p className="mt-1 text-sm text-text-secondary">{topic.examId ? examById.get(topic.examId)?.title : labels.linkedExam}</p>
                 </div>
-                <MasteryBadge level={level} label={t(masteryKey(level))} />
+                <MasteryBadge level={level} label={labels.mastery[level]} />
               </div>
               <div className="space-y-3">
-                <MomentumBar label={t("common.confidence")} value={topic.confidence * 10} tone={topic.confidence <= 3 ? "danger" : "cyan"} />
-                <MomentumBar label={t("common.priority")} value={topic.priority * 10} tone="violet" />
+                <MomentumBar label={labels.confidence} value={topic.confidence * 10} tone={topic.confidence <= 3 ? "danger" : "cyan"} />
+                <MomentumBar label={labels.priority} value={topic.priority * 10} tone="violet" />
               </div>
               <div className="grid gap-2 text-sm text-text-secondary sm:grid-cols-2">
-                <div className="rounded-2xl bg-white/[0.04] p-3">{t("common.nextReview")}: {fmtDate(topic.nextReviewAt)}</div>
-                <div className="rounded-2xl bg-white/[0.04] p-3">{t("errors.unresolved")}: {openErrors}</div>
+                <div className="rounded-2xl bg-white/[0.04] p-3">{labels.nextReview}: {fmtDate(topic.nextReviewAt)}</div>
+                <div className="rounded-2xl bg-white/[0.04] p-3">{labels.unresolved}: {openErrors}</div>
               </div>
               <div className="mt-auto flex items-center justify-between gap-3 border-t border-white/10 pt-4">
                 <Badge variant="muted">{suggestedAction}</Badge>
@@ -66,7 +79,7 @@ export function TopicsGrid({ topics, subjects, exams, errorLogs, t }: TopicsGrid
                     type="button"
                     variant="ghost"
                     size="icon"
-                    aria-label={t("common.open")}
+                    aria-label={labels.open}
                     onClick={(e) => {
                       e.stopPropagation();
                       setSelected(topic);
@@ -74,12 +87,12 @@ export function TopicsGrid({ topics, subjects, exams, errorLogs, t }: TopicsGrid
                   >
                     <Eye className="h-4 w-4" />
                   </Button>
-                  <Button asChild variant="ghost" size="icon" aria-label={t("common.edit")}>
+                  <Button asChild variant="ghost" size="icon" aria-label={labels.edit}>
                     <a href={`/topics?edit=${topic.id}`} onClick={(e) => e.stopPropagation()}>
                       <Edit3 className="h-4 w-4" />
                     </a>
                   </Button>
-                  <DeleteButton action={deleteTopicAction} id={topic.id} label={t("common.delete")} onClick={(e) => e.stopPropagation()} />
+                  <DeleteButton action={deleteTopicAction} id={topic.id} label={labels.delete} onClick={(e) => e.stopPropagation()} />
                 </div>
               </div>
             </GlassCard>

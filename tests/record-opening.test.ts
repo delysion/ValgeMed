@@ -27,17 +27,30 @@ describe("record opening UX", () => {
 
   it("makes topic and research records explicitly openable, not only implicitly clickable", () => {
     const topicsGrid = source("components", "topics-grid.tsx");
+    const topicsPage = source("app", "topics", "page.tsx");
     const hypothesesList = source("components", "research", "hypotheses-list.tsx");
     const literatureList = source("components", "research", "literature-list.tsx");
     const manuscriptsList = source("components", "research", "manuscripts-list.tsx");
 
-    expect(topicsGrid).toContain('aria-label={t("common.open")}');
+    expect(topicsPage).not.toContain("errorLogs={errorLogs}\n            t=");
+    expect(topicsPage).toContain("labels={{");
+    expect(topicsGrid).not.toContain("TFunction");
+    expect(topicsGrid).toContain("aria-label={labels.open}");
     for (const list of [hypothesesList, literatureList, manuscriptsList]) {
       expect(list).toContain("aria-label={labels.open}");
     }
     for (const list of [topicsGrid, hypothesesList, literatureList, manuscriptsList]) {
       expect(list).toContain("setSelected(");
     }
+  });
+
+  it("makes exam records editable and deletable from the exam list", () => {
+    const examsPage = source("app", "exams", "page.tsx");
+
+    expect(examsPage).toContain("deleteExamAction");
+    expect(examsPage).toContain("DeleteButton");
+    expect(examsPage).toContain("`/exams?edit=${exam.id}`");
+    expect(examsPage).toContain('action={deleteExamAction}');
   });
 
   it("does not pass server-only translation functions or Map objects into research client lists", () => {

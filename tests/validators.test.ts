@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
+
 import { describe, expect, it } from "vitest";
 
 import {
@@ -12,7 +15,23 @@ import {
   topicSchema,
 } from "@/lib/validators/schemas";
 
+const rootDir = path.resolve(import.meta.dirname, "..");
+
+function readFormSource(...parts: string[]) {
+  return readFileSync(path.join(rootDir, ...parts), "utf8");
+}
+
 describe("validators", () => {
+  it("marks required relation selects as required in forms", () => {
+    const fields = readFormSource("components", "forms", "fields.tsx");
+    const entityForms = readFormSource("components", "forms", "entity-forms.tsx");
+
+    expect(fields).toContain("required?: boolean");
+    expect(fields).toContain("required={required}");
+    expect(entityForms).toContain('name="subjectId" options={relationOptions(subjects, t("form.reviewItem.subjectEmpty"))} defaultValue={item?.subjectId} required');
+    expect(entityForms).toContain('name="subjectId" options={relationOptions(subjects, t("form.exam.subjectEmpty"))} defaultValue={exam?.subjectId} description={t("form.exam.subjectDescription")} required');
+  });
+
   it("accepts a valid subject and coerces scores", () => {
     const parsed = subjectSchema.parse({
       name: "Anatomy",

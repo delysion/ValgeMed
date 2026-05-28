@@ -31,4 +31,12 @@ describe("study page UX", () => {
     expect(forms).toContain("hideDescriptions");
     expect(timer).toContain("compact?: boolean");
   });
+
+  it("lets study session history records be edited and deleted", () => {
+    const page = source("app", "study", "page.tsx");
+
+    expect(page).toContain("deleteStudySessionAction");
+    expect(page).toContain("DeleteButton");
+    expect(page).toContain("`/study?edit=${item.id}`");
+  });
 });

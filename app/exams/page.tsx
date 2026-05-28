@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { differenceInCalendarDays, startOfToday } from "date-fns";
-import { ArrowRight, ShieldCheck } from "lucide-react";
+import { ArrowRight, Edit3, ShieldCheck } from "lucide-react";
 
 import { AppShell, PageHeader } from "@/components/app-shell";
+import { DeleteButton } from "@/components/forms/delete-button";
 import { ExamForm } from "@/components/forms/entity-forms";
 import { GlassCard } from "@/components/premium/glass-card";
 import { MomentumBar } from "@/components/premium/momentum-bar";
@@ -10,6 +11,7 @@ import { RiskBadge } from "@/components/premium/gamification";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { deleteExamAction } from "@/lib/actions/resources";
 import { requireApprovedUser } from "@/lib/auth/supabase";
 import { getExamPageData } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server-i18n";
@@ -89,13 +91,23 @@ export default async function ExamsPage({ searchParams }: { searchParams: Promis
                   {exam.weakTopics.length === 0 ? <Badge variant="success">{t("mastery.examReady")}</Badge> : null}
                 </div>
 
-                <Button asChild className="mt-auto">
-                  <Link href={`/exams/${exam.id}`}>
-                    <ShieldCheck className="h-4 w-4" />
-                    {t("exams.cardAction")}
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </Button>
+                <div className="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-white/10 pt-4">
+                  <Button asChild>
+                    <Link href={`/exams/${exam.id}`}>
+                      <ShieldCheck className="h-4 w-4" />
+                      {t("exams.cardAction")}
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                  <div className="flex items-center gap-1">
+                    <Button asChild variant="ghost" size="icon" aria-label={t("common.edit")}>
+                      <Link href={`/exams?edit=${exam.id}`}>
+                        <Edit3 className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                    <DeleteButton action={deleteExamAction} id={exam.id} label={t("common.delete")} />
+                  </div>
+                </div>
               </GlassCard>
             );
           })}

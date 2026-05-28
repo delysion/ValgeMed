@@ -3,6 +3,7 @@ import { Filter } from "lucide-react";
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { TopicForm } from "@/components/forms/entity-forms";
 import { TopicsGrid } from "@/components/topics-grid";
+import { masteryKey, type MasteryLevel } from "@/components/premium/gamification";
 import { GlassCard } from "@/components/premium/glass-card";
 import { Button } from "@/components/ui/button";
 import { requireApprovedUser } from "@/lib/auth/supabase";
@@ -62,7 +63,28 @@ export default async function TopicsPage({
             subjects={subjects}
             exams={exams}
             errorLogs={errorLogs}
-            t={t as (key: string) => string}
+            labels={{
+              subject: t("common.subject"),
+              linkedExam: t("topics.linkedExam"),
+              activeRecall: t("nba.active_recall.title"),
+              errorReview: t("nba.error_review.title"),
+              reviews: t("reviews.title"),
+              confidence: t("common.confidence"),
+              priority: t("common.priority"),
+              nextReview: t("common.nextReview"),
+              unresolved: t("errors.unresolved"),
+              open: t("common.open"),
+              edit: t("common.edit"),
+              delete: t("common.delete"),
+              mastery: {
+                dormant: t(masteryKey("dormant" satisfies MasteryLevel)),
+                awakening: t(masteryKey("awakening" satisfies MasteryLevel)),
+                building: t(masteryKey("building" satisfies MasteryLevel)),
+                dangerous: t(masteryKey("dangerous" satisfies MasteryLevel)),
+                examReady: t(masteryKey("examReady" satisfies MasteryLevel)),
+                mastered: t(masteryKey("mastered" satisfies MasteryLevel)),
+              },
+            }}
           />
         </div>
       </div>

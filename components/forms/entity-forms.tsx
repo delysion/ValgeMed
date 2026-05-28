@@ -142,7 +142,7 @@ export function ExamForm({
       <form action={exam ? updateExamAction : createExamAction} className="space-y-6">
         {exam ? <input type="hidden" name="id" value={exam.id} /> : null}
         <FieldGrid>
-          <NativeSelectField label={t("form.exam.subjectLabel")} name="subjectId" options={relationOptions(subjects, t("form.exam.subjectEmpty"))} defaultValue={exam?.subjectId} description={t("form.exam.subjectDescription")} />
+          <NativeSelectField label={t("form.exam.subjectLabel")} name="subjectId" options={relationOptions(subjects, t("form.exam.subjectEmpty"))} defaultValue={exam?.subjectId} description={t("form.exam.subjectDescription")} required />
           <TextField label={t("form.exam.titleLabel")} name="title" defaultValue={exam?.title} required placeholder={t("form.exam.titlePlaceholder")} description={t("form.exam.titleDescription")} />
           <TextField label={t("form.exam.dateLabel")} name="examDate" type="date" defaultValue={dateValue(exam?.examDate)} description={t("form.exam.dateDescription")} />
           <TextField label={t("form.exam.creditsLabel")} name="ects" type="number" defaultValue={exam?.ects ?? ""} description={t("form.exam.creditsDescription")} />
@@ -176,7 +176,7 @@ export function TopicForm({
       <form action={topic ? updateTopicAction : createTopicAction} className="space-y-6">
         {topic ? <input type="hidden" name="id" value={topic.id} /> : null}
         <FieldGrid>
-          <NativeSelectField label={t("form.topic.subjectLabel")} name="subjectId" options={relationOptions(subjects, t("form.topic.subjectEmpty"))} defaultValue={topic?.subjectId} description={t("form.topic.subjectDescription")} />
+          <NativeSelectField label={t("form.topic.subjectLabel")} name="subjectId" options={relationOptions(subjects, t("form.topic.subjectEmpty"))} defaultValue={topic?.subjectId} description={t("form.topic.subjectDescription")} required />
           <NativeSelectField label={t("form.topic.examLabel")} name="examId" options={relationOptions(exams, t("form.topic.examEmpty"))} defaultValue={topic?.examId} description={t("form.topic.examDescription")} />
           <TextField label={t("form.topic.titleLabel")} name="title" defaultValue={topic?.title} required placeholder={t("form.topic.titlePlaceholder")} description={t("form.topic.titleDescription")} />
           <NativeSelectField label={t("form.topic.statusLabel")} name="status" options={optionize(topicStatuses)} defaultValue={topic?.status ?? "not_started"} description={t("form.topic.statusDescription")} />
@@ -219,7 +219,7 @@ export function StudySessionForm({
       <form action={session ? updateStudySessionAction : createStudySessionAction} className={compact ? "space-y-4" : "space-y-6"}>
         {session ? <input type="hidden" name="id" value={session.id} /> : null}
         <FieldGrid className={compact ? "gap-3 sm:grid-cols-2" : undefined}>
-          <NativeSelectField label={t("form.studySession.subjectLabel")} name="subjectId" options={relationOptions(subjects, t("form.studySession.subjectEmpty"))} defaultValue={session?.subjectId} description={hideDescriptions ? undefined : t("form.studySession.subjectDescription")} />
+          <NativeSelectField label={t("form.studySession.subjectLabel")} name="subjectId" options={relationOptions(subjects, t("form.studySession.subjectEmpty"))} defaultValue={session?.subjectId} description={hideDescriptions ? undefined : t("form.studySession.subjectDescription")} required />
           <NativeSelectField label={t("form.studySession.topicLabel")} name="topicId" options={relationOptions(topics, t("form.studySession.topicEmpty"))} defaultValue={session?.topicId} description={hideDescriptions ? undefined : t("form.studySession.topicDescription")} />
           <NativeSelectField label={t("form.studySession.examLabel")} name="examId" options={relationOptions(exams, t("form.studySession.examEmpty"))} defaultValue={session?.examId} description={hideDescriptions ? undefined : t("form.studySession.examDescription")} />
           <TextField label={t("form.studySession.startLabel")} name="startedAt" type="datetime-local" defaultValue={dateTimeValue(session?.startedAt) || dateTimeValue(new Date())} required description={hideDescriptions ? undefined : t("form.studySession.startDescription")} />
@@ -257,7 +257,7 @@ export function ReviewItemForm({
         {item ? <input type="hidden" name="id" value={item.id} /> : null}
         <input type="hidden" name="isActive" value="false" />
         <FieldGrid>
-          <NativeSelectField label={t("form.reviewItem.subjectLabel")} name="subjectId" options={relationOptions(subjects, t("form.reviewItem.subjectEmpty"))} defaultValue={item?.subjectId} />
+          <NativeSelectField label={t("form.reviewItem.subjectLabel")} name="subjectId" options={relationOptions(subjects, t("form.reviewItem.subjectEmpty"))} defaultValue={item?.subjectId} required />
           <NativeSelectField label={t("form.reviewItem.topicLabel")} name="topicId" options={relationOptions(topics)} defaultValue={item?.topicId} />
           <NativeSelectField label={t("form.reviewItem.typeLabel")} name="reviewType" options={optionize(reviewTypes)} defaultValue={item?.reviewType ?? "flashcard"} />
           <TextField label={t("form.reviewItem.confidenceLabel")} name="confidence" type="number" min={0} max={10} defaultValue={item?.confidence ?? 0} description={t("form.reviewItem.confidenceDescription")} />
@@ -297,7 +297,7 @@ export function ErrorLogForm({
         {error ? <input type="hidden" name="id" value={error.id} /> : null}
         <input type="hidden" name="resolved" value="false" />
         <FieldGrid>
-          <NativeSelectField label={t("form.errorLog.subjectLabel")} name="subjectId" options={relationOptions(subjects, t("form.errorLog.subjectEmpty"))} defaultValue={error?.subjectId} description={t("form.errorLog.subjectDescription")} />
+          <NativeSelectField label={t("form.errorLog.subjectLabel")} name="subjectId" options={relationOptions(subjects, t("form.errorLog.subjectEmpty"))} defaultValue={error?.subjectId} description={t("form.errorLog.subjectDescription")} required />
           <NativeSelectField label={t("form.errorLog.topicLabel")} name="topicId" options={relationOptions(topics, t("form.errorLog.topicEmpty"))} defaultValue={error?.topicId} description={t("form.errorLog.topicDescription")} />
           <NativeSelectField label={t("form.errorLog.examLabel")} name="examId" options={relationOptions(exams, t("form.errorLog.examEmpty"))} defaultValue={error?.examId} description={t("form.errorLog.examDescription")} />
           <TextField label={t("form.errorLog.titleLabel")} name="title" defaultValue={error?.title} required placeholder={t("form.errorLog.titlePlaceholder")} description={t("form.errorLog.titleDescription")} />
@@ -342,7 +342,7 @@ export function QuizAttemptForm({
       <form action={attempt ? updateQuizAttemptAction : createQuizAttemptAction} className="space-y-6">
         {attempt ? <input type="hidden" name="id" value={attempt.id} /> : null}
         <FieldGrid>
-          <NativeSelectField label={t("form.quizAttempt.subjectLabel")} name="subjectId" options={relationOptions(subjects, t("form.quizAttempt.subjectEmpty"))} defaultValue={attempt?.subjectId ?? exams.find((exam) => exam.id === examId)?.subjectId} description={t("form.quizAttempt.subjectDescription")} />
+          <NativeSelectField label={t("form.quizAttempt.subjectLabel")} name="subjectId" options={relationOptions(subjects, t("form.quizAttempt.subjectEmpty"))} defaultValue={attempt?.subjectId ?? exams.find((exam) => exam.id === examId)?.subjectId} description={t("form.quizAttempt.subjectDescription")} required />
           <NativeSelectField label={t("form.quizAttempt.topicLabel")} name="topicId" options={relationOptions(topics, t("form.quizAttempt.topicEmpty"))} defaultValue={attempt?.topicId} description={t("form.quizAttempt.topicDescription")} />
           <NativeSelectField label={t("form.quizAttempt.examLabel")} name="examId" options={relationOptions(exams, t("form.quizAttempt.examEmpty"))} defaultValue={attempt?.examId ?? examId} description={t("form.quizAttempt.examDescription")} />
           <TextField label={t("form.quizAttempt.dateLabel")} name="date" type="date" defaultValue={attempt?.date ?? formatISO(new Date(), { representation: "date" })} description={t("form.quizAttempt.dateDescription")} />

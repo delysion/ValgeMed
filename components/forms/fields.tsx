@@ -145,6 +145,7 @@ export function NativeSelectField({
   description,
   helper,
   error,
+  required,
 }: {
   label: string;
   name: string;
@@ -153,16 +154,18 @@ export function NativeSelectField({
   description?: string;
   helper?: string;
   error?: string;
+  required?: boolean;
 }) {
   const id = useId();
 
   return (
-    <Field label={label} description={description} helper={helper} error={error} id={id}>
+    <Field label={label} description={description} helper={helper} error={error} required={required} id={id}>
       <div className="relative">
         <select
           id={id}
           name={name}
           defaultValue={defaultValue ?? ""}
+          required={required}
           aria-invalid={error ? true : undefined}
           className="flex h-12 w-full appearance-none rounded-xl border border-border bg-bg-elevated px-4 pr-10 text-sm text-text-primary shadow-[var(--shadow-inner)] outline-none transition-all duration-150 focus:border-primary/50 focus:bg-bg-surface focus:shadow-[0_0_0_3px_var(--primary-glow),var(--shadow-inner)] focus:ring-0 truncate"
         >
