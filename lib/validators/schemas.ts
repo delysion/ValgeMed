@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { REVIEW_TYPES, STRATEGIC_REVIEW_TYPES } from "@/lib/constants/review-types";
+
 export const examFormats = [
   "written",
   "oral",
@@ -30,13 +32,7 @@ export const studyMethods = [
   "mixed",
 ] as const;
 
-export const reviewTypes = [
-  "flashcard",
-  "open_question",
-  "feynman",
-  "blurting",
-  "quiz_prompt",
-] as const;
+export const reviewTypes = REVIEW_TYPES;
 
 export const errorTypes = [
   "memory",
@@ -155,7 +151,7 @@ export const portfolioItemTypes = [
 ] as const;
 
 export const portfolioStatuses = ["draft", "active", "archived"] as const;
-export const strategicReviewTypes = ["weekly", "monthly", "semester"] as const;
+export const strategicReviewTypes = STRATEGIC_REVIEW_TYPES;
 
 const emptyToNull = (value: unknown) => {
   if (value === "" || value === undefined) {

@@ -13,6 +13,8 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 
+import { REVIEW_TYPES, STRATEGIC_REVIEW_TYPES } from "@/lib/constants/review-types";
+
 const idColumn = () => uuid("id").defaultRandom().primaryKey();
 const createdAtColumn = () =>
   timestamp("created_at", { withTimezone: true }).defaultNow().notNull();
@@ -49,13 +51,7 @@ export const studyMethodEnum = pgEnum("study_method", [
   "mixed",
 ]);
 
-export const reviewTypeEnum = pgEnum("review_type", [
-  "flashcard",
-  "open_question",
-  "feynman",
-  "blurting",
-  "quiz_prompt",
-]);
+export const reviewTypeEnum = pgEnum("review_type", REVIEW_TYPES);
 
 export const errorTypeEnum = pgEnum("error_type", [
   "memory",
@@ -190,11 +186,7 @@ export const portfolioStatusEnum = pgEnum("portfolio_status", [
   "archived",
 ]);
 
-export const strategicReviewTypeEnum = pgEnum("strategic_review_type", [
-  "weekly",
-  "monthly",
-  "semester",
-]);
+export const strategicReviewTypeEnum = pgEnum("strategic_review_type", STRATEGIC_REVIEW_TYPES);
 
 export const subjects = pgTable("subjects", {
   id: idColumn(),
