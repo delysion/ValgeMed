@@ -316,91 +316,89 @@ export async function confirmCurriculumImportAction(
 
     const subjectIdMap = new Map<string, string>();
 
-    await db.transaction(async (tx) => {
-      for (const subjectName of selectedSubjects) {
-        const rows = await tx
-          .select({ id: subjects.id })
-          .from(subjects)
-          .where(and(eq(subjects.userId, userId), eq(subjects.name, subjectName)))
-          .limit(1);
+    for (const subjectName of selectedSubjects) {
+      const rows = await db
+        .select({ id: subjects.id })
+        .from(subjects)
+        .where(and(eq(subjects.userId, userId), eq(subjects.name, subjectName)))
+        .limit(1);
 
-        if (rows.length > 0) {
-          subjectIdMap.set(subjectName, rows[0].id);
-        } else {
-          const inserted = await tx
-            .insert(subjects)
-            .values({ userId, name: subjectName, description: "Imported" })
-            .returning();
-          subjectIdMap.set(subjectName, inserted[0].id);
-          subjectsCreated++;
-        }
+      if (rows.length > 0) {
+        subjectIdMap.set(subjectName, rows[0].id);
+      } else {
+        const inserted = await db
+          .insert(subjects)
+          .values({ userId, name: subjectName, description: "Imported" })
+          .returning();
+        subjectIdMap.set(subjectName, inserted[0].id);
+        subjectsCreated++;
       }
+    }
 
-      for (const topic of selectedTopics) {
-        const subjectId = subjectIdMap.get(topic.subjectName);
-        if (!subjectId) continue;
+    for (const topic of selectedTopics) {
+      const subjectId = subjectIdMap.get(topic.subjectName);
+      if (!subjectId) continue;
 
-        const existingTopic = await tx
-          .select({ id: topics.id })
-          .from(topics)
-          .where(and(eq(topics.userId, userId), eq(topics.subjectId, subjectId), eq(topics.title, topic.name)))
-          .limit(1);
-        if (existingTopic.length > 0) continue;
+      const existingTopic = await db
+        .select({ id: topics.id })
+        .from(topics)
+        .where(and(eq(topics.userId, userId), eq(topics.subjectId, subjectId), eq(topics.title, topic.name)))
+        .limit(1);
+      if (existingTopic.length > 0) continue;
 
-        await tx
-          .insert(topics)
-          .values({ userId, subjectId, title: topic.name, description: "Imported" });
-        topicsCreated++;
-      }
+      await db
+        .insert(topics)
+        .values({ userId, subjectId, title: topic.name, description: "Imported" });
+      topicsCreated++;
+    }
 
-      for (const exam of selectedExams) {
-        const subjectId = subjectIdMap.get(exam.subjectName);
-        if (!subjectId) continue;
+    for (const exam of selectedExams) {
+      const subjectId = subjectIdMap.get(exam.subjectName);
+      if (!subjectId) continue;
 
-        const examDateVal = exam.date ? new Date(exam.date) : null;
-        const existingExam = await tx
-          .select({ id: exams.id })
-          .from(exams)
-          .where(
-            examDateVal !== null
-              ? and(eq(exams.userId, userId), eq(exams.subjectId, subjectId), eq(exams.title, exam.title), eq(exams.examDate, examDateVal))
-              : and(eq(exams.userId, userId), eq(exams.subjectId, subjectId), eq(exams.title, exam.title), isNull(exams.examDate))
-          )
-          .limit(1);
-        if (existingExam.length > 0) continue;
+      const examDateVal = exam.date ? new Date(exam.date) : null;
+      const existingExam = await db
+        .select({ id: exams.id })
+        .from(exams)
+        .where(
+          examDateVal !== null
+            ? and(eq(exams.userId, userId), eq(exams.subjectId, subjectId), eq(exams.title, exam.title), eq(exams.examDate, examDateVal))
+            : and(eq(exams.userId, userId), eq(exams.subjectId, subjectId), eq(exams.title, exam.title), isNull(exams.examDate))
+        )
+        .limit(1);
+      if (existingExam.length > 0) continue;
 
-        await tx.insert(exams).values({
-          userId,
-          subjectId,
-          title: exam.title,
-          examDate: examDateVal,
-        });
-        examsCreated++;
-      }
+      await db.insert(exams).values({
+        userId,
+        subjectId,
+        title: exam.title,
+        examDate: examDateVal,
+      });
+      examsCreated++;
+    }
 
-      for (const task of selectedTasks) {
-        const dueAtVal = task.date ? new Date(task.date) : null;
-        const existingTask = await tx
-          .select({ id: tasks.id })
-          .from(tasks)
-          .where(
-            dueAtVal !== null
-              ? and(eq(tasks.userId, userId), eq(tasks.title, task.title), eq(tasks.dueAt, dueAtVal))
-              : and(eq(tasks.userId, userId), eq(tasks.title, task.title), isNull(tasks.dueAt))
-          )
-          .limit(1);
-        if (existingTask.length > 0) continue;
+    for (const task of selectedTasks) {
+      const dueAtVal = task.date ? new Date(task.date) : null;
+      const existingTask = await db
+        .select({ id: tasks.id })
+        .from(tasks)
+        .where(
+          dueAtVal !== null
+            ? and(eq(tasks.userId, userId), eq(tasks.title, task.title), eq(tasks.dueAt, dueAtVal))
+            : and(eq(tasks.userId, userId), eq(tasks.title, task.title), isNull(tasks.dueAt))
+        )
+        .limit(1);
+      if (existingTask.length > 0) continue;
 
-        await tx.insert(tasks).values({
-          userId,
-          title: task.title,
-          dueAt: dueAtVal,
-          priority: task.priority,
-          status: "todo",
-        });
-        tasksCreated++;
-      }
-    });
+      await db.insert(tasks).values({
+        userId,
+        title: task.title,
+        dueAt: dueAtVal,
+        priority: task.priority,
+        status: "todo",
+      });
+      tasksCreated++;
+    }
 
     await recordImportUsage(userId);
     refresh(["/subjects", "/topics", "/exams", "/goals", "/dashboard", "/command"]);
