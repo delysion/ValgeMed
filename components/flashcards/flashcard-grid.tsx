@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState, useTransition } from "react";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Search, Plus, Filter, ChevronDown } from "lucide-react";
+import { Search, Plus, Filter, ChevronDown, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/premium/empty-state";
 import { FlashcardCard } from "./flashcard-card";
@@ -55,7 +55,12 @@ function StatPill({ label, value, color }: { label: string; value: number | stri
   );
 }
 
-function FilterSelect({
+interface DropdownOption {
+  value: string;
+  label: string;
+}
+
+function FilterDropdown({
   value,
   onChange,
   options,
@@ -63,22 +68,66 @@ function FilterSelect({
 }: {
   value: string;
   onChange: (val: string) => void;
-  options: Array<{ value: string; label: string }>;
+  options: DropdownOption[];
   label: string;
 }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  const selected = options.find((o) => o.value === value);
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
   return (
-    <div className="relative">
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="appearance-none h-9 pl-3 pr-8 rounded-xl border border-border/50 bg-bg-subtle/50 text-xs text-text-secondary focus:outline-none focus:ring-2 focus:ring-primary/40 cursor-pointer hover:border-border transition-colors"
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className={cn(
+          "flex items-center gap-2 h-9 pl-3 pr-2 rounded-xl border text-xs font-medium transition-colors",
+          open
+            ? "border-primary/40 bg-primary/8 text-text-primary"
+            : "border-border/50 bg-bg-subtle/50 text-text-secondary hover:border-border hover:text-text-primary",
+        )}
         aria-label={label}
+        aria-expanded={open}
       >
-        {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>{opt.label}</option>
-        ))}
-      </select>
-      <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-text-muted pointer-events-none" />
+        <span className="truncate max-w-[140px]">{selected?.label ?? label}</span>
+        <ChevronDown className={cn("h-3.5 w-3.5 shrink-0 transition-transform", open && "rotate-180")} />
+      </button>
+
+      {open && (
+        <div className="absolute top-full left-0 mt-1.5 w-48 rounded-xl border border-border/60 bg-bg-elevated shadow-[var(--shadow-elevated)] z-50 overflow-hidden motion-fade-in">
+          {options.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => {
+                onChange(opt.value);
+                setOpen(false);
+              }}
+              className={cn(
+                "w-full flex items-center justify-between px-3 py-2.5 text-xs text-left transition-colors",
+                opt.value === value
+                  ? "bg-primary/10 text-text-primary font-medium"
+                  : "text-text-secondary hover:bg-bg-subtle hover:text-text-primary",
+              )}
+            >
+              <span className="truncate">{opt.label}</span>
+              {opt.value === value && <Check className="h-3.5 w-3.5 text-primary shrink-0 ml-2" />}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -88,7 +137,7 @@ export function FlashcardGrid({ initialCards, subjects, labels }: FlashcardGridP
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
 
-  const [cards] = useState(initialCards);
+  const [allCards] = useState(initialCards);
   const [search, setSearch] = useState(searchParams.get("search") ?? "");
   const [subjectId, setSubjectId] = useState(searchParams.get("subject") ?? "");
   const [confidence, setConfidence] = useState<ConfidenceLevel | "">(() => {
@@ -107,6 +156,7 @@ export function FlashcardGrid({ initialCards, subjects, labels }: FlashcardGridP
   const [studyQueue, setStudyQueue] = useState<FlashcardItem[]>([]);
   const [showFilters, setShowFilters] = useState(false);
 
+  // Sync filters to URL
   useEffect(() => {
     const timer = setTimeout(() => {
       const params = new URLSearchParams();
@@ -123,6 +173,35 @@ export function FlashcardGrid({ initialCards, subjects, labels }: FlashcardGridP
     return () => clearTimeout(timer);
   }, [search, subjectId, confidence, dueStatus, router]);
 
+  // Client-side filtering
+  const now = new Date();
+  const filtered = allCards.filter((card) => {
+    if (search) {
+      const q = search.toLowerCase();
+      if (
+        !card.question.toLowerCase().includes(q) &&
+        !(card.answer ?? "").toLowerCase().includes(q) &&
+        !(card.subjectName ?? "").toLowerCase().includes(q) &&
+        !(card.topicTitle ?? "").toLowerCase().includes(q)
+      ) {
+        return false;
+      }
+    }
+    if (subjectId && card.subjectId !== subjectId) return false;
+    if (confidence && card.confidence !== Number(confidence)) return false;
+    if (dueStatus !== "all") {
+      const due = new Date(card.dueAt);
+      if (dueStatus === "overdue" && !(card.isActive && due <= now)) return false;
+      if (dueStatus === "today" && !(card.isActive && due > now && due.toDateString() === now.toDateString())) return false;
+      if (dueStatus === "week") {
+        const weekEnd = new Date(now);
+        weekEnd.setDate(weekEnd.getDate() + 7);
+        if (!(card.isActive && due <= weekEnd)) return false;
+      }
+    }
+    return true;
+  });
+
   const handleFilterChange = useCallback((key: string, value: string) => {
     if (key === "subject") setSubjectId(value);
     else if (key === "confidence") setConfidence(value as ConfidenceLevel | "");
@@ -135,11 +214,11 @@ export function FlashcardGrid({ initialCards, subjects, labels }: FlashcardGridP
   }, []);
 
   const handleStudyAll = useCallback(() => {
-    setStudyQueue(cards);
-    if (cards.length > 0) {
-      setStudyCard(cards[0]);
+    setStudyQueue(filtered);
+    if (filtered.length > 0) {
+      setStudyCard(filtered[0]);
     }
-  }, [cards]);
+  }, [filtered]);
 
   const handleStudyModeComplete = useCallback(() => {
     setStudyCard(null);
@@ -152,26 +231,24 @@ export function FlashcardGrid({ initialCards, subjects, labels }: FlashcardGridP
     setStudyQueue([]);
   }, []);
 
-  // Compute stats
-  const now = new Date();
-  const overdueCount = cards.filter((c) => c.isActive && new Date(c.dueAt) <= now).length;
-  const dueTodayCount = cards.filter((c) => {
+  const overdueCount = filtered.filter((c) => c.isActive && new Date(c.dueAt) <= now).length;
+  const dueTodayCount = filtered.filter((c) => {
     const due = new Date(c.dueAt);
     return c.isActive && due > now && due.toDateString() === now.toDateString();
   }).length;
-  const masteredCount = cards.filter((c) => c.confidence >= 3).length;
-  const masteryRate = cards.length > 0 ? Math.round((masteredCount / cards.length) * 100) : 0;
+  const masteredCount = filtered.filter((c) => c.confidence >= 3).length;
+  const masteryRate = filtered.length > 0 ? Math.round((masteredCount / filtered.length) * 100) : 0;
 
   const hasActiveFilters = subjectId || confidence || dueStatus !== "all";
 
-  const confidenceOptions: Array<{ value: ConfidenceLevel | ""; label: string }> = [
+  const confidenceOptions: DropdownOption[] = [
     { value: "", label: labels.allConfidence },
-    { value: 1, label: "★ Low" },
-    { value: 2, label: "★★ Medium" },
-    { value: 3, label: "★★★ High" },
+    { value: "1", label: "★ Low" },
+    { value: "2", label: "★★ Medium" },
+    { value: "3", label: "★★★ High" },
   ];
 
-  const dueOptions = [
+  const dueOptions: DropdownOption[] = [
     { value: "all", label: labels.allDue },
     { value: "overdue", label: labels.overdue },
     { value: "today", label: labels.today },
@@ -181,9 +258,9 @@ export function FlashcardGrid({ initialCards, subjects, labels }: FlashcardGridP
   return (
     <div className="pt-2">
       {/* Stats bar */}
-      {cards.length > 0 && (
+      {allCards.length > 0 && (
         <div className="flex items-center gap-3 mb-6 overflow-x-auto pb-1">
-          <StatPill label="Total" value={cards.length} color="text-text-primary" />
+          <StatPill label="Showing" value={filtered.length} color="text-text-primary" />
           <StatPill label="Overdue" value={overdueCount} color={overdueCount > 0 ? "text-rose" : "text-text-muted"} />
           <StatPill label="Today" value={dueTodayCount} color={dueTodayCount > 0 ? "text-gold" : "text-text-muted"} />
           <StatPill label="Mastery" value={`${masteryRate}%`} color="text-emerald" />
@@ -222,7 +299,7 @@ export function FlashcardGrid({ initialCards, subjects, labels }: FlashcardGridP
                 {labels.newFlashcard}
               </a>
             </Button>
-            <Button type="button" variant="cyan" size="sm" onClick={handleStudyAll} disabled={cards.length === 0}>
+            <Button type="button" variant="cyan" size="sm" onClick={handleStudyAll} disabled={filtered.length === 0}>
               {labels.study}
             </Button>
           </div>
@@ -231,7 +308,7 @@ export function FlashcardGrid({ initialCards, subjects, labels }: FlashcardGridP
         {/* Filters row (collapsible) */}
         {showFilters && (
           <div className="flex flex-wrap gap-2 motion-fade-in">
-            <FilterSelect
+            <FilterDropdown
               value={subjectId}
               onChange={(v) => handleFilterChange("subject", v)}
               options={[
@@ -240,13 +317,13 @@ export function FlashcardGrid({ initialCards, subjects, labels }: FlashcardGridP
               ]}
               label={labels.filterSubject}
             />
-            <FilterSelect
+            <FilterDropdown
               value={String(confidence)}
               onChange={(v) => handleFilterChange("confidence", v)}
-              options={confidenceOptions.map((o) => ({ value: String(o.value), label: o.label }))}
+              options={confidenceOptions}
               label={labels.filterConfidence}
             />
-            <FilterSelect
+            <FilterDropdown
               value={dueStatus}
               onChange={(v) => handleFilterChange("due", v)}
               options={dueOptions}
@@ -276,7 +353,7 @@ export function FlashcardGrid({ initialCards, subjects, labels }: FlashcardGridP
       </div>
 
       {/* Cards grid */}
-      {cards.length === 0 ? (
+      {filtered.length === 0 ? (
         <EmptyState
           icon={Search}
           title={labels.empty}
@@ -285,7 +362,7 @@ export function FlashcardGrid({ initialCards, subjects, labels }: FlashcardGridP
         />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mt-6">
-          {cards.map((card, i) => (
+          {filtered.map((card, i) => (
             <FlashcardCard
               key={card.id}
               card={card}

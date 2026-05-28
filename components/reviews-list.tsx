@@ -14,6 +14,7 @@ import {
 } from "@/lib/actions/resources";
 import type { ReviewItem, Subject, Topic } from "@/lib/db/schema";
 import { fmtDate, humanize } from "@/lib/labels";
+import { cn } from "@/lib/utils";
 
 interface ReviewsListProps {
   reviewItems: ReviewItem[];
@@ -38,119 +39,127 @@ interface ReviewsListProps {
   };
 }
 
+function ConfidenceBadge({ value }: { value: number }) {
+  const pct = Math.round((value / 10) * 100);
+  const variant = pct >= 70 ? "success" : pct >= 40 ? "warning" : "danger";
+  return (
+    <Badge variant={variant as "success" | "warning" | "danger"} className="tabular-nums">
+      {value}/10
+    </Badge>
+  );
+}
+
+function DueBadge({ dueAt, isActive }: { dueAt: Date; isActive: boolean }) {
+  const now = new Date();
+  const due = new Date(dueAt);
+  const diffMs = due.getTime() - now.getTime();
+  const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+  if (!isActive) {
+    return <Badge variant="muted">Inactive</Badge>;
+  }
+
+  if (diffDays < 0) {
+    return <Badge variant="danger">Overdue {Math.abs(diffDays)}d</Badge>;
+  }
+  if (diffDays === 0) {
+    return <Badge variant="warning">Today</Badge>;
+  }
+  if (diffDays <= 3) {
+    return <Badge variant="warning">{diffDays}d</Badge>;
+  }
+  return <Badge variant="muted">{fmtDate(dueAt)}</Badge>;
+}
+
 export function ReviewsList({ reviewItems, subjects, topics, labels }: ReviewsListProps) {
   const [selected, setSelected] = useState<ReviewItem | null>(null);
   const subjectById = new Map(subjects.map((subject) => [subject.id, subject]));
   const topicById = new Map(topics.map((topic) => [topic.id, topic]));
 
-  const renderActions = (item: ReviewItem) => (
-    <div className="flex w-[220px] max-w-full justify-end gap-1">
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        aria-label={labels.open}
-        onClick={() => setSelected(item)}
-      >
-        <Eye className="h-4 w-4" />
-      </Button>
-      <form action={markReviewItemReviewedAction} className="flex items-center gap-1">
-        <input type="hidden" name="id" value={item.id} />
-        <input
-          name="confidence"
-          type="number"
-          min={0}
-          max={10}
-          defaultValue={item.confidence}
-          className="h-8 w-12 rounded-md border border-border bg-bg-subtle px-2 text-xs text-text-primary"
-          aria-label={labels.confidence}
-        />
-        <Button type="submit" variant="ghost" size="icon" aria-label={labels.markReviewed}>
-          <RotateCw className="h-4 w-4" />
-        </Button>
-      </form>
-      <Button asChild variant="ghost" size="icon">
-        <a href={`/reviews?edit=${item.id}`} aria-label={labels.edit}>
-          <Edit3 className="h-4 w-4" />
-        </a>
-      </Button>
-      <DeleteButton action={deleteReviewItemAction} id={item.id} label={labels.delete} />
-    </div>
-  );
+  if (reviewItems.length === 0) {
+    return (
+      <EmptyState title={labels.emptyTitle} description={labels.emptyBody} />
+    );
+  }
 
   return (
     <>
-      <div className="grid gap-3 md:hidden">
-        {reviewItems.length === 0 ? (
-          <EmptyState title={labels.emptyTitle} description={labels.emptyBody} />
-        ) : (
-          reviewItems.map((item) => (
-            <article key={item.id} className="rounded-3xl border border-border bg-bg-subtle p-4 shadow-[var(--ring-soft)]">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {reviewItems.map((item) => {
+          const isOverdue = item.isActive && new Date(item.dueAt) <= new Date();
+          return (
+            <article
+              key={item.id}
+              className={cn(
+                "group relative rounded-2xl border bg-gradient-to-br from-bg-subtle to-bg-elevated p-4 shadow-[var(--ring-soft)] transition-all duration-200",
+                "hover:border-primary/30 hover:shadow-md hover:-translate-y-0.5",
+                isOverdue && "border-rose/30 from-rose-bg/30 to-bg-elevated",
+              )}
+            >
               <button
                 type="button"
-                className="block w-full rounded-2xl text-left transition hover:bg-bg-elevated/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                className="block w-full text-left"
                 onClick={() => setSelected(item)}
                 aria-label={labels.open}
               >
-                <p className="line-clamp-3 text-sm font-semibold text-text-primary">{item.question}</p>
-                <p className="mt-2 text-xs text-text-secondary">
-                  {subjectById.get(item.subjectId)?.name ?? "-"} / {humanize(item.reviewType)} / {fmtDate(item.dueAt)}
+                <p className="line-clamp-2 text-sm font-semibold text-text-primary">
+                  {item.question}
                 </p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <Badge>{item.confidence}/10</Badge>
-                  <Badge variant={item.isActive ? "default" : "muted"}>{item.isActive ? labels.active : labels.inactive}</Badge>
+
+                <div className="mt-3 flex flex-wrap items-center gap-1.5">
+                  <Badge variant="muted" className="text-[10px]">
+                    {subjectById.get(item.subjectId)?.name ?? "-"}
+                  </Badge>
+                  <Badge variant="muted" className="text-[10px]">
+                    {humanize(item.reviewType)}
+                  </Badge>
+                </div>
+
+                <div className="mt-3 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <ConfidenceBadge value={item.confidence} />
+                    <span className="text-xs text-text-secondary">{item.intervalDays}d</span>
+                  </div>
+                  <DueBadge dueAt={item.dueAt} isActive={item.isActive} />
                 </div>
               </button>
-              <div className="mt-4 border-t border-border pt-3">{renderActions(item)}</div>
-            </article>
-          ))
-        )}
-      </div>
 
-      <div className="hidden max-w-full overflow-x-auto rounded-2xl border border-border md:block">
-        <table className="w-full min-w-[860px] border-collapse text-sm">
-          <thead className="bg-bg-subtle text-xs uppercase tracking-[0.12em] text-text-secondary whitespace-nowrap">
-            <tr>
-              <th className="px-3 py-2 text-left font-medium">{labels.question}</th>
-              <th className="px-3 py-2 text-left font-medium">{labels.subject}</th>
-              <th className="px-3 py-2 text-left font-medium">{labels.type}</th>
-              <th className="px-3 py-2 text-left font-medium">{labels.date}</th>
-              <th className="px-3 py-2 text-left font-medium">{labels.confidence}</th>
-              <th className="px-3 py-2 text-left font-medium">{labels.interval}</th>
-              <th className="px-3 py-2 text-right font-medium">{labels.actions}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {reviewItems.length === 0 ? (
-              <tr>
-                <td colSpan={7} className="px-3 py-8">
-                  <EmptyState title={labels.emptyTitle} description={labels.emptyBody} />
-                </td>
-              </tr>
-            ) : (
-              reviewItems.map((item) => (
-                <tr key={item.id} className="border-t border-border align-top transition hover:bg-bg-subtle/50">
-                  <td className="px-3 py-2 text-text-primary">
-                    <button
-                      type="button"
-                      className="line-clamp-2 max-w-[320px] text-left font-medium transition hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
-                      onClick={() => setSelected(item)}
-                      aria-label={labels.open}
-                    >
-                      {item.question}
-                    </button>
-                  </td>
-                  <td className="px-3 py-2 text-text-secondary">{subjectById.get(item.subjectId)?.name ?? "-"}</td>
-                  <td className="px-3 py-2 text-text-secondary">{humanize(item.reviewType)}</td>
-                  <td className="px-3 py-2 text-text-secondary">{fmtDate(item.dueAt)}</td>
-                  <td className="px-3 py-2 text-text-secondary"><Badge>{item.confidence}/10</Badge></td>
-                  <td className="px-3 py-2 text-text-secondary">{item.intervalDays}d</td>
-                  <td className="w-[220px] px-3 py-2">{renderActions(item)}</td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              <div className="mt-3 flex items-center justify-end gap-1 border-t border-border pt-3">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => setSelected(item)}
+                  aria-label={labels.open}
+                >
+                  <Eye className="h-4 w-4" />
+                </Button>
+                <form action={markReviewItemReviewedAction} className="flex items-center gap-1">
+                  <input type="hidden" name="id" value={item.id} />
+                  <input
+                    name="confidence"
+                    type="number"
+                    min={0}
+                    max={10}
+                    defaultValue={item.confidence}
+                    className="h-7 w-11 rounded-md border border-border bg-bg-subtle px-1.5 text-center text-xs text-text-primary"
+                    aria-label={labels.confidence}
+                  />
+                  <Button type="submit" variant="ghost" size="icon" className="h-8 w-8" aria-label={labels.markReviewed}>
+                    <RotateCw className="h-4 w-4" />
+                  </Button>
+                </form>
+                <Button asChild variant="ghost" size="icon" className="h-8 w-8">
+                  <a href={`/reviews?edit=${item.id}`} aria-label={labels.edit}>
+                    <Edit3 className="h-4 w-4" />
+                  </a>
+                </Button>
+                <DeleteButton action={deleteReviewItemAction} id={item.id} label={labels.delete} />
+              </div>
+            </article>
+          );
+        })}
       </div>
 
       <RecordDrawer
