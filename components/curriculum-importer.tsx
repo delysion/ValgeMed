@@ -45,6 +45,7 @@ export function CurriculumImporter({ className }: CurriculumImporterProps) {
         body: JSON.stringify({ tool: "curriculum_import", input: inputText, locale }),
       });
       const executeData = await executeRes.json();
+      console.log("[DEBUG curriculum] executeData:", JSON.stringify(executeData));
       if (!executeData.success) {
         setError(executeData.error || (locale === "et" ? "AI viga" : "AI error"));
         return;

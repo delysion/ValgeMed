@@ -112,13 +112,16 @@ export async function previewDeleteAction(
     let parsed: unknown;
     try {
       const cleaned = rawQuery.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+      console.log("[DEBUG delete] cleaned:", cleaned);
       let normalized = cleaned;
       const tmp = JSON.parse(cleaned);
+      console.log("[DEBUG delete] tmp after parse:", JSON.stringify(tmp));
       if (Array.isArray(tmp)) {
         if (tmp.length === 0) {
           return { success: false, error: locale === "et" ? "Vigane JSON" : "Invalid JSON" };
         }
         normalized = JSON.stringify({ records: tmp });
+        console.log("[DEBUG delete] normalized:", normalized);
       }
       parsed = JSON.parse(normalized);
     } catch {
