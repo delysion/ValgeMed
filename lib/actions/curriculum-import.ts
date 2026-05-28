@@ -17,7 +17,7 @@ import { and, eq, gte, isNull, lt, sql } from "drizzle-orm";
 const recordSchema = z.object({
   type: z.enum(["subject", "topic", "exam", "task"]),
   name: z.string().trim().min(1).max(220),
-  parent: z.string().trim().max(220).optional(),
+  parent: z.string().trim().max(220).nullable().optional(),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().optional(),
   priority: z.number().int().min(0).max(10).optional(),
   notes: z.string().trim().max(2000).nullable().optional(),
@@ -112,13 +112,8 @@ export async function parseCurriculumAction(
       })};
     }
 
-    const normalized = normalizeRecords(parsed);
-    console.log("[import] parsed:", JSON.stringify(parsed, null, 2));
-    console.log("[import] normalized:", JSON.stringify(normalized, null, 2));
-
-    const validated = curriculumImportSchema.safeParse(normalized);
+    const validated = curriculumImportSchema.safeParse(normalizeRecords(parsed));
     if (!validated.success) {
-      console.log("[import] Zod errors:", JSON.stringify(validated.error.issues, null, 2));
       return { success: false, error: locale === "et" ? "Vigane kirje struktuur" : "Invalid record structure" };
     }
 
