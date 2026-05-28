@@ -35,13 +35,22 @@ const VALID_REDIRECT_PATHS = [
   "/subjects/[id]",
 ];
 
-const allowedForwardedHosts = new Set(["localhost", "127.0.0.1", "valgemed.vercel.app"]);
+const allowedForwardedHosts = new Set([
+  "localhost",
+  "127.0.0.1",
+  "valgemed.app",
+  "valgemed.vercel.app",
+]);
 
 function isValidRedirect(path: string): boolean {
   if (!path.startsWith("/")) return false;
   if (path.includes("//") || path.includes("://")) return false;
   if (path.length > 200) return false;
-  return VALID_REDIRECT_PATHS.includes(path) || path.startsWith("/exams/") || path.startsWith("/subjects/");
+  return (
+    VALID_REDIRECT_PATHS.includes(path) ||
+    path.startsWith("/exams/") ||
+    path.startsWith("/subjects/")
+  );
 }
 
 function getTrustedForwardedHost(value: string | null) {
