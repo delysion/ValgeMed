@@ -10,6 +10,8 @@ import { AiToolCard } from "@/components/ai-tool-card";
 import { AiFlashcardGenerator } from "@/components/ai-flashcard-generator";
 import { StudyCopilotChat } from "@/components/study-copilot-chat";
 import { FileUploadZone } from "@/components/file-upload-zone";
+import { CurriculumImporter } from "@/components/curriculum-importer";
+import { NaturalDelete } from "@/components/natural-delete";
 import { GlassCard } from "@/components/premium/glass-card";
 import { requireApprovedUser } from "@/lib/auth/supabase";
 import { getI18n } from "@/lib/i18n/server-i18n";
@@ -80,6 +82,12 @@ export default async function AiPage() {
           </p>
           <FileUploadZone />
         </GlassCard>
+
+        {/* Curriculum Import & Delete */}
+        <div className="grid gap-4 md:grid-cols-2">
+          <CurriculumImporter />
+          <NaturalDelete />
+        </div>
 
         {/* AI Tools Grid */}
         <div className="grid gap-4 md:grid-cols-2">
