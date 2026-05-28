@@ -640,6 +640,90 @@ export async function processSmartInputAction(input: string, locale: Locale = "e
   }
 }
 
+export interface FlashcardImportRow {
+  question: string;
+  answer: string;
+  subject: string;
+  topic?: string;
+}
+
+export interface FlashcardImportResult {
+  success: boolean;
+  message: string;
+  messageKey: string;
+  imported?: number;
+  skipped?: number;
+}
+
+export async function importFlashcardsAction(
+  rows: FlashcardImportRow[],
+  locale: Locale = "en"
+): Promise<FlashcardImportResult> {
+  try {
+    const user = await requireApprovedUser();
+
+    if (!rows.length) {
+      return {
+        success: false,
+        message: locale === "et" ? "Ühtegi rida pole importida." : "No rows to import.",
+        messageKey: "import_no_rows",
+      };
+    }
+
+    const db = getDb();
+    let imported = 0;
+    let skipped = 0;
+
+    for (const row of rows) {
+      if (!row.question.trim() || !row.subject.trim()) {
+        skipped++;
+        continue;
+      }
+
+      const subjectId = await findOrCreateSubject(user.id, row.subject.trim());
+      const topicId = row.topic?.trim()
+        ? await findOrCreateTopic(user.id, subjectId, row.topic.trim())
+        : null;
+
+      const nextSchedule = getNextReviewSchedule(3, 1, 0);
+
+      await db.insert(reviewItems).values({
+        userId: user.id,
+        subjectId,
+        topicId: topicId ?? undefined,
+        question: row.question.trim(),
+        answer: row.answer?.trim() ?? "",
+        intervalDays: nextSchedule.intervalDays,
+        dueAt: nextSchedule.dueAt,
+      });
+
+      imported++;
+    }
+
+    revalidatePath("/flashcards");
+    revalidatePath("/reviews");
+    revalidatePath("/dashboard");
+    revalidatePath("/command");
+
+    return {
+      success: true,
+      message: locale === "et"
+        ? `Imporditud ${imported} flashcard${skipped ? `, ${skipped} vahele jäätud` : ""}`
+        : `Imported ${imported} flashcard${skipped ? `, ${skipped} skipped` : ""}`,
+      messageKey: "import_success",
+      imported,
+      skipped,
+    };
+  } catch (error) {
+    console.error("Flashcard import error:", error);
+    return {
+      success: false,
+      message: locale === "et" ? "Impordi viga." : "Import error.",
+      messageKey: "import_error",
+    };
+  }
+}
+
 export async function generateFlashcardsFromTextAction(
   text: string,
   subject?: string,

@@ -256,7 +256,7 @@ export function FlashcardGrid({ initialCards, subjects, labels }: FlashcardGridP
   ];
 
   return (
-    <div className="pt-2">
+    <div className="pt-2 overflow-visible">
       {/* Stats bar */}
       {allCards.length > 0 && (
         <div className="flex items-center gap-3 mb-6 overflow-x-auto pb-1">
@@ -307,7 +307,7 @@ export function FlashcardGrid({ initialCards, subjects, labels }: FlashcardGridP
 
         {/* Filters row (collapsible) */}
         {showFilters && (
-          <div className="flex flex-wrap gap-2 motion-fade-in">
+          <div className="relative z-10 flex flex-wrap gap-2 motion-fade-in overflow-visible">
             <FilterDropdown
               value={subjectId}
               onChange={(v) => handleFilterChange("subject", v)}

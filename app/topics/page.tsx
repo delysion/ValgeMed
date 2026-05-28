@@ -37,7 +37,7 @@ export default async function TopicsPage({
         <TopicForm topic={editing} subjects={subjects} exams={exams} t={t as (key: string) => string} />
         <div className="space-y-5">
           <GlassCard>
-            <form className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <form method="GET" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
               <select name="subject" defaultValue={params.subject ?? ""} className="h-11 rounded-2xl border border-white/10 bg-black/25 px-4 text-sm text-text-primary">
                 <option value="">{t("common.subject")}</option>
                 {subjects.map((subject) => (
