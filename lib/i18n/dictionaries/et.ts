@@ -1488,4 +1488,6 @@ export const et: Dictionary = {
   "flashcards.exitStudy": "Välju",
   "flashcards.completed": "Lõpetatud!",
   "flashcards.completedDesc": "Oled korranud kõik kaardid.",
+  "flashcards.showing": "Kuvan",
+  "flashcards.mastery": "Omandamine",
 };

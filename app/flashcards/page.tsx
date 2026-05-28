@@ -73,6 +73,8 @@ export default async function FlashcardsPage({ searchParams }: FlashcardsPagePro
           exitStudy: t("flashcards.exitStudy"),
           completed: t("flashcards.completed"),
           completedDesc: t("flashcards.completedDesc"),
+          showing: t("flashcards.showing"),
+          mastery: t("flashcards.mastery"),
         }}
       />
     </AppShell>

@@ -2,17 +2,15 @@ import { Clock, Radar, Target, TrendingUp } from "lucide-react";
 
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { OpportunityForm } from "@/components/forms/life-forms";
+import { OpportunityList } from "@/components/life/life-lists";
 import { GlassCard } from "@/components/premium/glass-card";
 import { MetricCard } from "@/components/premium/metric-card";
 import { MomentumBar } from "@/components/premium/momentum-bar";
 import { SectionHeader } from "@/components/premium/section-header";
-import { ResourceTable } from "@/components/tables/resource-table";
-import { Badge } from "@/components/ui/badge";
 import { deleteOpportunityAction } from "@/lib/actions/resources";
 import { requireApprovedUser } from "@/lib/auth/supabase";
 import { getOpportunities } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server-i18n";
-import { fmtDate, humanize } from "@/lib/labels";
 
 export const dynamic = "force-dynamic";
 
@@ -61,17 +59,17 @@ export default async function OpportunitiesPage({ searchParams }: { searchParams
           <GlassCard>
             <SectionHeader title={t("opportunities.history")} description={`${opportunities.length} ${t("language.entries")}`} />
             <div className="mt-4">
-              <ResourceTable
-                rows={opportunities}
+              <OpportunityList
+                opportunities={opportunities}
                 editBasePath="/opportunities"
                 deleteAction={deleteOpportunityAction}
-                columns={[
-                  { header: t("common.title"), render: (item) => <span className="font-medium text-text-primary">{item.title}</span> },
-                  { header: t("common.type"), render: (item) => <Badge variant="muted">{humanize(item.opportunityType)}</Badge> },
-                  { header: t("opportunities.deadline"), render: (item) => <span className="text-xs text-text-secondary">{fmtDate(item.deadline)}</span> },
-                  { header: t("opportunities.upside"), render: (item) => <Badge variant={item.strategicUpside >= 7 ? "success" : "default"}>{item.strategicUpside}/10</Badge> },
-                  { header: t("common.status"), render: (item) => <Badge variant="default">{humanize(item.status)}</Badge> },
-                ]}
+                labels={{
+                  emptyTitle: t("common.emptyTitle"),
+                  emptyBody: t("common.emptyBody"),
+                  open: t("common.open"),
+                  edit: t("common.edit"),
+                  delete: t("common.delete"),
+                }}
               />
             </div>
           </GlassCard>

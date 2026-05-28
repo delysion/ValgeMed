@@ -1,13 +1,11 @@
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { TimeBlockForm } from "@/components/forms/life-forms";
-import { ResourceTable } from "@/components/tables/resource-table";
-import { Badge } from "@/components/ui/badge";
+import { TimeBlockList } from "@/components/life/life-lists";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { deleteTimeBlockAction } from "@/lib/actions/resources";
 import { requireApprovedUser } from "@/lib/auth/supabase";
 import { getTimeBlocks } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server-i18n";
-import { fmtDate, humanize } from "@/lib/labels";
 
 export const dynamic = "force-dynamic";
 
@@ -28,17 +26,17 @@ export default async function TimePage({ searchParams }: { searchParams: Promise
             <CardTitle>{t("nav.time")}</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResourceTable
-              rows={timeBlocks}
+            <TimeBlockList
+              blocks={timeBlocks}
               editBasePath="/time"
               deleteAction={deleteTimeBlockAction}
-              columns={[
-                { header: t("common.title"), render: (block) => <span className="font-medium text-text-primary">{block.title}</span> },
-                { header: t("common.date"), render: (block) => fmtDate(block.date) },
-                { header: t("common.type"), render: (block) => humanize(block.blockType) },
-                { header: t("common.minutes"), render: (block) => `${block.actualMinutes}/${block.plannedMinutes}` },
-                { header: t("command.timeLeverage"), render: (block) => <Badge>{block.leverageScore}/10</Badge> },
-              ]}
+              labels={{
+                emptyTitle: t("common.emptyTitle"),
+                emptyBody: t("common.emptyBody"),
+                open: t("common.open"),
+                edit: t("common.edit"),
+                delete: t("common.delete"),
+              }}
             />
           </CardContent>
         </Card>

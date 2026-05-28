@@ -7,9 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { fmtDate, humanize } from "@/lib/labels";
-import type { Topic, Hypothesis, LiteratureGap, Manuscript, ReviewItem, ProfessionalContact } from "@/lib/db/schema";
+import type { Topic, Hypothesis, LiteratureGap, Manuscript, ReviewItem, ProfessionalContact, TartuNote, TimeBlock, HealthLog, LanguageProgress, ReputationEvent, Opportunity, LifeAdminItem, PortfolioItem } from "@/lib/db/schema";
 
-type RecordType = "topic" | "review" | "hypothesis" | "literature-gap" | "manuscript" | "contact";
+type RecordType = "topic" | "review" | "hypothesis" | "literature-gap" | "manuscript" | "contact" | "tartu-note" | "time-block" | "health-log" | "language-progress" | "reputation-event" | "opportunity" | "life-admin" | "portfolio-item";
 
 interface RecordContext {
   subjectName?: string;
@@ -22,7 +22,7 @@ interface RecordContext {
 interface RecordDrawerProps {
   open: boolean;
   onClose: () => void;
-  record: Topic | ReviewItem | Hypothesis | LiteratureGap | Manuscript | ProfessionalContact | null;
+  record: Topic | ReviewItem | Hypothesis | LiteratureGap | Manuscript | ProfessionalContact | TartuNote | TimeBlock | HealthLog | LanguageProgress | ReputationEvent | Opportunity | LifeAdminItem | PortfolioItem | null;
   type: RecordType;
   editBasePath?: string;
   context?: RecordContext;
@@ -42,6 +42,22 @@ function typeLabel(type: RecordType) {
       return "Manuscript";
     case "contact":
       return "Network Contact";
+    case "tartu-note":
+      return "Tartu Note";
+    case "time-block":
+      return "Time Block";
+    case "health-log":
+      return "Health Log";
+    case "language-progress":
+      return "Language Progress";
+    case "reputation-event":
+      return "Reputation Event";
+    case "opportunity":
+      return "Opportunity";
+    case "life-admin":
+      return "Life Admin Item";
+    case "portfolio-item":
+      return "Portfolio Item";
   }
 }
 
@@ -238,6 +254,181 @@ function ContactDetail({ contact }: { contact: ProfessionalContact }) {
   );
 }
 
+function TartuNoteDetail({ note }: { note: TartuNote }) {
+  return (
+    <div className="space-y-4">
+      <div className="grid gap-3 sm:grid-cols-3">
+        <MetricTile label="Priority" value={`${note.priority}/10`} tone={note.priority >= 7 ? "warning" : "default"} />
+        <MetricTile label="Status" value={humanize(note.status)} tone={note.status === "done" ? "success" : "default"} />
+        <MetricTile label="Category" value={humanize(note.category)} />
+      </div>
+      <DetailSection title="Content">
+        <RichText>{note.content}</RichText>
+      </DetailSection>
+    </div>
+  );
+}
+
+function TimeBlockDetail({ block }: { block: TimeBlock }) {
+  return (
+    <div className="space-y-4">
+      <div className="grid gap-3 sm:grid-cols-4">
+        <MetricTile label="Date" value={fmtDate(block.date)} />
+        <MetricTile label="Type" value={humanize(block.blockType)} />
+        <MetricTile label="Minutes" value={`${block.actualMinutes}/${block.plannedMinutes}`} tone={block.actualMinutes >= block.plannedMinutes ? "success" : "warning"} />
+        <MetricTile label="Leverage" value={`${block.leverageScore}/10`} tone={block.leverageScore >= 7 ? "success" : "default"} />
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <MetricTile label="Energy cost" value={`${block.energyCost}/10`} tone={block.energyCost >= 7 ? "danger" : "default"} />
+      </div>
+      <DetailSection title="Notes">
+        <RichText muted>{block.notes}</RichText>
+      </DetailSection>
+    </div>
+  );
+}
+
+function HealthLogDetail({ log }: { log: HealthLog }) {
+  return (
+    <div className="space-y-4">
+      <div className="grid gap-3 sm:grid-cols-4">
+        <MetricTile label="Date" value={fmtDate(log.date)} />
+        <MetricTile label="Sleep" value={`${log.sleepQuality ?? "-"}/10`} tone={(log.sleepQuality ?? 0) >= 6 ? "success" : "default"} />
+        <MetricTile label="Fatigue" value={`${log.cognitiveFatigue ?? "-"}/10`} tone={(log.cognitiveFatigue ?? 0) >= 7 ? "danger" : "default"} />
+        <MetricTile label="Recovery" value={`${log.recoveryQuality ?? "-"}/10`} tone={(log.recoveryQuality ?? 0) >= 6 ? "success" : "default"} />
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <MetricTile label="Food quality" value={`${log.foodQuality ?? "-"}/10`} />
+        <MetricTile label="Movement" value={log.movementDone ? "Yes" : "No"} tone={log.movementDone ? "success" : "default"} />
+      </div>
+      <MetricTile label="Energy integrity" value={`${(log.energyIntegrityScore ?? 0).toFixed(1)}/10`} tone={(log.energyIntegrityScore ?? 0) >= 6 ? "success" : "danger"} />
+      <DetailSection title="Notes">
+        <RichText muted>{log.notes}</RichText>
+      </DetailSection>
+    </div>
+  );
+}
+
+function LanguageProgressDetail({ item }: { item: LanguageProgress }) {
+  return (
+    <div className="space-y-4">
+      <div className="grid gap-3 sm:grid-cols-4">
+        <MetricTile label="Language" value={humanize(item.language)} />
+        <MetricTile label="Confidence" value={`${item.confidence}/10`} tone={item.confidence >= 6 ? "success" : "default"} />
+        <MetricTile label="Minutes" value={`${item.minutes}m`} />
+        <MetricTile label="Category" value={item.category ?? "-"} />
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <MetricTile label="Last practiced" value={fmtDate(item.lastPracticedAt)} />
+        <MetricTile label="Next practice" value={fmtDate(item.nextPracticeAt)} tone={item.nextPracticeAt ? "warning" : "default"} />
+      </div>
+      <DetailSection title="Notes">
+        <RichText muted>{item.notes}</RichText>
+      </DetailSection>
+    </div>
+  );
+}
+
+function ReputationEventDetail({ event }: { event: ReputationEvent }) {
+  return (
+    <div className="space-y-4">
+      <div className="grid gap-3 sm:grid-cols-4">
+        <MetricTile label="Impact" value={`${event.impact}/10`} tone={event.impact >= 7 ? "success" : "default"} />
+        <MetricTile label="Type" value={humanize(event.eventType)} />
+        <MetricTile label="Status" value={humanize(event.status)} tone={event.status === "done" ? "success" : "default"} />
+        <MetricTile label="Date" value={fmtDate(event.eventDate)} />
+      </div>
+      <DetailSection title="Description">
+        <RichText>{event.description}</RichText>
+      </DetailSection>
+      <DetailSection title="Follow-up">
+        <MetaRow label="Follow-up date" value={fmtDate(event.followUpAt)} />
+        <MetaRow label="Evidence" value={event.evidenceUrl} />
+      </DetailSection>
+    </div>
+  );
+}
+
+function OpportunityDetail({ opportunity }: { opportunity: Opportunity }) {
+  const effort = opportunity.effortScore ?? 0;
+  const upside = opportunity.strategicUpside ?? 0;
+
+  return (
+    <div className="space-y-4">
+      <div className="grid gap-3 sm:grid-cols-4">
+        <MetricTile label="Status" value={humanize(opportunity.status)} tone={opportunity.status === "won" ? "success" : opportunity.status === "applied" ? "warning" : "default"} />
+        <MetricTile label="Value" value={`${opportunity.valueScore}/10`} tone={opportunity.valueScore >= 7 ? "success" : "default"} />
+        <MetricTile label="Upside" value={`${upside}/10`} tone={upside >= 7 ? "success" : "default"} />
+        <MetricTile label="Effort" value={`${effort}/10`} tone={effort >= 7 ? "danger" : "default"} />
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <MetricTile label="Type" value={humanize(opportunity.opportunityType)} />
+        <MetricTile label="Deadline" value={fmtDate(opportunity.deadline)} tone={opportunity.deadline ? "warning" : "default"} />
+      </div>
+      <DetailSection title="Description">
+        <RichText>{opportunity.description}</RichText>
+      </DetailSection>
+      <DetailSection title="Next action">
+        <RichText muted>{opportunity.nextAction}</RichText>
+      </DetailSection>
+    </div>
+  );
+}
+
+function LifeAdminItemDetail({ item }: { item: LifeAdminItem }) {
+  return (
+    <div className="space-y-4">
+      <div className="grid gap-3 sm:grid-cols-3">
+        <MetricTile label="Priority" value={`${item.priority}/10`} tone={item.priority >= 7 ? "warning" : "default"} />
+        <MetricTile label="Status" value={humanize(item.status)} tone={item.status === "done" ? "success" : "default"} />
+        <MetricTile label="Category" value={humanize(item.category)} />
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <MetricTile label="Due" value={fmtDate(item.dueAt)} tone={item.dueAt && item.dueAt < new Date() && item.status !== "done" ? "danger" : "default"} />
+      </div>
+      <DetailSection title="Description">
+        <RichText>{item.description}</RichText>
+      </DetailSection>
+      <DetailSection title="File">
+        {item.fileUrl && item.fileName ? (
+          <a href={item.fileUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-ice hover:underline">
+            {item.fileName}
+          </a>
+        ) : (
+          <p className="text-sm text-text-muted">No file attached.</p>
+        )}
+      </DetailSection>
+    </div>
+  );
+}
+
+function PortfolioItemDetail({ item }: { item: PortfolioItem }) {
+  return (
+    <div className="space-y-4">
+      <div className="grid gap-3 sm:grid-cols-3">
+        <MetricTile label="Type" value={humanize(item.itemType)} />
+        <MetricTile label="Strategic value" value={`${item.strategicValue}/10`} tone={item.strategicValue >= 7 ? "success" : "default"} />
+        <MetricTile label="Status" value={humanize(item.status)} tone={item.status === "active" ? "success" : "default"} />
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <MetricTile label="Date" value={fmtDate(item.date)} />
+      </div>
+      <DetailSection title="Description">
+        <RichText>{item.description}</RichText>
+      </DetailSection>
+      <DetailSection title="Evidence">
+        {item.evidenceUrl ? (
+          <a href={item.evidenceUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-ice hover:underline">
+            {item.evidenceUrl}
+          </a>
+        ) : (
+          <p className="text-sm text-text-muted">No evidence attached.</p>
+        )}
+      </DetailSection>
+    </div>
+  );
+}
+
 export function RecordDrawer({ open, onClose, record, type, editBasePath, context }: RecordDrawerProps) {
   if (!record) return null;
 
@@ -277,6 +468,14 @@ export function RecordDrawer({ open, onClose, record, type, editBasePath, contex
           {type === "literature-gap" && <LiteratureGapDetail gap={record as LiteratureGap} context={context} />}
           {type === "manuscript" && <ManuscriptDetail manuscript={record as Manuscript} context={context} />}
           {type === "contact" && <ContactDetail contact={record as ProfessionalContact} />}
+          {type === "tartu-note" && <TartuNoteDetail note={record as TartuNote} />}
+          {type === "time-block" && <TimeBlockDetail block={record as TimeBlock} />}
+          {type === "health-log" && <HealthLogDetail log={record as HealthLog} />}
+          {type === "language-progress" && <LanguageProgressDetail item={record as LanguageProgress} />}
+          {type === "reputation-event" && <ReputationEventDetail event={record as ReputationEvent} />}
+          {type === "opportunity" && <OpportunityDetail opportunity={record as Opportunity} />}
+          {type === "life-admin" && <LifeAdminItemDetail item={record as LifeAdminItem} />}
+          {type === "portfolio-item" && <PortfolioItemDetail item={record as PortfolioItem} />}
         </div>
       </SheetContent>
     </Sheet>

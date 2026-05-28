@@ -17,6 +17,8 @@ interface FlashcardCardProps {
     delete: string;
     tapToFlip: string;
     due: string;
+    overdue: string;
+    today: string;
   };
   index?: number;
 }
@@ -48,7 +50,7 @@ function ConfidenceBar({ confidence }: { confidence: number }) {
   );
 }
 
-function DueBadge({ dueAt, isActive }: { dueAt: Date; isActive: boolean }) {
+function DueBadge({ dueAt, isActive, overdueLabel, todayLabel }: { dueAt: Date; isActive: boolean; overdueLabel: string; todayLabel: string }) {
   const now = new Date();
   const due = new Date(dueAt);
   const isOverdue = isActive && due <= now;
@@ -59,7 +61,7 @@ function DueBadge({ dueAt, isActive }: { dueAt: Date; isActive: boolean }) {
     return (
       <span className="inline-flex items-center gap-1.5 text-xs font-medium text-rose">
         <AlertCircle className="h-3.5 w-3.5 ping-dot" />
-        Overdue
+        {overdueLabel}
       </span>
     );
   }
@@ -67,7 +69,7 @@ function DueBadge({ dueAt, isActive }: { dueAt: Date; isActive: boolean }) {
   if (isToday) {
     return (
       <span className="inline-flex items-center gap-1.5 text-xs font-medium text-gold">
-        Due today
+        {todayLabel}
       </span>
     );
   }
@@ -147,7 +149,7 @@ export function FlashcardCard({ card, onStudy, onEdit, labels, index = 0 }: Flas
         {/* Bottom row: confidence + due */}
         <div className="mt-4 flex items-center justify-between">
           <ConfidenceBar confidence={card.confidence} />
-          <DueBadge dueAt={card.dueAt} isActive={card.isActive} />
+          <DueBadge dueAt={card.dueAt} isActive={card.isActive} overdueLabel={labels.overdue} todayLabel={labels.today} />
         </div>
       </button>
 

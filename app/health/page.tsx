@@ -3,17 +3,15 @@ import { Battery, Brain, HeartPulse, Moon, Zap } from "lucide-react";
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { EmptyState } from "@/components/premium/empty-state";
 import { HealthLogForm } from "@/components/forms/life-forms";
+import { HealthLogList } from "@/components/life/life-lists";
 import { GlassCard } from "@/components/premium/glass-card";
 import { MetricCard } from "@/components/premium/metric-card";
 import { MomentumBar } from "@/components/premium/momentum-bar";
 import { SectionHeader } from "@/components/premium/section-header";
-import { ResourceTable } from "@/components/tables/resource-table";
-import { Badge } from "@/components/ui/badge";
 import { deleteHealthLogAction } from "@/lib/actions/resources";
 import { requireApprovedUser } from "@/lib/auth/supabase";
 import { getHealthLogs } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server-i18n";
-import { fmtDate } from "@/lib/labels";
 
 export const dynamic = "force-dynamic";
 
@@ -75,18 +73,17 @@ export default async function HealthPage({ searchParams }: { searchParams: Promi
                   tone="emerald"
                 />
               ) : (
-                <ResourceTable
-                  rows={healthLogs.slice(0, 12)}
+                <HealthLogList
+                  logs={healthLogs.slice(0, 12)}
                   editBasePath="/health"
                   deleteAction={deleteHealthLogAction}
-                  emptyState={{ title: t("common.emptyTitle"), description: t("common.emptyBody") }}
-                  columns={[
-                    { header: t("common.date"), render: (log) => <span className="font-medium text-text-primary">{fmtDate(log.date)}</span> },
-                    { header: t("health.sleep"), render: (log) => <Badge variant="muted">{log.sleepQuality ?? "-"}</Badge> },
-                    { header: t("health.cognitiveFatigue"), render: (log) => <Badge variant={(log.cognitiveFatigue ?? 0) >= 7 ? "danger" : "muted"}>{log.cognitiveFatigue ?? "-"}</Badge> },
-                    { header: t("health.recoveryBalance"), render: (log) => <Badge variant={(log.recoveryQuality ?? 0) >= 6 ? "success" : "muted"}>{log.recoveryQuality ?? "-"}</Badge> },
-                    { header: t("health.energyIntegrity"), render: (log) => <Badge variant={(log.energyIntegrityScore ?? 0) >= 6 ? "success" : "danger"}>{log.energyIntegrityScore ?? "-"}</Badge> },
-                  ]}
+                  labels={{
+                    emptyTitle: t("common.emptyTitle"),
+                    emptyBody: t("common.emptyBody"),
+                    open: t("common.open"),
+                    edit: t("common.edit"),
+                    delete: t("common.delete"),
+                  }}
                 />
               )}
             </div>

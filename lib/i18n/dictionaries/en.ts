@@ -1486,6 +1486,8 @@ export const en = {
   "flashcards.exitStudy": "Exit study mode",
   "flashcards.completed": "Session complete!",
   "flashcards.completedDesc": "You've reviewed all cards in this session.",
+  "flashcards.showing": "Showing",
+  "flashcards.mastery": "Mastery",
 } as const;
 
 export type TranslationKey = keyof typeof en;

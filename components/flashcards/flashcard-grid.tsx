@@ -41,6 +41,8 @@ interface FlashcardGridProps {
     exitStudy: string;
     completed: string;
     completedDesc: string;
+    showing: string;
+    mastery: string;
   };
 }
 
@@ -260,10 +262,10 @@ export function FlashcardGrid({ initialCards, subjects, labels }: FlashcardGridP
       {/* Stats bar */}
       {allCards.length > 0 && (
         <div className="flex items-center gap-3 mb-6 overflow-x-auto pb-1">
-          <StatPill label="Showing" value={filtered.length} color="text-text-primary" />
-          <StatPill label="Overdue" value={overdueCount} color={overdueCount > 0 ? "text-rose" : "text-text-muted"} />
-          <StatPill label="Today" value={dueTodayCount} color={dueTodayCount > 0 ? "text-gold" : "text-text-muted"} />
-          <StatPill label="Mastery" value={`${masteryRate}%`} color="text-emerald" />
+          <StatPill label={labels.showing} value={filtered.length} color="text-text-primary" />
+          <StatPill label={labels.overdue} value={overdueCount} color={overdueCount > 0 ? "text-rose" : "text-text-muted"} />
+          <StatPill label={labels.today} value={dueTodayCount} color={dueTodayCount > 0 ? "text-gold" : "text-text-muted"} />
+          <StatPill label={labels.mastery} value={`${masteryRate}%`} color="text-emerald" />
         </div>
       )}
 
@@ -372,6 +374,8 @@ export function FlashcardGrid({ initialCards, subjects, labels }: FlashcardGridP
                 delete: labels.delete,
                 tapToFlip: labels.tapToFlip,
                 due: labels.due,
+                overdue: labels.overdue,
+                today: labels.today,
               }}
               index={i}
             />

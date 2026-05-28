@@ -2,17 +2,15 @@ import { BookOpen, Globe, Sparkles, Target } from "lucide-react";
 
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { LanguageProgressForm } from "@/components/forms/life-forms";
+import { LanguageProgressList } from "@/components/life/life-lists";
 import { GlassCard } from "@/components/premium/glass-card";
 import { MetricCard } from "@/components/premium/metric-card";
 import { MomentumBar } from "@/components/premium/momentum-bar";
 import { SectionHeader } from "@/components/premium/section-header";
-import { ResourceTable } from "@/components/tables/resource-table";
-import { Badge } from "@/components/ui/badge";
 import { deleteLanguageProgressAction } from "@/lib/actions/resources";
 import { requireApprovedUser } from "@/lib/auth/supabase";
 import { getLanguageProgress } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server-i18n";
-import { fmtDate, humanize } from "@/lib/labels";
 
 export const dynamic = "force-dynamic";
 
@@ -61,17 +59,17 @@ export default async function LanguagePage({ searchParams }: { searchParams: Pro
           <GlassCard>
             <SectionHeader title={t("language.history")} description={`${languageProgress.length} ${t("language.entries")}`} />
             <div className="mt-4">
-              <ResourceTable
-                rows={languageProgress.slice(0, 12)}
+              <LanguageProgressList
+                items={languageProgress.slice(0, 12)}
                 editBasePath="/language"
                 deleteAction={deleteLanguageProgressAction}
-                columns={[
-                  { header: t("common.title"), render: (item) => <span className="font-medium text-text-primary">{item.title}</span> },
-                  { header: t("nav.language"), render: (item) => <Badge variant="muted">{humanize(item.language)}</Badge> },
-                  { header: t("common.minutes"), render: (item) => <Badge>{item.minutes}m</Badge> },
-                  { header: t("common.confidence"), render: (item) => <Badge variant={item.confidence >= 6 ? "success" : "muted"}>{item.confidence}/10</Badge> },
-                  { header: t("common.nextReview"), render: (item) => <span className="text-xs text-text-secondary">{fmtDate(item.nextPracticeAt)}</span> },
-                ]}
+                labels={{
+                  emptyTitle: t("common.emptyTitle"),
+                  emptyBody: t("common.emptyBody"),
+                  open: t("common.open"),
+                  edit: t("common.edit"),
+                  delete: t("common.delete"),
+                }}
               />
             </div>
           </GlassCard>

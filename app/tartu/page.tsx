@@ -1,13 +1,11 @@
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { TartuNoteForm } from "@/components/forms/life-forms";
-import { ResourceTable } from "@/components/tables/resource-table";
-import { Badge } from "@/components/ui/badge";
+import { TartuNoteList } from "@/components/life/life-lists";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { deleteTartuNoteAction } from "@/lib/actions/resources";
 import { requireApprovedUser } from "@/lib/auth/supabase";
 import { getTartuNotes } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server-i18n";
-import { humanize } from "@/lib/labels";
 
 export const dynamic = "force-dynamic";
 
@@ -28,16 +26,17 @@ export default async function TartuPage({ searchParams }: { searchParams: Promis
             <CardTitle>{t("tartu.title")}</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResourceTable
-              rows={tartuNotes}
+            <TartuNoteList
+              notes={tartuNotes}
               editBasePath="/tartu"
               deleteAction={deleteTartuNoteAction}
-              columns={[
-                { header: t("common.title"), render: (note) => <span className="font-medium text-text-primary">{note.title}</span> },
-                { header: t("common.category"), render: (note) => humanize(note.category) },
-                { header: t("common.status"), render: (note) => <Badge variant={note.status === "done" ? "success" : "muted"}>{humanize(note.status)}</Badge> },
-                { header: t("common.priority"), render: (note) => `${note.priority}/10` },
-              ]}
+              labels={{
+                emptyTitle: t("common.emptyTitle"),
+                emptyBody: t("common.emptyBody"),
+                open: t("common.open"),
+                edit: t("common.edit"),
+                delete: t("common.delete"),
+              }}
             />
           </CardContent>
         </Card>

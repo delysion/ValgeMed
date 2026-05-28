@@ -747,6 +747,7 @@ export async function generateFlashcardsFromTextAction(
         prompt,
         userOptions,
       }),
+      locale,
     );
 
     if (items.length === 0) {

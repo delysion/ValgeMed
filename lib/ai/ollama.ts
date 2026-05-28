@@ -151,9 +151,12 @@ export async function generateReviewItemsFromText(
   topic?: string,
   userOptions?: AiChatOptions,
   runner?: AiTextRunner,
+  locale: string = "en",
 ): Promise<Array<{ question: string; answer: string; notes: string }>> {
   try {
-    const prompt = `Generate 3-5 review flashcards from the following study material. 
+    const languageHint = locale === "et" ? "Generate flashcards in Estonian." : "Generate flashcards in English.";
+    const prompt = `Generate 3-5 review flashcards from the following study material.
+${languageHint}
 Return ONLY a JSON array of objects with fields: question, answer, notes.
 Each flashcard should test a key concept. Format: [{"question": "...", "answer": "...", "notes": "..."}]
 
