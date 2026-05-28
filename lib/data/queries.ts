@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, asc, desc, eq, gte, isNull, lte, or } from "drizzle-orm";
+import { and, asc, desc, eq, gte, ilike, isNull, lte, or } from "drizzle-orm";
 import { addDays, formatISO, startOfDay, subDays } from "date-fns";
 
 import { getUserId } from "@/lib/db/auth";
@@ -879,3 +879,107 @@ export async function getDashboardData(): Promise<DashboardData> {
     };
   }, emptyDashboardData);
 }
+
+// ─────────────────────────────────────────────────────
+// Flashcard-specific queries (new route: /flashcards)
+// ─────────────────────────────────────────────────────
+
+export type FlashcardFilter = {
+  subjectId?: string;
+  confidence?: number;
+  dueStatus?: "overdue" | "today" | "week" | "all";
+  search?: string;
+};
+
+export type FlashcardItem = {
+  id: string;
+  userId: string;
+  subjectId: string;
+  topicId: string | null;
+  question: string;
+  answer: string | null;
+  reviewType: "flashcard" | "open_question" | "feynman" | "blurting" | "quiz_prompt";
+  confidence: number;
+  intervalDays: number;
+  dueAt: Date;
+  lastReviewedAt: Date | null;
+  timesReviewed: number;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  subjectName: string | null;
+  topicTitle: string | null;
+};
+
+export async function getFlashcards(filters: FlashcardFilter = {}) {
+  const userId = await getUserIdOrThrow();
+  const today = startOfDay(new Date());
+  const tomorrow = addDays(today, 1);
+  const weekEnd = addDays(today, 7);
+
+  return withDb<FlashcardItem[]>(async (db) => {
+    const conditions = [eq(reviewItems.userId, userId), eq(reviewItems.reviewType, "flashcard")];
+
+    if (filters.subjectId) {
+      conditions.push(eq(reviewItems.subjectId, filters.subjectId));
+    }
+
+    if (filters.confidence !== undefined) {
+      conditions.push(eq(reviewItems.confidence, filters.confidence));
+    }
+
+    if (filters.dueStatus === "overdue") {
+      conditions.push(lte(reviewItems.dueAt, today));
+      conditions.push(eq(reviewItems.isActive, true));
+    } else if (filters.dueStatus === "today") {
+      conditions.push(gte(reviewItems.dueAt, today));
+      conditions.push(lte(reviewItems.dueAt, tomorrow));
+      conditions.push(eq(reviewItems.isActive, true));
+    } else if (filters.dueStatus === "week") {
+      conditions.push(gte(reviewItems.dueAt, today));
+      conditions.push(lte(reviewItems.dueAt, weekEnd));
+      conditions.push(eq(reviewItems.isActive, true));
+    }
+
+    if (filters.search) {
+      conditions.push(
+        or(
+          ilike(reviewItems.question, `%${filters.search}%`),
+          ilike(reviewItems.answer, `%${filters.search}%`),
+        )!,
+      );
+    }
+
+    const rows = await db
+      .select({
+        id: reviewItems.id,
+        userId: reviewItems.userId,
+        subjectId: reviewItems.subjectId,
+        topicId: reviewItems.topicId,
+        question: reviewItems.question,
+        answer: reviewItems.answer,
+        reviewType: reviewItems.reviewType,
+        confidence: reviewItems.confidence,
+        intervalDays: reviewItems.intervalDays,
+        dueAt: reviewItems.dueAt,
+        lastReviewedAt: reviewItems.lastReviewedAt,
+        timesReviewed: reviewItems.timesReviewed,
+        isActive: reviewItems.isActive,
+        createdAt: reviewItems.createdAt,
+        updatedAt: reviewItems.updatedAt,
+        subjectName: subjects.name,
+        topicTitle: topics.title,
+      })
+      .from(reviewItems)
+      .leftJoin(subjects, eq(reviewItems.subjectId, subjects.id))
+      .leftJoin(topics, eq(reviewItems.topicId, topics.id))
+      .where(and(...conditions))
+      .orderBy(asc(reviewItems.dueAt))
+      .limit(200);
+
+    return rows;
+  }, []);
+}
+
+export { reviewItems } from "@/lib/db/schema";
+export type { ReviewItem } from "@/lib/db/schema";

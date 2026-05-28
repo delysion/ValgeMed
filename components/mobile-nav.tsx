@@ -9,7 +9,7 @@ import type { TranslationKey } from "@/lib/i18n/dictionaries/en";
 
 const tabs = [
   { id: "command", labelKey: "nav.command", icon: Command, paths: ["/command", "/dashboard", "/elite-index", "/strategic-review"] },
-  { id: "studio", labelKey: "nav.sectionStudy", icon: BookOpen, paths: ["/subjects", "/exams", "/topics", "/study", "/reviews", "/errors", "/study-sessions", "/daily-log"] },
+  { id: "studio", labelKey: "nav.sectionStudy", icon: BookOpen, paths: ["/subjects", "/exams", "/topics", "/study", "/reviews", "/flashcards", "/errors", "/study-sessions", "/daily-log"] },
   { id: "goals", labelKey: "nav.goals", icon: Target, paths: ["/goals", "/memory", "/identity", "/tartu", "/time", "/health", "/language"] },
   { id: "more", labelKey: "common.more", icon: Grid3x3, paths: [] },
 ];

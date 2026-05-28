@@ -33,6 +33,7 @@ import {
   Trophy,
   User,
   Users,
+  Layers,
 } from "lucide-react";
 import type { TranslationKey } from "@/lib/i18n/dictionaries/en";
 import { useTranslation } from "@/lib/i18n/useTranslation";
@@ -81,6 +82,7 @@ const sections: NavSection[] = [
       { href: "/topics", label: "nav.topics", icon: Lightbulb },
       { href: "/study", label: "nav.study", icon: Clock },
       { href: "/reviews", label: "nav.reviews", icon: Brain },
+      { href: "/flashcards", label: "nav.flashcards", icon: Layers },
       { href: "/errors", label: "nav.errors", icon: AlertTriangle },
     ],
   },

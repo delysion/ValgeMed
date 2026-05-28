@@ -648,3 +648,28 @@ export async function deleteStrategicReviewAction(formData: FormData) {
   refresh(["/strategic-review", "/elite-index"]);
   redirectToReturnPath(formData, "/strategic-review");
 }
+
+export async function updateFlashcardSRSFromStudyAction(formData: FormData) {
+  const { db, userId } = await authorizedDb();
+  const id = parseId(formData);
+  const quality = parseInt(formData.get("quality") as string, 10) as 0 | 1 | 2 | 3;
+
+  const intervals: Record<number, number> = { 0: 1, 1: 10, 2: 1440, 3: 4320 };
+  const newInterval = intervals[quality] ?? 1;
+  const newDueAt = new Date(Date.now() + newInterval * 60 * 1000);
+  const newConfidence = Math.max(0, Math.min(10, quality * 3));
+
+  await db
+    .update(reviewItems)
+    .set({
+      intervalDays: newInterval,
+      dueAt: newDueAt,
+      lastReviewedAt: new Date(),
+      timesReviewed: sql`${reviewItems.timesReviewed} + 1`,
+      confidence: newConfidence,
+      updatedAt: new Date(),
+    })
+    .where(and(eq(reviewItems.id, id), eq(reviewItems.userId, userId)));
+
+  refresh(["/flashcards", "/dashboard"]);
+}

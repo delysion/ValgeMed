@@ -6,7 +6,7 @@ import {
   AlertTriangle, Beaker, BookMarked, BookOpen, Bot, Brain, Briefcase,
   CalendarCheck, ChevronRight, ClipboardList, Clock, Command, FileText,
   FlaskConical, GraduationCap, Heart, Languages, LayoutDashboard, Lightbulb,
-  LogOut, MapPin, NotebookPen, Radar, Settings, Star, Target, Timer, Trophy, User, Users, X,
+  LogOut, MapPin, NotebookPen, Radar, Settings, Star, Target, Timer, Trophy, User, Users, X, Layers,
 } from "lucide-react";
 import type { TranslationKey } from "@/lib/i18n/dictionaries/en";
 import { useTranslation } from "@/lib/i18n/useTranslation";
@@ -42,6 +42,7 @@ const sections: NavSection[] = [
       { href: "/study", label: "nav.study", icon: Clock },
       { href: "/daily-log", label: "nav.dailyLog", icon: FileText },
       { href: "/reviews", label: "nav.reviews", icon: Brain },
+      { href: "/flashcards", label: "nav.flashcards", icon: Layers },
       { href: "/errors", label: "nav.errors", icon: AlertTriangle },
     ],
   },

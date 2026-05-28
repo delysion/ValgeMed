@@ -48,6 +48,7 @@ const pageTitleKeys: Record<string, TranslationKey> = {
   "/study": "nav.study",
   "/daily-log": "nav.dailyLog",
   "/reviews": "nav.reviews",
+  "/flashcards": "nav.flashcards",
   "/errors": "nav.errors",
   "/goals": "nav.goals",
   "/memory": "nav.memory",
