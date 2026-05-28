@@ -117,17 +117,23 @@ export function InstallAppButton() {
 }
 
 export function InstallMenuItem() {
-  const { canInstall, isIOS } = useInstallPrompt();
+  const { canInstall, isIOS, deferredPrompt } = useInstallPrompt();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => { setMounted(true); }, []);
 
   if (!canInstall || !mounted) return null;
 
+  async function handleInstall() {
+    if (isIOS || !deferredPrompt) return;
+    await deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+  }
+
   return (
     <button
       type="button"
-      onClick={() => { if (isIOS) return; }}
+      onClick={handleInstall}
       className="flex w-full items-center gap-3 min-h-[44px] rounded-xl py-2.5 pl-[9px] pr-3 text-sm font-medium text-text-secondary hover:bg-bg-subtle/60 hover:text-text-primary transition-all duration-200 active:scale-[0.96]"
     >
       <Download className="h-[18px] w-[18px] shrink-0" />
