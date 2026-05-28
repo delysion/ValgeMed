@@ -34,7 +34,19 @@ export function NaturalDelete({ className }: NaturalDeleteProps) {
     setSearchDone(false);
 
     startTransition(async () => {
-      const result = await previewDeleteAction(input, locale);
+      const executeRes = await fetch("/api/ai/execute", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tool: "natural_delete", input, locale }),
+      });
+      const executeData = await executeRes.json();
+      if (!executeData.success) {
+        setError(executeData.error || (locale === "et" ? "AI viga" : "AI error"));
+        setSearchDone(true);
+        return;
+      }
+
+      const result = await previewDeleteAction(executeData.result, locale);
 
       if (result.tooAmbiguous) {
         setError(result.error || (locale === "et" ? "Päring on ebapiisav" : "Query too vague"));

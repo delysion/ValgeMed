@@ -39,7 +39,18 @@ export function CurriculumImporter({ className }: CurriculumImporterProps) {
     startTransition(async () => {
       const inputText = textInput.trim();
 
-      const result = await parseCurriculumAction(inputText, locale);
+      const executeRes = await fetch("/api/ai/execute", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tool: "curriculum_import", input: inputText, locale }),
+      });
+      const executeData = await executeRes.json();
+      if (!executeData.success) {
+        setError(executeData.error || (locale === "et" ? "AI viga" : "AI error"));
+        return;
+      }
+
+      const result = await parseCurriculumAction(executeData.result, locale);
 
       if (!result.success || !result.preview) {
         setError(result.error || (locale === "et" ? "Viga" : "Error"));
