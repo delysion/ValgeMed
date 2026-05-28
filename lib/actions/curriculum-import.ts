@@ -74,8 +74,6 @@ export async function parseCurriculumAction(
   try {
     const userId = await requireAuthUserId();
 
-    console.log("[DEBUG parseCurriculum] rawText:", rawText);
-
     const stripped = rawText
       .replace(/```json\n?/g, "")
       .replace(/```\n?/g, "")

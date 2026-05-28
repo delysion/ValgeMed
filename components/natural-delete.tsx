@@ -40,7 +40,6 @@ export function NaturalDelete({ className }: NaturalDeleteProps) {
         body: JSON.stringify({ tool: "natural_delete", input, locale }),
       });
       const executeData = await executeRes.json();
-      console.log("[DEBUG delete] executeData:", JSON.stringify(executeData));
       if (!executeData.success) {
         setError(executeData.error || (locale === "et" ? "AI viga" : "AI error"));
         setSearchDone(true);
