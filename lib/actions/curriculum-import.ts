@@ -112,8 +112,13 @@ export async function parseCurriculumAction(
       })};
     }
 
-    const validated = curriculumImportSchema.safeParse(normalizeRecords(parsed));
+    const normalized = normalizeRecords(parsed);
+    console.log("[import] parsed:", JSON.stringify(parsed, null, 2));
+    console.log("[import] normalized:", JSON.stringify(normalized, null, 2));
+
+    const validated = curriculumImportSchema.safeParse(normalized);
     if (!validated.success) {
+      console.log("[import] Zod errors:", JSON.stringify(validated.error.issues, null, 2));
       return { success: false, error: locale === "et" ? "Vigane kirje struktuur" : "Invalid record structure" };
     }
 
