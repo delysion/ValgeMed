@@ -28,10 +28,10 @@ const curriculumImportSchema = z.object({
 });
 
 export interface CurriculumImportPreview {
-  subjects: Array<{ name: string; isNew: boolean; existingId?: string; topics: string[] }>;
-  topics: Array<{ name: string; subjectName: string; subjectId?: string; isNew: boolean }>;
-  exams: Array<{ title: string; date: string | null; subjectName: string; subjectId?: string; isNew: boolean }>;
-  tasks: Array<{ title: string; date: string | null; priority: number; isNew: boolean }>;
+  subjects: Array<{ name: string; notes: string | null; isNew: boolean; existingId?: string; topics: string[] }>;
+  topics: Array<{ name: string; subjectName: string; priority: number; notes: string | null; subjectId?: string; isNew: boolean }>;
+  exams: Array<{ title: string; date: string | null; subjectName: string; notes: string | null; subjectId?: string; isNew: boolean }>;
+  tasks: Array<{ title: string; date: string | null; priority: number; notes: string | null; isNew: boolean }>;
 }
 
 export interface CurriculumImportResult {
@@ -120,21 +120,25 @@ export async function parseCurriculumAction(
     const records = validated.data.records;
 
     const subjectNames = new Set<string>();
-    const topicMap = new Map<string, string>();
-    const examList: Array<{ title: string; date: string | null; subjectName: string }> = [];
-    const taskList: Array<{ title: string; date: string | null; priority: number }> = [];
+    const subjectNotes = new Map<string, string | null>();
+    const topicList: Array<{ name: string; subjectName: string; priority: number; notes: string | null }> = [];
+    const examList: Array<{ title: string; date: string | null; subjectName: string; notes: string | null }> = [];
+    const taskList: Array<{ title: string; date: string | null; priority: number; notes: string | null }> = [];
 
     for (const rec of records) {
       if (rec.type === "subject") {
         subjectNames.add(rec.name);
+        if (!subjectNotes.has(rec.name)) {
+          subjectNotes.set(rec.name, rec.notes ?? null);
+        }
       } else if (rec.type === "topic" && rec.parent) {
-        topicMap.set(rec.name, rec.parent);
+        topicList.push({ name: rec.name, subjectName: rec.parent, priority: rec.priority ?? 5, notes: rec.notes ?? null });
         subjectNames.add(rec.parent);
       } else if (rec.type === "exam") {
-        examList.push({ title: rec.name, date: parseDate(rec.date), subjectName: rec.parent || "General" });
+        examList.push({ title: rec.name, date: parseDate(rec.date), subjectName: rec.parent || "General", notes: rec.notes ?? null });
         subjectNames.add(rec.parent || "General");
       } else if (rec.type === "task") {
-        taskList.push({ title: rec.name, date: parseDate(rec.date), priority: rec.priority ?? 5 });
+        taskList.push({ title: rec.name, date: parseDate(rec.date), priority: rec.priority ?? 5, notes: rec.notes ?? null });
       }
     }
 
@@ -147,22 +151,25 @@ export async function parseCurriculumAction(
 
     for (const name of subjectNames) {
       const existingId = await findSubjectId(userId, name);
-      const topicsForSubject = [...topicMap.entries()]
-        .filter(([, parent]) => parent === name)
-        .map(([topicName]) => topicName);
+      const topicsForSubject = topicList
+        .filter(t => t.subjectName === name)
+        .map(t => t.name);
 
       preview.subjects.push({
         name,
+        notes: subjectNotes.get(name) ?? null,
         isNew: !existingId,
         existingId: existingId || undefined,
         topics: topicsForSubject,
       });
     }
 
-    for (const [topicName, subjectName] of topicMap) {
+    for (const topic of topicList) {
       preview.topics.push({
-        name: topicName,
-        subjectName,
+        name: topic.name,
+        subjectName: topic.subjectName,
+        priority: topic.priority,
+        notes: topic.notes,
         isNew: true,
       });
     }
@@ -172,6 +179,7 @@ export async function parseCurriculumAction(
         title: exam.title,
         date: exam.date,
         subjectName: exam.subjectName,
+        notes: exam.notes,
         isNew: true,
       });
     }
@@ -181,6 +189,7 @@ export async function parseCurriculumAction(
         title: task.title,
         date: task.date,
         priority: task.priority,
+        notes: task.notes,
         isNew: true,
       });
     }
@@ -205,20 +214,27 @@ function isValidCalendarDate(dateStr: string): boolean {
   return d.toISOString().startsWith(dateStr);
 }
 
-const confirmSubjectsSchema = z.array(z.string().trim().min(1).max(MAX_NAME_LENGTH)).default([]);
+const confirmSubjectsSchema = z.array(z.object({
+  name: z.string().trim().min(1).max(MAX_NAME_LENGTH),
+  notes: z.string().nullable().optional(),
+})).default([]);
 const confirmTopicsSchema = z.array(z.object({
   name: z.string().trim().min(1).max(MAX_TITLE_LENGTH),
   subjectName: z.string().trim().min(1).max(MAX_SUBJECTNAME_LENGTH),
+  priority: z.number().int().min(0).max(MAX_PRIORITY).default(5),
+  notes: z.string().nullable().optional(),
 })).default([]);
 const confirmExamsSchema = z.array(z.object({
   title: z.string().trim().min(1).max(MAX_TITLE_LENGTH),
   date: z.string().refine(isValidCalendarDate, { message: "Invalid date" }).nullable().optional(),
   subjectName: z.string().trim().min(1).max(MAX_SUBJECTNAME_LENGTH),
+  notes: z.string().nullable().optional(),
 })).default([]);
 const confirmTasksSchema = z.array(z.object({
   title: z.string().trim().min(1).max(MAX_TITLE_LENGTH),
   date: z.string().refine(isValidCalendarDate, { message: "Invalid date" }).nullable().optional(),
   priority: z.number().int().min(0).max(MAX_PRIORITY).default(5),
+  notes: z.string().nullable().optional(),
 })).default([]);
 
 const confirmImportInputSchema = z.object({
@@ -316,21 +332,21 @@ export async function confirmCurriculumImportAction(
 
     const subjectIdMap = new Map<string, string>();
 
-    for (const subjectName of selectedSubjects) {
+    for (const subject of selectedSubjects) {
       const rows = await db
         .select({ id: subjects.id })
         .from(subjects)
-        .where(and(eq(subjects.userId, userId), eq(subjects.name, subjectName)))
+        .where(and(eq(subjects.userId, userId), eq(subjects.name, subject.name)))
         .limit(1);
 
       if (rows.length > 0) {
-        subjectIdMap.set(subjectName, rows[0].id);
+        subjectIdMap.set(subject.name, rows[0].id);
       } else {
         const inserted = await db
           .insert(subjects)
-          .values({ userId, name: subjectName, description: "Imported" })
+          .values({ userId, name: subject.name, description: subject.notes || "Imported" })
           .returning();
-        subjectIdMap.set(subjectName, inserted[0].id);
+        subjectIdMap.set(subject.name, inserted[0].id);
         subjectsCreated++;
       }
     }
@@ -348,7 +364,7 @@ export async function confirmCurriculumImportAction(
 
       await db
         .insert(topics)
-        .values({ userId, subjectId, title: topic.name, description: "Imported" });
+        .values({ userId, subjectId, title: topic.name, description: topic.notes || "Imported", priority: topic.priority });
       topicsCreated++;
     }
 
@@ -373,6 +389,7 @@ export async function confirmCurriculumImportAction(
         subjectId,
         title: exam.title,
         examDate: examDateVal,
+        notes: exam.notes || null,
       });
       examsCreated++;
     }

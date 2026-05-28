@@ -140,19 +140,19 @@ export function CurriculumImporter({ className }: CurriculumImporterProps) {
 
     const selectedSubjectsList = preview.subjects
       .filter((s) => selectedSubjects.has(s.name))
-      .map((s) => s.name);
+      .map((s) => ({ name: s.name, notes: s.notes }));
 
     const selectedTopicsList = preview.topics
       .filter((_, i) => selectedTopics.has(i))
-      .map((t) => ({ name: t.name, subjectName: t.subjectName }));
+      .map((t) => ({ name: t.name, subjectName: t.subjectName, priority: t.priority, notes: t.notes }));
 
     const selectedExamsList = preview.exams
       .filter((_, i) => selectedExams.has(i))
-      .map((e) => ({ title: e.title, date: e.date, subjectName: e.subjectName }));
+      .map((e) => ({ title: e.title, date: e.date, subjectName: e.subjectName, notes: e.notes }));
 
     const selectedTasksList = preview.tasks
       .filter((_, i) => selectedTasks.has(i))
-      .map((t) => ({ title: t.title, date: t.date, priority: t.priority }));
+      .map((t) => ({ title: t.title, date: t.date, priority: t.priority, notes: t.notes }));
 
     if (selectedSubjectsList.length === 0 && selectedTopicsList.length === 0 &&
         selectedExamsList.length === 0 && selectedTasksList.length === 0) {
@@ -293,6 +293,7 @@ export function CurriculumImporter({ className }: CurriculumImporterProps) {
                       {s.topics.length > 0 && (
                         <span className="text-xs text-text-muted">({s.topics.length} {locale === "et" ? "teemat" : "topics"})</span>
                       )}
+                      {s.notes && <span className="text-xs text-cyan max-w-[120px] truncate">{s.notes}</span>}
                     </label>
                   ))}
                 </div>
@@ -331,6 +332,7 @@ export function CurriculumImporter({ className }: CurriculumImporterProps) {
                       />
                       <span className="flex-1">{t.name}</span>
                       <span className="text-xs text-text-muted">{t.subjectName}</span>
+                      {t.notes && <span className="text-xs text-cyan max-w-[120px] truncate">{t.notes}</span>}
                     </label>
                   ))}
                 </div>
@@ -369,6 +371,7 @@ export function CurriculumImporter({ className }: CurriculumImporterProps) {
                       />
                       <span className="flex-1">{e.title}</span>
                       <span className="text-xs text-text-muted">{e.date || "—"}</span>
+                      {e.notes && <span className="text-xs text-cyan max-w-[120px] truncate">{e.notes}</span>}
                     </label>
                   ))}
                 </div>
@@ -407,6 +410,7 @@ export function CurriculumImporter({ className }: CurriculumImporterProps) {
                       />
                       <span className="flex-1">{t.title}</span>
                       <span className="text-xs text-text-muted">{t.date || "—"}</span>
+                      {t.notes && <span className="text-xs text-cyan max-w-[120px] truncate">{t.notes}</span>}
                     </label>
                   ))}
                 </div>
