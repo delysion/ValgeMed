@@ -1,12 +1,11 @@
 "use server";
 
 import { and, eq, sql } from "drizzle-orm";
-import { redirect } from "next/navigation";
 
 import { requireAuthUserId } from "@/lib/db/auth";
 import { getDb } from "@/lib/db";
 import { assertOwnedRelations, verifyOwnedId, FORBIDDEN_RELATION_MESSAGE } from "@/lib/db/ownership";
-import { parseForm, parseId, refresh } from "@/lib/utils/forms";
+import { parseForm, parseId, redirectToReturnPath, refresh } from "@/lib/utils/forms";
 import {
   dailyLogs,
   errorLogs,
@@ -71,7 +70,7 @@ export async function createSubjectAction(formData: FormData) {
   const data = parseForm(subjectSchema, formData);
   await db.insert(subjects).values({ ...data, userId });
   refresh(["/subjects", "/dashboard"]);
-  redirect("/subjects");
+  redirectToReturnPath(formData, "/subjects");
 }
 
 export async function updateSubjectAction(formData: FormData) {
@@ -80,14 +79,14 @@ export async function updateSubjectAction(formData: FormData) {
   const data = parseForm(subjectSchema, formData);
   await db.update(subjects).set({ ...data, updatedAt: new Date() }).where(and(eq(subjects.id, recordId), eq(subjects.userId, userId)));
   refresh(["/subjects", "/dashboard"]);
-  redirect("/subjects");
+  redirectToReturnPath(formData, "/subjects");
 }
 
 export async function deleteSubjectAction(formData: FormData) {
   const { db, userId } = await authorizedDb();
   await db.delete(subjects).where(and(eq(subjects.id, parseId(formData)), eq(subjects.userId, userId)));
   refresh(["/subjects", "/dashboard"]);
-  redirect("/subjects");
+  redirectToReturnPath(formData, "/subjects");
 }
 
 export async function createExamAction(formData: FormData) {
@@ -96,6 +95,7 @@ export async function createExamAction(formData: FormData) {
   await assertOwnedRelations(db, userId, data);
   await db.insert(exams).values({ ...data, userId });
   refresh(["/exams", "/dashboard"]);
+  redirectToReturnPath(formData);
 }
 
 export async function updateExamAction(formData: FormData) {
@@ -105,14 +105,14 @@ export async function updateExamAction(formData: FormData) {
   await assertOwnedRelations(db, userId, data);
   await db.update(exams).set({ ...data, updatedAt: new Date() }).where(and(eq(exams.id, recordId), eq(exams.userId, userId)));
   refresh(["/exams", `/exams/${recordId}`, "/dashboard"]);
-  redirect("/exams");
+  redirectToReturnPath(formData, "/exams");
 }
 
 export async function deleteExamAction(formData: FormData) {
   const { db, userId } = await authorizedDb();
   await db.delete(exams).where(and(eq(exams.id, parseId(formData)), eq(exams.userId, userId)));
   refresh(["/exams", "/dashboard"]);
-  redirect("/exams");
+  redirectToReturnPath(formData, "/exams");
 }
 
 export async function createTopicAction(formData: FormData) {
@@ -121,6 +121,7 @@ export async function createTopicAction(formData: FormData) {
   await assertOwnedRelations(db, userId, data);
   await db.insert(topics).values({ ...data, userId });
   refresh(["/topics", "/dashboard"]);
+  redirectToReturnPath(formData);
 }
 
 export async function updateTopicAction(formData: FormData) {
@@ -130,14 +131,14 @@ export async function updateTopicAction(formData: FormData) {
   await assertOwnedRelations(db, userId, data);
   await db.update(topics).set({ ...data, updatedAt: new Date() }).where(and(eq(topics.id, recordId), eq(topics.userId, userId)));
   refresh(["/topics", "/dashboard"]);
-  redirect("/topics");
+  redirectToReturnPath(formData, "/topics");
 }
 
 export async function deleteTopicAction(formData: FormData) {
   const { db, userId } = await authorizedDb();
   await db.delete(topics).where(and(eq(topics.id, parseId(formData)), eq(topics.userId, userId)));
   refresh(["/topics", "/dashboard"]);
-  redirect("/topics");
+  redirectToReturnPath(formData, "/topics");
 }
 
 export async function createStudySessionAction(formData: FormData) {
@@ -153,8 +154,8 @@ export async function createStudySessionAction(formData: FormData) {
       .where(and(eq(topics.id, data.topicId), eq(topics.userId, userId)));
   }
 
-  refresh(["/study-sessions", "/topics", "/dashboard"]);
-  redirect("/study-sessions");
+  refresh(["/study", "/study-sessions", "/topics", "/dashboard"]);
+  redirectToReturnPath(formData, "/study-sessions");
 }
 
 export async function updateStudySessionAction(formData: FormData) {
@@ -163,15 +164,15 @@ export async function updateStudySessionAction(formData: FormData) {
   const data = parseForm(studySessionSchema, formData);
   await assertOwnedRelations(db, userId, data);
   await db.update(studySessions).set(data).where(and(eq(studySessions.id, recordId), eq(studySessions.userId, userId)));
-  refresh(["/study-sessions", "/dashboard"]);
-  redirect("/study-sessions");
+  refresh(["/study", "/study-sessions", "/dashboard"]);
+  redirectToReturnPath(formData, "/study-sessions");
 }
 
 export async function deleteStudySessionAction(formData: FormData) {
   const { db, userId } = await authorizedDb();
   await db.delete(studySessions).where(and(eq(studySessions.id, parseId(formData)), eq(studySessions.userId, userId)));
-  refresh(["/study-sessions", "/dashboard"]);
-  redirect("/study-sessions");
+  refresh(["/study", "/study-sessions", "/dashboard"]);
+  redirectToReturnPath(formData, "/study-sessions");
 }
 
 export async function createReviewItemAction(formData: FormData) {
@@ -180,6 +181,7 @@ export async function createReviewItemAction(formData: FormData) {
   await assertOwnedRelations(db, userId, data);
   await db.insert(reviewItems).values({ ...data, userId });
   refresh(["/reviews", "/dashboard"]);
+  redirectToReturnPath(formData);
 }
 
 export async function updateReviewItemAction(formData: FormData) {
@@ -189,7 +191,7 @@ export async function updateReviewItemAction(formData: FormData) {
   await assertOwnedRelations(db, userId, data);
   await db.update(reviewItems).set({ ...data, updatedAt: new Date() }).where(and(eq(reviewItems.id, recordId), eq(reviewItems.userId, userId)));
   refresh(["/reviews", "/dashboard"]);
-  redirect("/reviews");
+  redirectToReturnPath(formData, "/reviews");
 }
 
 export async function markReviewItemReviewedAction(formData: FormData) {
@@ -224,7 +226,7 @@ export async function deleteReviewItemAction(formData: FormData) {
   const { db, userId } = await authorizedDb();
   await db.delete(reviewItems).where(and(eq(reviewItems.id, parseId(formData)), eq(reviewItems.userId, userId)));
   refresh(["/reviews", "/dashboard"]);
-  redirect("/reviews");
+  redirectToReturnPath(formData, "/reviews");
 }
 
 export async function createErrorLogAction(formData: FormData) {
@@ -233,6 +235,7 @@ export async function createErrorLogAction(formData: FormData) {
   await assertOwnedRelations(db, userId, data);
   await db.insert(errorLogs).values({ ...data, userId });
   refresh(["/errors", "/dashboard"]);
+  redirectToReturnPath(formData);
 }
 
 export async function updateErrorLogAction(formData: FormData) {
@@ -242,7 +245,7 @@ export async function updateErrorLogAction(formData: FormData) {
   await assertOwnedRelations(db, userId, data);
   await db.update(errorLogs).set({ ...data, updatedAt: new Date() }).where(and(eq(errorLogs.id, recordId), eq(errorLogs.userId, userId)));
   refresh(["/errors", "/dashboard"]);
-  redirect("/errors");
+  redirectToReturnPath(formData, "/errors");
 }
 
 export async function toggleErrorResolvedAction(formData: FormData) {
@@ -262,7 +265,7 @@ export async function deleteErrorLogAction(formData: FormData) {
   const { db, userId } = await authorizedDb();
   await db.delete(errorLogs).where(and(eq(errorLogs.id, parseId(formData)), eq(errorLogs.userId, userId)));
   refresh(["/errors", "/dashboard"]);
-  redirect("/errors");
+  redirectToReturnPath(formData, "/errors");
 }
 
 export async function createQuizAttemptAction(formData: FormData) {
@@ -271,6 +274,7 @@ export async function createQuizAttemptAction(formData: FormData) {
   await assertOwnedRelations(db, userId, data);
   await db.insert(quizAttempts).values({ ...data, userId });
   refresh(["/exams", "/dashboard"]);
+  redirectToReturnPath(formData);
 }
 
 export async function updateQuizAttemptAction(formData: FormData) {
@@ -280,7 +284,7 @@ export async function updateQuizAttemptAction(formData: FormData) {
   await assertOwnedRelations(db, userId, data);
   await db.update(quizAttempts).set(data).where(and(eq(quizAttempts.id, recordId), eq(quizAttempts.userId, userId)));
   refresh(["/exams", "/dashboard"]);
-  redirect("/exams");
+  redirectToReturnPath(formData, "/exams");
 }
 
 export async function deleteQuizAttemptAction(formData: FormData) {
@@ -303,6 +307,7 @@ export async function upsertDailyLogAction(formData: FormData) {
       },
     });
   refresh(["/daily-log", "/dashboard"]);
+  redirectToReturnPath(formData);
 }
 
 export async function updateDailyLogAction(formData: FormData) {
@@ -311,14 +316,14 @@ export async function updateDailyLogAction(formData: FormData) {
   const data = parseForm(dailyLogSchema, formData);
   await db.update(dailyLogs).set({ ...data, updatedAt: new Date() }).where(and(eq(dailyLogs.id, recordId), eq(dailyLogs.userId, userId)));
   refresh(["/daily-log", "/dashboard"]);
-  redirect("/daily-log");
+  redirectToReturnPath(formData, "/daily-log");
 }
 
 export async function deleteDailyLogAction(formData: FormData) {
   const { db, userId } = await authorizedDb();
   await db.delete(dailyLogs).where(and(eq(dailyLogs.id, parseId(formData)), eq(dailyLogs.userId, userId)));
   refresh(["/daily-log", "/dashboard"]);
-  redirect("/daily-log");
+  redirectToReturnPath(formData, "/daily-log");
 }
 
 export async function createGoalAction(formData: FormData) {
@@ -326,6 +331,7 @@ export async function createGoalAction(formData: FormData) {
   const data = parseForm(goalSchema, formData);
   await db.insert(goals).values({ ...data, userId });
   refresh(["/goals", "/dashboard"]);
+  redirectToReturnPath(formData);
 }
 
 export async function updateGoalAction(formData: FormData) {
@@ -334,14 +340,14 @@ export async function updateGoalAction(formData: FormData) {
   const data = parseForm(goalSchema, formData);
   await db.update(goals).set({ ...data, updatedAt: new Date() }).where(and(eq(goals.id, recordId), eq(goals.userId, userId)));
   refresh(["/goals", "/dashboard"]);
-  redirect("/goals");
+  redirectToReturnPath(formData, "/goals");
 }
 
 export async function deleteGoalAction(formData: FormData) {
   const { db, userId } = await authorizedDb();
   await db.delete(goals).where(and(eq(goals.id, parseId(formData)), eq(goals.userId, userId)));
   refresh(["/goals", "/dashboard"]);
-  redirect("/goals");
+  redirectToReturnPath(formData, "/goals");
 }
 
 export async function createTaskAction(formData: FormData) {
@@ -350,6 +356,7 @@ export async function createTaskAction(formData: FormData) {
   await assertOwnedRelations(db, userId, data);
   await db.insert(tasks).values({ ...data, userId });
   refresh(["/goals", "/dashboard"]);
+  redirectToReturnPath(formData);
 }
 
 export async function updateTaskAction(formData: FormData) {
@@ -359,14 +366,14 @@ export async function updateTaskAction(formData: FormData) {
   await assertOwnedRelations(db, userId, data);
   await db.update(tasks).set({ ...data, updatedAt: new Date() }).where(and(eq(tasks.id, recordId), eq(tasks.userId, userId)));
   refresh(["/goals", "/dashboard"]);
-  redirect("/goals");
+  redirectToReturnPath(formData, "/goals");
 }
 
 export async function deleteTaskAction(formData: FormData) {
   const { db, userId } = await authorizedDb();
   await db.delete(tasks).where(and(eq(tasks.id, parseId(formData)), eq(tasks.userId, userId)));
   refresh(["/goals", "/dashboard"]);
-  redirect("/goals");
+  redirectToReturnPath(formData, "/goals");
 }
 
 export async function createIdentityNoteAction(formData: FormData) {
@@ -374,6 +381,7 @@ export async function createIdentityNoteAction(formData: FormData) {
   const data = parseForm(identityNoteSchema, formData);
   await db.insert(identityNotes).values({ ...data, userId });
   refresh(["/identity", "/goals", "/dashboard"]);
+  redirectToReturnPath(formData);
 }
 
 export async function updateIdentityNoteAction(formData: FormData) {
@@ -385,14 +393,14 @@ export async function updateIdentityNoteAction(formData: FormData) {
     .set({ ...data, updatedAt: new Date() })
     .where(and(eq(identityNotes.id, recordId), eq(identityNotes.userId, userId)));
   refresh(["/identity", "/goals", "/dashboard"]);
-  redirect("/identity");
+  redirectToReturnPath(formData, "/identity");
 }
 
 export async function deleteIdentityNoteAction(formData: FormData) {
   const { db, userId } = await authorizedDb();
   await db.delete(identityNotes).where(and(eq(identityNotes.id, parseId(formData)), eq(identityNotes.userId, userId)));
   refresh(["/identity", "/goals", "/dashboard"]);
-  redirect("/identity");
+  redirectToReturnPath(formData, "/identity");
 }
 
 export async function createTartuNoteAction(formData: FormData) {
@@ -400,6 +408,7 @@ export async function createTartuNoteAction(formData: FormData) {
   const data = parseForm(tartuNoteSchema, formData);
   await db.insert(tartuNotes).values({ ...data, userId });
   refresh(["/tartu", "/command"]);
+  redirectToReturnPath(formData);
 }
 
 export async function updateTartuNoteAction(formData: FormData) {
@@ -408,14 +417,14 @@ export async function updateTartuNoteAction(formData: FormData) {
   const data = parseForm(tartuNoteSchema, formData);
   await db.update(tartuNotes).set({ ...data, updatedAt: new Date() }).where(and(eq(tartuNotes.id, recordId), eq(tartuNotes.userId, userId)));
   refresh(["/tartu", "/command"]);
-  redirect("/tartu");
+  redirectToReturnPath(formData, "/tartu");
 }
 
 export async function deleteTartuNoteAction(formData: FormData) {
   const { db, userId } = await authorizedDb();
   await db.delete(tartuNotes).where(and(eq(tartuNotes.id, parseId(formData)), eq(tartuNotes.userId, userId)));
   refresh(["/tartu", "/command"]);
-  redirect("/tartu");
+  redirectToReturnPath(formData, "/tartu");
 }
 
 export async function createTimeBlockAction(formData: FormData) {
@@ -423,6 +432,7 @@ export async function createTimeBlockAction(formData: FormData) {
   const data = parseForm(timeBlockSchema, formData);
   await db.insert(timeBlocks).values({ ...data, userId });
   refresh(["/time", "/command", "/elite-index"]);
+  redirectToReturnPath(formData);
 }
 
 export async function updateTimeBlockAction(formData: FormData) {
@@ -431,14 +441,14 @@ export async function updateTimeBlockAction(formData: FormData) {
   const data = parseForm(timeBlockSchema, formData);
   await db.update(timeBlocks).set({ ...data, updatedAt: new Date() }).where(and(eq(timeBlocks.id, recordId), eq(timeBlocks.userId, userId)));
   refresh(["/time", "/command", "/elite-index"]);
-  redirect("/time");
+  redirectToReturnPath(formData, "/time");
 }
 
 export async function deleteTimeBlockAction(formData: FormData) {
   const { db, userId } = await authorizedDb();
   await db.delete(timeBlocks).where(and(eq(timeBlocks.id, parseId(formData)), eq(timeBlocks.userId, userId)));
   refresh(["/time", "/command", "/elite-index"]);
-  redirect("/time");
+  redirectToReturnPath(formData, "/time");
 }
 
 export async function createHealthLogAction(formData: FormData) {
@@ -452,6 +462,7 @@ export async function createHealthLogAction(formData: FormData) {
       set: { ...data, updatedAt: new Date() },
     });
   refresh(["/health", "/command", "/elite-index"]);
+  redirectToReturnPath(formData);
 }
 
 export async function updateHealthLogAction(formData: FormData) {
@@ -460,14 +471,14 @@ export async function updateHealthLogAction(formData: FormData) {
   const data = parseForm(healthLogSchema, formData);
   await db.update(healthLogs).set({ ...data, updatedAt: new Date() }).where(and(eq(healthLogs.id, recordId), eq(healthLogs.userId, userId)));
   refresh(["/health", "/command", "/elite-index"]);
-  redirect("/health");
+  redirectToReturnPath(formData, "/health");
 }
 
 export async function deleteHealthLogAction(formData: FormData) {
   const { db, userId } = await authorizedDb();
   await db.delete(healthLogs).where(and(eq(healthLogs.id, parseId(formData)), eq(healthLogs.userId, userId)));
   refresh(["/health", "/command", "/elite-index"]);
-  redirect("/health");
+  redirectToReturnPath(formData, "/health");
 }
 
 export async function createLanguageProgressAction(formData: FormData) {
@@ -475,6 +486,7 @@ export async function createLanguageProgressAction(formData: FormData) {
   const data = parseForm(languageProgressSchema, formData);
   await db.insert(languageProgress).values({ ...data, userId });
   refresh(["/language", "/command", "/elite-index"]);
+  redirectToReturnPath(formData);
 }
 
 export async function updateLanguageProgressAction(formData: FormData) {
@@ -483,14 +495,14 @@ export async function updateLanguageProgressAction(formData: FormData) {
   const data = parseForm(languageProgressSchema, formData);
   await db.update(languageProgress).set({ ...data, updatedAt: new Date() }).where(and(eq(languageProgress.id, recordId), eq(languageProgress.userId, userId)));
   refresh(["/language", "/command", "/elite-index"]);
-  redirect("/language");
+  redirectToReturnPath(formData, "/language");
 }
 
 export async function deleteLanguageProgressAction(formData: FormData) {
   const { db, userId } = await authorizedDb();
   await db.delete(languageProgress).where(and(eq(languageProgress.id, parseId(formData)), eq(languageProgress.userId, userId)));
   refresh(["/language", "/command", "/elite-index"]);
-  redirect("/language");
+  redirectToReturnPath(formData, "/language");
 }
 
 export async function createReputationEventAction(formData: FormData) {
@@ -498,6 +510,7 @@ export async function createReputationEventAction(formData: FormData) {
   const data = parseForm(reputationEventSchema, formData);
   await db.insert(reputationEvents).values({ ...data, userId });
   refresh(["/reputation", "/command", "/elite-index"]);
+  redirectToReturnPath(formData);
 }
 
 export async function updateReputationEventAction(formData: FormData) {
@@ -506,14 +519,14 @@ export async function updateReputationEventAction(formData: FormData) {
   const data = parseForm(reputationEventSchema, formData);
   await db.update(reputationEvents).set({ ...data, updatedAt: new Date() }).where(and(eq(reputationEvents.id, recordId), eq(reputationEvents.userId, userId)));
   refresh(["/reputation", "/command", "/elite-index"]);
-  redirect("/reputation");
+  redirectToReturnPath(formData, "/reputation");
 }
 
 export async function deleteReputationEventAction(formData: FormData) {
   const { db, userId } = await authorizedDb();
   await db.delete(reputationEvents).where(and(eq(reputationEvents.id, parseId(formData)), eq(reputationEvents.userId, userId)));
   refresh(["/reputation", "/command", "/elite-index"]);
-  redirect("/reputation");
+  redirectToReturnPath(formData, "/reputation");
 }
 
 export async function createOpportunityAction(formData: FormData) {
@@ -521,6 +534,7 @@ export async function createOpportunityAction(formData: FormData) {
   const data = parseForm(opportunitySchema, formData);
   await db.insert(opportunities).values({ ...data, userId });
   refresh(["/opportunities", "/command", "/elite-index"]);
+  redirectToReturnPath(formData);
 }
 
 export async function updateOpportunityAction(formData: FormData) {
@@ -529,14 +543,14 @@ export async function updateOpportunityAction(formData: FormData) {
   const data = parseForm(opportunitySchema, formData);
   await db.update(opportunities).set({ ...data, updatedAt: new Date() }).where(and(eq(opportunities.id, recordId), eq(opportunities.userId, userId)));
   refresh(["/opportunities", "/command", "/elite-index"]);
-  redirect("/opportunities");
+  redirectToReturnPath(formData, "/opportunities");
 }
 
 export async function deleteOpportunityAction(formData: FormData) {
   const { db, userId } = await authorizedDb();
   await db.delete(opportunities).where(and(eq(opportunities.id, parseId(formData)), eq(opportunities.userId, userId)));
   refresh(["/opportunities", "/command", "/elite-index"]);
-  redirect("/opportunities");
+  redirectToReturnPath(formData, "/opportunities");
 }
 
 export async function createProfessionalContactAction(formData: FormData) {
@@ -544,6 +558,7 @@ export async function createProfessionalContactAction(formData: FormData) {
   const data = parseForm(professionalContactSchema, formData);
   await db.insert(professionalContacts).values({ ...data, userId });
   refresh(["/network", "/command"]);
+  redirectToReturnPath(formData);
 }
 
 export async function updateProfessionalContactAction(formData: FormData) {
@@ -552,14 +567,14 @@ export async function updateProfessionalContactAction(formData: FormData) {
   const data = parseForm(professionalContactSchema, formData);
   await db.update(professionalContacts).set({ ...data, updatedAt: new Date() }).where(and(eq(professionalContacts.id, recordId), eq(professionalContacts.userId, userId)));
   refresh(["/network", "/command"]);
-  redirect("/network");
+  redirectToReturnPath(formData, "/network");
 }
 
 export async function deleteProfessionalContactAction(formData: FormData) {
   const { db, userId } = await authorizedDb();
   await db.delete(professionalContacts).where(and(eq(professionalContacts.id, parseId(formData)), eq(professionalContacts.userId, userId)));
   refresh(["/network", "/command"]);
-  redirect("/network");
+  redirectToReturnPath(formData, "/network");
 }
 
 export async function createLifeAdminItemAction(formData: FormData) {
@@ -567,6 +582,7 @@ export async function createLifeAdminItemAction(formData: FormData) {
   const data = parseForm(lifeAdminItemSchema, formData);
   await db.insert(lifeAdminItems).values({ ...data, userId });
   refresh(["/life-admin", "/command"]);
+  redirectToReturnPath(formData);
 }
 
 export async function updateLifeAdminItemAction(formData: FormData) {
@@ -575,14 +591,14 @@ export async function updateLifeAdminItemAction(formData: FormData) {
   const data = parseForm(lifeAdminItemSchema, formData);
   await db.update(lifeAdminItems).set({ ...data, updatedAt: new Date() }).where(and(eq(lifeAdminItems.id, recordId), eq(lifeAdminItems.userId, userId)));
   refresh(["/life-admin", "/command"]);
-  redirect("/life-admin");
+  redirectToReturnPath(formData, "/life-admin");
 }
 
 export async function deleteLifeAdminItemAction(formData: FormData) {
   const { db, userId } = await authorizedDb();
   await db.delete(lifeAdminItems).where(and(eq(lifeAdminItems.id, parseId(formData)), eq(lifeAdminItems.userId, userId)));
   refresh(["/life-admin", "/command"]);
-  redirect("/life-admin");
+  redirectToReturnPath(formData, "/life-admin");
 }
 
 export async function createPortfolioItemAction(formData: FormData) {
@@ -590,6 +606,7 @@ export async function createPortfolioItemAction(formData: FormData) {
   const data = parseForm(portfolioItemSchema, formData);
   await db.insert(portfolioItems).values({ ...data, userId });
   refresh(["/portfolio", "/elite-index"]);
+  redirectToReturnPath(formData);
 }
 
 export async function updatePortfolioItemAction(formData: FormData) {
@@ -598,14 +615,14 @@ export async function updatePortfolioItemAction(formData: FormData) {
   const data = parseForm(portfolioItemSchema, formData);
   await db.update(portfolioItems).set({ ...data, updatedAt: new Date() }).where(and(eq(portfolioItems.id, recordId), eq(portfolioItems.userId, userId)));
   refresh(["/portfolio", "/elite-index"]);
-  redirect("/portfolio");
+  redirectToReturnPath(formData, "/portfolio");
 }
 
 export async function deletePortfolioItemAction(formData: FormData) {
   const { db, userId } = await authorizedDb();
   await db.delete(portfolioItems).where(and(eq(portfolioItems.id, parseId(formData)), eq(portfolioItems.userId, userId)));
   refresh(["/portfolio", "/elite-index"]);
-  redirect("/portfolio");
+  redirectToReturnPath(formData, "/portfolio");
 }
 
 export async function createStrategicReviewAction(formData: FormData) {
@@ -613,6 +630,7 @@ export async function createStrategicReviewAction(formData: FormData) {
   const data = parseForm(strategicReviewSchema, formData);
   await db.insert(strategicReviews).values({ ...data, userId });
   refresh(["/strategic-review", "/elite-index"]);
+  redirectToReturnPath(formData);
 }
 
 export async function updateStrategicReviewAction(formData: FormData) {
@@ -621,12 +639,12 @@ export async function updateStrategicReviewAction(formData: FormData) {
   const data = parseForm(strategicReviewSchema, formData);
   await db.update(strategicReviews).set({ ...data, updatedAt: new Date() }).where(and(eq(strategicReviews.id, recordId), eq(strategicReviews.userId, userId)));
   refresh(["/strategic-review", "/elite-index"]);
-  redirect("/strategic-review");
+  redirectToReturnPath(formData, "/strategic-review");
 }
 
 export async function deleteStrategicReviewAction(formData: FormData) {
   const { db, userId } = await authorizedDb();
   await db.delete(strategicReviews).where(and(eq(strategicReviews.id, parseId(formData)), eq(strategicReviews.userId, userId)));
   refresh(["/strategic-review", "/elite-index"]);
-  redirect("/strategic-review");
+  redirectToReturnPath(formData, "/strategic-review");
 }

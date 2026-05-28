@@ -30,9 +30,9 @@ export default async function ReviewsPage({
   return (
     <AppShell user={user}>
       <PageHeader title={t("reviews.title")} description={t("reviews.subtitle")} />
-      <div className="grid gap-4 xl:grid-cols-[460px_1fr]">
+      <div className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,460px)_minmax(0,1fr)]">
         <ReviewItemForm item={editing} subjects={subjects} topics={topics} t={t as (key: string) => string} />
-        <div className="space-y-4">
+        <div className="min-w-0 space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <Card>
               <CardHeader>
@@ -63,7 +63,7 @@ export default async function ReviewsPage({
               </CardContent>
             </Card>
           </div>
-          <Card>
+          <Card className="min-w-0 overflow-hidden">
             <CardHeader>
               <CardTitle>{t("reviews.title")}</CardTitle>
             </CardHeader>

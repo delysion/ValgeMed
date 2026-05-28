@@ -92,13 +92,14 @@ export function TartuNoteForm({ note }: { note?: TartuNote }) {
     <FormCard title={note ? t("lifeForm.tartuNote.editTitle") : t("lifeForm.tartuNote.title")} description={t("lifeForm.tartuNote.desc")}>
   <form action={note ? updateTartuNoteAction : createTartuNoteAction} className="space-y-5">
     {note ? <input type="hidden" name="id" value={note.id} /> : null}
+    <input type="hidden" name="returnTo" value="/tartu" />
     <FieldGrid>
           <TextField label={t("lifeForm.tartuNote.titleLabel")} name="title" defaultValue={note?.title} required />
           <NativeSelectField label={t("lifeForm.tartuNote.categoryLabel")} name="category" options={optionize(tartuNoteCategories)} defaultValue={note?.category ?? "tartu_life"} />
           <NativeSelectField label={t("lifeForm.tartuNote.statusLabel")} name="status" options={optionize(taskStatuses)} defaultValue={note?.status ?? "todo"} />
           <TextField label={t("lifeForm.tartuNote.priorityLabel")} name="priority" type="number" min={0} max={10} defaultValue={note?.priority ?? 0} />
         </FieldGrid>
-        <TextAreaField label={t("lifeForm.tartuNote.contentLabel")} name="content" defaultValue={note?.content} />
+        <TextAreaField label={t("lifeForm.tartuNote.contentLabel")} name="content" defaultValue={note?.content} required />
         <SubmitBar label={note ? t("lifeForm.tartuNote.submitEdit") : t("lifeForm.tartuNote.submitCreate")} cancelHref={note ? "/tartu" : undefined} />
       </form>
     </FormCard>
@@ -111,8 +112,9 @@ export function TimeBlockForm({ block }: { block?: TimeBlock }) {
     <FormCard title={block ? t("lifeForm.timeBlock.editTitle") : t("lifeForm.timeBlock.title")} description={t("lifeForm.timeBlock.desc")}>
       <form action={block ? updateTimeBlockAction : createTimeBlockAction} className="space-y-5">
         {block ? <input type="hidden" name="id" value={block.id} /> : null}
+        <input type="hidden" name="returnTo" value="/time" />
         <FieldGrid>
-          <TextField label={t("lifeForm.timeBlock.dateLabel")} name="date" type="date" defaultValue={block?.date ?? formatISO(new Date(), { representation: "date" })} />
+          <TextField label={t("lifeForm.timeBlock.dateLabel")} name="date" type="date" defaultValue={block?.date ?? formatISO(new Date(), { representation: "date" })} required />
           <TextField label={t("lifeForm.timeBlock.titleLabel")} name="title" defaultValue={block?.title} required />
           <NativeSelectField label={t("lifeForm.timeBlock.typeLabel")} name="blockType" options={optionize(timeBlockTypes)} defaultValue={block?.blockType ?? "study"} />
           <TextField label={t("lifeForm.timeBlock.plannedLabel")} name="plannedMinutes" type="number" defaultValue={block?.plannedMinutes ?? 50} />
@@ -133,9 +135,10 @@ export function HealthLogForm({ log }: { log?: HealthLog }) {
     <FormCard title={log ? t("lifeForm.healthLog.editTitle") : t("lifeForm.healthLog.title")} description={t("lifeForm.healthLog.desc")}>
       <form action={log ? updateHealthLogAction : createHealthLogAction} className="space-y-5">
         {log ? <input type="hidden" name="id" value={log.id} /> : null}
+        <input type="hidden" name="returnTo" value="/health" />
         <input type="hidden" name="movementDone" value="false" />
         <FieldGrid>
-          <TextField label={t("lifeForm.healthLog.dateLabel")} name="date" type="date" defaultValue={log?.date ?? formatISO(new Date(), { representation: "date" })} />
+          <TextField label={t("lifeForm.healthLog.dateLabel")} name="date" type="date" defaultValue={log?.date ?? formatISO(new Date(), { representation: "date" })} required />
           <TextField label={t("lifeForm.healthLog.sleepQualityLabel")} name="sleepQuality" type="number" min={0} max={10} defaultValue={log?.sleepQuality ?? ""} />
           <TextField label={t("lifeForm.healthLog.cognitiveFatigueLabel")} name="cognitiveFatigue" type="number" min={0} max={10} defaultValue={log?.cognitiveFatigue ?? ""} />
           <TextField label={t("lifeForm.healthLog.recoveryLabel")} name="recoveryQuality" type="number" min={0} max={10} defaultValue={log?.recoveryQuality ?? ""} />
@@ -158,6 +161,7 @@ export function LanguageProgressForm({ item }: { item?: LanguageProgress }) {
     <FormCard title={item ? t("lifeForm.languageProgress.editTitle") : t("lifeForm.languageProgress.title")} description={t("lifeForm.languageProgress.desc")}>
       <form action={item ? updateLanguageProgressAction : createLanguageProgressAction} className="space-y-5">
         {item ? <input type="hidden" name="id" value={item.id} /> : null}
+        <input type="hidden" name="returnTo" value="/language" />
         <FieldGrid>
           <NativeSelectField label={t("lifeForm.languageProgress.languageLabel")} name="language" options={optionize(languages)} defaultValue={item?.language ?? "estonian"} />
           <TextField label={t("lifeForm.languageProgress.titleLabel")} name="title" defaultValue={item?.title} required />
@@ -180,10 +184,11 @@ export function ReputationEventForm({ event }: { event?: ReputationEvent }) {
     <FormCard title={event ? t("lifeForm.reputationEvent.editTitle") : t("lifeForm.reputationEvent.title")} description={t("lifeForm.reputationEvent.desc")}>
       <form action={event ? updateReputationEventAction : createReputationEventAction} className="space-y-5">
         {event ? <input type="hidden" name="id" value={event.id} /> : null}
+        <input type="hidden" name="returnTo" value="/reputation" />
         <FieldGrid>
           <TextField label={t("lifeForm.reputationEvent.titleLabel")} name="title" defaultValue={event?.title} required />
           <NativeSelectField label={t("lifeForm.reputationEvent.typeLabel")} name="eventType" options={optionize(reputationEventTypes)} defaultValue={event?.eventType ?? "reliability_signal"} />
-          <TextField label={t("lifeForm.reputationEvent.dateLabel")} name="eventDate" type="date" defaultValue={event?.eventDate ?? formatISO(new Date(), { representation: "date" })} />
+          <TextField label={t("lifeForm.reputationEvent.dateLabel")} name="eventDate" type="date" defaultValue={event?.eventDate ?? formatISO(new Date(), { representation: "date" })} required />
           <TextField label={t("lifeForm.reputationEvent.impactLabel")} name="impact" type="number" min={0} max={10} defaultValue={event?.impact ?? 5} />
           <TextField label={t("lifeForm.reputationEvent.evidenceUrlLabel")} name="evidenceUrl" defaultValue={event?.evidenceUrl} />
           <TextField label={t("lifeForm.reputationEvent.followUpLabel")} name="followUpAt" type="date" defaultValue={dateValue(event?.followUpAt)} />
@@ -202,6 +207,7 @@ export function OpportunityForm({ opportunity }: { opportunity?: Opportunity }) 
     <FormCard title={opportunity ? t("lifeForm.opportunity.editTitle") : t("lifeForm.opportunity.title")} description={t("lifeForm.opportunity.desc")}>
       <form action={opportunity ? updateOpportunityAction : createOpportunityAction} className="space-y-5">
         {opportunity ? <input type="hidden" name="id" value={opportunity.id} /> : null}
+        <input type="hidden" name="returnTo" value="/opportunities" />
         <FieldGrid>
           <TextField label={t("lifeForm.opportunity.titleLabel")} name="title" defaultValue={opportunity?.title} required />
           <NativeSelectField label={t("lifeForm.opportunity.typeLabel")} name="opportunityType" options={optionize(opportunityTypes)} defaultValue={opportunity?.opportunityType ?? "other"} />
@@ -225,6 +231,7 @@ export function ProfessionalContactForm({ contact }: { contact?: ProfessionalCon
     <FormCard title={contact ? t("lifeForm.professionalContact.editTitle") : t("lifeForm.professionalContact.title")} description={t("lifeForm.professionalContact.desc")}>
       <form action={contact ? updateProfessionalContactAction : createProfessionalContactAction} className="space-y-5">
         {contact ? <input type="hidden" name="id" value={contact.id} /> : null}
+        <input type="hidden" name="returnTo" value="/network" />
         <FieldGrid>
           <TextField label={t("lifeForm.professionalContact.nameLabel")} name="name" defaultValue={contact?.name} required />
           <TextField label={t("lifeForm.professionalContact.roleLabel")} name="role" defaultValue={contact?.role} />
@@ -249,6 +256,7 @@ export function LifeAdminItemForm({ item }: { item?: LifeAdminItem }) {
     <FormCard title={item ? t("lifeForm.lifeAdmin.editTitle") : t("lifeForm.lifeAdmin.title")} description={t("lifeForm.lifeAdmin.desc")}>
       <form action={item ? updateLifeAdminItemAction : createLifeAdminItemAction} className="space-y-5">
         {item ? <input type="hidden" name="id" value={item.id} /> : null}
+        <input type="hidden" name="returnTo" value="/life-admin" />
         <input type="hidden" name="fileUrl" value={fileUrl} />
         <input type="hidden" name="fileName" value={fileName} />
         <FieldGrid>
@@ -285,6 +293,7 @@ export function PortfolioItemForm({ item }: { item?: PortfolioItem }) {
     <FormCard title={item ? t("lifeForm.portfolioItem.editTitle") : t("lifeForm.portfolioItem.title")} description={t("lifeForm.portfolioItem.desc")}>
       <form action={item ? updatePortfolioItemAction : createPortfolioItemAction} className="space-y-5">
         {item ? <input type="hidden" name="id" value={item.id} /> : null}
+        <input type="hidden" name="returnTo" value="/portfolio" />
         <FieldGrid>
           <TextField label={t("lifeForm.portfolioItem.titleLabel")} name="title" defaultValue={item?.title} required />
           <NativeSelectField label={t("lifeForm.portfolioItem.typeLabel")} name="itemType" options={optionize(portfolioItemTypes)} defaultValue={item?.itemType ?? "other"} />
@@ -306,8 +315,9 @@ export function StrategicReviewForm({ review }: { review?: StrategicReview }) {
     <FormCard title={review ? t("lifeForm.strategicReview.editTitle") : t("lifeForm.strategicReview.title")} description={t("lifeForm.strategicReview.desc")}>
       <form action={review ? updateStrategicReviewAction : createStrategicReviewAction} className="space-y-5">
         {review ? <input type="hidden" name="id" value={review.id} /> : null}
+        <input type="hidden" name="returnTo" value="/strategic-review" />
         <FieldGrid>
-          <TextField label={t("lifeForm.strategicReview.dateLabel")} name="date" type="date" defaultValue={review?.date ?? formatISO(new Date(), { representation: "date" })} />
+          <TextField label={t("lifeForm.strategicReview.dateLabel")} name="date" type="date" defaultValue={review?.date ?? formatISO(new Date(), { representation: "date" })} required />
           <NativeSelectField label={t("lifeForm.strategicReview.typeLabel")} name="reviewType" options={optionize(strategicReviewTypes)} defaultValue={review?.reviewType ?? "weekly"} />
           <TextField label={t("lifeForm.strategicReview.eliteSnapshotLabel")} name="eliteIndexSnapshot" type="number" min={0} max={10} defaultValue={review?.eliteIndexSnapshot ?? 0} />
         </FieldGrid>

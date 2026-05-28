@@ -1,4 +1,4 @@
-import { Edit3 } from "lucide-react";
+import { Edit3, Eye } from "lucide-react";
 import type React from "react";
 
 import { DeleteButton } from "@/components/forms/delete-button";
@@ -10,9 +10,11 @@ export function ResourceTable<T extends { id: string }>({
   columns,
   editBasePath,
   editParam = "edit",
+  viewBasePath,
+  viewParam = "view",
   deleteAction,
   extraActions,
-  labels = { actions: "Actions", empty: "No data yet.", edit: "Edit", delete: "Delete" },
+  labels = { actions: "Actions", empty: "No data yet.", open: "Open", edit: "Edit", delete: "Delete" },
   emptyState,
 }: {
   rows: T[];
@@ -22,11 +24,14 @@ export function ResourceTable<T extends { id: string }>({
   }>;
   editBasePath: string;
   editParam?: string;
+  viewBasePath?: string;
+  viewParam?: string;
   deleteAction: (formData: FormData) => void | Promise<void>;
   extraActions?: (row: T) => React.ReactNode;
   labels?: {
     actions: string;
     empty: string;
+    open?: string;
     edit: string;
     delete: string;
   };
@@ -63,6 +68,13 @@ export function ResourceTable<T extends { id: string }>({
               </div>
               <div className="mt-4 flex justify-end gap-1 border-t border-border pt-3">
                 {extraActions?.(row)}
+                {viewBasePath ? (
+                  <Button asChild variant="ghost" size="icon">
+                    <a href={`${viewBasePath}?${viewParam}=${row.id}`} aria-label={labels.open ?? "Open"}>
+                      <Eye className="h-4 w-4" />
+                    </a>
+                  </Button>
+                ) : null}
                 <Button asChild variant="ghost" size="icon">
                   <a href={`${editBasePath}?${editParam}=${row.id}`} aria-label={labels.edit}>
                     <Edit3 className="h-4 w-4" />
@@ -109,6 +121,13 @@ export function ResourceTable<T extends { id: string }>({
                 <td className="px-3 py-2">
                   <div className="flex justify-end gap-1">
                     {extraActions?.(row)}
+                    {viewBasePath ? (
+                      <Button asChild variant="ghost" size="icon">
+                        <a href={`${viewBasePath}?${viewParam}=${row.id}`} aria-label={labels.open ?? "Open"}>
+                          <Eye className="h-4 w-4" />
+                        </a>
+                      </Button>
+                    ) : null}
                     <Button asChild variant="ghost" size="icon">
                       <a href={`${editBasePath}?${editParam}=${row.id}`} aria-label={labels.edit}>
                         <Edit3 className="h-4 w-4" />

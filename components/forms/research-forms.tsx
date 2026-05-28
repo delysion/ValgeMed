@@ -41,6 +41,7 @@ export function ResearchAreaForm({ area }: { area?: ResearchArea }) {
     >
       <form action={area ? updateResearchAreaAction : createResearchAreaAction} className="space-y-5">
         {area ? <input type="hidden" name="id" value={area.id} /> : null}
+        <input type="hidden" name="returnTo" value="/research" />
         <TextField name="name" label="Research area" required defaultValue={area?.name} placeholder="e.g. Medical education feedback loops" />
         <TextAreaField name="description" label="Why this area matters" defaultValue={area?.description} />
         <FieldGrid>
@@ -69,6 +70,7 @@ export function LiteratureGapForm({ gap, researchAreas = [] }: { gap?: Literatur
     >
       <form action={gap ? updateLiteratureGapAction : createLiteratureGapAction} className="space-y-5">
         {gap ? <input type="hidden" name="id" value={gap.id} /> : null}
+        <input type="hidden" name="returnTo" value="/research/literature" />
         <FieldGrid>
           <TextField name="title" label={t("common.title")} required defaultValue={gap?.title} />
           <NativeSelectField name="researchAreaId" label="Research area" options={areaOptions} defaultValue={gap?.researchAreaId ?? ""} />
@@ -98,6 +100,7 @@ export function HypothesisForm({ hypothesis }: { hypothesis?: Hypothesis }) {
     >
       <form action={hypothesis ? updateHypothesisAction : createHypothesisAction} className="space-y-5">
         {hypothesis ? <input type="hidden" name="id" value={hypothesis.id} /> : null}
+        <input type="hidden" name="returnTo" value="/research/hypotheses" />
         <FieldGrid>
           <TextField name="question" label="Research question" required defaultValue={hypothesis?.question} />
           <NativeSelectField name="status" label={t("common.status")} options={hypothesisStatusOptions} defaultValue={hypothesis?.status ?? "draft"} />
@@ -125,6 +128,7 @@ export function ManuscriptForm({ manuscript, hypotheses = [] }: { manuscript?: M
     >
       <form action={manuscript ? updateManuscriptAction : createManuscriptAction} className="space-y-5">
         {manuscript ? <input type="hidden" name="id" value={manuscript.id} /> : null}
+        <input type="hidden" name="returnTo" value="/research/manuscripts" />
         <FieldGrid>
           <TextField name="title" label={t("common.title")} required defaultValue={manuscript?.title} />
           <NativeSelectField name="hypothesisId" label="Hypothesis" options={hypothesisOptions} defaultValue={manuscript?.hypothesisId ?? ""} />

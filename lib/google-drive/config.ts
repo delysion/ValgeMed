@@ -2,7 +2,6 @@ export type GoogleDriveConfigIssue =
   | "missing_client_id"
   | "missing_api_key"
   | "missing_app_id"
-  | "missing_authorized_origins"
   | "origin_not_allowed";
 
 export type GoogleDriveConfigInput = {
@@ -48,8 +47,6 @@ export function getGoogleDriveConfig(input: GoogleDriveConfigInput) {
     issue = "missing_api_key";
   } else if (!appId) {
     issue = "missing_app_id";
-  } else if (currentOrigin && allowedOrigins.length === 0) {
-    issue = "missing_authorized_origins";
   } else if (currentOrigin && allowedOrigins.length > 0 && !allowedOrigins.includes(currentOrigin)) {
     issue = "origin_not_allowed";
   }

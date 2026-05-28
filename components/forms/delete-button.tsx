@@ -21,6 +21,7 @@ export function DeleteButton({
   confirmLabel = "Delete",
   cancelLabel = "Cancel",
   onClick,
+  returnTo,
 }: {
   action: (formData: FormData) => void | Promise<void>;
   id: string;
@@ -30,6 +31,7 @@ export function DeleteButton({
   confirmLabel?: string;
   cancelLabel?: string;
   onClick?: (e: React.MouseEvent) => void;
+  returnTo?: string;
 }) {
   return (
     <Dialog>
@@ -51,6 +53,7 @@ export function DeleteButton({
           </DialogClose>
           <form action={action}>
             <input type="hidden" name="id" value={id} />
+            {returnTo ? <input type="hidden" name="returnTo" value={returnTo} /> : null}
             <Button type="submit" variant="destructive">
               <Trash2 className="h-4 w-4" aria-hidden="true" />
               {confirmLabel}

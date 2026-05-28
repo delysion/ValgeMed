@@ -24,7 +24,7 @@ describe("Google Drive picker configuration", () => {
     ]);
   });
 
-  it("flags missing and origin-mismatched Google Drive config before opening OAuth", () => {
+  it("flags missing Google Drive config before opening OAuth without requiring a public origin env", () => {
     expect(getGoogleDriveConfig({}).issue).toBe("missing_client_id");
     expect(getGoogleDriveConfig({
       clientId: "123.apps.googleusercontent.com",
@@ -33,11 +33,10 @@ describe("Google Drive picker configuration", () => {
       clientId: "123-abc.apps.googleusercontent.com",
       apiKey: "AIza-test",
       currentOrigin: "http://localhost:3000",
-    }).issue).toBe("missing_authorized_origins");
+    }).issue).toBe(null);
     expect(getGoogleDriveConfig({
       clientId: "custom-client.apps.googleusercontent.com",
       apiKey: "AIza-test",
-      allowedOrigins: "http://localhost:3000",
       currentOrigin: "http://localhost:3000",
     }).issue).toBe("missing_app_id");
     expect(getGoogleDriveConfig({
@@ -48,11 +47,10 @@ describe("Google Drive picker configuration", () => {
     }).issue).toBe("origin_not_allowed");
   });
 
-  it("enables Drive only when the current browser origin is explicitly allowlisted", () => {
+  it("enables Drive with server-delivered config and optionally honors an origin allowlist", () => {
     expect(getGoogleDriveConfig({
       clientId: "123-abc.apps.googleusercontent.com",
       apiKey: "AIza-test",
-      allowedOrigins: "http://localhost:3000,https://app.example.com",
       currentOrigin: "http://localhost:3000",
     })).toMatchObject({ ready: true, issue: null, appId: "123" });
     expect(getGoogleDriveConfig({
@@ -64,13 +62,22 @@ describe("Google Drive picker configuration", () => {
     })).toMatchObject({ ready: true, issue: null, appId: "987654321" });
   });
 
-  it("documents the local origin env and falls back when OAuth never calls back", () => {
+  it("loads picker config from a server route and falls back when OAuth never calls back", () => {
     const component = source("components", "google-drive-picker.tsx");
     const envExample = source(".env.example");
+    const route = source("app", "api", "google-drive", "config", "route.ts");
 
-    expect(envExample).toContain("NEXT_PUBLIC_GOOGLE_AUTHORIZED_ORIGINS");
-    expect(envExample).toContain("NEXT_PUBLIC_GOOGLE_APP_ID");
+    expect(envExample).toContain("GOOGLE_CLIENT_ID");
+    expect(envExample).toContain("GOOGLE_API_KEY");
+    expect(envExample).not.toContain("NEXT_PUBLIC_GOOGLE_AUTHORIZED_ORIGINS");
+    expect(route).toContain("getGoogleDriveConfig");
+    expect(route).toContain("requireApprovedUser");
+    expect(route).toContain("process.env.GOOGLE_CLIENT_ID");
+    expect(route).not.toContain("process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID");
+    expect(route).not.toContain("process.env.NEXT_PUBLIC_GOOGLE_API_KEY");
     expect(component).toContain("getGoogleDriveConfig");
+    expect(component).toContain('fetch("/api/google-drive/config"');
+    expect(component).not.toContain("NEXT_PUBLIC_GOOGLE_AUTHORIZED_ORIGINS");
     expect(component).toContain(".setAppId(driveConfig.appId)");
     expect(component).toContain(".setOrigin(currentOrigin)");
     expect(component).toContain('window.gapi.load("picker"');

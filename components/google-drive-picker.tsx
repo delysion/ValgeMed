@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Paperclip, X, FileText, Link, AlertCircle, ExternalLink, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { getGoogleDriveConfig, getGoogleDriveScope, type GoogleDriveConfigIssue } from "@/lib/google-drive/config";
+import { getGoogleDriveConfig, getGoogleDriveScope, type GoogleDriveConfigInput, type GoogleDriveConfigIssue } from "@/lib/google-drive/config";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 
 type GoogleTokenResponse = {
@@ -96,6 +96,11 @@ interface GoogleDrivePickerProps {
   onClear: () => void;
 }
 
+type GoogleDriveServerConfig = Pick<
+  GoogleDriveConfigInput,
+  "clientId" | "appId" | "apiKey" | "allowedOrigins" | "currentOrigin"
+>;
+
 const SCOPES = [getGoogleDriveScope()];
 
 function loadScript(src: string): Promise<void> {
@@ -160,21 +165,43 @@ export function GoogleDrivePicker({
   const [showManualInput, setShowManualInput] = useState(false);
   const [manualUrl, setManualUrl] = useState("");
   const [currentOrigin] = useState(() => typeof window === "undefined" ? "" : window.location.origin);
+  const [serverConfig, setServerConfig] = useState<GoogleDriveServerConfig | null>(null);
+  const [configLoading, setConfigLoading] = useState(true);
   const authTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
+    const controller = new AbortController();
+    let active = true;
+
+    fetch("/api/google-drive/config", {
+      cache: "no-store",
+      signal: controller.signal,
+    })
+      .then((response) => response.ok ? response.json() : null)
+      .then((config: GoogleDriveServerConfig | null) => {
+        if (active && config) setServerConfig(config);
+      })
+      .catch(() => {
+        if (active) setServerConfig(null);
+      })
+      .finally(() => {
+        if (active) setConfigLoading(false);
+      });
+
     return () => {
+      active = false;
+      controller.abort();
       if (authTimeoutRef.current) clearTimeout(authTimeoutRef.current);
     };
   }, []);
 
   const driveConfig = useMemo(() => getGoogleDriveConfig({
-    clientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
-    appId: process.env.NEXT_PUBLIC_GOOGLE_APP_ID,
-    apiKey: process.env.NEXT_PUBLIC_GOOGLE_API_KEY,
-    allowedOrigins: process.env.NEXT_PUBLIC_GOOGLE_AUTHORIZED_ORIGINS,
+    clientId: serverConfig?.clientId,
+    appId: serverConfig?.appId,
+    apiKey: serverConfig?.apiKey,
+    allowedOrigins: serverConfig?.allowedOrigins,
     currentOrigin,
-  }), [currentOrigin]);
+  }), [currentOrigin, serverConfig]);
 
   const googleConfigured = driveConfig.ready;
 
@@ -184,8 +211,6 @@ export function GoogleDrivePicker({
         return t("lifeForm.lifeAdmin.errorMissingApiKey");
       case "missing_app_id":
         return t("lifeForm.lifeAdmin.errorMissingAppId");
-      case "missing_authorized_origins":
-        return t("lifeForm.lifeAdmin.errorMissingAuthorizedOrigins", { origin: driveConfig.currentOrigin || currentOrigin || "this origin" });
       case "origin_not_allowed":
         return t("lifeForm.lifeAdmin.errorOriginNotAllowed", { origin: driveConfig.currentOrigin || currentOrigin || "this origin" });
       case "missing_client_id":
@@ -420,7 +445,7 @@ export function GoogleDrivePicker({
           {t("lifeForm.lifeAdmin.linkButton")}
         </Button>
       </div>
-      {!googleConfigured && driveConfig.issue && driveConfig.issue !== "missing_client_id" ? (
+      {!configLoading && !googleConfigured && driveConfig.issue && driveConfig.issue !== "missing_client_id" ? (
         <div className="flex items-start gap-2 rounded-xl border border-amber-500/20 bg-amber-500/5 px-3 py-2">
           <AlertCircle className="h-4 w-4 shrink-0 text-amber-500 mt-0.5" />
           <p className="text-xs text-amber-200">{driveSetupError()}</p>

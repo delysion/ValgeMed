@@ -7,9 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { fmtDate, humanize } from "@/lib/labels";
-import type { Topic, Hypothesis, LiteratureGap, Manuscript, ReviewItem } from "@/lib/db/schema";
+import type { Topic, Hypothesis, LiteratureGap, Manuscript, ReviewItem, ProfessionalContact } from "@/lib/db/schema";
 
-type RecordType = "topic" | "review" | "hypothesis" | "literature-gap" | "manuscript";
+type RecordType = "topic" | "review" | "hypothesis" | "literature-gap" | "manuscript" | "contact";
 
 interface RecordContext {
   subjectName?: string;
@@ -22,7 +22,7 @@ interface RecordContext {
 interface RecordDrawerProps {
   open: boolean;
   onClose: () => void;
-  record: Topic | ReviewItem | Hypothesis | LiteratureGap | Manuscript | null;
+  record: Topic | ReviewItem | Hypothesis | LiteratureGap | Manuscript | ProfessionalContact | null;
   type: RecordType;
   editBasePath?: string;
   context?: RecordContext;
@@ -40,6 +40,8 @@ function typeLabel(type: RecordType) {
       return "Literature Gap";
     case "manuscript":
       return "Manuscript";
+    case "contact":
+      return "Network Contact";
   }
 }
 
@@ -215,10 +217,31 @@ function ManuscriptDetail({ manuscript, context }: { manuscript: Manuscript; con
   );
 }
 
+function ContactDetail({ contact }: { contact: ProfessionalContact }) {
+  return (
+    <div className="space-y-4">
+      <div className="grid gap-3 sm:grid-cols-3">
+        <MetricTile label="Relationship" value={`${contact.relationshipStrength}/10`} tone={contact.relationshipStrength >= 7 ? "success" : "default"} />
+        <MetricTile label="Last contact" value={fmtDate(contact.lastContactedAt)} />
+        <MetricTile label="Follow-up" value={fmtDate(contact.nextFollowUpAt)} tone={contact.nextFollowUpAt ? "warning" : "default"} />
+      </div>
+      <DetailSection title="Professional Context">
+        <div className="space-y-2">
+          <MetaRow label="Role" value={contact.role} />
+          <MetaRow label="Institution" value={contact.institution} />
+        </div>
+      </DetailSection>
+      <DetailSection title="Notes">
+        <RichText muted>{contact.notes}</RichText>
+      </DetailSection>
+    </div>
+  );
+}
+
 export function RecordDrawer({ open, onClose, record, type, editBasePath, context }: RecordDrawerProps) {
   if (!record) return null;
 
-  const title = "title" in record ? record.title : "question" in record ? record.question : "Record";
+  const title = "title" in record ? record.title : "question" in record ? record.question : "name" in record ? record.name : "Record";
   const editParam =
     type === "hypothesis" ? "editHypothesis" :
     type === "literature-gap" ? "editGap" :
@@ -253,6 +276,7 @@ export function RecordDrawer({ open, onClose, record, type, editBasePath, contex
           {type === "hypothesis" && <HypothesisDetail hypothesis={record as Hypothesis} />}
           {type === "literature-gap" && <LiteratureGapDetail gap={record as LiteratureGap} context={context} />}
           {type === "manuscript" && <ManuscriptDetail manuscript={record as Manuscript} context={context} />}
+          {type === "contact" && <ContactDetail contact={record as ProfessionalContact} />}
         </div>
       </SheetContent>
     </Sheet>

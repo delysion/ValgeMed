@@ -112,6 +112,7 @@ export function TextAreaField({
   helper,
   error,
   className,
+  required,
 }: {
   label: string;
   name: string;
@@ -121,14 +122,16 @@ export function TextAreaField({
   helper?: string;
   error?: string;
   className?: string;
+  required?: boolean;
 }) {
   const id = useId();
 
   return (
-    <Field label={label} description={description} helper={helper} error={error} className={className} id={id}>
+    <Field label={label} description={description} helper={helper} error={error} className={className} required={required} id={id}>
       <Textarea
         id={id}
         name={name}
+        required={required}
         placeholder={placeholder}
         defaultValue={defaultValue ?? ""}
         aria-invalid={error ? true : undefined}

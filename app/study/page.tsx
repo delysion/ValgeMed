@@ -1,4 +1,4 @@
-import { Activity, Brain, Clock, Edit3, Sparkles, Timer, Zap, type LucideIcon } from "lucide-react";
+import { Activity, Brain, Clock, Edit3, Eye, Sparkles, Timer, Zap, type LucideIcon } from "lucide-react";
 
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { DeleteButton } from "@/components/forms/delete-button";
@@ -23,13 +23,16 @@ const activeMethods = new Set(["active_recall", "quiz", "simulation", "error_rev
 
 type TFunc = (key: string) => string;
 
-export default async function StudyPage({ searchParams }: { searchParams: Promise<{ edit?: string }> }) {
+export default async function StudyPage({ searchParams }: { searchParams: Promise<{ edit?: string; view?: string }> }) {
   const user = await requireApprovedUser();
   const { t } = await getI18n();
   const params = await searchParams;
   const [ref, studySessions] = await Promise.all([getReferenceData(), getStudySessions()]);
   const editing = studySessions.find((item) => item.id === params.edit);
+  const selectedSession = studySessions.find((item) => item.id === params.view);
   const subjectById = new Map(ref.subjects.map((subject) => [subject.id, subject]));
+  const topicById = new Map(ref.topics.map((topic) => [topic.id, topic]));
+  const examById = new Map(ref.exams.map((exam) => [exam.id, exam]));
   const activeMinutes = studySessions.filter((item) => activeMethods.has(item.method)).reduce((sum, item) => sum + item.durationMinutes, 0);
   const passiveMinutes = studySessions.filter((item) => ["reading", "notes"].includes(item.method)).reduce((sum, item) => sum + item.durationMinutes, 0);
   const totalMinutes = studySessions.reduce((sum, item) => sum + item.durationMinutes, 0);
@@ -83,6 +86,15 @@ export default async function StudyPage({ searchParams }: { searchParams: Promis
           />
 
           <SessionHistoryPanel sessions={studySessions.slice(0, 8)} subjectById={subjectById} t={t as TFunc} />
+          {selectedSession ? (
+            <StudySessionDetail
+              session={selectedSession}
+              subjectName={subjectById.get(selectedSession.subjectId)?.name}
+              topicTitle={selectedSession.topicId ? topicById.get(selectedSession.topicId)?.title : undefined}
+              examTitle={selectedSession.examId ? examById.get(selectedSession.examId)?.title : undefined}
+              t={t as TFunc}
+            />
+          ) : null}
         </div>
 
         <div className="space-y-4 xl:sticky xl:top-24 xl:self-start">
@@ -266,12 +278,17 @@ function SessionHistoryPanel({
                   <span>{t("common.output")}: {item.outputQuality}/10</span>
                 </div>
                 <div className="flex justify-end gap-1">
+                  <Button asChild variant="ghost" size="icon" aria-label={t("common.open")}>
+                    <a href={`/study?view=${item.id}`}>
+                      <Eye className="h-4 w-4" />
+                    </a>
+                  </Button>
                   <Button asChild variant="ghost" size="icon" aria-label={t("common.edit")}>
                     <a href={`/study?edit=${item.id}`}>
                       <Edit3 className="h-4 w-4" />
                     </a>
                   </Button>
-                  <DeleteButton action={deleteStudySessionAction} id={item.id} label={t("common.delete")} />
+                  <DeleteButton action={deleteStudySessionAction} id={item.id} label={t("common.delete")} returnTo="/study" />
                 </div>
               </div>
             );
@@ -281,6 +298,53 @@ function SessionHistoryPanel({
         )}
       </div>
     </GlassCard>
+  );
+}
+
+function StudySessionDetail({
+  session,
+  subjectName,
+  topicTitle,
+  examTitle,
+  t,
+}: {
+  session: StudySession;
+  subjectName?: string;
+  topicTitle?: string;
+  examTitle?: string;
+  t: TFunc;
+}) {
+  return (
+    <GlassCard tone="cyan">
+      <SectionHeader title={subjectName ?? t("common.subject")} description={`${fmtDate(session.startedAt)} / ${humanize(session.method)}`} />
+      <div className="mt-4 grid gap-3 md:grid-cols-4">
+        <Badge className="w-fit">{session.durationMinutes}m</Badge>
+        <Badge variant={session.focusLevel >= 7 ? "success" : "muted"} className="w-fit">{t("common.focus")}: {session.focusLevel}/10</Badge>
+        <Badge variant={session.outputQuality >= 7 ? "success" : "muted"} className="w-fit">{t("common.output")}: {session.outputQuality}/10</Badge>
+        <Badge variant={session.energyLevel >= 6 ? "success" : "warning"} className="w-fit">{t("form.studySession.energyLabel")}: {session.energyLevel}/10</Badge>
+      </div>
+      <div className="mt-4 grid gap-3 md:grid-cols-2">
+        <DetailLine label={t("common.topic")} value={topicTitle} />
+        <DetailLine label={t("common.exam")} value={examTitle} />
+        <DetailLine label={t("form.studySession.startLabel")} value={fmtDate(session.startedAt)} />
+        <DetailLine label={t("form.studySession.endLabel")} value={fmtDate(session.endedAt)} />
+      </div>
+      {session.notes ? (
+        <div className="mt-4 rounded-2xl border border-border/60 bg-bg-page/35 p-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-text-muted">{t("form.studySession.notesLabel")}</p>
+          <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-6 text-text-secondary">{session.notes}</p>
+        </div>
+      ) : null}
+    </GlassCard>
+  );
+}
+
+function DetailLine({ label, value }: { label: string; value?: string | null }) {
+  return (
+    <div className="rounded-xl border border-border/60 bg-bg-page/35 p-3">
+      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-text-muted">{label}</p>
+      <p className="mt-1 text-sm text-text-primary">{value || "-"}</p>
+    </div>
   );
 }
 

@@ -111,6 +111,7 @@ export function SubjectForm({ subject, t }: { subject?: Subject; t: TFunc }) {
     >
       <form action={subject ? updateSubjectAction : createSubjectAction} className="space-y-6">
         {subject ? <input type="hidden" name="id" value={subject.id} /> : null}
+        <input type="hidden" name="returnTo" value="/subjects" />
         <FieldGrid>
           <TextField label={t("form.subject.nameLabel")} name="name" defaultValue={subject?.name} required placeholder={t("form.subject.namePlaceholder")} description={t("form.subject.nameDescription")} />
           <TextField label={t("form.subject.codeLabel")} name="code" defaultValue={subject?.code} placeholder={t("form.subject.codePlaceholder")} description={t("form.subject.codeDescription")} />
@@ -141,6 +142,7 @@ export function ExamForm({
     >
       <form action={exam ? updateExamAction : createExamAction} className="space-y-6">
         {exam ? <input type="hidden" name="id" value={exam.id} /> : null}
+        <input type="hidden" name="returnTo" value="/exams" />
         <FieldGrid>
           <NativeSelectField label={t("form.exam.subjectLabel")} name="subjectId" options={relationOptions(subjects, t("form.exam.subjectEmpty"))} defaultValue={exam?.subjectId} description={t("form.exam.subjectDescription")} required />
           <TextField label={t("form.exam.titleLabel")} name="title" defaultValue={exam?.title} required placeholder={t("form.exam.titlePlaceholder")} description={t("form.exam.titleDescription")} />
@@ -175,6 +177,7 @@ export function TopicForm({
     >
       <form action={topic ? updateTopicAction : createTopicAction} className="space-y-6">
         {topic ? <input type="hidden" name="id" value={topic.id} /> : null}
+        <input type="hidden" name="returnTo" value="/topics" />
         <FieldGrid>
           <NativeSelectField label={t("form.topic.subjectLabel")} name="subjectId" options={relationOptions(subjects, t("form.topic.subjectEmpty"))} defaultValue={topic?.subjectId} description={t("form.topic.subjectDescription")} required />
           <NativeSelectField label={t("form.topic.examLabel")} name="examId" options={relationOptions(exams, t("form.topic.examEmpty"))} defaultValue={topic?.examId} description={t("form.topic.examDescription")} />
@@ -218,6 +221,7 @@ export function StudySessionForm({
     >
       <form action={session ? updateStudySessionAction : createStudySessionAction} className={compact ? "space-y-4" : "space-y-6"}>
         {session ? <input type="hidden" name="id" value={session.id} /> : null}
+        <input type="hidden" name="returnTo" value="/study" />
         <FieldGrid className={compact ? "gap-3 sm:grid-cols-2" : undefined}>
           <NativeSelectField label={t("form.studySession.subjectLabel")} name="subjectId" options={relationOptions(subjects, t("form.studySession.subjectEmpty"))} defaultValue={session?.subjectId} description={hideDescriptions ? undefined : t("form.studySession.subjectDescription")} required />
           <NativeSelectField label={t("form.studySession.topicLabel")} name="topicId" options={relationOptions(topics, t("form.studySession.topicEmpty"))} defaultValue={session?.topicId} description={hideDescriptions ? undefined : t("form.studySession.topicDescription")} />
@@ -255,6 +259,7 @@ export function ReviewItemForm({
     >
       <form action={item ? updateReviewItemAction : createReviewItemAction} className="space-y-3">
         {item ? <input type="hidden" name="id" value={item.id} /> : null}
+        <input type="hidden" name="returnTo" value="/reviews" />
         <input type="hidden" name="isActive" value="false" />
         <FieldGrid>
           <NativeSelectField label={t("form.reviewItem.subjectLabel")} name="subjectId" options={relationOptions(subjects, t("form.reviewItem.subjectEmpty"))} defaultValue={item?.subjectId} required />
@@ -262,9 +267,9 @@ export function ReviewItemForm({
           <NativeSelectField label={t("form.reviewItem.typeLabel")} name="reviewType" options={optionize(reviewTypes)} defaultValue={item?.reviewType ?? "flashcard"} />
           <TextField label={t("form.reviewItem.confidenceLabel")} name="confidence" type="number" min={0} max={10} defaultValue={item?.confidence ?? 0} description={t("form.reviewItem.confidenceDescription")} />
           <TextField label={t("form.reviewItem.intervalLabel")} name="intervalDays" type="number" defaultValue={item?.intervalDays ?? 1} description={t("form.reviewItem.intervalDescription")} />
-          <TextField label={t("form.reviewItem.dueLabel")} name="dueAt" type="date" defaultValue={dateValue(item?.dueAt) || dateValue(new Date())} />
+          <TextField label={t("form.reviewItem.dueLabel")} name="dueAt" type="date" defaultValue={dateValue(item?.dueAt) || dateValue(new Date())} required />
         </FieldGrid>
-        <TextAreaField label={t("form.reviewItem.questionLabel")} name="question" defaultValue={item?.question} placeholder={t("form.reviewItem.questionPlaceholder")} />
+        <TextAreaField label={t("form.reviewItem.questionLabel")} name="question" defaultValue={item?.question} placeholder={t("form.reviewItem.questionPlaceholder")} required />
         <TextAreaField label={t("form.reviewItem.answerLabel")} name="answer" defaultValue={item?.answer} placeholder={t("form.reviewItem.answerPlaceholder")} />
         <Field label={t("form.reviewItem.activeLabel")}>
           <Input type="checkbox" name="isActive" defaultChecked={item?.isActive ?? true} className="h-4 w-4" />
@@ -295,6 +300,7 @@ export function ErrorLogForm({
     >
       <form action={error ? updateErrorLogAction : createErrorLogAction} className="space-y-6">
         {error ? <input type="hidden" name="id" value={error.id} /> : null}
+        <input type="hidden" name="returnTo" value="/errors" />
         <input type="hidden" name="resolved" value="false" />
         <FieldGrid>
           <NativeSelectField label={t("form.errorLog.subjectLabel")} name="subjectId" options={relationOptions(subjects, t("form.errorLog.subjectEmpty"))} defaultValue={error?.subjectId} description={t("form.errorLog.subjectDescription")} required />
@@ -306,7 +312,7 @@ export function ErrorLogForm({
           <TextField label={t("form.errorLog.severityLabel")} name="severity" type="number" min={0} max={10} defaultValue={error?.severity ?? 5} description={t("form.errorLog.severityDescription")} />
           <TextField label={t("form.errorLog.recurrencesLabel")} name="recurrenceCount" type="number" min={0} defaultValue={error?.recurrenceCount ?? 0} description={t("form.errorLog.recurrencesDescription")} />
         </FieldGrid>
-        <TextAreaField label={t("form.errorLog.whatLabel")} name="description" defaultValue={error?.description} placeholder={t("form.errorLog.whatPlaceholder")} description={t("form.errorLog.whatDescription")} />
+        <TextAreaField label={t("form.errorLog.whatLabel")} name="description" defaultValue={error?.description} placeholder={t("form.errorLog.whatPlaceholder")} description={t("form.errorLog.whatDescription")} required />
         <TextAreaField label={t("form.errorLog.whyLabel")} name="cause" defaultValue={error?.cause} placeholder={t("form.errorLog.whyPlaceholder")} description={t("form.errorLog.whyDescription")} />
         <TextAreaField label={t("form.errorLog.correctionLabel")} name="correction" defaultValue={error?.correction} placeholder={t("form.errorLog.correctionPlaceholder")} description={t("form.errorLog.correctionDescription")} />
         <TextAreaField label={t("form.errorLog.preventionLabel")} name="preventionRule" defaultValue={error?.preventionRule} placeholder={t("form.errorLog.preventionPlaceholder")} description={t("form.errorLog.preventionDescription")} />
@@ -341,13 +347,14 @@ export function QuizAttemptForm({
     >
       <form action={attempt ? updateQuizAttemptAction : createQuizAttemptAction} className="space-y-6">
         {attempt ? <input type="hidden" name="id" value={attempt.id} /> : null}
+        <input type="hidden" name="returnTo" value="/exams" />
         <FieldGrid>
           <NativeSelectField label={t("form.quizAttempt.subjectLabel")} name="subjectId" options={relationOptions(subjects, t("form.quizAttempt.subjectEmpty"))} defaultValue={attempt?.subjectId ?? exams.find((exam) => exam.id === examId)?.subjectId} description={t("form.quizAttempt.subjectDescription")} required />
           <NativeSelectField label={t("form.quizAttempt.topicLabel")} name="topicId" options={relationOptions(topics, t("form.quizAttempt.topicEmpty"))} defaultValue={attempt?.topicId} description={t("form.quizAttempt.topicDescription")} />
           <NativeSelectField label={t("form.quizAttempt.examLabel")} name="examId" options={relationOptions(exams, t("form.quizAttempt.examEmpty"))} defaultValue={attempt?.examId ?? examId} description={t("form.quizAttempt.examDescription")} />
-          <TextField label={t("form.quizAttempt.dateLabel")} name="date" type="date" defaultValue={attempt?.date ?? formatISO(new Date(), { representation: "date" })} description={t("form.quizAttempt.dateDescription")} />
-          <TextField label={t("form.quizAttempt.totalLabel")} name="totalQuestions" type="number" defaultValue={attempt?.totalQuestions ?? 20} description={t("form.quizAttempt.totalDescription")} />
-          <TextField label={t("form.quizAttempt.correctLabel")} name="correctAnswers" type="number" defaultValue={attempt?.correctAnswers ?? 0} description={t("form.quizAttempt.correctDescription")} />
+          <TextField label={t("form.quizAttempt.dateLabel")} name="date" type="date" defaultValue={attempt?.date ?? formatISO(new Date(), { representation: "date" })} description={t("form.quizAttempt.dateDescription")} required />
+          <TextField label={t("form.quizAttempt.totalLabel")} name="totalQuestions" type="number" min={1} defaultValue={attempt?.totalQuestions ?? 20} description={t("form.quizAttempt.totalDescription")} required />
+          <TextField label={t("form.quizAttempt.correctLabel")} name="correctAnswers" type="number" min={0} defaultValue={attempt?.correctAnswers ?? 0} description={t("form.quizAttempt.correctDescription")} required />
         </FieldGrid>
         <TextAreaField label={t("form.quizAttempt.reflectionsLabel")} name="notes" defaultValue={attempt?.notes} placeholder={t("form.quizAttempt.reflectionsPlaceholder")} description={t("form.quizAttempt.reflectionsDescription")} />
         <SubmitBar label={attempt ? t("form.quizAttempt.editSubmit") : t("form.quizAttempt.submit")} pendingLabel={attempt ? t("form.quizAttempt.editPending") : t("form.quizAttempt.pending")} cancelHref={attempt ? "/exams" : undefined} cancelLabel={t("common.cancel")} />
@@ -364,9 +371,10 @@ export function DailyLogForm({ log, compact = false, t }: { log?: DailyLog | nul
     >
       <form action={log?.id ? updateDailyLogAction : upsertDailyLogAction} className="space-y-6">
         {log?.id ? <input type="hidden" name="id" value={log.id} /> : null}
+        <input type="hidden" name="returnTo" value="/daily-log" />
         <input type="hidden" name="movementDone" value="false" />
         <FieldGrid className={compact ? "xl:grid-cols-3" : undefined}>
-          <TextField label={t("form.dailyLog.dateLabel")} name="date" type="date" defaultValue={log?.date ?? formatISO(new Date(), { representation: "date" })} description={t("form.dailyLog.dateDescription")} />
+          <TextField label={t("form.dailyLog.dateLabel")} name="date" type="date" defaultValue={log?.date ?? formatISO(new Date(), { representation: "date" })} description={t("form.dailyLog.dateDescription")} required />
           <TextField label={t("form.dailyLog.sleepLabel")} name="sleepHours" type="number" defaultValue={log?.sleepHours ?? ""} placeholder={t("form.dailyLog.sleepPlaceholder")} description={t("form.dailyLog.sleepDescription")} />
           <TextField label={t("form.dailyLog.energyLabel")} name="energyLevel" type="number" min={0} max={10} defaultValue={log?.energyLevel ?? ""} description={t("form.dailyLog.energyDescription")} />
           <TextField label={t("form.dailyLog.stressLabel")} name="stressLevel" type="number" min={0} max={10} defaultValue={log?.stressLevel ?? ""} description={t("form.dailyLog.stressDescription")} />
@@ -390,6 +398,7 @@ export function GoalForm({ goal, t }: { goal?: Goal; t: TFunc }) {
     <FormCard title={goal ? t("form.goal.editTitle") : t("form.goal.createTitle")} description={t("form.goal.description")}>
       <form action={goal ? updateGoalAction : createGoalAction} className="space-y-6">
         {goal ? <input type="hidden" name="id" value={goal.id} /> : null}
+        <input type="hidden" name="returnTo" value="/goals" />
         <FieldGrid>
           <TextField label={t("form.goal.titleLabel")} name="title" defaultValue={goal?.title} required placeholder={t("form.goal.titlePlaceholder")} description={t("form.goal.titleDescription")} />
           <NativeSelectField label={t("form.goal.typeLabel")} name="goalType" options={optionize(goalTypes)} defaultValue={goal?.goalType ?? "daily"} description={t("form.goal.typeDescription")} />
@@ -421,6 +430,7 @@ export function TaskForm({
     <FormCard title={task ? t("form.task.editTitle") : t("form.task.createTitle")} description={t("form.task.description")}>
       <form action={task ? updateTaskAction : createTaskAction} className="space-y-6">
         {task ? <input type="hidden" name="id" value={task.id} /> : null}
+        <input type="hidden" name="returnTo" value="/goals" />
         <FieldGrid>
           <TextField label={t("form.task.titleLabel")} name="title" defaultValue={task?.title} required placeholder={t("form.task.titlePlaceholder")} description={t("form.task.titleDescription")} />
           <TextField label={t("form.task.dueLabel")} name="dueAt" type="date" defaultValue={dateValue(task?.dueAt)} description={t("form.task.dueDescription")} />
@@ -450,11 +460,12 @@ export function IdentityNoteForm({
     <FormCard title={note ? t("form.identityNote.editTitle") : t("form.identityNote.createTitle")} description={t("form.identityNote.description")}>
       <form action={note ? updateIdentityNoteAction : createIdentityNoteAction} className="space-y-6">
         {note ? <input type="hidden" name="id" value={note.id} /> : null}
+        <input type="hidden" name="returnTo" value={cancelHref} />
         <FieldGrid>
           <TextField label={t("form.identityNote.titleLabel")} name="title" defaultValue={note?.title} required placeholder={t("form.identityNote.titlePlaceholder")} description={t("form.identityNote.titleDescription")} />
           <NativeSelectField label={t("form.identityNote.categoryLabel")} name="category" options={optionize(identityCategories)} defaultValue={note?.category ?? "professional_identity"} description={t("form.identityNote.categoryDescription")} />
         </FieldGrid>
-        <TextAreaField label={t("form.identityNote.noteLabel")} name="content" defaultValue={note?.content} placeholder={t("form.identityNote.notePlaceholder")} description={t("form.identityNote.noteDescription")} />
+        <TextAreaField label={t("form.identityNote.noteLabel")} name="content" defaultValue={note?.content} placeholder={t("form.identityNote.notePlaceholder")} description={t("form.identityNote.noteDescription")} required />
         <SubmitBar label={note ? t("form.identityNote.editSubmit") : t("form.identityNote.createSubmit")} pendingLabel={note ? t("form.identityNote.editPending") : t("form.identityNote.createPending")} cancelHref={note ? cancelHref : undefined} cancelLabel={t("common.cancel")} />
       </form>
     </FormCard>

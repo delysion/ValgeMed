@@ -44,7 +44,7 @@ export function ReviewsList({ reviewItems, subjects, topics, labels }: ReviewsLi
   const topicById = new Map(topics.map((topic) => [topic.id, topic]));
 
   const renderActions = (item: ReviewItem) => (
-    <div className="flex justify-end gap-1">
+    <div className="flex w-[220px] max-w-full justify-end gap-1">
       <Button
         type="button"
         variant="ghost"
@@ -62,7 +62,7 @@ export function ReviewsList({ reviewItems, subjects, topics, labels }: ReviewsLi
           min={0}
           max={10}
           defaultValue={item.confidence}
-          className="h-8 w-14 rounded-md border border-border bg-bg-subtle px-2 text-xs text-text-primary"
+          className="h-8 w-12 rounded-md border border-border bg-bg-subtle px-2 text-xs text-text-primary"
           aria-label={labels.confidence}
         />
         <Button type="submit" variant="ghost" size="icon" aria-label={labels.markReviewed}>
@@ -107,17 +107,17 @@ export function ReviewsList({ reviewItems, subjects, topics, labels }: ReviewsLi
         )}
       </div>
 
-      <div className="hidden overflow-x-auto rounded-2xl border border-border md:block">
-        <table className="w-full min-w-[760px] border-collapse text-sm">
+      <div className="hidden max-w-full overflow-x-auto rounded-2xl border border-border md:block">
+        <table className="w-full min-w-[700px] table-fixed border-collapse text-sm">
           <thead className="bg-bg-subtle text-xs uppercase tracking-[0.12em] text-text-secondary">
             <tr>
-              <th className="px-3 py-2 text-left font-medium">{labels.question}</th>
-              <th className="px-3 py-2 text-left font-medium">{labels.subject}</th>
-              <th className="px-3 py-2 text-left font-medium">{labels.type}</th>
-              <th className="px-3 py-2 text-left font-medium">{labels.date}</th>
-              <th className="px-3 py-2 text-left font-medium">{labels.confidence}</th>
-              <th className="px-3 py-2 text-left font-medium">{labels.interval}</th>
-              <th className="px-3 py-2 text-right font-medium">{labels.actions}</th>
+              <th className="w-[24%] px-3 py-2 text-left font-medium">{labels.question}</th>
+              <th className="w-[16%] px-3 py-2 text-left font-medium">{labels.subject}</th>
+              <th className="w-[13%] px-3 py-2 text-left font-medium">{labels.type}</th>
+              <th className="w-[12%] px-3 py-2 text-left font-medium">{labels.date}</th>
+              <th className="w-[11%] px-3 py-2 text-left font-medium">{labels.confidence}</th>
+              <th className="w-[8%] px-3 py-2 text-left font-medium">{labels.interval}</th>
+              <th className="w-[220px] px-3 py-2 text-right font-medium">{labels.actions}</th>
             </tr>
           </thead>
           <tbody>
@@ -145,7 +145,7 @@ export function ReviewsList({ reviewItems, subjects, topics, labels }: ReviewsLi
                   <td className="px-3 py-2 text-text-secondary">{fmtDate(item.dueAt)}</td>
                   <td className="px-3 py-2 text-text-secondary"><Badge>{item.confidence}/10</Badge></td>
                   <td className="px-3 py-2 text-text-secondary">{item.intervalDays}d</td>
-                  <td className="px-3 py-2">{renderActions(item)}</td>
+                  <td className="w-[220px] px-3 py-2">{renderActions(item)}</td>
                 </tr>
               ))
             )}

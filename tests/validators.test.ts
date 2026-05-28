@@ -28,8 +28,12 @@ describe("validators", () => {
 
     expect(fields).toContain("required?: boolean");
     expect(fields).toContain("required={required}");
+    expect(fields).toContain("<Textarea");
     expect(entityForms).toContain('name="subjectId" options={relationOptions(subjects, t("form.reviewItem.subjectEmpty"))} defaultValue={item?.subjectId} required');
     expect(entityForms).toContain('name="subjectId" options={relationOptions(subjects, t("form.exam.subjectEmpty"))} defaultValue={exam?.subjectId} description={t("form.exam.subjectDescription")} required');
+    expect(entityForms).toContain('name="description" defaultValue={error?.description} placeholder={t("form.errorLog.whatPlaceholder")} description={t("form.errorLog.whatDescription")} required');
+    expect(entityForms).toContain('name="content" defaultValue={note?.content} placeholder={t("form.identityNote.notePlaceholder")} description={t("form.identityNote.noteDescription")} required');
+    expect(entityForms).toContain('name="question" defaultValue={item?.question} placeholder={t("form.reviewItem.questionPlaceholder")} required');
   });
 
   it("accepts a valid subject and coerces scores", () => {

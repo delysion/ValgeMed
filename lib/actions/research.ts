@@ -1,14 +1,13 @@
 "use server";
 
 import { and, eq } from "drizzle-orm";
-import { redirect } from "next/navigation";
 
 import { requireAuthUserId } from "@/lib/db/auth";
 import { getDb } from "@/lib/db";
 import { assertOwnedRelations } from "@/lib/db/ownership";
 import { literatureGaps, hypotheses, manuscripts, researchAreas } from "@/lib/db/schema";
 import { literatureGapSchema, hypothesisSchema, manuscriptSchema, researchAreaSchema } from "@/lib/validators/schemas";
-import { parseForm, parseId, refresh } from "@/lib/utils/forms";
+import { parseForm, parseId, redirectToReturnPath, refresh } from "@/lib/utils/forms";
 
 const researchPaths = ["/research", "/research/literature", "/research/hypotheses", "/research/manuscripts"];
 
@@ -18,6 +17,7 @@ export async function createResearchAreaAction(formData: FormData) {
   const data = parseForm(researchAreaSchema, formData);
   await db.insert(researchAreas).values({ ...data, userId });
   refresh(researchPaths);
+  redirectToReturnPath(formData);
 }
 
 export async function updateResearchAreaAction(formData: FormData) {
@@ -27,7 +27,7 @@ export async function updateResearchAreaAction(formData: FormData) {
   const data = parseForm(researchAreaSchema, formData);
   await db.update(researchAreas).set({ ...data, updatedAt: new Date() }).where(and(eq(researchAreas.id, recordId), eq(researchAreas.userId, userId)));
   refresh(researchPaths);
-  redirect("/research");
+  redirectToReturnPath(formData, "/research");
 }
 
 export async function createLiteratureGapAction(formData: FormData) {
@@ -37,6 +37,7 @@ export async function createLiteratureGapAction(formData: FormData) {
   await assertOwnedRelations(db, userId, data);
   await db.insert(literatureGaps).values({ ...data, userId });
   refresh(researchPaths);
+  redirectToReturnPath(formData);
 }
 
 export async function updateLiteratureGapAction(formData: FormData) {
@@ -47,7 +48,7 @@ export async function updateLiteratureGapAction(formData: FormData) {
   await assertOwnedRelations(db, userId, data);
   await db.update(literatureGaps).set({ ...data, updatedAt: new Date() }).where(and(eq(literatureGaps.id, recordId), eq(literatureGaps.userId, userId)));
   refresh(researchPaths);
-  redirect("/research/literature");
+  redirectToReturnPath(formData, "/research/literature");
 }
 
 export async function deleteLiteratureGapAction(formData: FormData) {
@@ -55,7 +56,7 @@ export async function deleteLiteratureGapAction(formData: FormData) {
   const db = getDb();
   await db.delete(literatureGaps).where(and(eq(literatureGaps.id, parseId(formData)), eq(literatureGaps.userId, userId)));
   refresh(researchPaths);
-  redirect("/research/literature");
+  redirectToReturnPath(formData, "/research/literature");
 }
 
 // ─── Hypotheses ───
@@ -66,6 +67,7 @@ export async function createHypothesisAction(formData: FormData) {
   const data = parseForm(hypothesisSchema, formData);
   await db.insert(hypotheses).values({ ...data, userId });
   refresh(researchPaths);
+  redirectToReturnPath(formData);
 }
 
 export async function updateHypothesisAction(formData: FormData) {
@@ -75,7 +77,7 @@ export async function updateHypothesisAction(formData: FormData) {
   const data = parseForm(hypothesisSchema, formData);
   await db.update(hypotheses).set({ ...data, updatedAt: new Date() }).where(and(eq(hypotheses.id, recordId), eq(hypotheses.userId, userId)));
   refresh(researchPaths);
-  redirect("/research/hypotheses");
+  redirectToReturnPath(formData, "/research/hypotheses");
 }
 
 export async function deleteHypothesisAction(formData: FormData) {
@@ -83,7 +85,7 @@ export async function deleteHypothesisAction(formData: FormData) {
   const db = getDb();
   await db.delete(hypotheses).where(and(eq(hypotheses.id, parseId(formData)), eq(hypotheses.userId, userId)));
   refresh(researchPaths);
-  redirect("/research/hypotheses");
+  redirectToReturnPath(formData, "/research/hypotheses");
 }
 
 // ─── Manuscripts ───
@@ -95,6 +97,7 @@ export async function createManuscriptAction(formData: FormData) {
   await assertOwnedRelations(db, userId, data);
   await db.insert(manuscripts).values({ ...data, userId });
   refresh(researchPaths);
+  redirectToReturnPath(formData);
 }
 
 export async function updateManuscriptAction(formData: FormData) {
@@ -105,7 +108,7 @@ export async function updateManuscriptAction(formData: FormData) {
   await assertOwnedRelations(db, userId, data);
   await db.update(manuscripts).set({ ...data, updatedAt: new Date() }).where(and(eq(manuscripts.id, recordId), eq(manuscripts.userId, userId)));
   refresh(researchPaths);
-  redirect("/research/manuscripts");
+  redirectToReturnPath(formData, "/research/manuscripts");
 }
 
 export async function deleteManuscriptAction(formData: FormData) {
@@ -113,5 +116,5 @@ export async function deleteManuscriptAction(formData: FormData) {
   const db = getDb();
   await db.delete(manuscripts).where(and(eq(manuscripts.id, parseId(formData)), eq(manuscripts.userId, userId)));
   refresh(researchPaths);
-  redirect("/research/manuscripts");
+  redirectToReturnPath(formData, "/research/manuscripts");
 }
