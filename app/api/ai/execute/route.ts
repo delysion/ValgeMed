@@ -63,6 +63,7 @@ export async function POST(request: NextRequest) {
       userOptions,
     });
 
+    console.log(`[AI execute] tool=${tool} result:`, result);
     return NextResponse.json({ success: true, result });
   } catch (error) {
     console.error("AI execute error:", error);
