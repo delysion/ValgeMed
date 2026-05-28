@@ -82,17 +82,37 @@ export async function parseCurriculumAction(
 
     let parsed: unknown;
     try {
-      parsed = JSON.parse(stripped);
+      const match = stripped.match(/\{[\s\S]*\}/);
+      parsed = JSON.parse(match ? match[0] : stripped);
     } catch {
       return { success: false, error: locale === "et" ? "Vigane JSON vastus" : "Invalid JSON response" };
     }
 
-    const normalized = (raw: unknown): unknown => {
-      if (Array.isArray(raw)) return { records: raw };
-      return raw;
-    };
+    function normalizeDate(d: unknown): string | null {
+      if (d == null || d === "") return null;
+      if (typeof d === "string" && /^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
+      if (typeof d === "string") {
+        const dt = new Date(d);
+        if (!Number.isNaN(dt.getTime())) return dt.toISOString().slice(0, 10);
+      }
+      return null;
+    }
 
-    const validated = curriculumImportSchema.safeParse(normalized(parsed));
+    function normalizeRecords(raw: unknown): unknown {
+      let records: unknown[];
+      if (Array.isArray(raw)) records = raw;
+      else if (raw && typeof raw === "object" && "records" in raw && Array.isArray((raw as { records: unknown }).records)) {
+        records = (raw as { records: unknown[] }).records;
+      } else return raw;
+
+      return { records: records.map((r) => {
+        if (!r || typeof r !== "object") return r;
+        const rec = r as Record<string, unknown>;
+        return { ...rec, date: normalizeDate(rec.date) };
+      })};
+    }
+
+    const validated = curriculumImportSchema.safeParse(normalizeRecords(parsed));
     if (!validated.success) {
       return { success: false, error: locale === "et" ? "Vigane kirje struktuur" : "Invalid record structure" };
     }
