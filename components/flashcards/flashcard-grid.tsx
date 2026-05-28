@@ -179,10 +179,10 @@ export function FlashcardGrid({ initialCards, subjects, labels }: FlashcardGridP
   ];
 
   return (
-    <>
+    <div className="pt-2">
       {/* Stats bar */}
       {cards.length > 0 && (
-        <div className="flex items-center gap-3 mb-4 overflow-x-auto pb-1">
+        <div className="flex items-center gap-3 mb-6 overflow-x-auto pb-1">
           <StatPill label="Total" value={cards.length} color="text-text-primary" />
           <StatPill label="Overdue" value={overdueCount} color={overdueCount > 0 ? "text-rose" : "text-text-muted"} />
           <StatPill label="Today" value={dueTodayCount} color={dueTodayCount > 0 ? "text-gold" : "text-text-muted"} />
@@ -190,7 +190,7 @@ export function FlashcardGrid({ initialCards, subjects, labels }: FlashcardGridP
         </div>
       )}
 
-      <div className="space-y-3">
+      <div className="space-y-4">
         {/* Search + Actions row */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <div className="relative flex-1">
@@ -284,7 +284,7 @@ export function FlashcardGrid({ initialCards, subjects, labels }: FlashcardGridP
           tone="cyan"
         />
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mt-6">
           {cards.map((card, i) => (
             <FlashcardCard
               key={card.id}
@@ -322,6 +322,6 @@ export function FlashcardGrid({ initialCards, subjects, labels }: FlashcardGridP
           }}
         />
       )}
-    </>
+    </div>
   );
 }

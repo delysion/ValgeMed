@@ -115,46 +115,44 @@ export function FlashcardCard({ card, onStudy, onEdit, labels, index = 0 }: Flas
 
       <button
         type="button"
-        className="block w-full text-left p-5"
+        className="block w-full text-left px-6 pt-6 pb-5"
         onClick={() => onStudy(card)}
         aria-label={labels.tapToFlip}
       >
         {/* Question */}
-        <p className="text-sm font-semibold text-text-primary leading-snug line-clamp-3">
+        <p className="text-sm font-semibold text-text-primary leading-relaxed line-clamp-3">
           {questionPreview}
         </p>
 
         {/* Answer preview on hover */}
         {answerPreview && (
-          <p className="mt-2 text-xs text-text-muted line-clamp-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          <p className="mt-3 text-xs text-text-muted line-clamp-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
             {answerPreview}
           </p>
         )}
 
         {/* Meta row */}
-        <div className="mt-4 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 flex-wrap">
-            <Badge variant="muted" className={cn("text-[10px]", colors.text)}>
-              <span className={cn("h-1.5 w-1.5 rounded-full", colors.dot)} />
-              {card.subjectName ?? "Unknown"}
+        <div className="mt-5 flex items-center gap-2 flex-wrap">
+          <Badge variant="muted" className={cn("text-[10px]", colors.text)}>
+            <span className={cn("h-1.5 w-1.5 rounded-full", colors.dot)} />
+            {card.subjectName ?? "Unknown"}
+          </Badge>
+          {card.topicTitle && (
+            <Badge variant="muted" className="text-[10px]">
+              {card.topicTitle}
             </Badge>
-            {card.topicTitle && (
-              <Badge variant="muted" className="text-[10px]">
-                {card.topicTitle}
-              </Badge>
-            )}
-          </div>
+          )}
         </div>
 
         {/* Bottom row: confidence + due */}
-        <div className="mt-3 flex items-center justify-between">
+        <div className="mt-4 flex items-center justify-between">
           <ConfidenceBar confidence={card.confidence} />
           <DueBadge dueAt={card.dueAt} isActive={card.isActive} />
         </div>
       </button>
 
       {/* Action bar */}
-      <div className="flex items-center gap-1 border-t border-border/50 px-4 py-2.5 bg-bg-subtle/30">
+      <div className="flex items-center gap-1 border-t border-border/50 px-5 py-3 bg-bg-subtle/30">
         <Button
           type="button"
           variant="ghost"
