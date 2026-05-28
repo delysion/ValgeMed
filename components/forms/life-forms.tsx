@@ -267,7 +267,7 @@ export function LifeAdminItemForm({ item }: { item?: LifeAdminItem }) {
           <TextField label={t("lifeForm.lifeAdmin.priorityLabel")} name="priority" type="number" min={0} max={10} defaultValue={item?.priority ?? 0} />
         </FieldGrid>
         <TextAreaField label={t("lifeForm.lifeAdmin.descriptionLabel")} name="description" defaultValue={item?.description} />
-        <Field label={t("lifeForm.lifeAdmin.documentLabel")}>
+        {/* <Field label={t("lifeForm.lifeAdmin.documentLabel")}>
           <GoogleDrivePicker
             value={fileUrl}
             fileName={fileName}
@@ -280,7 +280,7 @@ export function LifeAdminItemForm({ item }: { item?: LifeAdminItem }) {
               setFileName("");
             }}
           />
-        </Field>
+        </Field> */}
         <SubmitBar label={item ? t("lifeForm.lifeAdmin.submitEdit") : t("lifeForm.lifeAdmin.submitCreate")} cancelHref={item ? "/life-admin" : undefined} />
       </form>
     </FormCard>
