@@ -39,31 +39,29 @@ export default async function ReputationPage({ searchParams }: { searchParams: P
       </div>
 
       <div className="mt-4 flex flex-col gap-4 sm:mt-5 sm:gap-5">
-        <div className="rounded-2xl border border-border/60 bg-bg-surface p-4 sm:p-0">
-          <div className="mb-3 sm:mb-4">
+        <div className="rounded-2xl border border-border/60 bg-bg-surface shadow-[var(--shadow-card)]">
+          <div className="p-4 sm:p-5">
             <SectionHeader title={t("reputation.logEvent")} description={t("reputation.subtitle")} />
           </div>
-          <div className="sm:pt-0">
-            <ReputationEventForm event={editing} />
-          </div>
+          <ReputationEventForm event={editing} />
         </div>
 
-        <div className="rounded-2xl border border-emerald/20 bg-gradient-to-br from-emerald-bg/40 via-bg-surface to-bg-surface p-4 sm:p-0">
-          <div className="mb-3 sm:mb-4">
+        <div className="rounded-2xl border border-emerald/20 bg-gradient-to-br from-emerald-bg/40 via-bg-surface to-bg-surface shadow-[var(--shadow-card)]">
+          <div className="p-4 sm:p-5">
             <SectionHeader title={t("reputation.trust")} description={t("common.strategicSignal")} />
           </div>
-          <div className="space-y-3 sm:space-y-4">
+          <div className="px-4 pb-4 space-y-3 sm:px-5 sm:pb-5 sm:space-y-4">
             <MomentumBar label={t("reputation.trust")} value={(Number(avgImpact) / 10) * 100} tone="emerald" />
             <MomentumBar label="Active" value={activeEvents.length * 20} tone="cyan" />
             <MomentumBar label="High impact" value={highImpact * 25} tone="violet" />
           </div>
         </div>
 
-        <div className="rounded-2xl border border-border/60 bg-bg-surface p-4 sm:p-0">
-          <div className="mb-3 sm:mb-4">
+        <div className="rounded-2xl border border-border/60 bg-bg-surface shadow-[var(--shadow-card)]">
+          <div className="p-4 sm:p-5">
             <SectionHeader title={t("reputation.history")} description={`${reputationEvents.length} ${t("language.entries")}`} />
           </div>
-          <div className="sm:pt-0">
+          <div className="px-4 pb-4 sm:px-5 sm:pb-5">
             <ReputationEventList
               events={reputationEvents}
               editBasePath="/reputation"

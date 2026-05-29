@@ -53,7 +53,7 @@ export function FieldGrid({
   className?: string;
 }) {
   return (
-    <div className={cn("grid gap-4 grid-cols-1 sm:grid-cols-2", className)}>
+    <div className={cn("grid gap-4 grid-cols-1 sm:gap-5 sm:grid-cols-2", className)}>
       {children}
     </div>
   );
