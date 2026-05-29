@@ -685,6 +685,21 @@ const BULK_RESOURCE_CONFIG = {
     path: "/reviews",
     editableFields: ["isActive", "confidence", "intervalDays"],
   },
+  errorLogs: {
+    table: errorLogs,
+    path: "/errors",
+    editableFields: ["severity", "resolved"],
+  },
+  studySessions: {
+    table: studySessions,
+    path: "/study",
+    editableFields: ["focusLevel", "outputQuality", "energyLevel"],
+  },
+  tasks: {
+    table: tasks,
+    path: "/goals",
+    editableFields: ["status", "priority"],
+  },
 } as const;
 
 type BulkResourceType = keyof typeof BULK_RESOURCE_CONFIG;

@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { requireApprovedUser } from "@/lib/auth/supabase";
 import { getGoalPageData } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server-i18n";
+import { TasksList } from "@/components/tasks-list";
 import { humanize } from "@/lib/labels";
 import {
   Target,
@@ -271,73 +272,21 @@ export default async function GoalsPage({
                     </Button>
                   </div>
                 ) : (
-                  <div className="divide-y divide-border/50">
-                    {data.tasks.map((task) => {
-                      const isOverdue = task.dueAt && new Date(task.dueAt) < new Date() && task.status !== "done";
-                      const daysRemaining = task.dueAt
-                        ? Math.ceil((new Date(task.dueAt).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
-                        : null;
-
-                      return (
-                        <div
-                          key={task.id}
-                          className="group flex items-center gap-4 p-5 transition-all duration-200 hover:bg-muted/5"
-                        >
-                          <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
-                            task.status === "done"
-                              ? "bg-emerald/10"
-                              : isOverdue
-                              ? "bg-rose/10"
-                              : "bg-amber/10"
-                          }`}>
-                            {task.status === "done" ? (
-                              <CheckCircle2 className="h-5 w-5 text-emerald" />
-                            ) : isOverdue ? (
-                              <Clock className="h-5 w-5 text-rose" />
-                            ) : (
-                              <Clock className="h-5 w-5 text-amber" />
-                            )}
-                          </div>
-
-                          <div className="min-w-0 flex-1">
-                            <h3 className="font-medium text-text-primary truncate group-hover:text-cyan transition-colors">
-                              {task.title}
-                            </h3>
-                            <div className="flex items-center gap-3 text-xs text-muted mt-1">
-                              {task.dueAt && (
-                                <span className={`flex items-center gap-1 ${isOverdue ? "text-rose" : ""}`}>
-                                  <Calendar className="h-3 w-3" />
-                                  {isOverdue
-                                    ? `${Math.abs(daysRemaining!)}d overdue`
-                                    : daysRemaining === 0
-                                    ? "Today"
-                                    : `${daysRemaining}d left`}
-                                </span>
-                              )}
-                              {task.relatedSubjectId && (
-                                <Badge variant="outline" className="text-[10px]">
-                                  Subject linked
-                                </Badge>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-3">
-                            <Badge
-                              variant={task.status === "done" ? "success" : "muted"}
-                              className="hidden sm:inline-flex"
-                            >
-                              {humanize(task.status)}
-                            </Badge>
-                            <div className="flex items-center gap-1 text-xs font-medium">
-                              <Flag className={`h-3 w-3 ${task.priority >= 7 ? "text-amber" : "text-muted"}`} />
-                              {task.priority}
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
+                  <TasksList
+                    tasks={data.tasks}
+                    labels={{
+                      statusTodo: "Todo",
+                      statusDoing: "Doing",
+                      statusDone: "Done",
+                      statusArchived: "Archived",
+                      overdue: "overdue",
+                      today: "Today",
+                      daysLeft: "left",
+                      subjectLinked: "Subject linked",
+                      noTasks: "No tasks yet",
+                      noTasksDesc: "Create your first task",
+                    }}
+                  />
                 )}
               </GlassCard>
             </div>

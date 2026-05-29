@@ -1,7 +1,6 @@
 import { Activity, Brain, Clock, Edit3, Eye, Sparkles, Timer, Zap, type LucideIcon } from "lucide-react";
 
 import { AppShell, PageHeader } from "@/components/app-shell";
-import { DeleteButton } from "@/components/forms/delete-button";
 import { StudySessionForm } from "@/components/forms/entity-forms";
 import { CollapsiblePanel } from "@/components/premium/collapsible-panel";
 import { FocusTimer } from "@/components/premium/focus-timer";
@@ -10,7 +9,7 @@ import { MomentumBar } from "@/components/premium/momentum-bar";
 import { SectionHeader } from "@/components/premium/section-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { deleteStudySessionAction } from "@/lib/actions/resources";
+import { SessionHistory } from "@/components/session-history";
 import { requireApprovedUser } from "@/lib/auth/supabase";
 import { getReferenceData, getStudySessions } from "@/lib/data/queries";
 import type { StudySession, Subject } from "@/lib/db/schema";
@@ -19,9 +18,9 @@ import { fmtDate, humanize } from "@/lib/labels";
 
 export const dynamic = "force-dynamic";
 
-const activeMethods = new Set(["active_recall", "quiz", "simulation", "error_review"]);
-
 type TFunc = (key: string) => string;
+
+const activeMethods = new Set(["active_recall", "quiz", "simulation", "error_review"]);
 
 export default async function StudyPage({ searchParams }: { searchParams: Promise<{ edit?: string; view?: string }> }) {
   const user = await requireApprovedUser();
@@ -85,7 +84,21 @@ export default async function StudyPage({ searchParams }: { searchParams: Promis
             t={t as TFunc}
           />
 
-          <SessionHistoryPanel sessions={studySessions.slice(0, 8)} subjectById={subjectById} t={t as TFunc} />
+          <SessionHistory
+            sessions={studySessions.slice(0, 8)}
+            subjects={ref.subjects}
+            labels={{
+              title: t("study.sessionHistory"),
+              description: t("study.recentSessions"),
+              focus: t("common.focus"),
+              output: t("common.output"),
+              open: t("common.open"),
+              edit: t("common.edit"),
+              delete: t("common.delete"),
+              minutes: t("common.minutes"),
+              noData: t("common.noData"),
+            }}
+          />
           {selectedSession ? (
             <StudySessionDetail
               session={selectedSession}
@@ -242,60 +255,6 @@ function WeeklyStudyPulse({
         <MomentumBar label={t("study.activeRecall")} value={activeRatio} tone="cyan" />
         <MomentumBar label={t("common.focus")} value={avgFocus * 10} tone="violet" />
         <MomentumBar label={t("common.output")} value={avgOutput * 10} tone="emerald" />
-      </div>
-    </GlassCard>
-  );
-}
-
-function SessionHistoryPanel({
-  sessions,
-  subjectById,
-  t,
-}: {
-  sessions: StudySession[];
-  subjectById: Map<string, Subject>;
-  t: TFunc;
-}) {
-  return (
-    <GlassCard>
-      <SectionHeader title={t("study.sessionHistory")} description={t("study.recentSessions")} />
-      <div className="mt-4 divide-y divide-border/60 overflow-hidden rounded-2xl border border-border/60 bg-bg-page/25">
-        {sessions.length > 0 ? (
-          sessions.map((item) => {
-            const subject = item.subjectId ? subjectById.get(item.subjectId) : null;
-            return (
-              <div key={item.id} className="grid gap-3 p-4 transition hover:bg-bg-surface/55 md:grid-cols-[minmax(0,1fr)_auto_auto_auto] md:items-center">
-                <div className="flex min-w-0 items-center gap-3">
-                  <span className="h-10 w-1.5 rounded-full" style={{ backgroundColor: subject?.color ?? "#58D0E8" }} />
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold text-text-primary">{subject?.name ?? t("common.subject")}</p>
-                    <p className="mt-0.5 text-xs text-text-secondary">{fmtDate(item.startedAt)} · {humanize(item.method)}</p>
-                  </div>
-                </div>
-                <Badge variant={activeMethods.has(item.method) ? "success" : "muted"} className="w-fit">{item.durationMinutes}m</Badge>
-                <div className="flex gap-2 text-xs text-text-secondary">
-                  <span>{t("common.focus")}: {item.focusLevel}/10</span>
-                  <span>{t("common.output")}: {item.outputQuality}/10</span>
-                </div>
-                <div className="flex justify-end gap-1">
-                  <Button asChild variant="ghost" size="icon" aria-label={t("common.open")}>
-                    <a href={`/study?view=${item.id}`}>
-                      <Eye className="h-4 w-4" />
-                    </a>
-                  </Button>
-                  <Button asChild variant="ghost" size="icon" aria-label={t("common.edit")}>
-                    <a href={`/study?edit=${item.id}`}>
-                      <Edit3 className="h-4 w-4" />
-                    </a>
-                  </Button>
-                  <DeleteButton action={deleteStudySessionAction} id={item.id} label={t("common.delete")} returnTo="/study" />
-                </div>
-              </div>
-            );
-          })
-        ) : (
-          <div className="p-6 text-sm text-text-muted">{t("common.noData")}</div>
-        )}
       </div>
     </GlassCard>
   );
