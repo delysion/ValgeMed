@@ -225,7 +225,7 @@ export async function markReviewItemReviewedAction(formData: FormData) {
 export async function deleteReviewItemAction(formData: FormData) {
   const { db, userId } = await authorizedDb();
   await db.delete(reviewItems).where(and(eq(reviewItems.id, parseId(formData)), eq(reviewItems.userId, userId)));
-  refresh(["/reviews", "/dashboard"]);
+  refresh(["/reviews", "/flashcards", "/dashboard"]);
   redirectToReturnPath(formData, "/reviews");
 }
 
