@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { StudyButtons } from "./study-buttons";
 import type { FlashcardItem } from "@/lib/data/queries";
+import { getSubjectColor } from "./flashcard-colors";
 import { updateFlashcardSRSFromStudyAction } from "@/lib/actions/resources";
 import { X, ChevronLeft, ChevronRight, RotateCw } from "lucide-react";
 
@@ -103,12 +104,20 @@ export function StudyMode({ cards, initialIndex = 0, onComplete, onExit, labels 
     return () => window.removeEventListener("keydown", handleKey);
   }, [handleFlip, handleResponse, goPrev, isFirstCard, isFlipped, onExit]);
 
+  const colors = getSubjectColor(currentCard.subjectName);
+
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-bg-page/95 backdrop-blur-md">
+      {/* Ambient background glow */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className={cn("absolute top-0 left-1/4 w-96 h-96 rounded-full blur-3xl opacity-10", colors.dot)} />
+        <div className={cn("absolute bottom-0 right-1/4 w-96 h-96 rounded-full blur-3xl opacity-10", colors.dot)} />
+      </div>
+
       {/* Progress bar */}
-      <div className="h-0.5 bg-bg-subtle">
+      <div className="h-0.5 bg-bg-subtle relative z-10">
         <div
-          className="h-full bg-gradient-to-r from-primary to-cyan transition-all duration-300"
+          className={cn("h-full bg-gradient-to-r from-primary to-cyan transition-all duration-300", colors.dot)}
           style={{ width: `${progress}%` }}
         />
       </div>
@@ -141,10 +150,11 @@ export function StudyMode({ cards, initialIndex = 0, onComplete, onExit, labels 
               onClick={handleFlip}
               className={cn(
                 "relative w-full min-h-[300px] rounded-3xl border-2 p-8 text-center shadow-[var(--shadow-elevated)] transition-all duration-500 cursor-pointer",
-                "bg-gradient-to-br from-bg-elevated to-bg-subtle",
+                "bg-gradient-to-br from-bg-elevated via-bg-surface to-bg-subtle",
+                "before:absolute before:inset-0 before:rounded-3xl before:bg-gradient-to-br before:opacity-0 before:transition-opacity before:duration-500",
                 isFlipped
-                  ? "border-primary/40 from-primary/5 to-primary/10"
-                  : "border-border/50 hover:border-primary/30",
+                  ? "border-primary/40 shadow-primary/20 before:opacity-100 before:from-primary/10 before:via-primary/5 before:to-transparent"
+                  : "border-border/50 hover:border-primary/30 hover:shadow-primary/10",
                 isTransitioning && "opacity-0 scale-95",
               )}
               aria-label={isFlipped ? currentCard.answer ?? "" : labels.tapToFlip}

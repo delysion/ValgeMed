@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Edit3, Trash2, RotateCw, AlertCircle } from "lucide-react";
 import { deleteReviewItemAction } from "@/lib/actions/resources";
 import type { FlashcardItem } from "@/lib/data/queries";
+import { getSubjectColor } from "./flashcard-colors";
 
 interface FlashcardCardProps {
   card: FlashcardItem;
@@ -21,17 +22,6 @@ interface FlashcardCardProps {
     today: string;
   };
   index?: number;
-}
-
-const subjectColors: Record<string, { bg: string; border: string; text: string; dot: string }> = {
-  Biochemistry: { bg: "bg-violet/8", border: "border-violet/20", text: "text-violet", dot: "bg-violet" },
-  Anatomy: { bg: "bg-cyan/8", border: "border-cyan/20", text: "text-cyan", dot: "bg-cyan" },
-  Physiology: { bg: "bg-emerald/8", border: "border-emerald/20", text: "text-emerald", dot: "bg-emerald" },
-};
-
-function getSubjectColor(subjectName: string | null) {
-  if (!subjectName) return { bg: "bg-border/10", border: "border-border/20", text: "text-text-muted", dot: "bg-text-muted" };
-  return subjectColors[subjectName] ?? { bg: "bg-border/10", border: "border-border/20", text: "text-text-muted", dot: "bg-text-muted" };
 }
 
 function ConfidenceBar({ confidence }: { confidence: number }) {
@@ -109,15 +99,23 @@ export function FlashcardCard({ card, onStudy, onEdit, labels, index = 0 }: Flas
         "group relative rounded-2xl border bg-bg-surface/60 backdrop-blur-sm overflow-hidden",
         "transition-all duration-300 card-lift",
         "motion-premium motion-stagger-1",
+        colors.glow
       )}
       style={{ animationDelay: motionDelay }}
     >
       {/* Subject accent stripe */}
       <div className={cn("absolute top-0 left-0 right-0 h-0.5", colors.dot)} />
 
+      {/* Gradient mesh background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-bg-surface/80 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className={cn("absolute inset-0 bg-gradient-to-br opacity-60", colors.gradient)} />
+
+      {/* Top-right glow orb */}
+      <div className={cn("absolute -top-12 -right-12 w-32 h-32 rounded-full opacity-0 group-hover:opacity-30 blur-2xl transition-opacity duration-500", colors.dot)} />
+
       <button
         type="button"
-        className="block w-full text-left px-6 pt-6 pb-5"
+        className="block w-full text-left px-6 pt-6 pb-5 relative z-10"
         onClick={() => onStudy(card)}
         aria-label={labels.tapToFlip}
       >
@@ -154,7 +152,7 @@ export function FlashcardCard({ card, onStudy, onEdit, labels, index = 0 }: Flas
       </button>
 
       {/* Action bar */}
-      <div className="flex items-center gap-1 border-t border-border/50 px-5 py-3 bg-bg-subtle/30">
+      <div className="flex items-center gap-1 border-t border-border/50 px-5 py-3 bg-bg-subtle/30 relative z-10">
         <Button
           type="button"
           variant="ghost"

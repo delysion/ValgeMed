@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { BookOpen, FileText, Search, Tag } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +21,7 @@ type NoteItem = {
 
 export function NoteVault({ identityNotes, tartuNotes }: { identityNotes: IdentityNote[]; tartuNotes: TartuNote[] }) {
   const { t } = useTranslation();
+  const router = useRouter();
   const allNotes: NoteItem[] = [
     ...identityNotes.map((n) => ({ id: n.id, title: n.title, content: n.content, category: n.category, date: new Date(), source: "identity" as const })),
     ...tartuNotes.map((n) => ({ id: n.id, title: n.title, content: n.content, category: n.category, date: new Date(), source: "tartu" as const, priority: n.priority, status: n.status })),
@@ -52,7 +54,14 @@ export function NoteVault({ identityNotes, tartuNotes }: { identityNotes: Identi
 
       <div className="grid gap-3 sm:grid-cols-2">
         {allNotes.map((note) => (
-          <div key={note.id} className="group rounded-xl border border-white/[0.06] bg-white/[0.02] p-4 transition-all duration-300 hover:bg-white/[0.04]">
+          <div
+            key={note.id}
+            onClick={() => note.source === "identity" ? router.push(`/memory/${note.id}`) : router.push(`/memory?tab=tartu`)}
+            className={cn(
+              "group rounded-xl border border-white/[0.06] bg-white/[0.02] p-4 transition-all duration-300",
+              note.source === "identity" && "hover:bg-white/[0.04] cursor-pointer active:scale-[0.98]"
+            )}
+          >
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
