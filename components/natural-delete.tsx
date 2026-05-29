@@ -20,6 +20,8 @@ export function NaturalDelete({ className }: NaturalDeleteProps) {
 
   const [input, setInput] = useState("");
   const [candidate, setCandidate] = useState<DeleteCandidate | null>(null);
+  const [candidates, setCandidates] = useState<DeleteCandidate[]>([]);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -60,30 +62,54 @@ export function NaturalDelete({ className }: NaturalDeleteProps) {
         return;
       }
 
-      if (!result.success || !result.candidate) {
+      if (!result.success || (!result.candidate && (!result.candidates || result.candidates.length === 0))) {
         setError(result.error || (locale === "et" ? "Viga" : "Error"));
         setSearchDone(true);
         return;
       }
 
-      setCandidate(result.candidate);
+      if (result.candidates && result.candidates.length > 0) {
+        setCandidates(result.candidates);
+        setSelectedIds(new Set(result.candidates.map(c => c.id)));
+        setCandidate(null);
+      } else if (result.candidate) {
+        setCandidates([]);
+        setSelectedIds(new Set());
+        setCandidate(result.candidate);
+      }
       setSearchDone(true);
     });
   };
 
   const handleConfirmDelete = () => {
-    if (!candidate) return;
+    if (candidates.length === 0 && !candidate) return;
 
     startTransition(async () => {
-      const result = await confirmDeleteAction(candidate.id, candidate.type, locale);
+      let deleted = 0;
+      const idsToDelete = candidates.length > 0
+        ? [...selectedIds]
+        : [candidate!.id];
 
-      if (result.success) {
-        setSuccessMsg(result.message);
+      for (const id of idsToDelete) {
+        const type = candidates.length > 0
+          ? candidates.find(c => c.id === id)?.type
+          : candidate!.type;
+        if (!type) continue;
+        const result = await confirmDeleteAction(id, type, locale);
+        if (result.success) deleted++;
+      }
+
+      if (deleted > 0) {
+        setSuccessMsg(deleted === 1
+          ? (locale === "et" ? "Kirje kustutatud" : "Record deleted")
+          : (locale === "et" ? `${deleted} kirjet kustutatud` : `${deleted} records deleted`));
         setCandidate(null);
+        setCandidates([]);
+        setSelectedIds(new Set());
         setInput("");
         setShowConfirm(false);
       } else {
-        setError(result.message);
+        setError(locale === "et" ? "Kustutamine ebaõnnestus" : "Delete failed");
       }
     });
   };
@@ -168,6 +194,43 @@ export function NaturalDelete({ className }: NaturalDeleteProps) {
             </div>
           </div>
         )}
+
+        {candidates.length > 0 && searchDone && (
+          <div className="mt-4 rounded-xl border border-rose/30 bg-rose/5 p-4">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-sm font-medium text-text-primary">
+                {locale === "et" ? `${candidates.length} kirjet leitud` : `${candidates.length} records found`}
+              </p>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setShowConfirm(true)}
+                className="shrink-0"
+              >
+                {locale === "et" ? `Kustuta ${selectedIds.size}` : `Delete ${selectedIds.size}`}
+              </Button>
+            </div>
+            <div className="space-y-2 max-h-48 overflow-y-auto">
+              {candidates.map((c) => (
+                <label key={c.id} className="flex items-center gap-2 text-sm cursor-pointer hover:bg-rose/5 rounded-lg p-2">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.has(c.id)}
+                    onChange={(e) => {
+                      const next = new Set(selectedIds);
+                      if (e.target.checked) next.add(c.id);
+                      else next.delete(c.id);
+                      setSelectedIds(next);
+                    }}
+                    className="h-4 w-4 rounded border-border text-rose"
+                  />
+                  <span className="flex-1">{c.title}</span>
+                  <span className="text-xs text-text-muted">{c.type}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
       </GlassCard>
 
       <Dialog open={showConfirm} onOpenChange={setShowConfirm}>
@@ -184,10 +247,18 @@ export function NaturalDelete({ className }: NaturalDeleteProps) {
             </DialogDescription>
           </DialogHeader>
 
-          {candidate && (
-            <div className="rounded-lg border border-rose/20 bg-rose/5 p-3">
-              <p className="text-sm font-medium text-text-primary">{candidate.title}</p>
-              <p className="text-xs text-text-muted mt-1">{candidate.type}</p>
+          {(candidate || candidates.length > 0) && (
+            <div className="rounded-lg border border-rose/20 bg-rose/5 p-3 space-y-1 max-h-40 overflow-y-auto">
+              {candidates.length > 0
+                ? [...selectedIds].map(id => {
+                    const c = candidates.find(x => x.id === id);
+                    return c ? (
+                      <p key={id} className="text-sm font-medium text-text-primary">{c.title} <span className="text-xs text-text-muted">({c.type})</span></p>
+                    ) : null;
+                  })
+                : candidate && (
+                    <p className="text-sm font-medium text-text-primary">{candidate.title}</p>
+                  )}
             </div>
           )}
 

@@ -21,7 +21,7 @@ import {
 import { and, eq, gte, ilike, lt, sql } from "drizzle-orm";
 
 const deleteQuerySchema = z.object({
-  query: z.string().trim().min(1).max(200),
+  query: z.string().trim().max(200).nullable().optional(),
   filters: z.object({
     type: z.enum([
       "subject", "topic", "exam", "task", "error_log", "contact", "opportunity",
@@ -32,6 +32,7 @@ const deleteQuerySchema = z.object({
     dateFrom: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().optional(),
     dateTo: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().optional(),
   }).optional(),
+  limit: z.number().int().min(1).max(20).optional(),
   confidence: z.number().int().min(0).max(10),
 });
 
@@ -46,6 +47,7 @@ export interface DeleteCandidate {
 export interface DeletePreviewResult {
   success: boolean;
   candidate?: DeleteCandidate;
+  candidates?: DeleteCandidate[];
   error?: string;
   tooAmbiguous?: boolean;
   notFound?: boolean;
@@ -135,7 +137,7 @@ export async function previewDeleteAction(
       return { success: false, error: locale === "et" ? "Vigane päring" : "Invalid query" };
     }
 
-    const { query, filters, confidence } = validated.data;
+    const { query, filters, confidence, limit } = validated.data;
 
     if (confidence < 7) {
       return {
@@ -148,9 +150,46 @@ export async function previewDeleteAction(
     }
 
     const recordType = filters?.type;
-    const searchTerm = `%${query}%`;
-
     const db = getDb();
+
+    if (recordType && limit != null && limit > 0 && limit <= 20) {
+      switch (recordType) {
+        case "subject": {
+          const results = await db.select().from(subjects)
+            .where(eq(subjects.userId, userId))
+            .orderBy(sql`${subjects.createdAt} desc`)
+            .limit(limit);
+          if (results.length === 0) return { success: false, notFound: true };
+          return { success: true, candidates: results.map(r => ({ id: r.id, type: "subject", title: r.name })) };
+        }
+        case "topic": {
+          const results = await db.select().from(topics)
+            .where(eq(topics.userId, userId))
+            .orderBy(sql`${topics.createdAt} desc`)
+            .limit(limit);
+          if (results.length === 0) return { success: false, notFound: true };
+          return { success: true, candidates: results.map(r => ({ id: r.id, type: "topic", title: r.title })) };
+        }
+        case "exam": {
+          const results = await db.select().from(exams)
+            .where(eq(exams.userId, userId))
+            .orderBy(sql`${exams.createdAt} desc`)
+            .limit(limit);
+          if (results.length === 0) return { success: false, notFound: true };
+          return { success: true, candidates: results.map(r => ({ id: r.id, type: "exam", title: r.title })) };
+        }
+        case "task": {
+          const results = await db.select().from(tasks)
+            .where(eq(tasks.userId, userId))
+            .orderBy(sql`${tasks.createdAt} desc`)
+            .limit(limit);
+          if (results.length === 0) return { success: false, notFound: true };
+          return { success: true, candidates: results.map(r => ({ id: r.id, type: "task", title: r.title })) };
+        }
+      }
+    }
+
+    const searchTerm = `%${query ?? ""}%`;
 
     if (recordType) {
       switch (recordType) {
