@@ -2,15 +2,15 @@ import Link from "next/link";
 
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { SubjectForm } from "@/components/forms/entity-forms";
+import { SubjectsGrid } from "@/components/subjects-grid";
 import { GlassCard } from "@/components/premium/glass-card";
 import { MetricCard } from "@/components/premium/metric-card";
 import { SectionHeader } from "@/components/premium/section-header";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { requireApprovedUser } from "@/lib/auth/supabase";
 import { getSubjects as fetchSubjects, getTopics } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server-i18n";
-import { BookOpen, Target, TrendingUp, CheckCircle2, ChevronRight, Plus, ArrowUpRight, BarChart3 } from "lucide-react";
+import { BookOpen, Target, TrendingUp, CheckCircle2, Plus, ArrowUpRight, BarChart3 } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -121,72 +121,7 @@ export default async function SubjectsPage({
                 </Button>
               </div>
             ) : (
-              <div className="divide-y divide-border/50">
-                {subjects.map((subject) => {
-                  const subjectTopics = safeTopics.filter((topic) => topic.subjectId === subject.id);
-                  const ready = subjectTopics.filter(
-                    (topic) => topic.status === "exam_ready" || topic.status === "consolidated"
-                  ).length;
-                  const progress = subjectTopics.length === 0
-                    ? 0
-                    : Math.round((ready / subjectTopics.length) * 100);
-                  const color = subject.color ?? "#58D0E8";
-
-                  return (
-                    <Link
-                      key={subject.id}
-                      href={`/subjects/${subject.id}`}
-                      className="group flex items-center gap-4 p-5 transition-all duration-200 hover:bg-muted/5"
-                    >
-                      <div
-                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
-                        style={{ backgroundColor: `${color}20` }}
-                      >
-                        <div className="h-3 w-3 rounded-full" style={{ backgroundColor: color }} />
-                      </div>
-
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-medium text-text-primary truncate group-hover:text-cyan transition-colors">
-                            {subject.name}
-                          </h3>
-                          {subject.code && (
-                            <Badge variant="muted" className="text-[10px]">
-                              {subject.code}
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-3 text-xs text-muted">
-                          <span>{subjectTopics.length} topics</span>
-                          {progress > 0 && (
-                            <span className="flex items-center gap-1">
-                              <div className="h-1.5 w-16 rounded-full bg-muted/20 overflow-hidden">
-                                <div
-                                  className="h-full rounded-full bg-gradient-to-r from-cyan to-emerald"
-                                  style={{ width: `${progress}%` }}
-                                />
-                              </div>
-                              {progress}%
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-3">
-                        <div className="flex items-center gap-2 text-xs">
-                          <Badge variant="muted" className="hidden sm:inline-flex">
-                            Diff: {subject.difficulty}
-                          </Badge>
-                          <Badge className="hidden sm:inline-flex">
-                            Imp: {subject.importance}
-                          </Badge>
-                        </div>
-                        <ChevronRight className="h-4 w-4 text-muted opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
-                      </div>
-                    </Link>
-                  );
-                })}
-              </div>
+              <SubjectsGrid subjects={subjects} topics={safeTopics} />
             )}
           </GlassCard>
         </div>

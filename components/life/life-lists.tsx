@@ -338,6 +338,58 @@ type HealthLogListProps = {
 
 export function HealthLogList({ logs, editBasePath, deleteAction, labels }: HealthLogListProps) {
   const [selected, setSelected] = useState<HealthLog | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [pending, setPending] = useState(false);
+
+  const toggleId = useCallback((id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const selectAll = useCallback((checked: boolean) => {
+    if (checked) {
+      setSelectedIds(new Set(logs.map((n) => n.id)));
+    } else {
+      setSelectedIds(new Set());
+    }
+  }, [logs]);
+
+  const clearSelection = useCallback(() => setSelectedIds(new Set()), []);
+
+  const handleBulkDelete = async () => {
+    setPending(true);
+    try {
+      const formData = new FormData();
+      formData.set("resourceType", "healthLogs");
+      formData.set("ids", JSON.stringify(Array.from(selectedIds)));
+      await bulkDeleteResources(formData);
+      setSelectedIds(new Set());
+      setIsDeleteOpen(false);
+    } finally {
+      setPending(false);
+    }
+  };
+
+  const handleBulkEdit = async (patch: Record<string, unknown>) => {
+    setPending(true);
+    try {
+      const formData = new FormData();
+      formData.set("resourceType", "healthLogs");
+      formData.set("ids", JSON.stringify(Array.from(selectedIds)));
+      formData.set("patch", JSON.stringify(patch));
+      await bulkUpdateResources(formData);
+      setSelectedIds(new Set());
+      setIsEditOpen(false);
+    } finally {
+      setPending(false);
+    }
+  };
 
   if (logs.length === 0) {
     return <EmptyState title={labels.emptyTitle} description={labels.emptyBody} />;
@@ -345,11 +397,23 @@ export function HealthLogList({ logs, editBasePath, deleteAction, labels }: Heal
 
   return (
     <>
+      <BulkOperationsBar
+        selectedCount={selectedIds.size}
+        totalCount={logs.length}
+        allSelected={selectedIds.size === logs.length}
+        onSelectAll={selectAll}
+        onDelete={() => setIsDeleteOpen(true)}
+        onEdit={() => setIsEditOpen(true)}
+        onClear={clearSelection}
+        isLoading={pending}
+      />
+
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {logs.map((log) => {
           const isGoodRecovery = (log.recoveryQuality ?? 0) >= 6;
           const isHighFatigue = (log.cognitiveFatigue ?? 0) >= 7;
           const isGoodEnergy = (log.energyIntegrityScore ?? 0) >= 6;
+          const isSelected = selectedIds.has(log.id);
           const glowColor = isGoodEnergy ? "#58C8A0" : isHighFatigue ? "#E07888" : "#98A8E8";
 
           return (
@@ -359,10 +423,18 @@ export function HealthLogList({ logs, editBasePath, deleteAction, labels }: Heal
                 "group relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-bg-surface via-bg-surface to-bg-subtle/30 p-4 shadow-[var(--shadow-card)] transition-all duration-200",
                 "hover:border-primary/30 hover:shadow-[var(--shadow-elevated)] hover:-translate-y-0.5",
                 isHighFatigue && "border-l-[3px] border-l-rose",
-                isGoodEnergy && "border-l-[3px] border-l-emerald"
+                isGoodEnergy && "border-l-[3px] border-l-emerald",
+                isSelected && "ring-2 ring-primary ring-offset-2 ring-offset-bg-page"
               )}
             >
               <GlowOrb color={glowColor} />
+
+              <div className="absolute right-3 top-3 z-10">
+                <Checkbox
+                  checked={isSelected}
+                  onCheckedChange={() => toggleId(log.id)}
+                />
+              </div>
 
               <button
                 type="button"
@@ -398,6 +470,30 @@ export function HealthLogList({ logs, editBasePath, deleteAction, labels }: Heal
       </div>
 
       <RecordDrawer open={selected !== null} onClose={() => setSelected(null)} record={selected} type="health-log" editBasePath={editBasePath} />
+
+      <BulkDeleteDialog
+        isOpen={isDeleteOpen}
+        onOpenChange={setIsDeleteOpen}
+        onConfirm={handleBulkDelete}
+        itemLabel="health logs"
+        selectedCount={selectedIds.size}
+      />
+
+      <BulkEditDialog
+        isOpen={isEditOpen}
+        onOpenChange={setIsEditOpen}
+        onConfirm={handleBulkEdit}
+        fields={[
+          { key: "sleepQuality", label: "Sleep Quality (0-10)", type: "number" },
+          { key: "cognitiveFatigue", label: "Cognitive Fatigue (0-10)", type: "number" },
+          { key: "recoveryQuality", label: "Recovery Quality (0-10)", type: "number" },
+          { key: "foodQuality", label: "Food Quality (0-10)", type: "number" },
+          { key: "movementDone", label: "Movement Done", type: "boolean" },
+          { key: "notes", label: "Notes", type: "text" },
+        ]}
+        itemLabel="health logs"
+        selectedCount={selectedIds.size}
+      />
     </>
   );
 }
