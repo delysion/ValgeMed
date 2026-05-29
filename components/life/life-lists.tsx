@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Edit3, Eye, AlertTriangle, CheckCircle2, Clock, Zap, Target, ShieldCheck, Sparkles, Activity } from "lucide-react";
 
 import { DeleteButton } from "@/components/forms/delete-button";
@@ -8,6 +8,11 @@ import { EmptyState } from "@/components/premium/empty-state";
 import { RecordDrawer } from "@/components/ui/record-drawer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { BulkOperationsBar } from "@/components/bulk-operations-bar";
+import { BulkDeleteDialog } from "@/components/bulk-delete-dialog";
+import { BulkEditDialog } from "@/components/bulk-edit-dialog";
+import { bulkDeleteResources, bulkUpdateResources } from "@/lib/actions/resources";
 import type {
   TartuNote,
   TimeBlock,
@@ -57,6 +62,58 @@ type TartuNoteListProps = {
 
 export function TartuNoteList({ notes, editBasePath, deleteAction, labels }: TartuNoteListProps) {
   const [selected, setSelected] = useState<TartuNote | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [pending, setPending] = useState(false);
+
+  const toggleId = useCallback((id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const selectAll = useCallback((checked: boolean) => {
+    if (checked) {
+      setSelectedIds(new Set(notes.map((n) => n.id)));
+    } else {
+      setSelectedIds(new Set());
+    }
+  }, [notes]);
+
+  const clearSelection = useCallback(() => setSelectedIds(new Set()), []);
+
+  const handleBulkDelete = async () => {
+    setPending(true);
+    try {
+      const formData = new FormData();
+      formData.set("resourceType", "tartuNotes");
+      formData.set("ids", JSON.stringify(Array.from(selectedIds)));
+      await bulkDeleteResources(formData);
+      setSelectedIds(new Set());
+      setIsDeleteOpen(false);
+    } finally {
+      setPending(false);
+    }
+  };
+
+  const handleBulkEdit = async (patch: Record<string, unknown>) => {
+    setPending(true);
+    try {
+      const formData = new FormData();
+      formData.set("resourceType", "tartuNotes");
+      formData.set("ids", JSON.stringify(Array.from(selectedIds)));
+      formData.set("patch", JSON.stringify(patch));
+      await bulkUpdateResources(formData);
+      setSelectedIds(new Set());
+      setIsEditOpen(false);
+    } finally {
+      setPending(false);
+    }
+  };
 
   if (notes.length === 0) {
     return <EmptyState title={labels.emptyTitle} description={labels.emptyBody} />;
@@ -64,10 +121,22 @@ export function TartuNoteList({ notes, editBasePath, deleteAction, labels }: Tar
 
   return (
     <>
+      <BulkOperationsBar
+        selectedCount={selectedIds.size}
+        totalCount={notes.length}
+        allSelected={selectedIds.size === notes.length}
+        onSelectAll={selectAll}
+        onDelete={() => setIsDeleteOpen(true)}
+        onEdit={() => setIsEditOpen(true)}
+        onClear={clearSelection}
+        isLoading={pending}
+      />
+
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {notes.map((note) => {
           const isHighPriority = note.priority >= 7;
           const isDone = note.status === "done";
+          const isSelected = selectedIds.has(note.id);
           const glowColor = isDone ? "#58C8A0" : isHighPriority ? "#E0A848" : "#98A8E8";
 
           return (
@@ -77,10 +146,18 @@ export function TartuNoteList({ notes, editBasePath, deleteAction, labels }: Tar
                 "group relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-bg-surface via-bg-surface to-bg-subtle/30 p-4 shadow-[var(--shadow-card)] transition-all duration-200",
                 "hover:border-primary/30 hover:shadow-[var(--shadow-elevated)] hover:-translate-y-0.5",
                 isHighPriority && "border-l-[3px] border-l-gold",
-                isDone && "opacity-70"
+                isDone && "opacity-70",
+                isSelected && "ring-2 ring-primary ring-offset-2 ring-offset-bg-page"
               )}
             >
               <GlowOrb color={glowColor} />
+
+              <div className="absolute right-3 top-3 z-10">
+                <Checkbox
+                  checked={isSelected}
+                  onCheckedChange={() => toggleId(note.id)}
+                />
+              </div>
 
               <button
                 type="button"
@@ -138,6 +215,29 @@ export function TartuNoteList({ notes, editBasePath, deleteAction, labels }: Tar
       </div>
 
       <RecordDrawer open={selected !== null} onClose={() => setSelected(null)} record={selected} type="tartu-note" editBasePath={editBasePath} />
+
+      <BulkDeleteDialog
+        isOpen={isDeleteOpen}
+        onOpenChange={setIsDeleteOpen}
+        onConfirm={handleBulkDelete}
+        itemLabel="tartu notes"
+        selectedCount={selectedIds.size}
+      />
+
+      <BulkEditDialog
+        isOpen={isEditOpen}
+        onOpenChange={setIsEditOpen}
+        onConfirm={handleBulkEdit}
+        fields={[
+          { key: "title", label: "Title", type: "text" },
+          { key: "content", label: "Content", type: "text" },
+          { key: "category", label: "Category", type: "text" },
+          { key: "priority", label: "Priority (0-10)", type: "number" },
+          { key: "status", label: "Status", type: "text" },
+        ]}
+        itemLabel="tartu notes"
+        selectedCount={selectedIds.size}
+      />
     </>
   );
 }
@@ -317,6 +417,58 @@ type LanguageProgressListProps = {
 
 export function LanguageProgressList({ items, editBasePath, deleteAction, labels }: LanguageProgressListProps) {
   const [selected, setSelected] = useState<LanguageProgress | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [pending, setPending] = useState(false);
+
+  const toggleId = useCallback((id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const selectAll = useCallback((checked: boolean) => {
+    if (checked) {
+      setSelectedIds(new Set(items.map((n) => n.id)));
+    } else {
+      setSelectedIds(new Set());
+    }
+  }, [items]);
+
+  const clearSelection = useCallback(() => setSelectedIds(new Set()), []);
+
+  const handleBulkDelete = async () => {
+    setPending(true);
+    try {
+      const formData = new FormData();
+      formData.set("resourceType", "languageProgress");
+      formData.set("ids", JSON.stringify(Array.from(selectedIds)));
+      await bulkDeleteResources(formData);
+      setSelectedIds(new Set());
+      setIsDeleteOpen(false);
+    } finally {
+      setPending(false);
+    }
+  };
+
+  const handleBulkEdit = async (patch: Record<string, unknown>) => {
+    setPending(true);
+    try {
+      const formData = new FormData();
+      formData.set("resourceType", "languageProgress");
+      formData.set("ids", JSON.stringify(Array.from(selectedIds)));
+      formData.set("patch", JSON.stringify(patch));
+      await bulkUpdateResources(formData);
+      setSelectedIds(new Set());
+      setIsEditOpen(false);
+    } finally {
+      setPending(false);
+    }
+  };
 
   if (items.length === 0) {
     return <EmptyState title={labels.emptyTitle} description={labels.emptyBody} />;
@@ -324,9 +476,21 @@ export function LanguageProgressList({ items, editBasePath, deleteAction, labels
 
   return (
     <>
+      <BulkOperationsBar
+        selectedCount={selectedIds.size}
+        totalCount={items.length}
+        allSelected={selectedIds.size === items.length}
+        onSelectAll={selectAll}
+        onDelete={() => setIsDeleteOpen(true)}
+        onEdit={() => setIsEditOpen(true)}
+        onClear={clearSelection}
+        isLoading={pending}
+      />
+
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((item) => {
           const isGoodConfidence = item.confidence >= 6;
+          const isSelected = selectedIds.has(item.id);
           const glowColor = isGoodConfidence ? "#58C8A0" : "#98A8E8";
 
           return (
@@ -335,10 +499,18 @@ export function LanguageProgressList({ items, editBasePath, deleteAction, labels
               className={cn(
                 "group relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-bg-surface via-bg-surface to-bg-subtle/30 p-4 shadow-[var(--shadow-card)] transition-all duration-200",
                 "hover:border-primary/30 hover:shadow-[var(--shadow-elevated)] hover:-translate-y-0.5",
-                isGoodConfidence && "border-l-[3px] border-l-emerald"
+                isGoodConfidence && "border-l-[3px] border-l-emerald",
+                isSelected && "ring-2 ring-primary ring-offset-2 ring-offset-bg-page"
               )}
             >
               <GlowOrb color={glowColor} />
+
+              <div className="absolute right-3 top-3 z-10">
+                <Checkbox
+                  checked={isSelected}
+                  onCheckedChange={() => toggleId(item.id)}
+                />
+              </div>
 
               <button
                 type="button"
@@ -374,6 +546,29 @@ export function LanguageProgressList({ items, editBasePath, deleteAction, labels
       </div>
 
       <RecordDrawer open={selected !== null} onClose={() => setSelected(null)} record={selected} type="language-progress" editBasePath={editBasePath} />
+
+      <BulkDeleteDialog
+        isOpen={isDeleteOpen}
+        onOpenChange={setIsDeleteOpen}
+        onConfirm={handleBulkDelete}
+        itemLabel="language entries"
+        selectedCount={selectedIds.size}
+      />
+
+      <BulkEditDialog
+        isOpen={isEditOpen}
+        onOpenChange={setIsEditOpen}
+        onConfirm={handleBulkEdit}
+        fields={[
+          { key: "title", label: "Title", type: "text" },
+          { key: "category", label: "Category", type: "text" },
+          { key: "minutes", label: "Minutes", type: "number" },
+          { key: "confidence", label: "Confidence (0-10)", type: "number" },
+          { key: "notes", label: "Notes", type: "text" },
+        ]}
+        itemLabel="language entries"
+        selectedCount={selectedIds.size}
+      />
     </>
   );
 }

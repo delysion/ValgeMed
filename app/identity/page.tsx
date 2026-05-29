@@ -1,6 +1,6 @@
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { IdentityNoteForm } from "@/components/forms/entity-forms";
-import { ResourceTable } from "@/components/tables/resource-table";
+import { IdentityNotesList } from "@/components/identity-notes-list";
 import { GlassCard } from "@/components/premium/glass-card";
 import { SectionHeader } from "@/components/premium/section-header";
 import { deleteIdentityNoteAction } from "@/lib/actions/resources";
@@ -29,18 +29,23 @@ export default async function IdentityPage({ searchParams }: { searchParams: Pro
           <SectionHeader title={t("nav.identity")} description={`${identityNotes.length} notes`} />
           {selectedNote ? <IdentityNoteDetail note={selectedNote} /> : null}
           <div className="mt-4">
-            <ResourceTable
-              rows={identityNotes}
+            <IdentityNotesList
+              identityNotes={identityNotes}
               editBasePath="/identity"
               editParam="editNote"
               viewBasePath="/identity"
               viewParam="viewNote"
               deleteAction={deleteIdentityNoteAction}
-              columns={[
-                { header: t("common.title"), render: (note) => <span className="font-medium text-text-primary">{note.title}</span> },
-                { header: t("common.category"), render: (note) => humanize(note.category) },
-                { header: t("common.output"), render: (note) => <span className="line-clamp-2">{note.content}</span> },
-              ]}
+              selectedNote={selectedNote}
+              labels={{
+                title: t("common.title"),
+                category: t("common.category"),
+                content: t("common.output"),
+                edit: t("common.edit"),
+                delete: t("common.delete"),
+                open: t("common.open"),
+                empty: t("common.emptyTitle"),
+              }}
             />
           </div>
         </GlassCard>
