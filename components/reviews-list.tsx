@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Edit3, Eye, RotateCw } from "lucide-react";
 
 import { DeleteButton } from "@/components/forms/delete-button";
@@ -8,9 +8,15 @@ import { EmptyState } from "@/components/premium/empty-state";
 import { RecordDrawer } from "@/components/ui/record-drawer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { BulkOperationsBar } from "@/components/bulk-operations-bar";
+import { BulkDeleteDialog } from "@/components/bulk-delete-dialog";
+import { BulkEditDialog } from "@/components/bulk-edit-dialog";
 import {
   deleteReviewItemAction,
   markReviewItemReviewedAction,
+  bulkDeleteResources,
+  bulkUpdateResources,
 } from "@/lib/actions/resources";
 import type { ReviewItem, Subject, Topic } from "@/lib/db/schema";
 import { fmtDate, humanize } from "@/lib/labels";
@@ -73,8 +79,61 @@ function DueBadge({ dueAt, isActive }: { dueAt: Date; isActive: boolean }) {
 
 export function ReviewsList({ reviewItems, subjects, topics, labels }: ReviewsListProps) {
   const [selected, setSelected] = useState<ReviewItem | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [pending, setPending] = useState(false);
+
   const subjectById = new Map(subjects.map((subject) => [subject.id, subject]));
   const topicById = new Map(topics.map((topic) => [topic.id, topic]));
+
+  const toggleId = useCallback((id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const selectAll = useCallback((checked: boolean) => {
+    if (checked) {
+      setSelectedIds(new Set(reviewItems.map((r) => r.id)));
+    } else {
+      setSelectedIds(new Set());
+    }
+  }, [reviewItems]);
+
+  const clearSelection = useCallback(() => setSelectedIds(new Set()), []);
+
+  const handleBulkDelete = async () => {
+    setPending(true);
+    try {
+      const formData = new FormData();
+      formData.set("resourceType", "reviews");
+      formData.set("ids", JSON.stringify(Array.from(selectedIds)));
+      await bulkDeleteResources(formData);
+      setSelectedIds(new Set());
+      setIsDeleteOpen(false);
+    } finally {
+      setPending(false);
+    }
+  };
+
+  const handleBulkEdit = async (patch: Record<string, unknown>) => {
+    setPending(true);
+    try {
+      const formData = new FormData();
+      formData.set("resourceType", "reviews");
+      formData.set("ids", JSON.stringify(Array.from(selectedIds)));
+      formData.set("patch", JSON.stringify(patch));
+      await bulkUpdateResources(formData);
+      setSelectedIds(new Set());
+      setIsEditOpen(false);
+    } finally {
+      setPending(false);
+    }
+  };
 
   if (reviewItems.length === 0) {
     return (
@@ -84,9 +143,22 @@ export function ReviewsList({ reviewItems, subjects, topics, labels }: ReviewsLi
 
   return (
     <>
+      <BulkOperationsBar
+        selectedCount={selectedIds.size}
+        totalCount={reviewItems.length}
+        allSelected={selectedIds.size === reviewItems.length}
+        onSelectAll={selectAll}
+        onDelete={() => setIsDeleteOpen(true)}
+        onEdit={() => setIsEditOpen(true)}
+        onClear={clearSelection}
+        isLoading={pending}
+      />
+
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {reviewItems.map((item) => {
           const isOverdue = item.isActive && new Date(item.dueAt) <= new Date();
+          const isSelected = selectedIds.has(item.id);
+
           return (
             <article
               key={item.id}
@@ -94,8 +166,16 @@ export function ReviewsList({ reviewItems, subjects, topics, labels }: ReviewsLi
                 "group relative rounded-2xl border bg-gradient-to-br from-bg-subtle to-bg-elevated p-4 shadow-[var(--ring-soft)] transition-all duration-200",
                 "hover:border-primary/30 hover:shadow-md hover:-translate-y-0.5",
                 isOverdue && "border-rose/30 from-rose-bg/30 to-bg-elevated",
+                isSelected && "ring-2 ring-primary ring-offset-2 ring-offset-bg-page"
               )}
             >
+              <div className="absolute right-3 top-3 z-10">
+                <Checkbox
+                  checked={isSelected}
+                  onCheckedChange={() => toggleId(item.id)}
+                />
+              </div>
+
               <button
                 type="button"
                 className="block w-full text-left"
@@ -172,6 +252,26 @@ export function ReviewsList({ reviewItems, subjects, topics, labels }: ReviewsLi
           subjectName: subjectById.get(selected.subjectId)?.name,
           topicTitle: selected.topicId ? topicById.get(selected.topicId)?.title : undefined,
         } : undefined}
+      />
+
+      <BulkDeleteDialog
+        isOpen={isDeleteOpen}
+        onOpenChange={setIsDeleteOpen}
+        onConfirm={handleBulkDelete}
+        itemLabel="review cards"
+        selectedCount={selectedIds.size}
+      />
+
+      <BulkEditDialog
+        isOpen={isEditOpen}
+        onOpenChange={setIsEditOpen}
+        onConfirm={handleBulkEdit}
+        fields={[
+          { key: "confidence", label: "Confidence", type: "number" },
+          { key: "isActive", label: "Active", type: "boolean" },
+        ]}
+        itemLabel="review cards"
+        selectedCount={selectedIds.size}
       />
     </>
   );

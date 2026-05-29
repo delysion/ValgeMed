@@ -1,13 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Edit3, Eye, AlertTriangle } from "lucide-react";
 import { RecordDrawer } from "@/components/ui/record-drawer";
 import { DeleteButton } from "@/components/forms/delete-button";
 import { getMasteryLevel, MasteryBadge, type MasteryLevel } from "@/components/premium/gamification";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { deleteTopicAction } from "@/lib/actions/resources";
+import { Checkbox } from "@/components/ui/checkbox";
+import { BulkOperationsBar } from "@/components/bulk-operations-bar";
+import { BulkDeleteDialog } from "@/components/bulk-delete-dialog";
+import { BulkEditDialog } from "@/components/bulk-edit-dialog";
+import { bulkDeleteResources, bulkUpdateResources, deleteTopicAction } from "@/lib/actions/resources";
 import type { Topic, Subject, Exam, ErrorLog } from "@/lib/db/schema";
 import { fmtDate } from "@/lib/labels";
 import { cn } from "@/lib/utils";
@@ -65,9 +69,61 @@ function InlineProgress({ value, tone, className }: { value: number; tone: strin
 
 export function TopicsGrid({ topics, subjects, exams, errorLogs, labels }: TopicsGridProps) {
   const [selected, setSelected] = useState<Topic | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [pending, setPending] = useState(false);
 
   const subjectById = new Map(subjects.map((s) => [s.id, s]));
   const examById = new Map(exams.map((e) => [e.id, e]));
+
+  const toggleId = useCallback((id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const selectAll = useCallback((checked: boolean) => {
+    if (checked) {
+      setSelectedIds(new Set(topics.map((t) => t.id)));
+    } else {
+      setSelectedIds(new Set());
+    }
+  }, [topics]);
+
+  const clearSelection = useCallback(() => setSelectedIds(new Set()), []);
+
+  const handleBulkDelete = async () => {
+    setPending(true);
+    try {
+      const formData = new FormData();
+      formData.set("resourceType", "topics");
+      formData.set("ids", JSON.stringify(Array.from(selectedIds)));
+      await bulkDeleteResources(formData);
+      setSelectedIds(new Set());
+      setIsDeleteOpen(false);
+    } finally {
+      setPending(false);
+    }
+  };
+
+  const handleBulkEdit = async (patch: Record<string, unknown>) => {
+    setPending(true);
+    try {
+      const formData = new FormData();
+      formData.set("resourceType", "topics");
+      formData.set("ids", JSON.stringify(Array.from(selectedIds)));
+      formData.set("patch", JSON.stringify(patch));
+      await bulkUpdateResources(formData);
+      setSelectedIds(new Set());
+      setIsEditOpen(false);
+    } finally {
+      setPending(false);
+    }
+  };
 
   if (topics.length === 0) {
     return (
@@ -83,22 +139,42 @@ export function TopicsGrid({ topics, subjects, exams, errorLogs, labels }: Topic
 
   return (
     <>
+      <BulkOperationsBar
+        selectedCount={selectedIds.size}
+        totalCount={topics.length}
+        allSelected={selectedIds.size === topics.length}
+        onSelectAll={selectAll}
+        onDelete={() => setIsDeleteOpen(true)}
+        onEdit={() => setIsEditOpen(true)}
+        onClear={clearSelection}
+        isLoading={pending}
+      />
+
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {topics.map((topic) => {
           const openErrors = errorLogs.filter((e) => e.topicId === topic.id && !e.resolved).length;
           const level = getMasteryLevel({ confidence: topic.confidence, status: topic.status, openErrors });
           const suggestedAction = topic.confidence <= 3 ? labels.activeRecall : openErrors > 0 ? labels.errorReview : labels.reviews;
+          const isSelected = selectedIds.has(topic.id);
 
           return (
             <div
               key={topic.id}
               className={cn(
                 "group relative cursor-pointer overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-bg-surface via-bg-surface to-bg-subtle/30 p-4 shadow-[var(--shadow-card)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-elevated)] hover:border-primary/30",
-                masteryTone[level]
+                masteryTone[level],
+                isSelected && "ring-2 ring-primary ring-offset-2 ring-offset-bg-page"
               )}
               onClick={() => setSelected(topic)}
             >
-              <div className="flex items-start justify-between gap-3">
+              <div className="absolute left-3 top-3 z-10" onClick={(e) => e.stopPropagation()}>
+                <Checkbox
+                  checked={isSelected}
+                  onCheckedChange={() => toggleId(topic.id)}
+                />
+              </div>
+
+              <div className="flex items-start justify-between gap-3 pl-7">
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-[10px] font-semibold uppercase tracking-[0.1em] text-text-muted">
                     {subjectById.get(topic.subjectId)?.name ?? labels.subject}
@@ -157,7 +233,7 @@ export function TopicsGrid({ topics, subjects, exams, errorLogs, labels }: Topic
                   <Eye className="h-3 w-3 mr-1" />
                   {labels.open}
                 </Button>
-                <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                <div className="flex items-center gap-1">
                   <Button
                     asChild
                     variant="ghost"
@@ -187,6 +263,27 @@ export function TopicsGrid({ topics, subjects, exams, errorLogs, labels }: Topic
           subjectName: subjectById.get(selected.subjectId)?.name,
           examTitle: selected.examId ? examById.get(selected.examId)?.title : undefined,
         } : undefined}
+      />
+
+      <BulkDeleteDialog
+        isOpen={isDeleteOpen}
+        onOpenChange={setIsDeleteOpen}
+        onConfirm={handleBulkDelete}
+        itemLabel="topics"
+        selectedCount={selectedIds.size}
+      />
+
+      <BulkEditDialog
+        isOpen={isEditOpen}
+        onOpenChange={setIsEditOpen}
+        onConfirm={handleBulkEdit}
+        fields={[
+          { key: "priority", label: "Priority", type: "number" },
+          { key: "difficulty", label: "Difficulty", type: "number" },
+          { key: "confidence", label: "Confidence", type: "number" },
+        ]}
+        itemLabel="topics"
+        selectedCount={selectedIds.size}
       />
     </>
   );

@@ -1,6 +1,6 @@
 "use server";
 
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 
 import { requireAuthUserId } from "@/lib/db/auth";
 import { getDb } from "@/lib/db";
@@ -672,4 +672,66 @@ export async function updateFlashcardSRSFromStudyAction(formData: FormData) {
     .where(and(eq(reviewItems.id, id), eq(reviewItems.userId, userId)));
 
   refresh(["/flashcards", "/dashboard"]);
+}
+
+const BULK_RESOURCE_CONFIG = {
+  topics: {
+    table: topics,
+    path: "/topics",
+    editableFields: ["title", "description", "status", "priority", "difficulty", "confidence"],
+  },
+  reviews: {
+    table: reviewItems,
+    path: "/reviews",
+    editableFields: ["isActive", "confidence", "intervalDays"],
+  },
+} as const;
+
+type BulkResourceType = keyof typeof BULK_RESOURCE_CONFIG;
+
+function parseBulkIds(formData: FormData): string[] {
+  const raw = formData.get("ids");
+  if (typeof raw !== "string") throw new Error("ids must be a JSON string array");
+  const parsed: unknown = JSON.parse(raw);
+  if (!Array.isArray(parsed) || parsed.length === 0) throw new Error("ids must be a non-empty array");
+  if (parsed.length > 100) throw new Error("Too many ids – max 100 per operation");
+  const ids = parsed.filter((id): id is string => typeof id === "string" && id.length > 0);
+  if (ids.length === 0) throw new Error("No valid ids provided");
+  return ids;
+}
+
+export async function bulkDeleteResources(formData: FormData) {
+  const { db, userId } = await authorizedDb();
+  const rawType = formData.get("resourceType");
+  if (typeof rawType !== "string" || !(rawType in BULK_RESOURCE_CONFIG)) {
+    throw new Error("Invalid resource type");
+  }
+  const config = BULK_RESOURCE_CONFIG[rawType as BulkResourceType];
+  const ids = parseBulkIds(formData);
+  await db.delete(config.table).where(and(inArray(config.table.id, ids), eq((config.table as any).userId, userId)));
+  refresh([config.path, "/dashboard"]);
+}
+
+export async function bulkUpdateResources(formData: FormData) {
+  const { db, userId } = await authorizedDb();
+  const rawType = formData.get("resourceType");
+  if (typeof rawType !== "string" || !(rawType in BULK_RESOURCE_CONFIG)) {
+    throw new Error("Invalid resource type");
+  }
+  const config = BULK_RESOURCE_CONFIG[rawType as BulkResourceType];
+  const ids = parseBulkIds(formData);
+  const rawPatch = formData.get("patch");
+  if (typeof rawPatch !== "string") throw new Error("patch must be a JSON string");
+  const patch: Record<string, unknown> = JSON.parse(rawPatch);
+  const allowed = new Set<string>(config.editableFields);
+  const filteredPatch: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(patch)) {
+    if (!allowed.has(key as string)) continue;
+    if (value === undefined || value === "") continue;
+    filteredPatch[key] = value;
+  }
+  if (Object.keys(filteredPatch).length === 0) throw new Error("No valid fields to update");
+  filteredPatch.updatedAt = new Date();
+  await db.update(config.table).set(filteredPatch).where(and(inArray(config.table.id, ids), eq((config.table as any).userId, userId)));
+  refresh([config.path, "/dashboard"]);
 }
