@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AlertTriangle, ArrowRight, Gauge, ShieldCheck, Target, Zap } from "lucide-react";
+import { AlertTriangle, ArrowRight, Gauge, ShieldCheck, Target, Zap, Star, Clock, TrendingUp, AlertCircle } from "lucide-react";
 
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { DailyLogForm } from "@/components/forms/entity-forms";
@@ -7,10 +7,8 @@ import { GlassCard } from "@/components/premium/glass-card";
 import { MetricCard } from "@/components/premium/metric-card";
 import { MomentumBar } from "@/components/premium/momentum-bar";
 import { ScoreRing } from "@/components/premium/score-ring";
-import { SectionHeader } from "@/components/premium/section-header";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
 import { requireApprovedUser } from "@/lib/auth/supabase";
 import { getCommandPageData, getEliteTargetSettings } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server-i18n";
@@ -22,22 +20,9 @@ import {
 } from "@/lib/scoring/elite-performance";
 import { SmartInputWrapper } from "@/components/smart-input-wrapper";
 import { QuickActions } from "@/components/quick-actions";
+import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
-
-export function CommandPageSkeleton() {
-  return (
-    <div className="motion-premium flex flex-col gap-5">
-      <Skeleton variant="text" className="h-8 w-64" />
-      <Skeleton variant="text" className="h-36 w-full rounded-2xl" />
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {Array.from({ length: 4 }).map((_, index) => (
-          <Skeleton key={index} variant="text" className="h-24 w-full rounded-2xl" />
-        ))}
-      </div>
-    </div>
-  );
-}
 
 function pct(score: number) {
   return `${Math.round(score * 10)}%`;
@@ -158,6 +143,8 @@ export default async function CommandPage() {
   const localizedMove = localizeMove(move, tt);
   const snapshot = command.snapshot;
 
+  const moveTone = move.kind === "recovery" ? "danger" : move.kind === "error_review" ? "rose" : "cyan";
+
   return (
     <AppShell user={user}>
       <PageHeader
@@ -166,13 +153,13 @@ export default async function CommandPage() {
         description={tt("command.description")}
         actions={
           <div className="flex flex-wrap gap-2">
-            <Button asChild variant="outline">
+            <Button asChild variant="outline" size="sm">
               <Link href="/settings">
                 {tt("command.eliteTargetMode")}
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
-            <Button asChild variant="outline">
+            <Button asChild variant="outline" size="sm">
               <Link href="/performance-blockers">
                 {tt("command.performanceBlockers")}
                 <ArrowRight className="h-4 w-4" />
@@ -197,87 +184,118 @@ export default async function CommandPage() {
           </GlassCard>
         ) : null}
 
-        <GlassCard tone={move.kind === "recovery" ? "danger" : "cyan"} className="overflow-hidden">
-          <div className="grid gap-5 xl:grid-cols-[1fr_300px]">
-            <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge variant={move.kind === "recovery" ? "danger" : "default"}>{tt("command.todaysWinningMove")}</Badge>
-                <Badge variant="outline">{tt("command.targetLabel")}: {command.settings.targetLevel.replace("_", " ")}</Badge>
+        <GlassCard tone={moveTone} className="overflow-hidden p-0">
+          <div className="relative overflow-hidden bg-gradient-to-br from-bg-surface via-bg-surface to-bg-elevated p-6 sm:p-8">
+            {move.kind === "recovery" && (
+              <div className="absolute inset-0 bg-gradient-to-r from-rose-bg/30 via-transparent to-transparent" />
+            )}
+            <div className="relative grid gap-6 lg:grid-cols-[1fr_280px]">
+              <div>
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="flex items-center gap-2 rounded-lg bg-bg-elevated/80 px-3 py-1.5">
+                    <Star className={cn("h-4 w-4", moveTone === "danger" ? "text-rose" : moveTone === "rose" ? "text-rose" : "text-cyan")} />
+                    <span className="text-xs font-semibold uppercase tracking-[0.1em] text-text-primary">Today&apos;s Winning Move</span>
+                  </div>
+                  <Badge variant={move.kind === "recovery" ? "danger" : move.kind === "error_review" ? "rose" : "default"} size="sm">
+                    {command.settings.targetLevel.replace("_", " ")}
+                  </Badge>
+                </div>
+
+                <div className={cn("mt-5 text-3xl font-bold tracking-tight sm:text-4xl", moveTone === "danger" ? "text-rose" : "text-text-primary")}>
+                  {localizedMove.title}
+                </div>
+                <p className="mt-3 max-w-2xl text-base leading-relaxed text-text-secondary">
+                  {localizedMove.reason}
+                </p>
+
+                <div className="mt-6 grid gap-4 sm:grid-cols-3">
+                  <div className="flex items-center gap-3 rounded-xl border border-border/60 bg-bg-page/60 px-4 py-3">
+                    <Clock className="h-5 w-5 text-text-muted" />
+                    <div>
+                      <p className="text-[10px] uppercase tracking-[0.1em] text-text-muted">{tt("command.time")}</p>
+                      <p className="mt-0.5 text-lg font-semibold text-text-primary">{localizedMove.estimatedMinutes} {tt("command.minutes")}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 rounded-xl border border-border/60 bg-bg-page/60 px-4 py-3">
+                    <TrendingUp className="h-5 w-5 text-emerald" />
+                    <div>
+                      <p className="text-[10px] uppercase tracking-[0.1em] text-text-muted">{tt("command.expectedImpact")}</p>
+                      <p className="mt-0.5 text-sm font-medium text-text-primary">{localizedMove.expectedImpact}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 rounded-xl border border-rose/20 bg-rose-bg/20 px-4 py-3">
+                    <AlertCircle className="h-5 w-5 text-rose" />
+                    <div>
+                      <p className="text-[10px] uppercase tracking-[0.1em] text-rose">{tt("command.dangerIfIgnored")}</p>
+                      <p className="mt-0.5 text-sm font-medium text-text-primary">{localizedMove.dangerIfIgnored}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <Button asChild size="lg" className="mt-6 gap-2">
+                  <Link href={move.href}>
+                    {localizedMove.cta}
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
               </div>
-              <h2 className="mt-4 text-balance text-3xl font-semibold tracking-tight text-text-primary sm:text-4xl">
-                {localizedMove.title}
-              </h2>
-              <p className="mt-3 max-w-3xl text-sm leading-6 text-text-secondary">{localizedMove.reason}</p>
 
-              <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                <div className="rounded-xl border border-border/70 bg-bg-elevated/60 p-4">
-                  <p className="text-xs uppercase tracking-[0.14em] text-text-muted">{tt("command.time")}</p>
-                  <p className="mt-2 text-lg font-semibold text-text-primary">{localizedMove.estimatedMinutes} {tt("command.minutes")}</p>
-                </div>
-                <div className="rounded-xl border border-border/70 bg-bg-elevated/60 p-4">
-                  <p className="text-xs uppercase tracking-[0.14em] text-text-muted">{tt("command.expectedImpact")}</p>
-                  <p className="mt-2 text-sm font-medium leading-5 text-text-primary">{localizedMove.expectedImpact}</p>
-                </div>
-                <div className="rounded-xl border border-rose/25 bg-rose-bg/20 p-4">
-                  <p className="text-xs uppercase tracking-[0.14em] text-rose">{tt("command.dangerIfIgnored")}</p>
-                  <p className="mt-2 text-sm font-medium leading-5 text-text-primary">{localizedMove.dangerIfIgnored}</p>
-                </div>
+              <div className="flex flex-col items-center justify-center">
+                <ScoreRing
+                  score={snapshot.elitePerformanceIndex.score}
+                  label={tt("command.eliteIndex")}
+                  caption={localizeScoreLabel(snapshot.elitePerformanceIndex.label, tt)}
+                  size="lg"
+                  tone={snapshot.elitePerformanceIndex.score >= 7 ? "emerald" : snapshot.elitePerformanceIndex.score >= 5 ? "gold" : "danger"}
+                  glow={snapshot.elitePerformanceIndex.score >= 7}
+                />
+                <p className="mt-4 text-center text-xs leading-5 text-text-muted">
+                  {tt("command.score.recommendedAction")}
+                </p>
               </div>
-
-              <Button asChild className="mt-5">
-                <Link href={move.href}>
-                  {localizedMove.cta}
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
-            </div>
-
-            <div className="grid place-items-center rounded-2xl border border-border/70 bg-bg-page/50 p-6">
-              <ScoreRing
-                score={snapshot.elitePerformanceIndex.score}
-                label={tt("command.eliteIndex")}
-                caption={localizeScoreLabel(snapshot.elitePerformanceIndex.label, tt)}
-                size="lg"
-                tone={snapshot.elitePerformanceIndex.score >= 7 ? "emerald" : snapshot.elitePerformanceIndex.score >= 5 ? "gold" : "danger"}
-              />
-              <p className="mt-4 text-center text-xs leading-5 text-text-muted">
-                {tt("command.score.recommendedAction")}
-              </p>
             </div>
           </div>
         </GlassCard>
 
         {command.recoveryWarning ? (
-          <GlassCard tone="danger">
-            <SectionHeader title={tt("command.recoveryWarningTitle")} description={tt("command.recoveryWarningMessage")} icon={Zap} />
-            <p className="mt-3 text-sm leading-6 text-text-secondary">{tt("command.recoveryWarningAction")}</p>
+          <GlassCard tone="danger" hover>
+            <div className="flex items-start gap-4">
+              <div className="grid h-10 w-10 place-items-center rounded-xl bg-rose/20">
+                <Zap className="h-5 w-5 text-rose" />
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-text-primary">{tt("command.recoveryWarningTitle")}</h3>
+                <p className="mt-1.5 text-sm leading-6 text-text-secondary">{tt("command.recoveryWarningMessage")}</p>
+                <p className="mt-2 text-sm font-medium text-text-primary">{tt("command.recoveryWarningAction")}</p>
+              </div>
+            </div>
           </GlassCard>
         ) : null}
 
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <MetricCard
-            title={tt("command.examReadiness")}
+            label={tt("command.examReadiness")}
             value={snapshot.examReadiness.toFixed(1)}
             detail={tt("command.readinessTargetDetail", { target: snapshot.readinessTarget.toFixed(1) })}
             icon={Gauge}
             tone={snapshot.readinessGap > 2 ? "danger" : "violet"}
           />
           <MetricCard
-            title={tt("command.readinessGap")}
+            label={tt("command.readinessGap")}
             value={snapshot.readinessGap.toFixed(1)}
             detail={tt("command.readinessGapDetail")}
             icon={Target}
             tone={snapshot.readinessGap > 2 ? "rose" : "emerald"}
           />
           <MetricCard
-            title={tt("command.errorDestruction")}
+            label={tt("command.errorDestruction")}
             value={pct(snapshot.errorDestructionProgress)}
             detail={tt("command.blockersOpen", { count: command.blockers.filter((blocker) => blocker.status !== "destroyed").length })}
             icon={ShieldCheck}
             tone={snapshot.criticalErrorPenalty >= 7 ? "danger" : "emerald"}
           />
           <MetricCard
-            title={tt("command.energyIntegrity")}
+            label={tt("command.energyIntegrity")}
             value={snapshot.energyIntegrity.toFixed(1)}
             detail={snapshot.burnoutRisk >= 7 ? tt("command.overtrainingRisk") : tt("command.performanceProtection")}
             icon={Zap}
@@ -286,8 +304,14 @@ export default async function CommandPage() {
         </div>
 
         <GlassCard>
-          <SectionHeader title={tt("command.snapshotTitle")} description={tt("command.snapshotDescription")} icon={Gauge} />
-          <div className="mt-5 grid gap-4 md:grid-cols-2">
+          <div className="mb-5 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Gauge className="h-4 w-4 text-text-muted" />
+              <h3 className="text-base font-semibold text-text-primary">{tt("command.snapshotTitle")}</h3>
+            </div>
+            <p className="text-xs text-text-muted">{tt("command.snapshotDescription")}</p>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2">
             <MomentumBar label={tt("command.activeRecallCoverage")} value={snapshot.activeRecallCoverage * 10} tone="cyan" detail={tt("command.activeRecallCoverageDetail")} />
             <MomentumBar label={tt("command.passiveStudyPenalty")} value={snapshot.passiveStudyPenalty * 10} tone={snapshot.passiveStudyPenalty >= 6 ? "rose" : "emerald"} detail={snapshot.passiveStudyPenalty >= 6 ? tt("command.passiveStudyWarning") : tt("command.controlled")} />
             <MomentumBar label={tt("command.criticalErrorPenalty")} value={snapshot.criticalErrorPenalty * 10} tone={snapshot.criticalErrorPenalty >= 7 ? "rose" : "emerald"} detail={tt("command.criticalErrorPenaltyDetail")} />
@@ -295,39 +319,44 @@ export default async function CommandPage() {
           </div>
         </GlassCard>
 
-        <div className="grid gap-5 xl:grid-cols-[1fr_0.9fr]">
-          <GlassCard tone="rose">
-            <SectionHeader title={tt("command.topThreats")} description={tt("command.topThreatsDescription")} icon={AlertTriangle} />
-            <div className="mt-4 grid gap-3">
+        <div className="grid gap-5 lg:grid-cols-[1fr_0.9fr]">
+          <GlassCard tone="rose" hover>
+            <div className="mb-4 flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 text-rose" />
+              <h3 className="text-base font-semibold text-text-primary">{tt("command.topThreats")}</h3>
+            </div>
+            <div className="space-y-3">
               {command.threats.length > 0 ? command.threats.map((threat) => {
                 const localizedThreat = localizeThreat(threat, tt);
                 return (
                   <Link
                     key={`${threat.type}-${threat.title}`}
                     href={threat.href}
-                    className="rounded-xl border border-border/70 bg-bg-elevated/50 p-4 transition hover:border-rose/40 hover:bg-rose-bg/15"
+                    className="flex items-start gap-3 rounded-xl border border-border/70 bg-bg-elevated/50 p-4 transition hover:border-rose/40 hover:bg-rose-bg/15"
                   >
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="text-sm font-semibold text-text-primary">{localizedThreat.title}</p>
-                        <p className="mt-1 text-xs leading-5 text-text-secondary">{localizedThreat.detail}</p>
-                      </div>
-                      <Badge variant={threat.severity >= 7 ? "danger" : "warning"}>{threat.severity.toFixed(1)}</Badge>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium text-text-primary">{localizedThreat.title}</p>
+                      <p className="mt-1 text-xs leading-5 text-text-secondary">{localizedThreat.detail}</p>
                     </div>
+                    <Badge variant={threat.severity >= 7 ? "danger" : "warning"} size="sm">{threat.severity.toFixed(1)}</Badge>
                   </Link>
                 );
               }) : (
-                <p className="rounded-xl border border-border/70 bg-bg-elevated/50 p-4 text-sm text-text-secondary">
-                  {tt("command.noThreats")}
-                </p>
+                <div className="flex flex-col items-center justify-center py-8 text-center">
+                  <ShieldCheck className="h-8 w-8 text-emerald" />
+                  <p className="mt-2 text-sm text-text-secondary">{tt("command.noThreats")}</p>
+                </div>
               )}
             </div>
           </GlassCard>
 
-          <GlassCard tone="violet">
-            <SectionHeader title={tt("command.mostDangerousCluster")} description={tt("command.mostDangerousClusterDescription")} icon={ShieldCheck} />
+          <GlassCard tone="violet" hover>
+            <div className="mb-4 flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4 text-violet" />
+              <h3 className="text-base font-semibold text-text-primary">{tt("command.mostDangerousCluster")}</h3>
+            </div>
             {command.blockers[0] ? (
-              <div className="mt-4 rounded-xl border border-border/70 bg-bg-elevated/50 p-4">
+              <div className="rounded-xl border border-border/70 bg-bg-elevated/50 p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-base font-semibold text-text-primary">{command.blockers[0].label}</p>
@@ -335,14 +364,15 @@ export default async function CommandPage() {
                   </div>
                   <Badge variant="danger">{command.blockers[0].severity.toFixed(1)}</Badge>
                 </div>
-                <Button asChild variant="outline" className="mt-4">
+                <Button asChild variant="outline" size="sm" className="mt-4">
                   <Link href="/performance-blockers">{tt("command.openEnemyList")}</Link>
                 </Button>
               </div>
             ) : (
-              <p className="mt-4 rounded-xl border border-border/70 bg-bg-elevated/50 p-4 text-sm text-text-secondary">
-                {tt("command.noBlockerLogged")}
-              </p>
+              <div className="flex flex-col items-center justify-center py-8 text-center">
+                <ShieldCheck className="h-8 w-8 text-emerald" />
+                <p className="mt-2 text-sm text-text-secondary">{tt("command.noBlockerLogged")}</p>
+              </div>
             )}
           </GlassCard>
         </div>
@@ -350,35 +380,35 @@ export default async function CommandPage() {
         <SmartInputWrapper />
         <QuickActions hasData={!lowData} />
 
-        <div className="grid gap-5 xl:grid-cols-[1fr_0.8fr]">
+        <div className="grid gap-5 lg:grid-cols-[1fr_0.8fr]">
           <GlassCard>
-            <SectionHeader title={tt("command.oneClearNextAction")} description={tt("command.oneClearNextActionDescription")} icon={Target} />
-            <div className="mt-4">
-              <DailyLogForm log={todayLog} compact t={t as (key: string) => string} />
+            <div className="mb-4 flex items-center gap-2">
+              <Target className="h-4 w-4 text-text-muted" />
+              <h3 className="text-base font-semibold text-text-primary">{tt("command.oneClearNextAction")}</h3>
             </div>
+            <DailyLogForm log={todayLog} compact t={t as (key: string) => string} />
           </GlassCard>
 
           <GlassCard>
-            <SectionHeader title={tt("command.examPlans")} description={tt("command.examPlansDescription")} icon={Gauge} />
-            <div className="mt-4 grid gap-3">
-              {command.examPlans.slice(0, 2).map((plan) => (
-                <Link key={plan.examId} href={`/exams/${plan.examId}`} className="rounded-xl border border-border/70 bg-bg-elevated/50 p-4 transition hover:border-primary/40">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="font-semibold text-text-primary">{plan.title}</p>
-                      <p className="mt-1 text-xs text-text-secondary">
-                        {tt("command.examPlanGap", { gap: plan.eliteReadinessGap.toFixed(1) })}
-                      </p>
-                    </div>
-                    <Badge>{plan.daysRemaining === null ? "--" : `${plan.daysRemaining}d`}</Badge>
+            <div className="mb-4 flex items-center gap-2">
+              <Gauge className="h-4 w-4 text-text-muted" />
+              <h3 className="text-base font-semibold text-text-primary">{tt("command.examPlans")}</h3>
+            </div>
+            <div className="space-y-3">
+              {command.examPlans.slice(0, 3).map((plan) => (
+                <Link key={plan.examId} href={`/exams/${plan.examId}`} className="flex items-center justify-between gap-3 rounded-xl border border-border/70 bg-bg-elevated/50 px-4 py-3 transition hover:border-primary/40">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-medium text-text-primary">{plan.title}</p>
+                    <p className="mt-1 text-xs text-text-secondary">
+                      {tt("command.examPlanGap", { gap: plan.eliteReadinessGap.toFixed(1) })}
+                    </p>
                   </div>
+                  <Badge variant="muted" size="sm">{plan.daysRemaining === null ? "--" : `${plan.daysRemaining}d`}</Badge>
                 </Link>
               ))}
-              {command.examPlans.length === 0 ? (
-                <p className="rounded-xl border border-border/70 bg-bg-elevated/50 p-4 text-sm text-text-secondary">
-                  {tt("command.noExamPlans")}
-                </p>
-              ) : null}
+              {command.examPlans.length === 0 && (
+                <p className="py-4 text-center text-sm text-text-muted">{tt("command.noExamPlans")}</p>
+              )}
             </div>
           </GlassCard>
         </div>

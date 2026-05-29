@@ -60,7 +60,7 @@ export function ActivityAreaChart({
       <canvas
         id={gradientId}
         ref={(el) => {
-          if (!el) return;
+          if (typeof document === "undefined" || !el) return;
           const ctx = el.getContext("2d");
           if (!ctx) return;
           const gradient = ctx.createLinearGradient(0, 0, 0, height);

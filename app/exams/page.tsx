@@ -1,24 +1,45 @@
 import Link from "next/link";
 import { differenceInCalendarDays, startOfToday } from "date-fns";
-import { ArrowRight, Edit3, ShieldCheck } from "lucide-react";
+import { ArrowRight, Edit3, ShieldCheck, Calendar, Zap, AlertTriangle } from "lucide-react";
 
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { DeleteButton } from "@/components/forms/delete-button";
 import { ExamForm } from "@/components/forms/entity-forms";
 import { GlassCard } from "@/components/premium/glass-card";
-import { MomentumBar } from "@/components/premium/momentum-bar";
+import { ScoreRing } from "@/components/premium/score-ring";
 import { RiskBadge } from "@/components/premium/gamification";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { deleteExamAction } from "@/lib/actions/resources";
 import { requireApprovedUser } from "@/lib/auth/supabase";
 import { getExamPageData } from "@/lib/data/queries";
 import { getI18n } from "@/lib/i18n/server-i18n";
 import { fmtDate, humanize } from "@/lib/labels";
 import { buildExamReadiness } from "@/lib/scoring/engine";
+import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
+
+function AnimatedProgress({ value, tone }: { value: number; tone: string }) {
+  return (
+    <div className="relative h-2 w-full overflow-hidden rounded-full bg-bg-subtle">
+      <div
+        className={cn("h-full rounded-full transition-all duration-1000 ease-out", tone)}
+        style={{ width: `${value * 10}%` }}
+      />
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer" />
+    </div>
+  );
+}
+
+function GlowOrb({ color, className }: { color: string; className?: string }) {
+  return (
+    <div
+      className={cn("absolute -inset-20 rounded-full blur-[80px] opacity-20 pointer-events-none", className)}
+      style={{ background: `radial-gradient(circle, ${color} 0%, transparent 70%)` }}
+    />
+  );
+}
 
 export default async function ExamsPage({ searchParams }: { searchParams: Promise<{ edit?: string }> }) {
   const user = await requireApprovedUser();
@@ -44,83 +65,159 @@ export default async function ExamsPage({ searchParams }: { searchParams: Promis
     return { ...exam, liveReadiness: readiness.score, linkedTopics, weakTopics, openErrors };
   });
 
+  const avgReadiness = examRows.length > 0
+    ? examRows.reduce((sum, exam) => sum + exam.liveReadiness, 0) / examRows.length
+    : 0;
+
   return (
     <AppShell user={user}>
-      <PageHeader title={t("exams.title")} description={t("exams.subtitle")} />
-      <div className="grid gap-5 xl:grid-cols-[420px_1fr]">
-        <ExamForm exam={editing} subjects={data.subjects} t={t as (key: string) => string} />
-        <div className="grid gap-4 md:grid-cols-2">
-          {examRows.map((exam) => {
-            const daysLeft = exam.examDate ? differenceInCalendarDays(exam.examDate, today) : null;
-            const urgency = daysLeft === null ? 3 : daysLeft <= 7 ? 9 : daysLeft <= 21 ? 7 : 4;
-            return (
-              <GlassCard key={exam.id} tone={exam.riskLevel >= 7 ? "danger" : "violet"} className="flex flex-col gap-5">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <Badge variant="muted">{subjectById.get(exam.subjectId)?.name ?? t("common.subject")}</Badge>
-                    <h3 className="mt-3 text-2xl font-semibold text-text-primary">{exam.title}</h3>
-                    <p className="mt-1 text-sm text-text-secondary">{humanize(exam.format)} - {fmtDate(exam.examDate)}</p>
-                  </div>
-                  <RiskBadge value={exam.riskLevel} labels={{ low: t("risk.low"), medium: t("risk.medium"), high: t("risk.high"), critical: t("risk.critical") }} />
-                </div>
+      <PageHeader
+        title={t("exams.title")}
+        description={t("exams.subtitle")}
+        actions={
+          <div className="flex items-center gap-3 rounded-xl border border-border/60 bg-bg-surface/60 px-4 py-2">
+            <span className="text-xs text-text-muted">Avg Readiness</span>
+            <span className="font-mono text-lg font-bold text-text-primary">{avgReadiness.toFixed(1)}</span>
+          </div>
+        }
+      />
 
-                <div className="grid gap-3 sm:grid-cols-3">
-                  <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
-                    <p className="text-xs text-text-secondary">{t("exams.readiness")}</p>
-                    <p className="mt-1 font-mono text-2xl text-text-primary">{exam.liveReadiness.toFixed(1)}</p>
-                  </div>
-                  <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
-                    <p className="text-xs text-text-secondary">{t("exams.urgency")}</p>
-                    <p className="mt-1 font-mono text-2xl text-text-primary">{daysLeft ?? "-"}</p>
-                  </div>
-                  <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
-                    <p className="text-xs text-text-secondary">{t("exams.openErrors")}</p>
-                    <p className="mt-1 font-mono text-2xl text-text-primary">{exam.openErrors.length}</p>
-                  </div>
-                </div>
+      <div className="grid gap-5 xl:grid-cols-[340px_1fr]">
+        <div className="xl:sticky xl:top-24 xl:self-start">
+          <GlassCard tone="neutral" padded>
+            <div className="mb-4">
+              <h3 className="text-sm font-semibold text-text-primary">{editing ? "Edit Exam" : "New Exam"}</h3>
+              <p className="text-xs text-text-muted">Track your exam readiness</p>
+            </div>
+            <ExamForm exam={editing} subjects={data.subjects} t={t as (key: string) => string} />
+          </GlassCard>
+        </div>
 
-                <div className="space-y-3">
-                  <MomentumBar label={t("exams.readiness")} value={exam.liveReadiness * 10} tone={exam.liveReadiness < 5 ? "danger" : "cyan"} />
-                  <MomentumBar label={t("exams.urgency")} value={urgency * 10} tone={urgency >= 8 ? "danger" : "gold"} />
-                </div>
-
-                <div className="flex flex-wrap gap-2">
-                  {exam.weakTopics.slice(0, 3).map((topic) => (
-                    <Badge key={topic.id} variant="rose">{topic.title}</Badge>
-                  ))}
-                  {exam.weakTopics.length === 0 ? <Badge variant="success">{t("mastery.examReady")}</Badge> : null}
-                </div>
-
-                <div className="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-white/10 pt-4">
-                  <Button asChild>
-                    <Link href={`/exams/${exam.id}`}>
-                      <ShieldCheck className="h-4 w-4" />
-                      {t("exams.cardAction")}
-                      <ArrowRight className="h-4 w-4" />
-                    </Link>
-                  </Button>
-                  <div className="flex items-center gap-1">
-                    <Button asChild variant="ghost" size="icon" aria-label={t("common.edit")}>
-                      <Link href={`/exams?edit=${exam.id}`}>
-                        <Edit3 className="h-4 w-4" />
-                      </Link>
-                    </Button>
-                    <DeleteButton action={deleteExamAction} id={exam.id} label={t("common.delete")} />
-                  </div>
-                </div>
-              </GlassCard>
-            );
-          })}
+        <div className="space-y-4">
           {examRows.length === 0 ? (
-            <Card>
-              <CardHeader>
-                <CardTitle>{t("common.empty")}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-text-secondary">{t("exams.subtitle")}</p>
-              </CardContent>
-            </Card>
-          ) : null}
+            <GlassCard>
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <div className="grid h-14 w-14 place-items-center rounded-2xl bg-bg-subtle">
+                  <Calendar className="h-6 w-6 text-text-muted" />
+                </div>
+                <p className="mt-4 text-sm font-medium text-text-primary">No exams yet</p>
+                <p className="mt-1 text-xs text-text-secondary">Add your first exam to start tracking readiness</p>
+              </div>
+            </GlassCard>
+          ) : (
+            <div className="grid gap-4 md:grid-cols-2">
+              {examRows.map((exam) => {
+                const daysLeft = exam.examDate ? differenceInCalendarDays(exam.examDate, today) : null;
+                const isHighRisk = exam.riskLevel >= 7;
+                const isLowReadiness = exam.liveReadiness < 5;
+                const isUrgent = daysLeft !== null && daysLeft <= 7;
+                const isCritical = isHighRisk && isLowReadiness;
+
+                const cardTone = isCritical ? "danger" : isHighRisk ? "rose" : isLowReadiness ? "gold" : "violet";
+                const ringTone = isLowReadiness ? "danger" : "cyan";
+                const progressTone = isLowReadiness ? "from-rose to-red-400" : "from-cyan to-blue-400";
+                const glowColor = isCritical ? "#E07888" : isHighRisk ? "#E07888" : isLowReadiness ? "#E0A848" : "#98A8E8";
+
+                return (
+                  <GlassCard
+                    key={exam.id}
+                    tone={cardTone}
+                    hover
+                    className="relative flex flex-col gap-4 overflow-hidden"
+                  >
+                    <GlowOrb color={glowColor} className={cn("opacity-10", isCritical && "opacity-20")} />
+
+                    <div className="relative flex items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <Badge variant="muted" size="sm">
+                          {subjectById.get(exam.subjectId)?.name ?? t("common.subject")}
+                        </Badge>
+                        <h3 className="mt-2 text-lg font-bold text-text-primary">{exam.title}</h3>
+                        <p className="mt-0.5 text-xs text-text-secondary">
+                          {humanize(exam.format)} · {fmtDate(exam.examDate)}
+                        </p>
+                      </div>
+                      <RiskBadge value={exam.riskLevel} labels={{ low: t("risk.low"), medium: t("risk.medium"), high: t("risk.high"), critical: t("risk.critical") }} />
+                    </div>
+
+                    <div className="relative flex items-center gap-4">
+                      <div className="relative">
+                        <ScoreRing
+                          score={exam.liveReadiness}
+                          label={t("exams.readiness")}
+                          size="sm"
+                          tone={ringTone}
+                          glow={exam.liveReadiness >= 7}
+                        />
+                        {isUrgent && (
+                          <div className="absolute -top-1 -right-1 flex h-3 w-3">
+                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose opacity-75" />
+                            <span className="relative inline-flex h-3 w-3 rounded-full bg-rose" />
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="mb-2 flex items-center justify-between">
+                          <span className="text-[10px] font-medium text-text-secondary">Readiness</span>
+                          <span className="font-mono text-[10px] font-bold text-text-primary">{exam.liveReadiness.toFixed(1)}/10</span>
+                        </div>
+                        <AnimatedProgress value={exam.liveReadiness} tone={progressTone} />
+
+                        <div className="mt-3 grid grid-cols-3 gap-2">
+                          <div className="rounded-lg border border-border/40 bg-bg-elevated/40 px-2 py-2 text-center backdrop-blur-sm">
+                            <p className={cn("text-sm font-bold tabular-nums", isUrgent ? "text-rose" : "text-text-primary")}>
+                              {daysLeft ?? "-"}
+                            </p>
+                            <p className="text-[9px] font-medium text-text-secondary">days left</p>
+                          </div>
+                          <div className="rounded-lg border border-border/40 bg-bg-elevated/40 px-2 py-2 text-center backdrop-blur-sm">
+                            <p className={cn("text-sm font-bold tabular-nums", exam.openErrors.length > 0 ? "text-rose" : "text-emerald")}>
+                              {exam.openErrors.length}
+                            </p>
+                            <p className="text-[9px] font-medium text-text-secondary">open errors</p>
+                          </div>
+                          <div className="rounded-lg border border-border/40 bg-bg-elevated/40 px-2 py-2 text-center backdrop-blur-sm">
+                            <p className="text-sm font-bold tabular-nums text-text-primary">{exam.linkedTopics.length}</p>
+                            <p className="text-[9px] font-medium text-text-secondary">topics</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {exam.weakTopics.length > 0 && (
+                      <div className="relative flex flex-wrap gap-1.5">
+                        {exam.weakTopics.slice(0, 3).map((topic) => (
+                          <Badge key={topic.id} variant="danger" size="sm" className="animate-pulse-slow">{topic.title}</Badge>
+                        ))}
+                        {exam.weakTopics.length > 3 && (
+                          <Badge variant="ghost" size="sm">+{exam.weakTopics.length - 3}</Badge>
+                        )}
+                      </div>
+                    )}
+
+                    <div className="relative mt-auto flex items-center justify-between gap-3 border-t border-border/40 pt-4">
+                      <Button asChild size="sm" className="gap-1.5 bg-gradient-to-r from-primary to-violet text-white shadow-lg shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-0.5">
+                        <Link href={`/exams/${exam.id}`}>
+                          <ShieldCheck className="h-3.5 w-3.5" />
+                          {t("exams.cardAction")}
+                          <ArrowRight className="h-3.5 w-3.5" />
+                        </Link>
+                      </Button>
+                      <div className="flex items-center gap-1">
+                        <Button asChild variant="ghost" size="icon" className="h-8 w-8" aria-label={t("common.edit")}>
+                          <Link href={`/exams?edit=${exam.id}`}>
+                            <Edit3 className="h-4 w-4" />
+                          </Link>
+                        </Button>
+                        <DeleteButton action={deleteExamAction} id={exam.id} label={t("common.delete")} />
+                      </div>
+                    </div>
+                  </GlassCard>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
     </AppShell>

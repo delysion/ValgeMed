@@ -6,7 +6,6 @@ import { TopicsGrid } from "@/components/topics-grid";
 import { masteryKey, type MasteryLevel } from "@/components/premium/gamification";
 import { GlassCard } from "@/components/premium/glass-card";
 import { MetricCard } from "@/components/premium/metric-card";
-import { SectionHeader } from "@/components/premium/section-header";
 import { Button } from "@/components/ui/button";
 import { requireApprovedUser } from "@/lib/auth/supabase";
 import { getErrorLogs, getExams, getSubjects, getTopics } from "@/lib/data/queries";
@@ -79,25 +78,29 @@ export default async function TopicsPage({
           />
         </div>
 
-        <div className="grid gap-5 xl:grid-cols-[420px_1fr]">
-          <GlassCard tone="neutral" padded>
-            <SectionHeader
-              title={editing ? "Edit Topic" : "New Topic"}
-              description="Add a topic to master"
-              icon={Brain}
-            />
-            <div className="mt-4">
+        <div className="grid gap-5 xl:grid-cols-[380px_1fr]">
+          <div className="xl:sticky xl:top-24 xl:self-start">
+            <GlassCard tone="neutral" padded>
+              <div className="mb-4 flex items-center gap-2">
+                <div className="grid h-8 w-8 place-items-center rounded-lg bg-cyan/10">
+                  <Brain className="h-4 w-4 text-cyan" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-text-primary">{editing ? "Edit Topic" : "New Topic"}</h3>
+                  <p className="text-xs text-text-muted">Add a topic to master</p>
+                </div>
+              </div>
               <TopicForm topic={editing} subjects={subjects} exams={exams} t={tt} />
-            </div>
-          </GlassCard>
+            </GlassCard>
+          </div>
 
-          <div className="space-y-5">
-            <GlassCard>
-              <form method="GET" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="space-y-4">
+            <GlassCard tone="default" padded={false}>
+              <form method="GET" className="flex flex-wrap items-center gap-3 p-3 sm:p-4">
                 <select
                   name="subject"
                   defaultValue={params.subject ?? ""}
-                  className="h-11 rounded-xl border border-border/60 bg-bg-surface px-4 text-sm text-text-primary focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/20"
+                  className="h-9 flex-1 min-w-[140px] rounded-lg border border-border/60 bg-bg-surface px-3 text-sm text-text-primary focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/20"
                 >
                   <option value="">{tt("common.subject")}</option>
                   {subjects.map((subject) => (
@@ -107,7 +110,7 @@ export default async function TopicsPage({
                 <select
                   name="status"
                   defaultValue={params.status ?? ""}
-                  className="h-11 rounded-xl border border-border/60 bg-bg-surface px-4 text-sm text-text-primary focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/20"
+                  className="h-9 flex-1 min-w-[140px] rounded-lg border border-border/60 bg-bg-surface px-3 text-sm text-text-primary focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/20"
                 >
                   <option value="">{tt("common.status")}</option>
                   {["not_started", "first_exposure", "understood", "recalled", "practiced", "error_corrected", "consolidated", "exam_ready"].map((status) => (
@@ -121,10 +124,10 @@ export default async function TopicsPage({
                   max={10}
                   defaultValue={params.priority ?? ""}
                   placeholder={tt("common.priority")}
-                  className="h-11 rounded-xl border border-border/60 bg-bg-surface px-4 text-sm text-text-primary placeholder:text-text-muted focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/20"
+                  className="h-9 w-20 rounded-lg border border-border/60 bg-bg-surface px-3 text-sm text-text-primary placeholder:text-text-muted focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/20"
                 />
-                <Button type="submit" variant="outline" className="h-11">
-                  <Filter className="mr-2 h-4 w-4" />
+                <Button type="submit" variant="outline" size="sm" className="h-9 gap-1.5">
+                  <Filter className="h-3.5 w-3.5" />
                   {tt("common.open")}
                 </Button>
               </form>
