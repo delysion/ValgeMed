@@ -31,20 +31,20 @@ export function MomentumBar({
 
   return (
     <div className="group">
-      <div className="mb-1.5 flex items-center justify-between gap-2">
-        <span className="truncate text-sm font-medium text-text-primary">{label}</span>
-        <span className="shrink-0 font-mono text-xs text-text-secondary transition-colors group-hover:text-text-primary">{safe.toFixed(0)}%</span>
+      <div className="mb-1 flex items-center justify-between gap-2">
+        <span className="truncate text-xs font-medium text-text-primary sm:text-sm">{label}</span>
+        <span className="shrink-0 font-mono text-[10px] text-text-secondary transition-colors group-hover:text-text-primary sm:text-xs">{safe.toFixed(0)}%</span>
       </div>
-      <div className="relative h-2 overflow-hidden rounded-full bg-bg-subtle">
+      <div className="relative h-1.5 overflow-hidden rounded-full bg-bg-subtle sm:h-2">
         <div
           className={cn("h-full rounded-full bg-gradient-to-r transition-all duration-700 ease-out", gradient[tone])}
           style={{ width: `${safe}%` }}
         />
       </div>
       {detail ? (
-        <div className="mt-1.5 flex items-center gap-1.5">
-          <div className={cn("h-1 w-1 rounded-full", dotColor[tone])} />
-          <p className="text-[11px] text-text-secondary">{detail}</p>
+        <div className="mt-1 flex items-center gap-1.5">
+          <div className={cn("h-0.5 w-0.5 rounded-full", dotColor[tone])} />
+          <p className="text-[10px] text-text-secondary sm:text-[11px]">{detail}</p>
         </div>
       ) : null}
     </div>

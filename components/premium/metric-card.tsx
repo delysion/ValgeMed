@@ -62,7 +62,7 @@ export function MetricCard({
   return (
     <div
       className={cn(
-        "flex items-center gap-4 rounded-2xl border border-border/60 bg-gradient-to-br from-bg-surface via-bg-surface to-bg-subtle/20 p-4 shadow-[var(--shadow-card)] transition-all duration-200 hover:shadow-[var(--shadow-elevated)] hover:-translate-y-[2px] sm:flex-col sm:items-start sm:gap-2.5 sm:p-5",
+        "flex items-center gap-2 rounded-xl border border-border/60 bg-gradient-to-br from-bg-surface via-bg-surface to-bg-subtle/20 p-2.5 shadow-[var(--shadow-card)] transition-all duration-200 hover:shadow-[var(--shadow-elevated)] sm:gap-2.5 sm:p-3 sm:rounded-2xl md:p-4",
         tone && toneStyles[tone]?.glow,
         className
       )}
@@ -71,43 +71,43 @@ export function MetricCard({
       {Icon ? (
         <div
           className={cn(
-            "grid h-10 w-10 shrink-0 place-items-center rounded-xl border",
+            "grid h-7 w-7 shrink-0 place-items-center rounded-md border sm:h-8 sm:w-8 sm:rounded-lg md:h-9 md:w-9 md:rounded-xl",
             tone ? toneStyles[tone]?.icon : "bg-gradient-to-br from-primary-soft to-primary/10 border-primary/15",
             iconClassName
           )}
         >
-          <Icon className={cn("h-5 w-5", tone ? toneStyles[tone]?.icon.split(" ")[0] : "text-primary")} />
+          <Icon className={cn("h-3 w-3 sm:h-4 sm:w-4", tone ? toneStyles[tone]?.icon.split(" ")[0] : "text-primary")} />
         </div>
       ) : null}
-      <div className="min-w-0 w-full">
+      <div className="min-w-0 flex-1">
         {displayLabel ? (
-          <p className="truncate text-xs font-medium text-text-muted uppercase tracking-[0.08em]">{displayLabel}</p>
+          <p className="truncate text-[9px] font-medium uppercase tracking-[0.06em] text-text-muted sm:text-[10px]">{displayLabel}</p>
         ) : null}
-        <div className="flex items-baseline gap-1.5 flex-wrap">
-          <p className="text-xl font-bold tabular-nums text-text-primary sm:text-2xl">{value}</p>
+        <div className="flex items-baseline gap-0.5 flex-wrap">
+          <p className="text-base font-bold tabular-nums text-text-primary sm:text-lg md:text-xl">{value}</p>
           {trend ? (
             isNewTrend ? (
               <span
                 className={cn(
-                  "flex items-center gap-0.5 text-xs font-medium",
+                  "flex items-center gap-0.5 text-[9px] font-medium sm:text-[10px]",
                   trend === "up" && "text-emerald",
                   trend === "down" && "text-danger",
                   trend === "stable" && "text-text-muted"
                 )}
               >
-                {trend === "up" && <TrendingUp className="h-3 w-3" />}
-                {trend === "down" && <TrendingDown className="h-3 w-3" />}
-                {trend === "stable" && <Minus className="h-3 w-3" />}
+                {trend === "up" && <TrendingUp className="h-2 w-2 sm:h-2.5 sm:w-2.5" />}
+                {trend === "down" && <TrendingDown className="h-2 w-2 sm:h-2.5 sm:w-2.5" />}
+                {trend === "stable" && <Minus className="h-2 w-2 sm:h-2.5 sm:w-2.5" />}
                 {trendValue}
               </span>
             ) : (
-              <span className="rounded-md bg-gradient-to-br from-bg-subtle to-border/30 px-1.5 py-0.5 text-[10px] font-semibold text-text-secondary truncate max-w-[120px]">
+              <span className="rounded bg-gradient-to-br from-bg-subtle to-border/30 px-1 py-0.5 text-[8px] font-semibold text-text-secondary truncate max-w-[80px] sm:text-[10px] sm:max-w-[100px]">
                 {trend}
               </span>
             )
           ) : null}
         </div>
-        {detail ? <p className="mt-1 text-xs leading-relaxed text-text-muted line-clamp-2">{detail}</p> : null}
+        {detail ? <p className="mt-0 text-[9px] leading-relaxed text-text-muted line-clamp-1 sm:mt-0.5 sm:text-[10px] sm:line-clamp-2">{detail}</p> : null}
       </div>
     </div>
   );

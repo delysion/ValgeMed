@@ -31,48 +31,52 @@ export default async function ReputationPage({ searchParams }: { searchParams: P
     <AppShell user={user}>
       <PageHeader title={t("reputation.title")} description={t("reputation.subtitle")} eyebrow={t("nba.reputation_signal.reason")} />
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-3 grid grid-cols-2 gap-2 sm:mt-4 sm:gap-3 sm:grid-cols-4">
         <MetricCard title={t("reputation.title")} value={reputationEvents.length} detail="events" icon={Award} tone="cyan" />
         <MetricCard title={t("common.status")} value={activeEvents.length} detail="active" icon={Star} tone={activeEvents.length > 0 ? "emerald" : "gold"} />
         <MetricCard title={t("reputation.trust")} value={avgImpact} detail="/ 10 avg" icon={Shield} tone={Number(avgImpact) >= 6 ? "emerald" : "gold"} />
-        <MetricCard title="High impact" value={highImpact} detail="≥ 7/10" icon={TrendingUp} tone={highImpact > 0 ? "violet" : "gold"} />
+        <MetricCard title="High" value={highImpact} detail="≥ 7" icon={TrendingUp} tone={highImpact > 0 ? "violet" : "gold"} />
       </div>
 
-      <div className="mt-5 grid gap-5 xl:grid-cols-[420px_1fr]">
-        <GlassCard>
-          <SectionHeader title={t("reputation.logEvent")} description={t("reputation.subtitle")} />
-          <div className="mt-4">
+      <div className="mt-4 flex flex-col gap-4 sm:mt-5 sm:gap-5">
+        <div className="rounded-2xl border border-border/60 bg-bg-surface p-4 sm:p-0">
+          <div className="mb-3 sm:mb-4">
+            <SectionHeader title={t("reputation.logEvent")} description={t("reputation.subtitle")} />
+          </div>
+          <div className="sm:pt-0">
             <ReputationEventForm event={editing} />
           </div>
-        </GlassCard>
+        </div>
 
-        <div className="space-y-5">
-          <GlassCard tone="emerald">
+        <div className="rounded-2xl border border-emerald/20 bg-gradient-to-br from-emerald-bg/40 via-bg-surface to-bg-surface p-4 sm:p-0">
+          <div className="mb-3 sm:mb-4">
             <SectionHeader title={t("reputation.trust")} description={t("common.strategicSignal")} />
-            <div className="mt-5 space-y-4">
-              <MomentumBar label={t("reputation.trust")} value={(Number(avgImpact) / 10) * 100} tone="emerald" />
-              <MomentumBar label="Active" value={activeEvents.length * 20} tone="cyan" />
-              <MomentumBar label="High impact" value={highImpact * 25} tone="violet" />
-            </div>
-          </GlassCard>
+          </div>
+          <div className="space-y-3 sm:space-y-4">
+            <MomentumBar label={t("reputation.trust")} value={(Number(avgImpact) / 10) * 100} tone="emerald" />
+            <MomentumBar label="Active" value={activeEvents.length * 20} tone="cyan" />
+            <MomentumBar label="High impact" value={highImpact * 25} tone="violet" />
+          </div>
+        </div>
 
-          <GlassCard className="min-w-0">
+        <div className="rounded-2xl border border-border/60 bg-bg-surface p-4 sm:p-0">
+          <div className="mb-3 sm:mb-4">
             <SectionHeader title={t("reputation.history")} description={`${reputationEvents.length} ${t("language.entries")}`} />
-            <div className="mt-4">
-              <ReputationEventList
-                events={reputationEvents}
-                editBasePath="/reputation"
-                deleteAction={deleteReputationEventAction}
-                labels={{
-                  emptyTitle: t("common.emptyTitle"),
-                  emptyBody: t("common.emptyBody"),
-                  open: t("common.open"),
-                  edit: t("common.edit"),
-                  delete: t("common.delete"),
-                }}
-              />
-            </div>
-          </GlassCard>
+          </div>
+          <div className="sm:pt-0">
+            <ReputationEventList
+              events={reputationEvents}
+              editBasePath="/reputation"
+              deleteAction={deleteReputationEventAction}
+              labels={{
+                emptyTitle: t("common.emptyTitle"),
+                emptyBody: t("common.emptyBody"),
+                open: t("common.open"),
+                edit: t("common.edit"),
+                delete: t("common.delete"),
+              }}
+            />
+          </div>
         </div>
       </div>
     </AppShell>

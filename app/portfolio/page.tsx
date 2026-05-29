@@ -31,48 +31,52 @@ export default async function PortfolioPage({ searchParams }: { searchParams: Pr
     <AppShell user={user}>
       <PageHeader title={t("portfolio.title")} description={t("portfolio.subtitle")} eyebrow={t("achievement.researchSeed")} />
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-3 grid grid-cols-2 gap-2 sm:mt-4 sm:gap-3 sm:grid-cols-4">
         <MetricCard title={t("portfolio.title")} value={portfolioItems.length} detail="items" icon={Award} tone="cyan" />
         <MetricCard title={t("common.status")} value={activeItems.length} detail="active" icon={Star} tone={activeItems.length > 0 ? "emerald" : "gold"} />
         <MetricCard title={t("opportunities.value")} value={avgValue} detail="/ 10 avg" icon={TrendingUp} tone={Number(avgValue) >= 6 ? "emerald" : "gold"} />
         <MetricCard title="Research" value={researchItems} detail="items" icon={FileText} tone={researchItems > 0 ? "violet" : "gold"} />
       </div>
 
-      <div className="mt-5 grid gap-5 xl:grid-cols-[420px_1fr]">
-        <GlassCard>
-          <SectionHeader title={t("portfolio.addItem")} description={t("portfolio.subtitle")} />
-          <div className="mt-4">
+      <div className="mt-4 flex flex-col gap-4 sm:mt-5 sm:gap-5">
+        <div className="rounded-2xl border border-border/60 bg-bg-surface p-4 sm:p-0">
+          <div className="mb-3 sm:mb-4">
+            <SectionHeader title={t("portfolio.addItem")} description={t("portfolio.subtitle")} />
+          </div>
+          <div className="sm:pt-0">
             <PortfolioItemForm item={editing} />
           </div>
-        </GlassCard>
+        </div>
 
-        <div className="space-y-5">
-          <GlassCard tone="gold">
+        <div className="rounded-2xl border border-gold/20 bg-gradient-to-br from-gold-bg/40 via-bg-surface to-bg-surface p-4 sm:p-0">
+          <div className="mb-3 sm:mb-4">
             <SectionHeader title={t("portfolio.trophyRoom")} description={t("common.strategicSignal")} />
-            <div className="mt-5 space-y-4">
-              <MomentumBar label={t("opportunities.value")} value={(Number(avgValue) / 10) * 100} tone="gold" />
-              <MomentumBar label="Active" value={activeItems.length * 15} tone="emerald" />
-              <MomentumBar label="Research" value={researchItems * 20} tone="violet" />
-            </div>
-          </GlassCard>
+          </div>
+          <div className="space-y-3 sm:space-y-4">
+            <MomentumBar label={t("opportunities.value")} value={(Number(avgValue) / 10) * 100} tone="gold" />
+            <MomentumBar label="Active" value={activeItems.length * 15} tone="emerald" />
+            <MomentumBar label="Research" value={researchItems * 20} tone="violet" />
+          </div>
+        </div>
 
-          <GlassCard>
+        <div className="rounded-2xl border border-border/60 bg-bg-surface p-4 sm:p-0">
+          <div className="mb-3 sm:mb-4">
             <SectionHeader title={t("portfolio.history")} description={`${portfolioItems.length} ${t("language.entries")}`} />
-            <div className="mt-4">
-              <PortfolioItemList
-                items={portfolioItems}
-                editBasePath="/portfolio"
-                deleteAction={deletePortfolioItemAction}
-                labels={{
-                  emptyTitle: t("common.emptyTitle"),
-                  emptyBody: t("common.emptyBody"),
-                  open: t("common.open"),
-                  edit: t("common.edit"),
-                  delete: t("common.delete"),
-                }}
-              />
-            </div>
-          </GlassCard>
+          </div>
+          <div className="sm:pt-0">
+            <PortfolioItemList
+              items={portfolioItems}
+              editBasePath="/portfolio"
+              deleteAction={deletePortfolioItemAction}
+              labels={{
+                emptyTitle: t("common.emptyTitle"),
+                emptyBody: t("common.emptyBody"),
+                open: t("common.open"),
+                edit: t("common.edit"),
+                delete: t("common.delete"),
+              }}
+            />
+          </div>
         </div>
       </div>
     </AppShell>

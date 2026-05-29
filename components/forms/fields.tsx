@@ -53,7 +53,7 @@ export function FieldGrid({
   className?: string;
 }) {
   return (
-    <div className={cn("grid gap-5 grid-cols-1 md:grid-cols-2", className)}>
+    <div className={cn("grid gap-4 grid-cols-1 sm:grid-cols-2", className)}>
       {children}
     </div>
   );
@@ -198,11 +198,11 @@ export function SubmitBar({
   const { pending } = useFormStatus();
 
   return (
-    <div className="flex flex-wrap items-center gap-3 pt-6">
-      <Button type="submit" className="min-h-[44px] min-w-[140px] rounded-xl" disabled={pending}>
+    <div className="flex flex-col gap-2 pt-4 sm:flex-row sm:items-center sm:gap-3 sm:pt-6">
+      <Button type="submit" className="h-10 min-w-[120px] rounded-lg text-xs sm:min-h-[44px] sm:min-w-[140px] sm:rounded-xl sm:text-sm" disabled={pending}>
         {pending && pendingLabel ? (
           <span className="flex items-center gap-2">
-            <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+            <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white sm:h-4 sm:w-4" />
             {pendingLabel}
           </span>
         ) : (
@@ -210,7 +210,7 @@ export function SubmitBar({
         )}
       </Button>
       {cancelHref ? (
-        <Button asChild type="button" variant="ghost" className="min-h-[44px] rounded-xl">
+        <Button asChild type="button" variant="ghost" className="h-10 rounded-lg text-xs sm:min-h-[44px] sm:rounded-xl sm:text-sm">
           <a href={cancelHref}>{cancelLabel}</a>
         </Button>
       ) : null}

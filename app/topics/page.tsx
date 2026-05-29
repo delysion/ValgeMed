@@ -1,10 +1,12 @@
-import { Filter } from "lucide-react";
+import { Filter, BookOpen, Target, CheckCircle2, AlertTriangle, Brain } from "lucide-react";
 
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { TopicForm } from "@/components/forms/entity-forms";
 import { TopicsGrid } from "@/components/topics-grid";
 import { masteryKey, type MasteryLevel } from "@/components/premium/gamification";
 import { GlassCard } from "@/components/premium/glass-card";
+import { MetricCard } from "@/components/premium/metric-card";
+import { SectionHeader } from "@/components/premium/section-header";
 import { Button } from "@/components/ui/button";
 import { requireApprovedUser } from "@/lib/auth/supabase";
 import { getErrorLogs, getExams, getSubjects, getTopics } from "@/lib/data/queries";
@@ -20,6 +22,7 @@ export default async function TopicsPage({
 }) {
   const user = await requireApprovedUser();
   const { t } = await getI18n();
+  const tt = t as (key: string) => string;
   const params = await searchParams;
   const [subjects, exams, topics, errorLogs] = await Promise.all([getSubjects(), getExams(), getTopics(), getErrorLogs()]);
   const editing = topics.find((topic) => topic.id === params.edit);
@@ -30,62 +33,132 @@ export default async function TopicsPage({
     return true;
   });
 
+  const totalTopics = topics.length;
+  const examReadyTopics = topics.filter((t) => t.status === "exam_ready" || t.status === "consolidated").length;
+  const weakTopics = topics.filter((t) => t.confidence <= 4).length;
+  const avgPriority = totalTopics > 0
+    ? Math.round(topics.reduce((acc, t) => acc + t.priority, 0) / totalTopics)
+    : 0;
+
   return (
     <AppShell user={user}>
-      <PageHeader title={t("topics.title")} description={t("topics.subtitle")} />
-      <div className="grid gap-5 xl:grid-cols-[420px_1fr]">
-        <TopicForm topic={editing} subjects={subjects} exams={exams} t={t as (key: string) => string} />
-        <div className="space-y-5">
-          <GlassCard>
-            <form method="GET" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              <select name="subject" defaultValue={params.subject ?? ""} className="h-11 rounded-2xl border border-white/10 bg-black/25 px-4 text-sm text-text-primary">
-                <option value="">{t("common.subject")}</option>
-                {subjects.map((subject) => (
-                  <option key={subject.id} value={subject.id} className="bg-[#11151c]">{subject.name}</option>
-                ))}
-              </select>
-              <select name="status" defaultValue={params.status ?? ""} className="h-11 rounded-2xl border border-white/10 bg-black/25 px-4 text-sm text-text-primary">
-                <option value="">{t("common.status")}</option>
-                {["not_started", "first_exposure", "understood", "recalled", "practiced", "error_corrected", "consolidated", "exam_ready"].map((status) => (
-                  <option key={status} value={status} className="bg-[#11151c]">{humanize(status)}</option>
-                ))}
-              </select>
-              <input name="priority" type="number" min={0} max={10} defaultValue={params.priority ?? ""} placeholder={t("common.priority")} className="h-11 rounded-2xl border border-white/10 bg-black/25 px-4 text-sm text-text-primary" />
-              <Button type="submit" variant="outline">
-                <Filter className="h-4 w-4" />
-                {t("common.open")}
-              </Button>
-            </form>
+      <PageHeader
+        title={tt("topics.title")}
+        description={tt("topics.subtitle")}
+      />
+
+      <div className="motion-premium flex flex-col gap-5">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <MetricCard
+            label="Total Topics"
+            value={totalTopics}
+            icon={BookOpen}
+            tone="cyan"
+            detail={`${subjects.length} subjects`}
+          />
+          <MetricCard
+            label="Exam Ready"
+            value={examReadyTopics}
+            icon={CheckCircle2}
+            tone="emerald"
+            detail={`${totalTopics > 0 ? Math.round((examReadyTopics / totalTopics) * 100) : 0}% mastery`}
+          />
+          <MetricCard
+            label="Weak Topics"
+            value={weakTopics}
+            icon={AlertTriangle}
+            tone={weakTopics > 0 ? "rose" : "emerald"}
+            detail="conf ≤ 4"
+          />
+          <MetricCard
+            label="Avg Priority"
+            value={avgPriority}
+            icon={Target}
+            tone="violet"
+            detail="out of 10"
+          />
+        </div>
+
+        <div className="grid gap-5 xl:grid-cols-[420px_1fr]">
+          <GlassCard tone="neutral" padded>
+            <SectionHeader
+              title={editing ? "Edit Topic" : "New Topic"}
+              description="Add a topic to master"
+              icon={Brain}
+            />
+            <div className="mt-4">
+              <TopicForm topic={editing} subjects={subjects} exams={exams} t={tt} />
+            </div>
           </GlassCard>
 
-          <TopicsGrid
-            topics={filteredTopics}
-            subjects={subjects}
-            exams={exams}
-            errorLogs={errorLogs}
-            labels={{
-              subject: t("common.subject"),
-              linkedExam: t("topics.linkedExam"),
-              activeRecall: t("nba.active_recall.title"),
-              errorReview: t("nba.error_review.title"),
-              reviews: t("reviews.title"),
-              confidence: t("common.confidence"),
-              priority: t("common.priority"),
-              nextReview: t("common.nextReview"),
-              unresolved: t("errors.unresolved"),
-              open: t("common.open"),
-              edit: t("common.edit"),
-              delete: t("common.delete"),
-              mastery: {
-                dormant: t(masteryKey("dormant" satisfies MasteryLevel)),
-                awakening: t(masteryKey("awakening" satisfies MasteryLevel)),
-                building: t(masteryKey("building" satisfies MasteryLevel)),
-                dangerous: t(masteryKey("dangerous" satisfies MasteryLevel)),
-                examReady: t(masteryKey("examReady" satisfies MasteryLevel)),
-                mastered: t(masteryKey("mastered" satisfies MasteryLevel)),
-              },
-            }}
-          />
+          <div className="space-y-5">
+            <GlassCard>
+              <form method="GET" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                <select
+                  name="subject"
+                  defaultValue={params.subject ?? ""}
+                  className="h-11 rounded-xl border border-border/60 bg-bg-surface px-4 text-sm text-text-primary focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/20"
+                >
+                  <option value="">{tt("common.subject")}</option>
+                  {subjects.map((subject) => (
+                    <option key={subject.id} value={subject.id}>{subject.name}</option>
+                  ))}
+                </select>
+                <select
+                  name="status"
+                  defaultValue={params.status ?? ""}
+                  className="h-11 rounded-xl border border-border/60 bg-bg-surface px-4 text-sm text-text-primary focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/20"
+                >
+                  <option value="">{tt("common.status")}</option>
+                  {["not_started", "first_exposure", "understood", "recalled", "practiced", "error_corrected", "consolidated", "exam_ready"].map((status) => (
+                    <option key={status} value={status}>{humanize(status)}</option>
+                  ))}
+                </select>
+                <input
+                  name="priority"
+                  type="number"
+                  min={0}
+                  max={10}
+                  defaultValue={params.priority ?? ""}
+                  placeholder={tt("common.priority")}
+                  className="h-11 rounded-xl border border-border/60 bg-bg-surface px-4 text-sm text-text-primary placeholder:text-text-muted focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/20"
+                />
+                <Button type="submit" variant="outline" className="h-11">
+                  <Filter className="mr-2 h-4 w-4" />
+                  {tt("common.open")}
+                </Button>
+              </form>
+            </GlassCard>
+
+            <TopicsGrid
+              topics={filteredTopics}
+              subjects={subjects}
+              exams={exams}
+              errorLogs={errorLogs}
+              labels={{
+                subject: tt("common.subject"),
+                linkedExam: tt("topics.linkedExam"),
+                activeRecall: tt("nba.active_recall.title"),
+                errorReview: tt("nba.error_review.title"),
+                reviews: tt("reviews.title"),
+                confidence: tt("common.confidence"),
+                priority: tt("common.priority"),
+                nextReview: tt("common.nextReview"),
+                unresolved: tt("errors.unresolved"),
+                open: tt("common.open"),
+                edit: tt("common.edit"),
+                delete: tt("common.delete"),
+                mastery: {
+                  dormant: tt(masteryKey("dormant" satisfies MasteryLevel)),
+                  awakening: tt(masteryKey("awakening" satisfies MasteryLevel)),
+                  building: tt(masteryKey("building" satisfies MasteryLevel)),
+                  dangerous: tt(masteryKey("dangerous" satisfies MasteryLevel)),
+                  examReady: tt(masteryKey("examReady" satisfies MasteryLevel)),
+                  mastered: tt(masteryKey("mastered" satisfies MasteryLevel)),
+                },
+              }}
+            />
+          </div>
         </div>
       </div>
     </AppShell>
