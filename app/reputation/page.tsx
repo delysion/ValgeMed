@@ -39,42 +39,40 @@ export default async function ReputationPage({ searchParams }: { searchParams: P
       </div>
 
       <div className="mt-4 flex flex-col gap-4 sm:mt-5 sm:gap-5">
-        <div className="rounded-2xl border border-border/60 bg-bg-surface shadow-[var(--shadow-card)]">
-          <div className="p-4 sm:p-5">
+        <div className="overflow-hidden rounded-2xl border border-border/60 bg-bg-surface p-5 shadow-[var(--shadow-card)] sm:p-6">
+          <div className="mb-4 sm:mb-5">
             <SectionHeader title={t("reputation.logEvent")} description={t("reputation.subtitle")} />
           </div>
           <ReputationEventForm event={editing} />
         </div>
 
-        <div className="rounded-2xl border border-emerald/20 bg-gradient-to-br from-emerald-bg/40 via-bg-surface to-bg-surface shadow-[var(--shadow-card)]">
-          <div className="p-4 sm:p-5">
+        <div className="overflow-hidden rounded-2xl border border-emerald/20 bg-gradient-to-br from-emerald-bg/40 via-bg-surface to-bg-surface p-5 shadow-[var(--shadow-card)] sm:p-6">
+          <div className="mb-4 sm:mb-5">
             <SectionHeader title={t("reputation.trust")} description={t("common.strategicSignal")} />
           </div>
-          <div className="px-4 pb-4 space-y-3 sm:px-5 sm:pb-5 sm:space-y-4">
+          <div className="space-y-4 sm:space-y-5">
             <MomentumBar label={t("reputation.trust")} value={(Number(avgImpact) / 10) * 100} tone="emerald" />
             <MomentumBar label="Active" value={activeEvents.length * 20} tone="cyan" />
             <MomentumBar label="High impact" value={highImpact * 25} tone="violet" />
           </div>
         </div>
 
-        <div className="rounded-2xl border border-border/60 bg-bg-surface shadow-[var(--shadow-card)]">
-          <div className="p-4 sm:p-5">
+        <div className="overflow-hidden rounded-2xl border border-border/60 bg-bg-surface p-5 shadow-[var(--shadow-card)] sm:p-6">
+          <div className="mb-4 sm:mb-5">
             <SectionHeader title={t("reputation.history")} description={`${reputationEvents.length} ${t("language.entries")}`} />
           </div>
-          <div className="px-4 pb-4 sm:px-5 sm:pb-5">
-            <ReputationEventList
-              events={reputationEvents}
-              editBasePath="/reputation"
-              deleteAction={deleteReputationEventAction}
-              labels={{
-                emptyTitle: t("common.emptyTitle"),
-                emptyBody: t("common.emptyBody"),
-                open: t("common.open"),
-                edit: t("common.edit"),
-                delete: t("common.delete"),
-              }}
-            />
-          </div>
+          <ReputationEventList
+            events={reputationEvents}
+            editBasePath="/reputation"
+            deleteAction={deleteReputationEventAction}
+            labels={{
+              emptyTitle: t("common.emptyTitle"),
+              emptyBody: t("common.emptyBody"),
+              open: t("common.open"),
+              edit: t("common.edit"),
+              delete: t("common.delete"),
+            }}
+          />
         </div>
       </div>
     </AppShell>

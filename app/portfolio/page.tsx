@@ -39,42 +39,40 @@ export default async function PortfolioPage({ searchParams }: { searchParams: Pr
       </div>
 
       <div className="mt-4 flex flex-col gap-4 sm:mt-5 sm:gap-5">
-        <div className="rounded-2xl border border-border/60 bg-bg-surface shadow-[var(--shadow-card)]">
-          <div className="p-4 sm:p-5">
+        <div className="overflow-hidden rounded-2xl border border-border/60 bg-bg-surface p-5 shadow-[var(--shadow-card)] sm:p-6">
+          <div className="mb-4 sm:mb-5">
             <SectionHeader title={t("portfolio.addItem")} description={t("portfolio.subtitle")} />
           </div>
           <PortfolioItemForm item={editing} />
         </div>
 
-        <div className="rounded-2xl border border-gold/20 bg-gradient-to-br from-gold-bg/40 via-bg-surface to-bg-surface shadow-[var(--shadow-card)]">
-          <div className="p-4 sm:p-5">
+        <div className="overflow-hidden rounded-2xl border border-gold/20 bg-gradient-to-br from-gold-bg/40 via-bg-surface to-bg-surface p-5 shadow-[var(--shadow-card)] sm:p-6">
+          <div className="mb-4 sm:mb-5">
             <SectionHeader title={t("portfolio.trophyRoom")} description={t("common.strategicSignal")} />
           </div>
-          <div className="px-4 pb-4 space-y-3 sm:px-5 sm:pb-5 sm:space-y-4">
+          <div className="space-y-4 sm:space-y-5">
             <MomentumBar label={t("opportunities.value")} value={(Number(avgValue) / 10) * 100} tone="gold" />
             <MomentumBar label="Active" value={activeItems.length * 15} tone="emerald" />
             <MomentumBar label="Research" value={researchItems * 20} tone="violet" />
           </div>
         </div>
 
-        <div className="rounded-2xl border border-border/60 bg-bg-surface shadow-[var(--shadow-card)]">
-          <div className="p-4 sm:p-5">
+        <div className="overflow-hidden rounded-2xl border border-border/60 bg-bg-surface p-5 shadow-[var(--shadow-card)] sm:p-6">
+          <div className="mb-4 sm:mb-5">
             <SectionHeader title={t("portfolio.history")} description={`${portfolioItems.length} ${t("language.entries")}`} />
           </div>
-          <div className="px-4 pb-4 sm:px-5 sm:pb-5">
-            <PortfolioItemList
-              items={portfolioItems}
-              editBasePath="/portfolio"
-              deleteAction={deletePortfolioItemAction}
-              labels={{
-                emptyTitle: t("common.emptyTitle"),
-                emptyBody: t("common.emptyBody"),
-                open: t("common.open"),
-                edit: t("common.edit"),
-                delete: t("common.delete"),
-              }}
-            />
-          </div>
+          <PortfolioItemList
+            items={portfolioItems}
+            editBasePath="/portfolio"
+            deleteAction={deletePortfolioItemAction}
+            labels={{
+              emptyTitle: t("common.emptyTitle"),
+              emptyBody: t("common.emptyBody"),
+              open: t("common.open"),
+              edit: t("common.edit"),
+              delete: t("common.delete"),
+            }}
+          />
         </div>
       </div>
     </AppShell>
