@@ -366,20 +366,20 @@ describe("curriculum import field pipeline", () => {
   /* ------------------------------------------------------------------ */
   /*  Phase C: entity linking                                            */
   /* ------------------------------------------------------------------ */
-  it("accepts examName in recordSchema", () => {
-    expect(actions).toContain("examName: z.string().trim().max(220).optional()");
+  it("accepts examName in recordSchema with null preprocessing", () => {
+    expect(actions).toContain("examName: z.preprocess((v) => v === null ? undefined : v, z.string().trim().max(220).optional())");
   });
 
-  it("accepts relatedSubjectName in recordSchema", () => {
-    expect(actions).toContain("relatedSubjectName: z.string().trim().max(160).optional()");
+  it("accepts relatedSubjectName in recordSchema with null preprocessing", () => {
+    expect(actions).toContain("relatedSubjectName: z.preprocess((v) => v === null ? undefined : v, z.string().trim().max(160).optional())");
   });
 
-  it("accepts relatedTopicName in recordSchema", () => {
-    expect(actions).toContain("relatedTopicName: z.string().trim().max(220).optional()");
+  it("accepts relatedTopicName in recordSchema with null preprocessing", () => {
+    expect(actions).toContain("relatedTopicName: z.preprocess((v) => v === null ? undefined : v, z.string().trim().max(220).optional())");
   });
 
-  it("accepts relatedExamName in recordSchema", () => {
-    expect(actions).toContain("relatedExamName: z.string().trim().max(220).optional()");
+  it("accepts relatedExamName in recordSchema with null preprocessing", () => {
+    expect(actions).toContain("relatedExamName: z.preprocess((v) => v === null ? undefined : v, z.string().trim().max(220).optional())");
   });
 
   it("includes examName in CurriculumImportPreview.topics", () => {

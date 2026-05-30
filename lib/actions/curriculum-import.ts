@@ -83,15 +83,15 @@ const recordSchema = z.object({
   confidence: safeNumeric({ int: true, min: 0, max: 10 }),
   riskLevel: safeNumeric({ int: true, min: 0, max: 10 }),
   readinessScore: safeNumeric({ min: 0, max: 10 }),
-  format: z.string().trim().max(20).optional(),
+  format: z.preprocess((v) => v === null ? undefined : v, z.string().trim().max(20).optional()),
   ects: safeNumeric({ min: 0, max: 999 }),
   estimatedMinutes: safeNumeric({ int: true, min: 0 }),
   status: z.preprocess((v) => v === null ? undefined : v, z.string().trim().max(40).optional()),
   taskStatus: z.preprocess((v) => v === null ? undefined : v, z.string().trim().max(20).optional()),
-  examName: z.string().trim().max(220).optional(),
-  relatedSubjectName: z.string().trim().max(160).optional(),
-  relatedTopicName: z.string().trim().max(220).optional(),
-  relatedExamName: z.string().trim().max(220).optional(),
+  examName: z.preprocess((v) => v === null ? undefined : v, z.string().trim().max(220).optional()),
+  relatedSubjectName: z.preprocess((v) => v === null ? undefined : v, z.string().trim().max(160).optional()),
+  relatedTopicName: z.preprocess((v) => v === null ? undefined : v, z.string().trim().max(220).optional()),
+  relatedExamName: z.preprocess((v) => v === null ? undefined : v, z.string().trim().max(220).optional()),
 });
 
 const curriculumImportSchema = z.object({
@@ -262,6 +262,15 @@ export async function parseCurriculumAction(
     const validated = curriculumImportSchema.safeParse(normalizeRecords(parsed));
     if (!validated.success) {
       const pm = process.env.CURRICULUM_IMPORT_LEGACY_PROMPT === "true" ? "v1" : "v2";
+      console.error("[curriculum-import parse validation failed]", {
+        issues: validated.error.issues.map((issue) => ({
+          path: issue.path,
+          code: issue.code,
+          message: issue.message,
+          expected: "expected" in issue ? issue.expected : undefined,
+          received: "received" in issue ? issue.received : undefined,
+        })),
+      });
       await trackAnalyticsSafely("parse_invalid_structure", trackCurriculumImportParse(userId, { promptMode: pm, parseSuccess: false, error: "Invalid record structure" }));
       await getAndResetNumericCoercionCount();
       return { success: false, error: locale === "et" ? "Vigane kirje struktuur" : "Invalid record structure" };
@@ -670,6 +679,15 @@ export async function confirmCurriculumImportAction(
 
     const validated = confirmImportInputSchema.safeParse(selected);
     if (!validated.success) {
+      console.error("[curriculum-import confirm validation failed]", {
+        issues: validated.error.issues.map((issue) => ({
+          path: issue.path,
+          code: issue.code,
+          message: issue.message,
+          expected: "expected" in issue ? issue.expected : undefined,
+          received: "received" in issue ? issue.received : undefined,
+        })),
+      });
       return {
         success: false,
         message: locale === "et" ? "Vigane andmed" : "Invalid data",
