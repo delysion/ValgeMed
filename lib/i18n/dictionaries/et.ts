@@ -816,6 +816,10 @@ export const et: Dictionary = {
   "admin.aiDailyChars": "Märgid/päev",
   "admin.saveAiUsageLimits": "Salvesta AI limiidid",
   "admin.aiUsageLimitsSaved": "AI limiidid salvestatud",
+  "admin.aiDailyImports": "Õppekava impordid/päev",
+  "admin.importLimitHelper": "0 = piiramatu",
+  "admin.saveImportLimit": "Salvesta impordi limiit",
+  "admin.importLimitSaved": "Impordi limiit salvestatud",
 
   "mastery.dormant": "Uinuv",
   "mastery.awakening": "Ärkamas",

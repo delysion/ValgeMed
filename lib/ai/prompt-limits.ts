@@ -21,6 +21,20 @@ export function normalizeAiPromptLimit(value: unknown) {
   );
 }
 
+export const DEFAULT_AI_DAILY_IMPORT_LIMIT = 10;
+export const MIN_AI_DAILY_IMPORT_LIMIT = 0;
+export const MAX_AI_DAILY_IMPORT_LIMIT = 500;
+
+export function normalizeAiDailyImportLimit(value: unknown): number {
+  const numeric = typeof value === "string" ? Number(value) : Number(value);
+  if (!Number.isFinite(numeric)) return DEFAULT_AI_DAILY_IMPORT_LIMIT;
+  const clamped = Math.min(
+    MAX_AI_DAILY_IMPORT_LIMIT,
+    Math.max(MIN_AI_DAILY_IMPORT_LIMIT, Math.round(numeric)),
+  );
+  return clamped;
+}
+
 export function boundPrompt(prompt: string, limit?: unknown) {
   const promptLimitChars = normalizeAiPromptLimit(limit);
 

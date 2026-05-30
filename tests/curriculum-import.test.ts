@@ -348,11 +348,11 @@ describe("curriculum import field pipeline", () => {
   });
 
   it("throws error with configured limit in message", () => {
-    expect(actions).toContain("`Daily import limit reached (${limit}/day). Come back tomorrow.`");
+    expect(actions).toContain("Daily import limit reached (${limit}/day). Come back tomorrow.${limitDebug}");
   });
 
   it("shows localized error with configured limit", () => {
-    expect(actions).toContain("`Päevane import limiit täis (${limit}/päev). Tule tagasi homme.`");
+    expect(actions).toContain("Päevane import limiit täis (${limit}/päev). Tule tagasi homme.${limitDebug}");
   });
 
   it("calls assertImportLimitAllowed in confirm action", () => {

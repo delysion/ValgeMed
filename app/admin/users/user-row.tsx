@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Check, X, Shield, Ban, Save } from "lucide-react";
-import { approveUserAction, updateUserAiPromptLimitAction, updateUserAiUsageLimitsAction } from "@/lib/actions/admin";
+import { approveUserAction, updateUserAiImportLimitAction, updateUserAiPromptLimitAction, updateUserAiUsageLimitsAction } from "@/lib/actions/admin";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 
 type Profile = {
@@ -15,6 +15,7 @@ type Profile = {
   aiPromptLimitChars: number;
   aiDailyRequestLimit: number;
   aiDailyCharLimit: number;
+  aiDailyImportLimit: number | null;
   createdAt: Date | null;
 };
 
@@ -26,6 +27,7 @@ export function UserRow({ profile: initial }: { profile: Profile }) {
   const [promptLimit, setPromptLimit] = useState(initial.aiPromptLimitChars);
   const [dailyRequestLimit, setDailyRequestLimit] = useState(initial.aiDailyRequestLimit);
   const [dailyCharLimit, setDailyCharLimit] = useState(initial.aiDailyCharLimit);
+  const [dailyImportLimit, setDailyImportLimit] = useState(initial.aiDailyImportLimit ?? 10);
   const [toast, setToast] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
@@ -93,6 +95,20 @@ export function UserRow({ profile: initial }: { profile: Profile }) {
         setProfile((p) => ({ ...p, aiPromptLimitChars: res.aiPromptLimitChars }));
         setPromptLimit(res.aiPromptLimitChars);
         showToast(t("admin.promptLimitSaved"));
+      }
+    } finally {
+      setLimitBusy(false);
+    }
+  };
+
+  const handleSaveImportLimit = async () => {
+    setLimitBusy(true);
+    try {
+      const res = await updateUserAiImportLimitAction(profile.id, dailyImportLimit);
+      if (res.success) {
+        setProfile((p) => ({ ...p, aiDailyImportLimit: res.aiDailyImportLimit }));
+        setDailyImportLimit(res.aiDailyImportLimit);
+        showToast(t("admin.importLimitSaved"));
       }
     } finally {
       setLimitBusy(false);
@@ -206,6 +222,31 @@ export function UserRow({ profile: initial }: { profile: Profile }) {
           >
             <Save className="h-3.5 w-3.5" />
             {t("admin.saveAiUsageLimits")}
+          </button>
+        </div>
+        <div className="flex flex-wrap items-center justify-start gap-2 sm:justify-end">
+          <label htmlFor={`import-limit-${profile.id}`} className="text-xs font-medium text-text-muted">
+            {t("admin.aiDailyImports")}
+          </label>
+          <input
+            id={`import-limit-${profile.id}`}
+            type="number"
+            min={0}
+            max={500}
+            step={1}
+            value={dailyImportLimit}
+            onChange={(event) => setDailyImportLimit(Number(event.target.value))}
+            className="h-9 w-20 rounded-lg border border-border/60 bg-bg-page px-2 text-sm text-text-primary outline-none focus:border-primary"
+          />
+          <span className="text-[10px] text-text-muted">{t("admin.importLimitHelper")}</span>
+          <button
+            onClick={handleSaveImportLimit}
+            disabled={limitBusy || busy}
+            className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border/60 px-3 text-xs font-semibold text-text-secondary transition-colors hover:bg-bg-page disabled:opacity-50"
+            title={t("admin.saveImportLimit")}
+          >
+            <Save className="h-3.5 w-3.5" />
+            {t("admin.saveImportLimit")}
           </button>
         </div>
         <div className="flex items-center gap-2">

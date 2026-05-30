@@ -814,6 +814,10 @@ export const en = {
   "admin.aiDailyChars": "Chars/day",
   "admin.saveAiUsageLimits": "Save AI caps",
   "admin.aiUsageLimitsSaved": "AI caps saved",
+  "admin.aiDailyImports": "Curriculum imports/day",
+  "admin.importLimitHelper": "0 = unlimited",
+  "admin.saveImportLimit": "Save import cap",
+  "admin.importLimitSaved": "Import cap saved",
 
   "mastery.dormant": "Dormant",
   "mastery.awakening": "Awakening",

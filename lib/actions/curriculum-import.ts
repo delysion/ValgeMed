@@ -8,6 +8,7 @@ import { refresh } from "@/lib/utils/forms";
 import {
   aiUsageEvents,
   exams,
+  profiles,
   subjects,
   tasks,
   topics,
@@ -18,6 +19,7 @@ import {
   computeWarningTypes,
   trackCurriculumImportParse,
 } from "@/lib/analytics/curriculum-import-analytics";
+import { normalizeAiDailyImportLimit } from "@/lib/ai/prompt-limits";
 
 type SafeNumericOpts = { int?: boolean; min?: number; max?: number };
 
@@ -519,8 +521,23 @@ function nextUtcDay(date: Date) {
   return next;
 }
 
-// temporary: trigger fresh git deploy for env pickup
-export async function getCurriculumImportDailyLimit(): Promise<number> {
+export async function getCurriculumImportDailyLimit(userId: string): Promise<number> {
+  try {
+    const db = getDb();
+    const [profile] = await db
+      .select({ aiDailyImportLimit: profiles.aiDailyImportLimit })
+      .from(profiles)
+      .where(eq(profiles.id, userId))
+      .limit(1);
+
+    if (profile?.aiDailyImportLimit !== null && profile?.aiDailyImportLimit !== undefined) {
+      const normalized = normalizeAiDailyImportLimit(profile.aiDailyImportLimit);
+      return normalized;
+    }
+  } catch {
+    // DB unavailable — fall through to env/default
+  }
+
   const raw = process.env.CURRICULUM_IMPORT_DAILY_LIMIT;
   if (raw === undefined) return 10;
   const n = Number(raw);
@@ -529,7 +546,7 @@ export async function getCurriculumImportDailyLimit(): Promise<number> {
 }
 
 async function assertImportLimitAllowed(userId: string, now = new Date(), errorLocale: string = "en"): Promise<void> {
-  const limit = await getCurriculumImportDailyLimit();
+  const limit = await getCurriculumImportDailyLimit(userId);
 
   console.log("[curriculum-import request host]", {
     configuredLimit: process.env.CURRICULUM_IMPORT_DAILY_LIMIT,

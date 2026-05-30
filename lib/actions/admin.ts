@@ -11,6 +11,7 @@ import { eq } from "drizzle-orm";
 import { createClient } from "@/lib/supabase/server";
 import {
   normalizeAiDailyCharLimit,
+  normalizeAiDailyImportLimit,
   normalizeAiDailyRequestLimit,
   normalizeAiPromptLimit,
 } from "@/lib/ai/prompt-limits";
@@ -92,4 +93,25 @@ export async function updateUserAiUsageLimitsAction(userId: string, rawRequestLi
   revalidatePath("/admin/users");
 
   return { success: true, aiDailyRequestLimit, aiDailyCharLimit };
+}
+
+export async function updateUserAiImportLimitAction(userId: string, rawLimit: unknown) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Unauthorized" };
+
+  const sql = neon(process.env.DATABASE_URL!);
+  const rows = await sql`SELECT is_admin FROM profiles WHERE id = ${user.id}`;
+  if (!rows[0]?.is_admin) return { error: "Forbidden" };
+
+  const aiDailyImportLimit = normalizeAiDailyImportLimit(rawLimit);
+
+  await db
+    .update(profiles)
+    .set({ aiDailyImportLimit, updatedAt: new Date() })
+    .where(eq(profiles.id, userId));
+
+  revalidatePath("/admin/users");
+
+  return { success: true, aiDailyImportLimit };
 }

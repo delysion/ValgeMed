@@ -692,6 +692,7 @@ export const profiles = pgTable("profiles", {
   aiPromptLimitChars: integer("ai_prompt_limit_chars").default(24000).notNull(),
   aiDailyRequestLimit: integer("ai_daily_request_limit").default(40).notNull(),
   aiDailyCharLimit: integer("ai_daily_char_limit").default(240000).notNull(),
+  aiDailyImportLimit: integer("ai_daily_import_limit"),
   targetLevel: text("target_level").default("top_5").notNull(),
   weaknessTolerance: text("weakness_tolerance").default("low").notNull(),
   examStrategy: text("exam_strategy").default("balanced").notNull(),

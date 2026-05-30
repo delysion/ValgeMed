@@ -1,0 +1,1 @@
+ALTER TABLE "profiles" ADD COLUMN "ai_daily_import_limit" integer;
