@@ -140,19 +140,19 @@ export function CurriculumImporter({ className }: CurriculumImporterProps) {
 
     const selectedSubjectsList = preview.subjects
       .filter((s) => selectedSubjects.has(s.name))
-      .map((s) => ({ name: s.name, notes: s.notes }));
+      .map((s) => ({ name: s.name, notes: s.notes, priority: s.priority, code: s.code, difficulty: s.difficulty, importance: s.importance }));
 
     const selectedTopicsList = preview.topics
       .filter((_, i) => selectedTopics.has(i))
-      .map((t) => ({ name: t.name, subjectName: t.subjectName, priority: t.priority, notes: t.notes }));
+      .map((t) => ({ name: t.name, subjectName: t.subjectName, priority: t.priority, notes: t.notes, difficulty: t.difficulty, confidence: t.confidence, status: t.status, estimatedMinutes: t.estimatedMinutes }));
 
     const selectedExamsList = preview.exams
       .filter((_, i) => selectedExams.has(i))
-      .map((e) => ({ title: e.title, date: e.date, subjectName: e.subjectName, notes: e.notes }));
+      .map((e) => ({ title: e.title, date: e.date, subjectName: e.subjectName, priority: e.priority, notes: e.notes, difficulty: e.difficulty, importance: e.importance, riskLevel: e.riskLevel, readinessScore: e.readinessScore, format: e.format, ects: e.ects }));
 
     const selectedTasksList = preview.tasks
       .filter((_, i) => selectedTasks.has(i))
-      .map((t) => ({ title: t.title, date: t.date, priority: t.priority, notes: t.notes }));
+      .map((t) => ({ title: t.title, date: t.date, priority: t.priority, notes: t.notes, status: t.status, estimatedMinutes: t.estimatedMinutes }));
 
     if (selectedSubjectsList.length === 0 && selectedTopicsList.length === 0 &&
         selectedExamsList.length === 0 && selectedTasksList.length === 0) {

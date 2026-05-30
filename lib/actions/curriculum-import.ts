@@ -13,14 +13,64 @@ import {
   topics,
 } from "@/lib/db/schema";
 import { and, eq, gte, isNull, lt, sql } from "drizzle-orm";
+import {
+  computeV2FieldPresence,
+  computeWarningTypes,
+  trackCurriculumImportParse,
+} from "@/lib/analytics/curriculum-import-analytics";
+
+type SafeNumericOpts = { int?: boolean; min?: number; max?: number };
+
+let numericCoercionCount = 0;
+
+export async function getAndResetNumericCoercionCount(): Promise<number> {
+  const count = numericCoercionCount;
+  numericCoercionCount = 0;
+  return count;
+}
+
+function safeNumeric(opts?: SafeNumericOpts) {
+  const pre = (val: unknown) => {
+    if (val === null) return undefined;
+    if (typeof val === "number" && !Number.isNaN(val)) return val;
+    if (typeof val === "string") {
+      const trimmed = val.trim();
+      if (trimmed === "") return val;
+      if (/^-?\d+(\.\d+)?$/.test(trimmed)) {
+        const num = Number(trimmed);
+        if (!Number.isNaN(num)) {
+          numericCoercionCount++;
+          return num;
+        }
+      }
+    }
+    return val;
+  };
+  const n = opts?.int ? z.number().int() : z.number();
+  const b = opts?.min !== undefined ? n.min(opts.min) : n;
+  const base = opts?.max !== undefined ? b.max(opts.max) : b;
+  return z.preprocess(pre, base.optional());
+}
 
 const recordSchema = z.object({
   type: z.enum(["subject", "topic", "exam", "task"]),
   name: z.string().trim().min(1).max(220),
   parent: z.string().trim().max(220).nullable().optional(),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().optional(),
-  priority: z.number().int().min(0).max(10).optional(),
+  priority: safeNumeric({ int: true, min: 0, max: 10 }),
   notes: z.string().trim().max(2000).nullable().optional(),
+
+  code: z.string().trim().max(40).nullable().optional(),
+  difficulty: safeNumeric({ int: true, min: 0, max: 10 }),
+  importance: safeNumeric({ int: true, min: 0, max: 10 }),
+  confidence: safeNumeric({ int: true, min: 0, max: 10 }),
+  riskLevel: safeNumeric({ int: true, min: 0, max: 10 }),
+  readinessScore: safeNumeric({ min: 0, max: 10 }),
+  format: z.string().trim().max(20).optional(),
+  ects: safeNumeric({ min: 0, max: 999 }),
+  estimatedMinutes: safeNumeric({ int: true, min: 0 }),
+  status: z.preprocess((v) => v === null ? undefined : v, z.string().trim().max(40).optional()),
+  taskStatus: z.preprocess((v) => v === null ? undefined : v, z.string().trim().max(20).optional()),
 });
 
 const curriculumImportSchema = z.object({
@@ -28,10 +78,11 @@ const curriculumImportSchema = z.object({
 });
 
 export interface CurriculumImportPreview {
-  subjects: Array<{ name: string; notes: string | null; isNew: boolean; existingId?: string; topics: string[] }>;
-  topics: Array<{ name: string; subjectName: string; priority: number; notes: string | null; subjectId?: string; isNew: boolean }>;
-  exams: Array<{ title: string; date: string | null; subjectName: string; notes: string | null; subjectId?: string; isNew: boolean }>;
-  tasks: Array<{ title: string; date: string | null; priority: number; notes: string | null; isNew: boolean }>;
+  subjects: Array<{ name: string; notes: string | null; priority: number; code?: string; difficulty?: number; importance?: number; isNew: boolean; existingId?: string; topics: string[] }>;
+  topics: Array<{ name: string; subjectName: string; priority: number; notes: string | null; difficulty?: number; confidence?: number; status?: string; estimatedMinutes?: number; subjectId?: string; isNew: boolean }>;
+  exams: Array<{ title: string; date: string | null; subjectName: string; priority: number; notes: string | null; difficulty?: number; importance?: number; riskLevel?: number; readinessScore?: number; format?: string; ects?: number; subjectId?: string; isNew: boolean }>;
+  tasks: Array<{ title: string; date: string | null; priority: number; notes: string | null; status?: string; estimatedMinutes?: number; isNew: boolean }>;
+  warnings: string[];
 }
 
 export interface CurriculumImportResult {
@@ -67,13 +118,80 @@ function parseDate(input: string | null | undefined): string | null {
   }
 }
 
+type TopicStatus = "not_started" | "first_exposure" | "understood" | "recalled" | "practiced" | "error_corrected" | "consolidated" | "exam_ready";
+type ExamFormat = "written" | "oral" | "practical" | "osce" | "mixed" | "unknown";
+type TaskStatus = "todo" | "doing" | "done" | "archived";
+
+const TOPIC_STATUS_MAP: Record<string, TopicStatus> = {
+  "not_started": "not_started",
+  "not started": "not_started",
+  "first_exposure": "first_exposure",
+  "first exposure": "first_exposure",
+  "understood": "understood",
+  "recalled": "recalled",
+  "practiced": "practiced",
+  "error_corrected": "error_corrected",
+  "error corrected": "error_corrected",
+  "consolidated": "consolidated",
+  "exam_ready": "exam_ready",
+  "exam ready": "exam_ready",
+};
+
+const TASK_STATUS_MAP: Record<string, string> = {
+  "todo": "todo",
+  "doing": "doing",
+  "done": "done",
+  "archived": "archived",
+};
+
+const EXAM_FORMAT_MAP: Record<string, string> = {
+  "written": "written",
+  "oral": "oral",
+  "practical": "practical",
+  "osce": "osce",
+  "mixed": "mixed",
+  "unknown": "unknown",
+};
+
+function mapTopicStatus(input: string | null | undefined): TopicStatus | null {
+  if (!input) return null;
+  const normalized = input.trim().toLowerCase().replace(/\s+/g, " ");
+  return TOPIC_STATUS_MAP[normalized] ?? null;
+}
+
+function mapTaskStatus(input: string | null | undefined): TaskStatus | null {
+  if (!input) return null;
+  const normalized = input.trim().toLowerCase();
+  return (TASK_STATUS_MAP[normalized] ?? null) as TaskStatus | null;
+}
+
+function mapExamFormat(input: string | null | undefined): ExamFormat | null {
+  if (!input) return null;
+  const normalized = input.trim().toLowerCase();
+  return (EXAM_FORMAT_MAP[normalized] ?? null) as ExamFormat | null;
+}
+
+function buildDescription(notes: string | null | undefined, estimatedMinutes?: number | null): string | null {
+  const parts: string[] = [];
+  if (notes) parts.push(notes);
+  if (estimatedMinutes !== null && estimatedMinutes !== undefined) {
+    parts.push(`[Estimated: ${estimatedMinutes} min]`);
+  }
+  return parts.length > 0 ? parts.join("\n") : null;
+}
+
 export async function parseCurriculumAction(
   rawText: string,
   locale: string = "en"
 ): Promise<{ success: boolean; preview?: CurriculumImportPreview; error?: string }> {
+  let userId: string;
   try {
-    const userId = await requireAuthUserId();
+    userId = await requireAuthUserId();
+  } catch {
+    return { success: false, error: locale === "et" ? "Autentimise viga" : "Auth error" };
+  }
 
+  try {
     const stripped = rawText
       .replace(/```json\n?/g, "")
       .replace(/```\n?/g, "")
@@ -85,6 +203,9 @@ export async function parseCurriculumAction(
       const match = stripped.match(/\{[\s\S]*\}/);
       parsed = JSON.parse(match ? match[0] : stripped);
     } catch {
+      const pm = process.env.CURRICULUM_IMPORT_V2_PROMPT === "true" ? "v2" : "v1";
+      trackCurriculumImportParse(userId, { promptMode: pm, parseSuccess: false, error: "Invalid JSON response" }).catch(() => {});
+      await getAndResetNumericCoercionCount();
       return { success: false, error: locale === "et" ? "Vigane JSON vastus" : "Invalid JSON response" };
     }
 
@@ -114,6 +235,9 @@ export async function parseCurriculumAction(
 
     const validated = curriculumImportSchema.safeParse(normalizeRecords(parsed));
     if (!validated.success) {
+      const pm = process.env.CURRICULUM_IMPORT_V2_PROMPT === "true" ? "v2" : "v1";
+      trackCurriculumImportParse(userId, { promptMode: pm, parseSuccess: false, error: "Invalid record structure" }).catch(() => {});
+      await getAndResetNumericCoercionCount();
       return { success: false, error: locale === "et" ? "Vigane kirje struktuur" : "Invalid record structure" };
     }
 
@@ -121,9 +245,14 @@ export async function parseCurriculumAction(
 
     const subjectNames = new Set<string>();
     const subjectNotes = new Map<string, string | null>();
-    const topicList: Array<{ name: string; subjectName: string; priority: number; notes: string | null }> = [];
-    const examList: Array<{ title: string; date: string | null; subjectName: string; notes: string | null }> = [];
-    const taskList: Array<{ title: string; date: string | null; priority: number; notes: string | null }> = [];
+    const subjectPriority = new Map<string, number>();
+    const subjectCode = new Map<string, string>();
+    const subjectDifficulty = new Map<string, number>();
+    const subjectImportance = new Map<string, number>();
+    const topicList: Array<{ name: string; subjectName: string; priority: number; notes: string | null; difficulty?: number; confidence?: number; status?: string; estimatedMinutes?: number }> = [];
+    const examList: Array<{ title: string; date: string | null; subjectName: string; priority: number; notes: string | null; difficulty?: number; importance?: number; riskLevel?: number; readinessScore?: number; format?: string; ects?: number }> = [];
+    const taskList: Array<{ title: string; date: string | null; priority: number; notes: string | null; taskStatus?: string; estimatedMinutes?: number }> = [];
+    const warnings: string[] = [];
 
     for (const rec of records) {
       if (rec.type === "subject") {
@@ -131,14 +260,54 @@ export async function parseCurriculumAction(
         if (!subjectNotes.has(rec.name)) {
           subjectNotes.set(rec.name, rec.notes ?? null);
         }
+        if (!subjectPriority.has(rec.name)) {
+          subjectPriority.set(rec.name, rec.priority ?? 5);
+        }
+        if (rec.code && !subjectCode.has(rec.name)) {
+          subjectCode.set(rec.name, rec.code);
+        }
+        if (rec.difficulty !== undefined && !subjectDifficulty.has(rec.name)) {
+          subjectDifficulty.set(rec.name, rec.difficulty);
+        }
+        if (rec.importance !== undefined && !subjectImportance.has(rec.name)) {
+          subjectImportance.set(rec.name, rec.importance);
+        }
       } else if (rec.type === "topic" && rec.parent) {
-        topicList.push({ name: rec.name, subjectName: rec.parent, priority: rec.priority ?? 5, notes: rec.notes ?? null });
+        topicList.push({
+          name: rec.name,
+          subjectName: rec.parent,
+          priority: rec.priority ?? 5,
+          notes: rec.notes ?? null,
+          difficulty: rec.difficulty,
+          confidence: rec.confidence,
+          status: rec.status,
+          estimatedMinutes: rec.estimatedMinutes,
+        });
         subjectNames.add(rec.parent);
       } else if (rec.type === "exam") {
-        examList.push({ title: rec.name, date: parseDate(rec.date), subjectName: rec.parent || "General", notes: rec.notes ?? null });
+        examList.push({
+          title: rec.name,
+          date: parseDate(rec.date),
+          subjectName: rec.parent || "General",
+          priority: rec.priority ?? 5,
+          notes: rec.notes ?? null,
+          difficulty: rec.difficulty,
+          importance: rec.importance,
+          riskLevel: rec.riskLevel,
+          readinessScore: rec.readinessScore,
+          format: rec.format,
+          ects: rec.ects,
+        });
         subjectNames.add(rec.parent || "General");
       } else if (rec.type === "task") {
-        taskList.push({ title: rec.name, date: parseDate(rec.date), priority: rec.priority ?? 5, notes: rec.notes ?? null });
+        taskList.push({
+          title: rec.name,
+          date: parseDate(rec.date),
+          priority: rec.priority ?? 5,
+          notes: rec.notes ?? null,
+          taskStatus: rec.taskStatus,
+          estimatedMinutes: rec.estimatedMinutes,
+        });
       }
     }
 
@@ -147,6 +316,7 @@ export async function parseCurriculumAction(
       topics: [],
       exams: [],
       tasks: [],
+      warnings,
     };
 
     for (const name of subjectNames) {
@@ -158,6 +328,10 @@ export async function parseCurriculumAction(
       preview.subjects.push({
         name,
         notes: subjectNotes.get(name) ?? null,
+        priority: subjectPriority.get(name) ?? 5,
+        code: subjectCode.get(name),
+        difficulty: subjectDifficulty.get(name),
+        importance: subjectImportance.get(name),
         isNew: !existingId,
         existingId: existingId || undefined,
         topics: topicsForSubject,
@@ -165,38 +339,89 @@ export async function parseCurriculumAction(
     }
 
     for (const topic of topicList) {
+      const mappedStatus = mapTopicStatus(topic.status);
+      if (topic.status && !mappedStatus) {
+        warnings.push(`Unrecognized topic status "${topic.status}" for "${topic.name}" — defaulted to not_started`);
+      }
+      if (topic.estimatedMinutes !== undefined) {
+        warnings.push(`Estimated minutes (${topic.estimatedMinutes}) for topic "${topic.name}" appended to description`);
+      }
       preview.topics.push({
         name: topic.name,
         subjectName: topic.subjectName,
         priority: topic.priority,
         notes: topic.notes,
+        difficulty: topic.difficulty,
+        confidence: topic.confidence,
+        status: mappedStatus ?? undefined,
+        estimatedMinutes: topic.estimatedMinutes,
         isNew: true,
       });
     }
 
     for (const exam of examList) {
+      const mappedFormat = mapExamFormat(exam.format);
+      if (exam.format && !mappedFormat) {
+        warnings.push(`Unrecognized exam format "${exam.format}" for "${exam.title}" — set to unknown`);
+      }
       preview.exams.push({
         title: exam.title,
         date: exam.date,
         subjectName: exam.subjectName,
+        priority: exam.priority,
         notes: exam.notes,
+        difficulty: exam.difficulty,
+        importance: exam.importance,
+        riskLevel: exam.riskLevel,
+        readinessScore: exam.readinessScore,
+        format: mappedFormat ?? undefined,
+        ects: exam.ects,
         isNew: true,
       });
     }
 
     for (const task of taskList) {
+      const mappedTaskStatus = mapTaskStatus(task.taskStatus);
+      if (task.taskStatus && !mappedTaskStatus) {
+        warnings.push(`Unrecognized task status "${task.taskStatus}" for "${task.title}" — defaulted to todo`);
+      }
+      if (task.estimatedMinutes !== undefined) {
+        warnings.push(`Estimated minutes (${task.estimatedMinutes}) for task "${task.title}" appended to description`);
+      }
       preview.tasks.push({
         title: task.title,
         date: task.date,
         priority: task.priority,
         notes: task.notes,
+        status: mappedTaskStatus ?? undefined,
+        estimatedMinutes: task.estimatedMinutes,
         isNew: true,
       });
     }
 
+    const pmParse = process.env.CURRICULUM_IMPORT_V2_PROMPT === "true" ? "v2" : "v1";
+    trackCurriculumImportParse(userId, {
+      promptMode: pmParse,
+      parseSuccess: true,
+      recordCount: records.length,
+      countByType: {
+        subjects: preview.subjects.length,
+        topics: preview.topics.length,
+        exams: preview.exams.length,
+        tasks: preview.tasks.length,
+      },
+      warningCount: warnings.length,
+      warningsByType: computeWarningTypes(warnings),
+      v2FieldPresence: computeV2FieldPresence(preview),
+      numericCoercionCount: await getAndResetNumericCoercionCount(),
+    }).catch(() => {});
+
     return { success: true, preview };
   } catch (error) {
     console.error("parseCurriculumAction error:", error);
+    const pm = process.env.CURRICULUM_IMPORT_V2_PROMPT === "true" ? "v2" : "v1";
+    trackCurriculumImportParse(userId, { promptMode: pm, parseSuccess: false, error: "Parse error" }).catch(() => {});
+    await getAndResetNumericCoercionCount();
     return { success: false, error: locale === "et" ? "Viga parsimisel" : "Parse error" };
   }
 }
@@ -217,24 +442,41 @@ function isValidCalendarDate(dateStr: string): boolean {
 const confirmSubjectsSchema = z.array(z.object({
   name: z.string().trim().min(1).max(MAX_NAME_LENGTH),
   notes: z.string().nullable().optional(),
+  priority: z.number().int().min(0).max(MAX_PRIORITY).default(5),
+  code: z.string().max(40).optional(),
+  difficulty: z.number().int().min(0).max(MAX_PRIORITY).optional(),
+  importance: z.number().int().min(0).max(MAX_PRIORITY).optional(),
 })).default([]);
 const confirmTopicsSchema = z.array(z.object({
   name: z.string().trim().min(1).max(MAX_TITLE_LENGTH),
   subjectName: z.string().trim().min(1).max(MAX_SUBJECTNAME_LENGTH),
   priority: z.number().int().min(0).max(MAX_PRIORITY).default(5),
   notes: z.string().nullable().optional(),
+  difficulty: z.number().int().min(0).max(MAX_PRIORITY).optional(),
+  confidence: z.number().int().min(0).max(MAX_PRIORITY).optional(),
+  status: z.string().max(40).optional(),
+  estimatedMinutes: z.number().int().min(0).optional(),
 })).default([]);
 const confirmExamsSchema = z.array(z.object({
   title: z.string().trim().min(1).max(MAX_TITLE_LENGTH),
   date: z.string().refine(isValidCalendarDate, { message: "Invalid date" }).nullable().optional(),
   subjectName: z.string().trim().min(1).max(MAX_SUBJECTNAME_LENGTH),
+  priority: z.number().int().min(0).max(MAX_PRIORITY).default(5),
   notes: z.string().nullable().optional(),
+  difficulty: z.number().int().min(0).max(MAX_PRIORITY).optional(),
+  importance: z.number().int().min(0).max(MAX_PRIORITY).optional(),
+  riskLevel: z.number().int().min(0).max(MAX_PRIORITY).optional(),
+  readinessScore: z.number().min(0).max(10).optional(),
+  format: z.string().max(20).optional(),
+  ects: z.number().min(0).max(999).optional(),
 })).default([]);
 const confirmTasksSchema = z.array(z.object({
   title: z.string().trim().min(1).max(MAX_TITLE_LENGTH),
   date: z.string().refine(isValidCalendarDate, { message: "Invalid date" }).nullable().optional(),
   priority: z.number().int().min(0).max(MAX_PRIORITY).default(5),
   notes: z.string().nullable().optional(),
+  status: z.string().max(20).optional(),
+  estimatedMinutes: z.number().int().min(0).optional(),
 })).default([]);
 
 const confirmImportInputSchema = z.object({
@@ -285,7 +527,7 @@ async function assertImportLimitAllowed(userId: string, now = new Date(), errorL
   }
 }
 
-async function recordImportUsage(userId: string) {
+async function recordImportUsage(userId: string, metadata?: Record<string, unknown>) {
   const db = getDb();
   await db.insert(aiUsageEvents).values({
     userId,
@@ -293,6 +535,7 @@ async function recordImportUsage(userId: string) {
     provider: "local",
     promptChars: 0,
     responseChars: 0,
+    metadata: metadata ?? null,
   });
 }
 
@@ -344,7 +587,14 @@ export async function confirmCurriculumImportAction(
       } else {
         const inserted = await db
           .insert(subjects)
-          .values({ userId, name: subject.name, description: subject.notes || "Imported" })
+          .values({
+            userId,
+            name: subject.name,
+            code: subject.code || null,
+            description: subject.notes || "Imported",
+            difficulty: subject.difficulty ?? 0,
+            importance: subject.importance ?? subject.priority,
+          })
           .returning();
         subjectIdMap.set(subject.name, inserted[0].id);
         subjectsCreated++;
@@ -364,7 +614,16 @@ export async function confirmCurriculumImportAction(
 
       await db
         .insert(topics)
-        .values({ userId, subjectId, title: topic.name, description: topic.notes || "Imported", priority: topic.priority });
+        .values({
+          userId,
+          subjectId,
+          title: topic.name,
+          description: buildDescription(topic.notes, topic.estimatedMinutes) ?? "Imported",
+          priority: topic.priority,
+          difficulty: topic.difficulty ?? 0,
+          confidence: topic.confidence ?? 0,
+          status: mapTopicStatus(topic.status) ?? "not_started",
+        });
       topicsCreated++;
     }
 
@@ -389,6 +648,12 @@ export async function confirmCurriculumImportAction(
         subjectId,
         title: exam.title,
         examDate: examDateVal,
+        difficulty: exam.difficulty ?? 0,
+        importance: exam.importance ?? exam.priority,
+        riskLevel: exam.riskLevel ?? 0,
+        readinessScore: exam.readinessScore ?? 0,
+        format: mapExamFormat(exam.format) ?? "unknown",
+        ects: exam.ects ?? null,
         notes: exam.notes || null,
       });
       examsCreated++;
@@ -410,14 +675,28 @@ export async function confirmCurriculumImportAction(
       await db.insert(tasks).values({
         userId,
         title: task.title,
+        description: buildDescription(task.notes, task.estimatedMinutes),
         dueAt: dueAtVal,
         priority: task.priority,
-        status: "todo",
+        status: mapTaskStatus(task.status) ?? "todo",
       });
       tasksCreated++;
     }
 
-    await recordImportUsage(userId);
+    const pm = process.env.CURRICULUM_IMPORT_V2_PROMPT === "true" ? "v2" : "v1";
+    const confirmMetadata: Record<string, unknown> = {
+      promptMode: pm,
+      confirmClicked: true,
+      importConfirmed: true,
+      recordCount: totalRecords,
+      countByType: {
+        subjects: selectedSubjects.length,
+        topics: selectedTopics.length,
+        exams: selectedExams.length,
+        tasks: selectedTasks.length,
+      },
+    };
+    await recordImportUsage(userId, confirmMetadata);
     refresh(["/subjects", "/topics", "/exams", "/goals", "/dashboard", "/command"]);
 
     return {

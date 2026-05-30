@@ -4,6 +4,7 @@ import {
   doublePrecision,
   index,
   integer,
+  jsonb,
   pgEnum,
   pgTable,
   text,
@@ -707,6 +708,7 @@ export const aiUsageEvents = pgTable("ai_usage_events", {
   provider: varchar("provider", { length: 40 }).notNull(),
   promptChars: integer("prompt_chars").default(0).notNull(),
   responseChars: integer("response_chars").default(0).notNull(),
+  metadata: jsonb("metadata"),
   createdAt: createdAtColumn(),
 }, (table) => [
   index("ai_usage_events_user_id_created_idx").on(table.userId, table.createdAt),
