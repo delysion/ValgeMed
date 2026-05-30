@@ -351,3 +351,46 @@ describe("curriculum import — analytics integration in actions", () => {
     expect(actions).toContain("recordImportUsage(userId, confirmMetadata)");
   });
 });
+
+describe("curriculum import — analytics error handling", () => {
+  const actions = source("lib", "actions", "curriculum-import.ts");
+
+  it("defines trackAnalyticsSafely helper", () => {
+    expect(actions).toContain("async function trackAnalyticsSafely");
+    expect(actions).toContain("label");
+    expect(actions).toContain("promise");
+  });
+
+  it("does not use silent .catch(() => {})", () => {
+    expect(actions).not.toContain(".catch(() => {})");
+  });
+
+  it("wraps all trackCurriculumImportParse calls in trackAnalyticsSafely", () => {
+    const trackCalls = actions.match(/trackCurriculumImportParse\(/g);
+    const safelyWrapped = actions.match(/trackAnalyticsSafely\(.*trackCurriculumImportParse/g);
+    expect(trackCalls).not.toBeNull();
+    expect(safelyWrapped).not.toBeNull();
+    expect(trackCalls!.length).toBe(safelyWrapped!.length);
+  });
+
+  it("does not log raw data in analytics error handler", () => {
+    const safeLines = actions.split("\n").filter((l) => l.includes("trackAnalyticsSafely"));
+    for (const line of safeLines) {
+      expect(line).not.toContain("notes");
+      expect(line).not.toContain(".title");
+      expect(line).not.toContain("curriculumText");
+      expect(line).not.toContain("rawOutput");
+    }
+  });
+
+  it("logs only label and sanitized error message", () => {
+    expect(actions).toContain('console.error("[curriculum-import analytics]"');
+    expect(actions).toContain("label");
+    expect(actions).toContain("error.message");
+  });
+
+  it("rethrows in non-production and swallows in production", () => {
+    expect(actions).toContain('process.env.NODE_ENV !== "production"');
+    expect(actions).toContain("throw error");
+  });
+});

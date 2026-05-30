@@ -23,6 +23,21 @@ type SafeNumericOpts = { int?: boolean; min?: number; max?: number };
 
 let numericCoercionCount = 0;
 
+async function trackAnalyticsSafely(label: string, promise: Promise<unknown>) {
+  try {
+    await promise;
+  } catch (error) {
+    console.error("[curriculum-import analytics]", {
+      label,
+      error: error instanceof Error ? error.message : String(error),
+    });
+
+    if (process.env.NODE_ENV !== "production") {
+      throw error;
+    }
+  }
+}
+
 export async function getAndResetNumericCoercionCount(): Promise<number> {
   const count = numericCoercionCount;
   numericCoercionCount = 0;
@@ -204,7 +219,7 @@ export async function parseCurriculumAction(
       parsed = JSON.parse(match ? match[0] : stripped);
     } catch {
       const pm = process.env.CURRICULUM_IMPORT_V2_PROMPT === "true" ? "v2" : "v1";
-      trackCurriculumImportParse(userId, { promptMode: pm, parseSuccess: false, error: "Invalid JSON response" }).catch(() => {});
+      await trackAnalyticsSafely("parse_invalid_json", trackCurriculumImportParse(userId, { promptMode: pm, parseSuccess: false, error: "Invalid JSON response" }));
       await getAndResetNumericCoercionCount();
       return { success: false, error: locale === "et" ? "Vigane JSON vastus" : "Invalid JSON response" };
     }
@@ -236,7 +251,7 @@ export async function parseCurriculumAction(
     const validated = curriculumImportSchema.safeParse(normalizeRecords(parsed));
     if (!validated.success) {
       const pm = process.env.CURRICULUM_IMPORT_V2_PROMPT === "true" ? "v2" : "v1";
-      trackCurriculumImportParse(userId, { promptMode: pm, parseSuccess: false, error: "Invalid record structure" }).catch(() => {});
+      await trackAnalyticsSafely("parse_invalid_structure", trackCurriculumImportParse(userId, { promptMode: pm, parseSuccess: false, error: "Invalid record structure" }));
       await getAndResetNumericCoercionCount();
       return { success: false, error: locale === "et" ? "Vigane kirje struktuur" : "Invalid record structure" };
     }
@@ -400,7 +415,7 @@ export async function parseCurriculumAction(
     }
 
     const pmParse = process.env.CURRICULUM_IMPORT_V2_PROMPT === "true" ? "v2" : "v1";
-    trackCurriculumImportParse(userId, {
+    await trackAnalyticsSafely("parse_success", trackCurriculumImportParse(userId, {
       promptMode: pmParse,
       parseSuccess: true,
       recordCount: records.length,
@@ -414,13 +429,13 @@ export async function parseCurriculumAction(
       warningsByType: computeWarningTypes(warnings),
       v2FieldPresence: computeV2FieldPresence(preview),
       numericCoercionCount: await getAndResetNumericCoercionCount(),
-    }).catch(() => {});
+    }));
 
     return { success: true, preview };
   } catch (error) {
     console.error("parseCurriculumAction error:", error);
     const pm = process.env.CURRICULUM_IMPORT_V2_PROMPT === "true" ? "v2" : "v1";
-    trackCurriculumImportParse(userId, { promptMode: pm, parseSuccess: false, error: "Parse error" }).catch(() => {});
+    await trackAnalyticsSafely("parse_catch", trackCurriculumImportParse(userId, { promptMode: pm, parseSuccess: false, error: "Parse error" }));
     await getAndResetNumericCoercionCount();
     return { success: false, error: locale === "et" ? "Viga parsimisel" : "Parse error" };
   }
