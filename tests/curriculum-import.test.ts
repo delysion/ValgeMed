@@ -362,4 +362,111 @@ describe("curriculum import field pipeline", () => {
   it("preserves catch handler for Daily import limit error", () => {
     expect(actions).toContain('error.message.includes("Daily import limit")');
   });
+
+  /* ------------------------------------------------------------------ */
+  /*  Phase C: entity linking                                            */
+  /* ------------------------------------------------------------------ */
+  it("accepts examName in recordSchema", () => {
+    expect(actions).toContain("examName: z.string().trim().max(220).optional()");
+  });
+
+  it("accepts relatedSubjectName in recordSchema", () => {
+    expect(actions).toContain("relatedSubjectName: z.string().trim().max(160).optional()");
+  });
+
+  it("accepts relatedTopicName in recordSchema", () => {
+    expect(actions).toContain("relatedTopicName: z.string().trim().max(220).optional()");
+  });
+
+  it("accepts relatedExamName in recordSchema", () => {
+    expect(actions).toContain("relatedExamName: z.string().trim().max(220).optional()");
+  });
+
+  it("includes examName in CurriculumImportPreview.topics", () => {
+    const previewLine = actions
+      .split("\n")
+      .find((l) => l.includes("topics:") && l.includes("name") && l.includes("subjectName"));
+    expect(previewLine).toContain("examName?");
+  });
+
+  it("includes related entity fields in CurriculumImportPreview.tasks", () => {
+    const previewLine = actions
+      .split("\n")
+      .find((l) => l.includes("tasks:") && l.includes("title") && l.includes("date"));
+    expect(previewLine).toContain("relatedSubjectName?");
+    expect(previewLine).toContain("relatedTopicName?");
+    expect(previewLine).toContain("relatedExamName?");
+  });
+
+  it("includes linkingEnabled in CurriculumImportPreview", () => {
+    expect(actions).toContain("linkingEnabled?: boolean");
+  });
+
+  it("captures examName from AI records for topics", () => {
+    expect(actions).toContain("examName: rec.examName,");
+  });
+
+  it("captures related entity fields from AI records for tasks", () => {
+    expect(actions).toContain("relatedSubjectName: rec.relatedSubjectName,");
+    expect(actions).toContain("relatedTopicName: rec.relatedTopicName,");
+    expect(actions).toContain("relatedExamName: rec.relatedExamName,");
+  });
+
+  it("accepts examName in confirmTopicsSchema", () => {
+    expect(actions).toContain("examName: z.string().trim().max(MAX_TITLE_LENGTH).optional()");
+  });
+
+  it("accepts related entity fields in confirmTasksSchema", () => {
+    expect(actions).toContain("relatedSubjectName: z.string().trim().max(MAX_SUBJECTNAME_LENGTH).optional()");
+    expect(actions).toContain("relatedTopicName: z.string().trim().max(MAX_TITLE_LENGTH).optional()");
+    expect(actions).toContain("relatedExamName: z.string().trim().max(MAX_TITLE_LENGTH).optional()");
+  });
+
+  it("defines normName helper", () => {
+    expect(actions).toContain("function normName");
+    expect(actions).toContain("name.trim().toLowerCase().replace(/\\s+/g, \" \")");
+  });
+
+  it("defines resolveNameToId helper", () => {
+    expect(actions).toContain("async function resolveNameToId");
+    expect(actions).toContain("batchMap.get(n)");
+  });
+
+  it("reorders insert loops: subjects, exams, topics, tasks", () => {
+    const subjectLoop = actions.indexOf("// --- 1. Insert subjects ---");
+    const examLoop = actions.indexOf("// --- 2. Insert exams");
+    const topicLoop = actions.indexOf("// --- 3. Insert topics");
+    const taskLoop = actions.indexOf("// --- 4. Insert tasks");
+    expect(subjectLoop).toBeGreaterThan(-1);
+    expect(examLoop).toBeGreaterThan(subjectLoop);
+    expect(topicLoop).toBeGreaterThan(examLoop);
+    expect(taskLoop).toBeGreaterThan(topicLoop);
+  });
+
+  it("reads CURRICULUM_IMPORT_LINKING env var", () => {
+    expect(actions).toContain("CURRICULUM_IMPORT_LINKING");
+  });
+
+  it("uses linkingEnabled flag in confirm action", () => {
+    expect(actions).toContain("const linkingEnabled = process.env.CURRICULUM_IMPORT_LINKING === \"true\"");
+  });
+
+  it("populates linking analytics counts", () => {
+    expect(actions).toContain("linkedTopicExamCount");
+    expect(actions).toContain("linkedTaskSubjectCount");
+    expect(actions).toContain("linkedTaskTopicCount");
+    expect(actions).toContain("linkedTaskExamCount");
+    expect(actions).toContain("unresolvedLinkWarningCount");
+    expect(actions).toContain("ambiguousLinkWarningCount");
+  });
+
+  it("passes examName from client selection state", () => {
+    expect(component).toContain("examName: t.examName");
+  });
+
+  it("passes related entity fields from client selection state", () => {
+    expect(component).toContain("relatedSubjectName: t.relatedSubjectName");
+    expect(component).toContain("relatedTopicName: t.relatedTopicName");
+    expect(component).toContain("relatedExamName: t.relatedExamName");
+  });
 });

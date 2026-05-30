@@ -26,6 +26,10 @@ export interface CurriculumImportParseEvent {
     statusCount: number;
     taskStatusCount: number;
     estimatedMinutesCount: number;
+    examNameCount: number;
+    relatedSubjectNameCount: number;
+    relatedTopicNameCount: number;
+    relatedExamNameCount: number;
   };
   numericCoercionCount?: number;
   error?: string;
@@ -36,19 +40,32 @@ export interface CurriculumImportConfirmEvent {
   confirmClicked: boolean;
   importConfirmed: boolean;
   recordCount?: number;
+  linkingEnabled?: boolean;
   countByType?: {
     subjects: number;
     topics: number;
     exams: number;
     tasks: number;
   };
+  examNameCount?: number;
+  relatedSubjectNameCount?: number;
+  relatedTopicNameCount?: number;
+  relatedExamNameCount?: number;
+  linkedTopicExamCount?: number;
+  linkedTaskSubjectCount?: number;
+  linkedTaskTopicCount?: number;
+  linkedTaskExamCount?: number;
+  unresolvedLinkWarningCount?: number;
+  ambiguousLinkWarningCount?: number;
+  linkWarningCount?: number;
+  linkWarningsByType?: string[];
   error?: string;
 }
 
 type PreviewSubject = { difficulty?: number; importance?: number };
-type PreviewTopic = { difficulty?: number; confidence?: number; status?: string; estimatedMinutes?: number };
+type PreviewTopic = { difficulty?: number; confidence?: number; status?: string; estimatedMinutes?: number; examName?: string };
 type PreviewExam = { difficulty?: number; importance?: number; riskLevel?: number; readinessScore?: number; format?: string; ects?: number };
-type PreviewTask = { status?: string; estimatedMinutes?: number };
+type PreviewTask = { status?: string; estimatedMinutes?: number; relatedSubjectName?: string; relatedTopicName?: string; relatedExamName?: string };
 
 interface PreviewShape {
   subjects: PreviewSubject[];
@@ -68,6 +85,10 @@ export function computeV2FieldPresence(preview: PreviewShape): CurriculumImportP
   let statusCount = 0;
   let taskStatusCount = 0;
   let estimatedMinutesCount = 0;
+  let examNameCount = 0;
+  let relatedSubjectNameCount = 0;
+  let relatedTopicNameCount = 0;
+  let relatedExamNameCount = 0;
 
   for (const s of preview.subjects) {
     if (s.difficulty !== undefined) difficultyCount++;
@@ -78,6 +99,7 @@ export function computeV2FieldPresence(preview: PreviewShape): CurriculumImportP
     if (t.confidence !== undefined) confidenceCount++;
     if (t.status !== undefined) statusCount++;
     if (t.estimatedMinutes !== undefined) estimatedMinutesCount++;
+    if (t.examName !== undefined) examNameCount++;
   }
   for (const e of preview.exams) {
     if (e.difficulty !== undefined) difficultyCount++;
@@ -90,6 +112,9 @@ export function computeV2FieldPresence(preview: PreviewShape): CurriculumImportP
   for (const t of preview.tasks) {
     if (t.status !== undefined) taskStatusCount++;
     if (t.estimatedMinutes !== undefined) estimatedMinutesCount++;
+    if (t.relatedSubjectName !== undefined) relatedSubjectNameCount++;
+    if (t.relatedTopicName !== undefined) relatedTopicNameCount++;
+    if (t.relatedExamName !== undefined) relatedExamNameCount++;
   }
 
   return {
@@ -103,6 +128,10 @@ export function computeV2FieldPresence(preview: PreviewShape): CurriculumImportP
     statusCount,
     taskStatusCount,
     estimatedMinutesCount,
+    examNameCount,
+    relatedSubjectNameCount,
+    relatedTopicNameCount,
+    relatedExamNameCount,
   };
 }
 
@@ -112,6 +141,12 @@ export function categorizeWarningType(warning: string): string {
   if (warning.startsWith("Unrecognized exam format")) return "unrecognized_exam_format";
   if (warning.startsWith("Unrecognized task status")) return "unrecognized_task_status";
   if (warning.startsWith("Estimated minutes") && warning.includes("task")) return "estimated_minutes_appended_to_task";
+  if (warning === "Could not resolve related exam name") return "unresolved_related_exam";
+  if (warning === "Could not resolve related subject name") return "unresolved_related_subject";
+  if (warning === "Could not resolve related topic name") return "unresolved_related_topic";
+  if (warning === "Ambiguous related exam name") return "ambiguous_related_exam";
+  if (warning === "Ambiguous related subject name") return "ambiguous_related_subject";
+  if (warning === "Ambiguous related topic name") return "ambiguous_related_topic";
   return "unknown_warning";
 }
 

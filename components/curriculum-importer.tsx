@@ -144,7 +144,7 @@ export function CurriculumImporter({ className }: CurriculumImporterProps) {
 
     const selectedTopicsList = preview.topics
       .filter((_, i) => selectedTopics.has(i))
-      .map((t) => ({ name: t.name, subjectName: t.subjectName, priority: t.priority, notes: t.notes, difficulty: t.difficulty, confidence: t.confidence, status: t.status, estimatedMinutes: t.estimatedMinutes }));
+      .map((t) => ({ name: t.name, subjectName: t.subjectName, priority: t.priority, notes: t.notes, difficulty: t.difficulty, confidence: t.confidence, status: t.status, estimatedMinutes: t.estimatedMinutes, examName: t.examName }));
 
     const selectedExamsList = preview.exams
       .filter((_, i) => selectedExams.has(i))
@@ -152,7 +152,7 @@ export function CurriculumImporter({ className }: CurriculumImporterProps) {
 
     const selectedTasksList = preview.tasks
       .filter((_, i) => selectedTasks.has(i))
-      .map((t) => ({ title: t.title, date: t.date, priority: t.priority, notes: t.notes, status: t.status, estimatedMinutes: t.estimatedMinutes }));
+      .map((t) => ({ title: t.title, date: t.date, priority: t.priority, notes: t.notes, status: t.status, estimatedMinutes: t.estimatedMinutes, relatedSubjectName: t.relatedSubjectName, relatedTopicName: t.relatedTopicName, relatedExamName: t.relatedExamName }));
 
     if (selectedSubjectsList.length === 0 && selectedTopicsList.length === 0 &&
         selectedExamsList.length === 0 && selectedTasksList.length === 0) {
@@ -332,6 +332,11 @@ export function CurriculumImporter({ className }: CurriculumImporterProps) {
                       />
                       <span className="flex-1">{t.name}</span>
                       <span className="text-xs text-text-muted">{t.subjectName}</span>
+                      {preview.linkingEnabled && t.examName && (
+                        <span className="inline-flex items-center rounded-full border border-border bg-bg-subtle/50 px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-text-muted">
+                          {t.examName}
+                        </span>
+                      )}
                       {t.notes && <span className="text-xs text-cyan max-w-[120px] truncate">{t.notes}</span>}
                     </label>
                   ))}
@@ -410,6 +415,21 @@ export function CurriculumImporter({ className }: CurriculumImporterProps) {
                       />
                       <span className="flex-1">{t.title}</span>
                       <span className="text-xs text-text-muted">{t.date || "—"}</span>
+                      {preview.linkingEnabled && t.relatedSubjectName && (
+                        <span className="inline-flex items-center rounded-full border border-border bg-bg-subtle/50 px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-text-muted">
+                          {t.relatedSubjectName}
+                        </span>
+                      )}
+                      {preview.linkingEnabled && t.relatedTopicName && (
+                        <span className="inline-flex items-center rounded-full border border-border bg-bg-subtle/50 px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-text-muted">
+                          {t.relatedTopicName}
+                        </span>
+                      )}
+                      {preview.linkingEnabled && t.relatedExamName && (
+                        <span className="inline-flex items-center rounded-full border border-border bg-bg-subtle/50 px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-text-muted">
+                          {t.relatedExamName}
+                        </span>
+                      )}
                       {t.notes && <span className="text-xs text-cyan max-w-[120px] truncate">{t.notes}</span>}
                     </label>
                   ))}

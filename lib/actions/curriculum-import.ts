@@ -88,6 +88,10 @@ const recordSchema = z.object({
   estimatedMinutes: safeNumeric({ int: true, min: 0 }),
   status: z.preprocess((v) => v === null ? undefined : v, z.string().trim().max(40).optional()),
   taskStatus: z.preprocess((v) => v === null ? undefined : v, z.string().trim().max(20).optional()),
+  examName: z.string().trim().max(220).optional(),
+  relatedSubjectName: z.string().trim().max(160).optional(),
+  relatedTopicName: z.string().trim().max(220).optional(),
+  relatedExamName: z.string().trim().max(220).optional(),
 });
 
 const curriculumImportSchema = z.object({
@@ -96,10 +100,11 @@ const curriculumImportSchema = z.object({
 
 export interface CurriculumImportPreview {
   subjects: Array<{ name: string; notes: string | null; priority: number; code?: string; difficulty?: number; importance?: number; isNew: boolean; existingId?: string; topics: string[] }>;
-  topics: Array<{ name: string; subjectName: string; priority: number; notes: string | null; difficulty?: number; confidence?: number; status?: string; estimatedMinutes?: number; subjectId?: string; isNew: boolean }>;
+  topics: Array<{ name: string; subjectName: string; priority: number; notes: string | null; difficulty?: number; confidence?: number; status?: string; estimatedMinutes?: number; examName?: string; subjectId?: string; isNew: boolean }>;
   exams: Array<{ title: string; date: string | null; subjectName: string; priority: number; notes: string | null; difficulty?: number; importance?: number; riskLevel?: number; readinessScore?: number; format?: string; ects?: number; subjectId?: string; isNew: boolean }>;
-  tasks: Array<{ title: string; date: string | null; priority: number; notes: string | null; status?: string; estimatedMinutes?: number; isNew: boolean }>;
+  tasks: Array<{ title: string; date: string | null; priority: number; notes: string | null; status?: string; estimatedMinutes?: number; relatedSubjectName?: string; relatedTopicName?: string; relatedExamName?: string; isNew: boolean }>;
   warnings: string[];
+  linkingEnabled?: boolean;
 }
 
 export interface CurriculumImportResult {
@@ -197,6 +202,10 @@ function buildDescription(notes: string | null | undefined, estimatedMinutes?: n
   return parts.length > 0 ? parts.join("\n") : null;
 }
 
+function normName(name: string): string {
+  return name.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
 export async function parseCurriculumAction(
   rawText: string,
   locale: string = "en"
@@ -266,9 +275,9 @@ export async function parseCurriculumAction(
     const subjectCode = new Map<string, string>();
     const subjectDifficulty = new Map<string, number>();
     const subjectImportance = new Map<string, number>();
-    const topicList: Array<{ name: string; subjectName: string; priority: number; notes: string | null; difficulty?: number; confidence?: number; status?: string; estimatedMinutes?: number }> = [];
+    const topicList: Array<{ name: string; subjectName: string; priority: number; notes: string | null; difficulty?: number; confidence?: number; status?: string; estimatedMinutes?: number; examName?: string }> = [];
     const examList: Array<{ title: string; date: string | null; subjectName: string; priority: number; notes: string | null; difficulty?: number; importance?: number; riskLevel?: number; readinessScore?: number; format?: string; ects?: number }> = [];
-    const taskList: Array<{ title: string; date: string | null; priority: number; notes: string | null; taskStatus?: string; estimatedMinutes?: number }> = [];
+    const taskList: Array<{ title: string; date: string | null; priority: number; notes: string | null; taskStatus?: string; estimatedMinutes?: number; relatedSubjectName?: string; relatedTopicName?: string; relatedExamName?: string }> = [];
     const warnings: string[] = [];
 
     for (const rec of records) {
@@ -299,6 +308,7 @@ export async function parseCurriculumAction(
           confidence: rec.confidence,
           status: rec.status,
           estimatedMinutes: rec.estimatedMinutes,
+          examName: rec.examName,
         });
         subjectNames.add(rec.parent);
       } else if (rec.type === "exam") {
@@ -324,9 +334,14 @@ export async function parseCurriculumAction(
           notes: rec.notes ?? null,
           taskStatus: rec.taskStatus,
           estimatedMinutes: rec.estimatedMinutes,
+          relatedSubjectName: rec.relatedSubjectName,
+          relatedTopicName: rec.relatedTopicName,
+          relatedExamName: rec.relatedExamName,
         });
       }
     }
+
+    const linkingEnabled = process.env.CURRICULUM_IMPORT_LINKING === "true";
 
     const preview: CurriculumImportPreview = {
       subjects: [],
@@ -334,6 +349,7 @@ export async function parseCurriculumAction(
       exams: [],
       tasks: [],
       warnings,
+      linkingEnabled,
     };
 
     for (const name of subjectNames) {
@@ -372,6 +388,7 @@ export async function parseCurriculumAction(
         confidence: topic.confidence,
         status: mappedStatus ?? undefined,
         estimatedMinutes: topic.estimatedMinutes,
+        examName: topic.examName,
         isNew: true,
       });
     }
@@ -412,6 +429,9 @@ export async function parseCurriculumAction(
         notes: task.notes,
         status: mappedTaskStatus ?? undefined,
         estimatedMinutes: task.estimatedMinutes,
+        relatedSubjectName: task.relatedSubjectName,
+        relatedTopicName: task.relatedTopicName,
+        relatedExamName: task.relatedExamName,
         isNew: true,
       });
     }
@@ -473,6 +493,7 @@ const confirmTopicsSchema = z.array(z.object({
   confidence: z.number().int().min(0).max(MAX_PRIORITY).optional(),
   status: z.string().max(40).optional(),
   estimatedMinutes: z.number().int().min(0).optional(),
+  examName: z.string().trim().max(MAX_TITLE_LENGTH).optional(),
 })).default([]);
 const confirmExamsSchema = z.array(z.object({
   title: z.string().trim().min(1).max(MAX_TITLE_LENGTH),
@@ -494,6 +515,9 @@ const confirmTasksSchema = z.array(z.object({
   notes: z.string().nullable().optional(),
   status: z.string().max(20).optional(),
   estimatedMinutes: z.number().int().min(0).optional(),
+  relatedSubjectName: z.string().trim().max(MAX_SUBJECTNAME_LENGTH).optional(),
+  relatedTopicName: z.string().trim().max(MAX_TITLE_LENGTH).optional(),
+  relatedExamName: z.string().trim().max(MAX_TITLE_LENGTH).optional(),
 })).default([]);
 
 const confirmImportInputSchema = z.object({
@@ -510,6 +534,25 @@ const confirmImportInputSchema = z.object({
     message: `Maximum ${MAX_TOTAL_RECORDS} records allowed per import`,
   }
 );
+
+async function resolveNameToId(
+  name: string | undefined,
+  batchMap: Map<string, string>,
+  findInDb: (normalized: string) => Promise<string[]>,
+  entityLabel: string
+): Promise<{ id: string | null; warnings: string[] }> {
+  if (!name) return { id: null, warnings: [] };
+  const n = normName(name);
+
+  const batchId = batchMap.get(n);
+  if (batchId) return { id: batchId, warnings: [] };
+
+  const ids = await findInDb(n);
+  if (ids.length === 1) return { id: ids[0], warnings: [] };
+  if (ids.length > 1) return { id: null, warnings: [`Ambiguous ${entityLabel} name`] };
+
+  return { id: null, warnings: [`Could not resolve ${entityLabel} name`] };
+}
 
 function startOfUtcDay(date: Date) {
   return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
@@ -626,13 +669,20 @@ export async function confirmCurriculumImportAction(
     await assertImportLimitAllowed(userId, new Date(), locale);
     const db = getDb();
 
+    const linkingEnabled = process.env.CURRICULUM_IMPORT_LINKING === "true";
+
     let subjectsCreated = 0;
     let topicsCreated = 0;
     let examsCreated = 0;
     let tasksCreated = 0;
 
-    const subjectIdMap = new Map<string, string>();
+    const confirmWarnings: string[] = [];
 
+    const subjectIdMap = new Map<string, string>();
+    const examIdMap = new Map<string, string>();
+    const topicIdMap = new Map<string, string>();
+
+    // --- 1. Insert subjects ---
     for (const subject of selectedSubjects) {
       const rows = await db
         .select({ id: subjects.id })
@@ -641,7 +691,7 @@ export async function confirmCurriculumImportAction(
         .limit(1);
 
       if (rows.length > 0) {
-        subjectIdMap.set(subject.name, rows[0].id);
+        subjectIdMap.set(normName(subject.name), rows[0].id);
       } else {
         const inserted = await db
           .insert(subjects)
@@ -654,39 +704,14 @@ export async function confirmCurriculumImportAction(
             importance: subject.importance ?? subject.priority,
           })
           .returning();
-        subjectIdMap.set(subject.name, inserted[0].id);
+        subjectIdMap.set(normName(subject.name), inserted[0].id);
         subjectsCreated++;
       }
     }
 
-    for (const topic of selectedTopics) {
-      const subjectId = subjectIdMap.get(topic.subjectName);
-      if (!subjectId) continue;
-
-      const existingTopic = await db
-        .select({ id: topics.id })
-        .from(topics)
-        .where(and(eq(topics.userId, userId), eq(topics.subjectId, subjectId), eq(topics.title, topic.name)))
-        .limit(1);
-      if (existingTopic.length > 0) continue;
-
-      await db
-        .insert(topics)
-        .values({
-          userId,
-          subjectId,
-          title: topic.name,
-          description: buildDescription(topic.notes, topic.estimatedMinutes) ?? "Imported",
-          priority: topic.priority,
-          difficulty: topic.difficulty ?? 0,
-          confidence: topic.confidence ?? 0,
-          status: mapTopicStatus(topic.status) ?? "not_started",
-        });
-      topicsCreated++;
-    }
-
+    // --- 2. Insert exams (before topics so topic.examName resolves) ---
     for (const exam of selectedExams) {
-      const subjectId = subjectIdMap.get(exam.subjectName);
+      const subjectId = subjectIdMap.get(normName(exam.subjectName));
       if (!subjectId) continue;
 
       const examDateVal = exam.date ? new Date(exam.date) : null;
@@ -699,9 +724,12 @@ export async function confirmCurriculumImportAction(
             : and(eq(exams.userId, userId), eq(exams.subjectId, subjectId), eq(exams.title, exam.title), isNull(exams.examDate))
         )
         .limit(1);
-      if (existingExam.length > 0) continue;
+      if (existingExam.length > 0) {
+        examIdMap.set(normName(exam.title), existingExam[0].id);
+        continue;
+      }
 
-      await db.insert(exams).values({
+      const inserted = await db.insert(exams).values({
         userId,
         subjectId,
         title: exam.title,
@@ -713,12 +741,147 @@ export async function confirmCurriculumImportAction(
         format: mapExamFormat(exam.format) ?? "unknown",
         ects: exam.ects ?? null,
         notes: exam.notes || null,
-      });
+      }).returning({ id: exams.id });
+      examIdMap.set(normName(exam.title), inserted[0].id);
       examsCreated++;
     }
 
+    // --- 3. Insert topics (after exams so examName can resolve) ---
+    let linkedTopicExamCount = 0;
+    let unresolvedLinkWarningCount = 0;
+    let ambiguousLinkWarningCount = 0;
+
+    for (const topic of selectedTopics) {
+      const subjectId = subjectIdMap.get(normName(topic.subjectName));
+      if (!subjectId) continue;
+
+      let examId: string | null | undefined;
+
+      if (linkingEnabled) {
+        const resolved = await resolveNameToId(
+          topic.examName,
+          examIdMap,
+          async (n) => {
+            const rows = await db
+              .select({ id: exams.id })
+              .from(exams)
+              .where(and(eq(exams.userId, userId), sql`LOWER(TRIM(${exams.title})) = ${n}`))
+              .limit(2);
+            return rows.map((r) => r.id);
+          },
+          "related exam"
+        );
+        examId = resolved.id;
+        if (resolved.id) linkedTopicExamCount++;
+        for (const w of resolved.warnings) {
+          confirmWarnings.push(w);
+          if (w.startsWith("Ambiguous")) ambiguousLinkWarningCount++;
+          else unresolvedLinkWarningCount++;
+        }
+      }
+
+      const existingTopic = await db
+        .select({ id: topics.id })
+        .from(topics)
+        .where(and(eq(topics.userId, userId), eq(topics.subjectId, subjectId), eq(topics.title, topic.name)))
+        .limit(1);
+      if (existingTopic.length > 0) {
+        if (examId) topicIdMap.set(normName(topic.name), existingTopic[0].id);
+        continue;
+      }
+
+      const inserted = await db.insert(topics).values({
+        userId,
+        subjectId,
+        title: topic.name,
+        description: buildDescription(topic.notes, topic.estimatedMinutes) ?? "Imported",
+        priority: topic.priority,
+        difficulty: topic.difficulty ?? 0,
+        confidence: topic.confidence ?? 0,
+        status: mapTopicStatus(topic.status) ?? "not_started",
+        ...(examId !== undefined ? { examId } : {}),
+      }).returning({ id: topics.id });
+      topicIdMap.set(normName(topic.name), inserted[0].id);
+      topicsCreated++;
+    }
+
+    // --- 4. Insert tasks ---
+    let linkedTaskSubjectCount = 0;
+    let linkedTaskTopicCount = 0;
+    let linkedTaskExamCount = 0;
+
     for (const task of selectedTasks) {
       const dueAtVal = task.date ? new Date(task.date) : null;
+
+      let relatedSubjectId: string | null | undefined;
+      let relatedTopicId: string | null | undefined;
+      let relatedExamId: string | null | undefined;
+
+      if (linkingEnabled) {
+        const subjResolved = await resolveNameToId(
+          task.relatedSubjectName,
+          subjectIdMap,
+          async (n) => {
+            const rows = await db
+              .select({ id: subjects.id })
+              .from(subjects)
+              .where(and(eq(subjects.userId, userId), sql`LOWER(TRIM(${subjects.name})) = ${n}`))
+              .limit(2);
+            return rows.map((r) => r.id);
+          },
+          "related subject"
+        );
+        relatedSubjectId = subjResolved.id;
+        if (subjResolved.id) linkedTaskSubjectCount++;
+        for (const w of subjResolved.warnings) {
+          confirmWarnings.push(w);
+          if (w.startsWith("Ambiguous")) ambiguousLinkWarningCount++;
+          else unresolvedLinkWarningCount++;
+        }
+
+        const topicResolved = await resolveNameToId(
+          task.relatedTopicName,
+          topicIdMap,
+          async (n) => {
+            const rows = await db
+              .select({ id: topics.id })
+              .from(topics)
+              .where(and(eq(topics.userId, userId), sql`LOWER(TRIM(${topics.title})) = ${n}`))
+              .limit(2);
+            return rows.map((r) => r.id);
+          },
+          "related topic"
+        );
+        relatedTopicId = topicResolved.id;
+        if (topicResolved.id) linkedTaskTopicCount++;
+        for (const w of topicResolved.warnings) {
+          confirmWarnings.push(w);
+          if (w.startsWith("Ambiguous")) ambiguousLinkWarningCount++;
+          else unresolvedLinkWarningCount++;
+        }
+
+        const examResolved = await resolveNameToId(
+          task.relatedExamName,
+          examIdMap,
+          async (n) => {
+            const rows = await db
+              .select({ id: exams.id })
+              .from(exams)
+              .where(and(eq(exams.userId, userId), sql`LOWER(TRIM(${exams.title})) = ${n}`))
+              .limit(2);
+            return rows.map((r) => r.id);
+          },
+          "related exam"
+        );
+        relatedExamId = examResolved.id;
+        if (examResolved.id) linkedTaskExamCount++;
+        for (const w of examResolved.warnings) {
+          confirmWarnings.push(w);
+          if (w.startsWith("Ambiguous")) ambiguousLinkWarningCount++;
+          else unresolvedLinkWarningCount++;
+        }
+      }
+
       const existingTask = await db
         .select({ id: tasks.id })
         .from(tasks)
@@ -737,6 +900,9 @@ export async function confirmCurriculumImportAction(
         dueAt: dueAtVal,
         priority: task.priority,
         status: mapTaskStatus(task.status) ?? "todo",
+        ...(relatedSubjectId !== undefined ? { relatedSubjectId } : {}),
+        ...(relatedTopicId !== undefined ? { relatedTopicId } : {}),
+        ...(relatedExamId !== undefined ? { relatedExamId } : {}),
       });
       tasksCreated++;
     }
@@ -747,12 +913,29 @@ export async function confirmCurriculumImportAction(
       confirmClicked: true,
       importConfirmed: true,
       recordCount: totalRecords,
+      linkingEnabled,
       countByType: {
         subjects: selectedSubjects.length,
         topics: selectedTopics.length,
         exams: selectedExams.length,
         tasks: selectedTasks.length,
       },
+      examNameCount: selectedTopics.filter((t) => t.examName).length,
+      relatedSubjectNameCount: selectedTasks.filter((t) => t.relatedSubjectName).length,
+      relatedTopicNameCount: selectedTasks.filter((t) => t.relatedTopicName).length,
+      relatedExamNameCount: selectedTasks.filter((t) => t.relatedExamName).length,
+      linkedTopicExamCount,
+      linkedTaskSubjectCount,
+      linkedTaskTopicCount,
+      linkedTaskExamCount,
+      unresolvedLinkWarningCount,
+      ambiguousLinkWarningCount,
+      linkWarningCount: confirmWarnings.length,
+      linkWarningsByType: [...new Set(confirmWarnings.map((w) => {
+        if (w.startsWith("Ambiguous")) return "ambiguous_link";
+        if (w.startsWith("Could not resolve")) return "unresolved_link";
+        return "unknown_link_warning";
+      }))],
     };
     await recordImportUsage(userId, confirmMetadata);
     refresh(["/subjects", "/topics", "/exams", "/goals", "/dashboard", "/command"]);

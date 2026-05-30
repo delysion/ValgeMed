@@ -42,6 +42,10 @@ describe("curriculum import prompt (Phase B)", () => {
     "status",
     "taskStatus",
     "estimatedMinutes",
+    "examName",
+    "relatedSubjectName",
+    "relatedTopicName",
+    "relatedExamName",
   ];
 
   for (const field of v2Fields) {

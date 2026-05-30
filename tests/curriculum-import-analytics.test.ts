@@ -10,9 +10,9 @@ function source(...parts: string[]) {
 
 function computeV2FieldPresence(preview: {
   subjects: Array<{ difficulty?: number; importance?: number }>;
-  topics: Array<{ difficulty?: number; confidence?: number; status?: string; estimatedMinutes?: number }>;
+  topics: Array<{ difficulty?: number; confidence?: number; status?: string; estimatedMinutes?: number; examName?: string }>;
   exams: Array<{ difficulty?: number; importance?: number; riskLevel?: number; readinessScore?: number; format?: string; ects?: number }>;
-  tasks: Array<{ status?: string; estimatedMinutes?: number }>;
+  tasks: Array<{ status?: string; estimatedMinutes?: number; relatedSubjectName?: string; relatedTopicName?: string; relatedExamName?: string }>;
 }) {
   let difficultyCount = 0;
   let confidenceCount = 0;
@@ -24,6 +24,10 @@ function computeV2FieldPresence(preview: {
   let statusCount = 0;
   let taskStatusCount = 0;
   let estimatedMinutesCount = 0;
+  let examNameCount = 0;
+  let relatedSubjectNameCount = 0;
+  let relatedTopicNameCount = 0;
+  let relatedExamNameCount = 0;
 
   for (const s of preview.subjects) {
     if (s.difficulty !== undefined) difficultyCount++;
@@ -34,6 +38,7 @@ function computeV2FieldPresence(preview: {
     if (t.confidence !== undefined) confidenceCount++;
     if (t.status !== undefined) statusCount++;
     if (t.estimatedMinutes !== undefined) estimatedMinutesCount++;
+    if (t.examName !== undefined) examNameCount++;
   }
   for (const e of preview.exams) {
     if (e.difficulty !== undefined) difficultyCount++;
@@ -46,6 +51,9 @@ function computeV2FieldPresence(preview: {
   for (const t of preview.tasks) {
     if (t.status !== undefined) taskStatusCount++;
     if (t.estimatedMinutes !== undefined) estimatedMinutesCount++;
+    if (t.relatedSubjectName !== undefined) relatedSubjectNameCount++;
+    if (t.relatedTopicName !== undefined) relatedTopicNameCount++;
+    if (t.relatedExamName !== undefined) relatedExamNameCount++;
   }
 
   return {
@@ -59,6 +67,10 @@ function computeV2FieldPresence(preview: {
     statusCount,
     taskStatusCount,
     estimatedMinutesCount,
+    examNameCount,
+    relatedSubjectNameCount,
+    relatedTopicNameCount,
+    relatedExamNameCount,
   };
 }
 
@@ -68,6 +80,12 @@ function categorizeWarningType(warning: string): string {
   if (warning.startsWith("Unrecognized exam format")) return "unrecognized_exam_format";
   if (warning.startsWith("Unrecognized task status")) return "unrecognized_task_status";
   if (warning.startsWith("Estimated minutes") && warning.includes("task")) return "estimated_minutes_appended_to_task";
+  if (warning === "Could not resolve related exam name") return "unresolved_related_exam";
+  if (warning === "Could not resolve related subject name") return "unresolved_related_subject";
+  if (warning === "Could not resolve related topic name") return "unresolved_related_topic";
+  if (warning === "Ambiguous related exam name") return "ambiguous_related_exam";
+  if (warning === "Ambiguous related subject name") return "ambiguous_related_subject";
+  if (warning === "Ambiguous related topic name") return "ambiguous_related_topic";
   return "unknown_warning";
 }
 
@@ -152,6 +170,7 @@ describe("curriculum import analytics — event shape", () => {
       "difficultyCount", "confidenceCount", "importanceCount",
       "riskLevelCount", "readinessScoreCount", "formatCount",
       "ectsCount", "statusCount", "taskStatusCount", "estimatedMinutesCount",
+      "examNameCount", "relatedSubjectNameCount", "relatedTopicNameCount", "relatedExamNameCount",
     ];
     for (const field of fields) {
       expect(analytics).toContain(field);
@@ -163,6 +182,17 @@ describe("curriculum import analytics — event shape", () => {
     expect(analytics).toContain("importConfirmed");
     expect(analytics).toContain("recordCount");
     expect(analytics).toContain("countByType");
+  });
+
+  it("confirm event includes Phase C linking fields", () => {
+    const linkingFields = [
+      "examNameCount", "relatedSubjectNameCount", "relatedTopicNameCount", "relatedExamNameCount",
+      "linkedTopicExamCount", "linkedTaskSubjectCount", "linkedTaskTopicCount", "linkedTaskExamCount",
+      "unresolvedLinkWarningCount", "ambiguousLinkWarningCount", "linkWarningCount", "linkWarningsByType",
+    ];
+    for (const field of linkingFields) {
+      expect(analytics).toContain(field);
+    }
   });
 
   it("exports trackCurriculumImportParse and trackCurriculumImportConfirm", () => {
@@ -184,6 +214,10 @@ describe("computeV2FieldPresence", () => {
     expect(result.statusCount).toBe(0);
     expect(result.taskStatusCount).toBe(0);
     expect(result.estimatedMinutesCount).toBe(0);
+    expect(result.examNameCount).toBe(0);
+    expect(result.relatedSubjectNameCount).toBe(0);
+    expect(result.relatedTopicNameCount).toBe(0);
+    expect(result.relatedExamNameCount).toBe(0);
   });
 
   it("counts difficulty across subjects, topics, and exams", () => {
@@ -307,6 +341,30 @@ describe("categorizeWarningType", () => {
   it("returns unknown_warning for unrecognized pattern", () => {
     const result = categorizeWarningType("Some random warning");
     expect(result).toBe("unknown_warning");
+  });
+
+  it("categorizes unresolved related exam warning", () => {
+    expect(categorizeWarningType("Could not resolve related exam name")).toBe("unresolved_related_exam");
+  });
+
+  it("categorizes unresolved related subject warning", () => {
+    expect(categorizeWarningType("Could not resolve related subject name")).toBe("unresolved_related_subject");
+  });
+
+  it("categorizes unresolved related topic warning", () => {
+    expect(categorizeWarningType("Could not resolve related topic name")).toBe("unresolved_related_topic");
+  });
+
+  it("categorizes ambiguous related exam warning", () => {
+    expect(categorizeWarningType("Ambiguous related exam name")).toBe("ambiguous_related_exam");
+  });
+
+  it("categorizes ambiguous related subject warning", () => {
+    expect(categorizeWarningType("Ambiguous related subject name")).toBe("ambiguous_related_subject");
+  });
+
+  it("categorizes ambiguous related topic warning", () => {
+    expect(categorizeWarningType("Ambiguous related topic name")).toBe("ambiguous_related_topic");
   });
 });
 
