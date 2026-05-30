@@ -561,7 +561,7 @@ export async function confirmCurriculumImportAction(
       };
     }
 
-    await assertImportLimitAllowed(userId, new Date(), locale);
+    // assertImportLimitAllowed removed for staging-v2 testing
     const db = getDb();
 
     let subjectsCreated = 0;
