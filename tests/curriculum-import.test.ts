@@ -447,8 +447,12 @@ describe("curriculum import field pipeline", () => {
     expect(actions).toContain("CURRICULUM_IMPORT_LINKING");
   });
 
-  it("uses linkingEnabled flag in confirm action", () => {
-    expect(actions).toContain("const linkingEnabled = process.env.CURRICULUM_IMPORT_LINKING === \"true\"");
+  it("reads CURRICULUM_IMPORT_LINKING_ADMIN_CANARY env var", () => {
+    expect(actions).toContain("CURRICULUM_IMPORT_LINKING_ADMIN_CANARY");
+  });
+
+  it("uses getCurriculumImportLinkingEnabled for linking gate", () => {
+    expect(actions).toContain("await getCurriculumImportLinkingEnabled(userId)");
   });
 
   it("populates linking analytics counts", () => {

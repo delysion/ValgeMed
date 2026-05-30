@@ -493,3 +493,40 @@ describe("getCurriculumImportDailyLimit", () => {
     expect(await getCurriculumImportDailyLimit(fakeUserId)).toBe(10);
   });
 });
+
+describe("getCurriculumImportLinkingEnabled", () => {
+  beforeEach(() => {
+    delete process.env.CURRICULUM_IMPORT_LINKING;
+    delete process.env.CURRICULUM_IMPORT_LINKING_ADMIN_CANARY;
+  });
+
+  const fakeUserId = "00000000-0000-0000-0000-000000000000";
+
+  it("returns true when CURRICULUM_IMPORT_LINKING is true", async () => {
+    process.env.CURRICULUM_IMPORT_LINKING = "true";
+    const { getCurriculumImportLinkingEnabled } = await import("@/lib/actions/curriculum-import");
+    expect(await getCurriculumImportLinkingEnabled(fakeUserId)).toBe(true);
+  });
+
+  it("returns false when no flags are set", async () => {
+    const { getCurriculumImportLinkingEnabled } = await import("@/lib/actions/curriculum-import");
+    expect(await getCurriculumImportLinkingEnabled(fakeUserId)).toBe(false);
+  });
+
+  it("returns false when CURRICULUM_IMPORT_LINKING is false", async () => {
+    process.env.CURRICULUM_IMPORT_LINKING = "false";
+    const { getCurriculumImportLinkingEnabled } = await import("@/lib/actions/curriculum-import");
+    expect(await getCurriculumImportLinkingEnabled(fakeUserId)).toBe(false);
+  });
+
+  it("returns false when ADMIN_CANARY is true but DB unavailable (falls back to false)", async () => {
+    process.env.CURRICULUM_IMPORT_LINKING_ADMIN_CANARY = "true";
+    const { getCurriculumImportLinkingEnabled } = await import("@/lib/actions/curriculum-import");
+    expect(await getCurriculumImportLinkingEnabled(fakeUserId)).toBe(false);
+  });
+
+  it("source code references CURRICULUM_IMPORT_LINKING_ADMIN_CANARY", () => {
+    const actions = source("lib", "actions", "curriculum-import.ts");
+    expect(actions).toContain("CURRICULUM_IMPORT_LINKING_ADMIN_CANARY");
+  });
+});

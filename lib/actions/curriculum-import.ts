@@ -341,7 +341,7 @@ export async function parseCurriculumAction(
       }
     }
 
-    const linkingEnabled = process.env.CURRICULUM_IMPORT_LINKING === "true";
+    const linkingEnabled = await getCurriculumImportLinkingEnabled(userId);
 
     const preview: CurriculumImportPreview = {
       subjects: [],
@@ -588,6 +588,27 @@ export async function getCurriculumImportDailyLimit(userId: string): Promise<num
   return 10;
 }
 
+export async function getCurriculumImportLinkingEnabled(userId: string): Promise<boolean> {
+  const globalFlag = process.env.CURRICULUM_IMPORT_LINKING === "true";
+  if (globalFlag) return true;
+
+  const adminCanaryFlag = process.env.CURRICULUM_IMPORT_LINKING_ADMIN_CANARY === "true";
+  if (!adminCanaryFlag) return false;
+
+  try {
+    const db = getDb();
+    const [profile] = await db
+      .select({ isAdmin: profiles.isAdmin })
+      .from(profiles)
+      .where(eq(profiles.id, userId))
+      .limit(1);
+
+    return profile?.isAdmin === true;
+  } catch {
+    return false;
+  }
+}
+
 async function assertImportLimitAllowed(userId: string, now = new Date(), errorLocale: string = "en"): Promise<void> {
   const limit = await getCurriculumImportDailyLimit(userId);
 
@@ -669,7 +690,7 @@ export async function confirmCurriculumImportAction(
     await assertImportLimitAllowed(userId, new Date(), locale);
     const db = getDb();
 
-    const linkingEnabled = process.env.CURRICULUM_IMPORT_LINKING === "true";
+    const linkingEnabled = await getCurriculumImportLinkingEnabled(userId);
 
     let subjectsCreated = 0;
     let topicsCreated = 0;
