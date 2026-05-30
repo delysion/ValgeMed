@@ -531,12 +531,12 @@ export async function getCurriculumImportDailyLimit(): Promise<number> {
 async function assertImportLimitAllowed(userId: string, now = new Date(), errorLocale: string = "en"): Promise<void> {
   const limit = await getCurriculumImportDailyLimit();
 
-  console.log("[curriculum-import limit runtime]", {
+  console.log("[curriculum-import request host]", {
     configuredLimit: process.env.CURRICULUM_IMPORT_DAILY_LIMIT,
     parsedLimit: limit,
-    commit: process.env.VERCEL_GIT_COMMIT_SHA,
-    vercelEnv: process.env.VERCEL_ENV,
     vercelUrl: process.env.VERCEL_URL,
+    vercelEnv: process.env.VERCEL_ENV,
+    commit: process.env.VERCEL_GIT_COMMIT_SHA,
   });
 
   if (limit === 0) return;

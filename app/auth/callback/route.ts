@@ -42,6 +42,11 @@ const allowedForwardedHosts = new Set([
   "valgemed.vercel.app",
 ]);
 
+function isAllowedHost(host: string): boolean {
+  if (allowedForwardedHosts.has(host)) return true;
+  return host.endsWith(".vercel.app");
+}
+
 function isValidRedirect(path: string): boolean {
   if (!path.startsWith("/")) return false;
   if (path.includes("//") || path.includes("://")) return false;
@@ -55,7 +60,7 @@ function isValidRedirect(path: string): boolean {
 
 function getTrustedForwardedHost(value: string | null) {
   const host = value?.split(",")[0]?.trim().toLowerCase().split(":")[0] ?? "";
-  return allowedForwardedHosts.has(host) ? host : null;
+  return isAllowedHost(host) ? host : null;
 }
 
 export async function GET(request: NextRequest) {
