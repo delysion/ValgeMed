@@ -537,7 +537,7 @@ async function assertImportLimitAllowed(userId: string, now = new Date(), errorL
     );
 
   const count = Number(usage?.count ?? 0);
-  if (count >= 10) {
+  if (count >= 100) {
     throw new Error(errorLocale === "et" ? "Päevane import limiit täis (10/päev). Tule tagasi homme." : "Daily import limit reached (10/day). Come back tomorrow.");
   }
 }
