@@ -319,4 +319,47 @@ describe("curriculum import field pipeline", () => {
     expect(actions).toContain("readinessScore: safeNumeric({ min: 0, max: 10 })");
     expect(actions).toContain("readinessScore: exam.readinessScore ?? 0,");
   });
+
+  /* ------------------------------------------------------------------ */
+  /*  configurable daily import limit                                     */
+  /* ------------------------------------------------------------------ */
+  it("exports getCurriculumImportDailyLimit", () => {
+    expect(actions).toContain("export function getCurriculumImportDailyLimit");
+  });
+
+  it("reads CURRICULUM_IMPORT_DAILY_LIMIT env var", () => {
+    expect(actions).toContain("process.env.CURRICULUM_IMPORT_DAILY_LIMIT");
+  });
+
+  it("defaults to 10 when env is missing", () => {
+    expect(actions).toContain('if (raw === undefined) return 10');
+  });
+
+  it("returns 0 when env is 0 to disable limit", () => {
+    expect(actions).toContain("if (limit === 0) return");
+  });
+
+  it("validates integer >= 0 for env value", () => {
+    expect(actions).toContain("Number.isInteger(n) && n >= 0");
+  });
+
+  it("falls back to 10 for invalid env values", () => {
+    expect(actions).toContain("return 10");
+  });
+
+  it("throws error with configured limit in message", () => {
+    expect(actions).toContain("`Daily import limit reached (${limit}/day). Come back tomorrow.`");
+  });
+
+  it("shows localized error with configured limit", () => {
+    expect(actions).toContain("`Päevane import limiit täis (${limit}/päev). Tule tagasi homme.`");
+  });
+
+  it("calls assertImportLimitAllowed in confirm action", () => {
+    expect(actions).toContain("await assertImportLimitAllowed(userId, new Date(), locale)");
+  });
+
+  it("preserves catch handler for Daily import limit error", () => {
+    expect(actions).toContain('error.message.includes("Daily import limit")');
+  });
 });

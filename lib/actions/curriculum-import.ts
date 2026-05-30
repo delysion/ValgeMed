@@ -519,8 +519,38 @@ function nextUtcDay(date: Date) {
   return next;
 }
 
-async function assertImportLimitAllowed(_userId: string, _now = new Date(), _errorLocale: string = "en"): Promise<void> {
-  // limit disabled for staging-v2 testing
+export function getCurriculumImportDailyLimit(): number {
+  const raw = process.env.CURRICULUM_IMPORT_DAILY_LIMIT;
+  if (raw === undefined) return 10;
+  const n = Number(raw);
+  if (Number.isInteger(n) && n >= 0) return n;
+  return 10;
+}
+
+async function assertImportLimitAllowed(userId: string, now = new Date(), errorLocale: string = "en"): Promise<void> {
+  const limit = getCurriculumImportDailyLimit();
+  if (limit === 0) return;
+
+  const db = getDb();
+  const dayStart = startOfUtcDay(now);
+  const dayEnd = nextUtcDay(now);
+
+  const [usage] = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(aiUsageEvents)
+    .where(
+      and(
+        eq(aiUsageEvents.userId, userId),
+        eq(aiUsageEvents.feature, "curriculum_import_confirm"),
+        gte(aiUsageEvents.createdAt, dayStart),
+        lt(aiUsageEvents.createdAt, dayEnd),
+      ),
+    );
+
+  const count = Number(usage?.count ?? 0);
+  if (count >= limit) {
+    throw new Error(errorLocale === "et" ? `Päevane import limiit täis (${limit}/päev). Tule tagasi homme.` : `Daily import limit reached (${limit}/day). Come back tomorrow.`);
+  }
 }
 
 async function recordImportUsage(userId: string, metadata?: Record<string, unknown>) {
@@ -561,7 +591,7 @@ export async function confirmCurriculumImportAction(
       };
     }
 
-    // assertImportLimitAllowed removed for staging-v2 testing
+    await assertImportLimitAllowed(userId, new Date(), locale);
     const db = getDb();
 
     let subjectsCreated = 0;

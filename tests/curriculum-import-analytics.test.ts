@@ -394,3 +394,40 @@ describe("curriculum import — analytics error handling", () => {
     expect(actions).toContain("throw error");
   });
 });
+
+vi.mock("server-only", () => ({}));
+
+describe("getCurriculumImportDailyLimit", () => {
+  beforeEach(() => {
+    delete process.env.CURRICULUM_IMPORT_DAILY_LIMIT;
+  });
+
+  it("defaults to 10 when env is missing", async () => {
+    const { getCurriculumImportDailyLimit } = await import("@/lib/actions/curriculum-import");
+    expect(getCurriculumImportDailyLimit()).toBe(10);
+  });
+
+  it("uses configured limit when set", async () => {
+    process.env.CURRICULUM_IMPORT_DAILY_LIMIT = "25";
+    const { getCurriculumImportDailyLimit } = await import("@/lib/actions/curriculum-import");
+    expect(getCurriculumImportDailyLimit()).toBe(25);
+  });
+
+  it("returns 0 when set to 0 (disable limit)", async () => {
+    process.env.CURRICULUM_IMPORT_DAILY_LIMIT = "0";
+    const { getCurriculumImportDailyLimit } = await import("@/lib/actions/curriculum-import");
+    expect(getCurriculumImportDailyLimit()).toBe(0);
+  });
+
+  it("falls back to 10 for invalid env values", async () => {
+    process.env.CURRICULUM_IMPORT_DAILY_LIMIT = "not-a-number";
+    const { getCurriculumImportDailyLimit } = await import("@/lib/actions/curriculum-import");
+    expect(getCurriculumImportDailyLimit()).toBe(10);
+  });
+
+  it("falls back to 10 for negative numbers", async () => {
+    process.env.CURRICULUM_IMPORT_DAILY_LIMIT = "-5";
+    const { getCurriculumImportDailyLimit } = await import("@/lib/actions/curriculum-import");
+    expect(getCurriculumImportDailyLimit()).toBe(10);
+  });
+});
