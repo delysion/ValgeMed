@@ -529,6 +529,15 @@ export async function getCurriculumImportDailyLimit(): Promise<number> {
 
 async function assertImportLimitAllowed(userId: string, now = new Date(), errorLocale: string = "en"): Promise<void> {
   const limit = await getCurriculumImportDailyLimit();
+
+  console.log("[curriculum-import limit runtime]", {
+    configuredLimit: process.env.CURRICULUM_IMPORT_DAILY_LIMIT,
+    parsedLimit: limit,
+    commit: process.env.VERCEL_GIT_COMMIT_SHA,
+    vercelEnv: process.env.VERCEL_ENV,
+    vercelUrl: process.env.VERCEL_URL,
+  });
+
   if (limit === 0) return;
 
   const db = getDb();
@@ -549,7 +558,12 @@ async function assertImportLimitAllowed(userId: string, now = new Date(), errorL
 
   const count = Number(usage?.count ?? 0);
   if (count >= limit) {
-    throw new Error(errorLocale === "et" ? `Päevane import limiit täis (${limit}/päev). Tule tagasi homme.` : `Daily import limit reached (${limit}/day). Come back tomorrow.`);
+    const limitDebug = ` [limit=${limit} env=${process.env.CURRICULUM_IMPORT_DAILY_LIMIT ?? "unset"} commit=${process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? "local"}]`;
+    throw new Error(
+      errorLocale === "et"
+        ? `Päevane import limiit täis (${limit}/päev). Tule tagasi homme.${limitDebug}`
+        : `Daily import limit reached (${limit}/day). Come back tomorrow.${limitDebug}`,
+    );
   }
 }
 
