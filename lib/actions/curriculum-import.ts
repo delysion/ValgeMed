@@ -519,7 +519,7 @@ function nextUtcDay(date: Date) {
   return next;
 }
 
-export function getCurriculumImportDailyLimit(): number {
+export async function getCurriculumImportDailyLimit(): Promise<number> {
   const raw = process.env.CURRICULUM_IMPORT_DAILY_LIMIT;
   if (raw === undefined) return 10;
   const n = Number(raw);
@@ -528,7 +528,7 @@ export function getCurriculumImportDailyLimit(): number {
 }
 
 async function assertImportLimitAllowed(userId: string, now = new Date(), errorLocale: string = "en"): Promise<void> {
-  const limit = getCurriculumImportDailyLimit();
+  const limit = await getCurriculumImportDailyLimit();
   if (limit === 0) return;
 
   const db = getDb();

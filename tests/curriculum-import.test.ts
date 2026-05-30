@@ -324,7 +324,7 @@ describe("curriculum import field pipeline", () => {
   /*  configurable daily import limit                                     */
   /* ------------------------------------------------------------------ */
   it("exports getCurriculumImportDailyLimit", () => {
-    expect(actions).toContain("export function getCurriculumImportDailyLimit");
+    expect(actions).toContain("export async function getCurriculumImportDailyLimit");
   });
 
   it("reads CURRICULUM_IMPORT_DAILY_LIMIT env var", () => {
