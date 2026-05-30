@@ -519,6 +519,7 @@ function nextUtcDay(date: Date) {
   return next;
 }
 
+// temporary: trigger fresh git deploy for env pickup
 export async function getCurriculumImportDailyLimit(): Promise<number> {
   const raw = process.env.CURRICULUM_IMPORT_DAILY_LIMIT;
   if (raw === undefined) return 10;
