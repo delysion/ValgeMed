@@ -14,11 +14,11 @@ describe("curriculum import prompt (Phase B)", () => {
   /* ------------------------------------------------------------------ */
   /*  feature flag                                                        */
   /* ------------------------------------------------------------------ */
-  it("reads CURRICULUM_IMPORT_V2_PROMPT env var", () => {
-    expect(route).toContain("CURRICULUM_IMPORT_V2_PROMPT");
+  it("reads CURRICULUM_IMPORT_LEGACY_PROMPT env var", () => {
+    expect(route).toContain("CURRICULUM_IMPORT_LEGACY_PROMPT");
   });
 
-  it("v1 prompt is preserved when flag is disabled", () => {
+  it("v1 prompt is preserved when legacy flag is enabled", () => {
     expect(route).toContain("Set priority 5 by default if not clear");
     expect(route).toContain("Parse subjects (courses), topics (sub-items)");
   });
@@ -201,7 +201,7 @@ describe("curriculum import prompt (Phase B)", () => {
   /*  development logging                                                 */
   /* ------------------------------------------------------------------ */
   it("logs prompt mode in development", () => {
-    expect(route).toContain("prompt mode: ${v2Enabled ? \"v2\" : \"v1\"}");
+    expect(route).toContain("prompt mode: ${useLegacy ? \"v1\" : \"v2\"}");
   });
 
   it("logs input length in development", () => {

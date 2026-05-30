@@ -229,7 +229,7 @@ export async function parseCurriculumAction(
       const match = stripped.match(/\{[\s\S]*\}/);
       parsed = JSON.parse(match ? match[0] : stripped);
     } catch {
-      const pm = process.env.CURRICULUM_IMPORT_V2_PROMPT === "true" ? "v2" : "v1";
+      const pm = process.env.CURRICULUM_IMPORT_LEGACY_PROMPT === "true" ? "v1" : "v2";
       await trackAnalyticsSafely("parse_invalid_json", trackCurriculumImportParse(userId, { promptMode: pm, parseSuccess: false, error: "Invalid JSON response" }));
       await getAndResetNumericCoercionCount();
       return { success: false, error: locale === "et" ? "Vigane JSON vastus" : "Invalid JSON response" };
@@ -261,7 +261,7 @@ export async function parseCurriculumAction(
 
     const validated = curriculumImportSchema.safeParse(normalizeRecords(parsed));
     if (!validated.success) {
-      const pm = process.env.CURRICULUM_IMPORT_V2_PROMPT === "true" ? "v2" : "v1";
+      const pm = process.env.CURRICULUM_IMPORT_LEGACY_PROMPT === "true" ? "v1" : "v2";
       await trackAnalyticsSafely("parse_invalid_structure", trackCurriculumImportParse(userId, { promptMode: pm, parseSuccess: false, error: "Invalid record structure" }));
       await getAndResetNumericCoercionCount();
       return { success: false, error: locale === "et" ? "Vigane kirje struktuur" : "Invalid record structure" };
@@ -436,7 +436,7 @@ export async function parseCurriculumAction(
       });
     }
 
-    const pmParse = process.env.CURRICULUM_IMPORT_V2_PROMPT === "true" ? "v2" : "v1";
+    const pmParse = process.env.CURRICULUM_IMPORT_LEGACY_PROMPT === "true" ? "v1" : "v2";
     await trackAnalyticsSafely("parse_success", trackCurriculumImportParse(userId, {
       promptMode: pmParse,
       parseSuccess: true,
@@ -456,7 +456,7 @@ export async function parseCurriculumAction(
     return { success: true, preview };
   } catch (error) {
     console.error("parseCurriculumAction error:", error);
-    const pm = process.env.CURRICULUM_IMPORT_V2_PROMPT === "true" ? "v2" : "v1";
+    const pm = process.env.CURRICULUM_IMPORT_LEGACY_PROMPT === "true" ? "v1" : "v2";
     await trackAnalyticsSafely("parse_catch", trackCurriculumImportParse(userId, { promptMode: pm, parseSuccess: false, error: "Parse error" }));
     await getAndResetNumericCoercionCount();
     return { success: false, error: locale === "et" ? "Viga parsimisel" : "Parse error" };
@@ -928,7 +928,7 @@ export async function confirmCurriculumImportAction(
       tasksCreated++;
     }
 
-    const pm = process.env.CURRICULUM_IMPORT_V2_PROMPT === "true" ? "v2" : "v1";
+    const pm = process.env.CURRICULUM_IMPORT_LEGACY_PROMPT === "true" ? "v1" : "v2";
     const confirmMetadata: Record<string, unknown> = {
       promptMode: pm,
       confirmClicked: true,
