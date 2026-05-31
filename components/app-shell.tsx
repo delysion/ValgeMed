@@ -181,6 +181,11 @@ export function AppShell({
               <p className="truncate text-[11px] text-text-muted leading-tight">{displayName}</p>
             </div>
           </div>
+          <div className="flex items-center gap-1">
+            <ThemeToggle theme={theme} onToggle={handleToggleTheme} />
+            <LanguageSelector label="" compact />
+            <LogoutButton />
+          </div>
         </header>
 
         {/* Desktop Header */}
