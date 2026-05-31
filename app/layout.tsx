@@ -20,9 +20,38 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ValgeMed",
+  title: {
+    default: "ValgeMed",
+    template: "%s | ValgeMed",
+  },
   description: "A quiet command system for serious medical students.",
   manifest: "/manifest.webmanifest",
+  icons: {
+    icon: "/icons/favicon.png",
+    apple: "/icons/apple-touch-icon.png",
+  },
+  openGraph: {
+    title: "ValgeMed",
+    description: "A quiet command system for serious medical students.",
+    url: "https://valgemed.ee",
+    siteName: "ValgeMed",
+    images: [
+      {
+        url: "/icons/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "ValgeMed — Elite Performance Cockpit for Medical Students",
+      },
+    ],
+    locale: "et_EE",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ValgeMed",
+    description: "A quiet command system for serious medical students.",
+    images: ["/icons/og-image.png"],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
@@ -75,8 +104,6 @@ export default async function RootLayout({
             `,
           }}
         />
-        <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="theme-color" content="#1e1b4b" />
