@@ -62,6 +62,16 @@ export default async function LoginPage() {
           {t("common.or")}{" "}
           <a href="/privacy-policy" className="text-primary hover:underline">{t("login.privacyPolicy")}</a>
         </p>
+        <p className="mt-3 text-center">
+          <a
+            href="https://gamma.app/docs/Your-Private-Performance-Command-Centre-jzo7ad5xrfm6hsv"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs text-text-muted hover:text-primary transition-colors underline underline-offset-2"
+          >
+            Documentation
+          </a>
+        </p>
       </div>
     </div>
   );
