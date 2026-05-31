@@ -42,6 +42,17 @@ export default async function LoginPage() {
           </div>
         </div>
 
+        <p className="mt-5 text-center">
+          <a
+            href="https://gamma.app/docs/Your-Private-Performance-Command-Centre-jzo7ad5xrfm6hsv"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary-ring transition-colors underline underline-offset-4"
+          >
+            Documentation
+          </a>
+        </p>
+
         <div className="mt-8 grid gap-3">
           {features.map((feature, i) => (
             <div
@@ -61,16 +72,6 @@ export default async function LoginPage() {
 ("login.termsOfService")}</a>{" "}
           {t("common.or")}{" "}
           <a href="/privacy-policy" className="text-primary hover:underline">{t("login.privacyPolicy")}</a>
-        </p>
-        <p className="mt-3 text-center">
-          <a
-            href="https://gamma.app/docs/Your-Private-Performance-Command-Centre-jzo7ad5xrfm6hsv"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs text-text-muted hover:text-primary transition-colors underline underline-offset-2"
-          >
-            Documentation
-          </a>
         </p>
       </div>
     </div>
