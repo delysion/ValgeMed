@@ -28,7 +28,9 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
   icons: {
     icon: "/icons/favicon.png",
-    apple: "/icons/apple-touch-icon.png",
+    apple: [
+      { url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
   },
   openGraph: {
     title: "ValgeMed",

@@ -72,7 +72,7 @@ export function InstallAppButton() {
   const [dismissed, setDismissed] = useState(false);
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => { setMounted(true); }, []); // eslint-disable-line react-hooks/set-state-in-effect
 
   if (!canInstall || dismissed || pathname !== "/login" || !mounted) return null;
 
@@ -119,26 +119,59 @@ export function InstallAppButton() {
 export function InstallMenuItem() {
   const { canInstall, isIOS, deferredPrompt } = useInstallPrompt();
   const [mounted, setMounted] = useState(false);
+  const [showIOSHelp, setShowIOSHelp] = useState(false);
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => { setMounted(true); }, []); // eslint-disable-line react-hooks/set-state-in-effect
 
   if (!canInstall || !mounted) return null;
 
   async function handleInstall() {
-    if (isIOS || !deferredPrompt) return;
+    if (isIOS) {
+      setShowIOSHelp(true);
+      return;
+    }
+    if (!deferredPrompt) return;
     await deferredPrompt.prompt();
     await deferredPrompt.userChoice;
   }
 
   return (
-    <button
-      type="button"
-      onClick={handleInstall}
-      className="flex w-full items-center gap-3 min-h-[44px] rounded-xl py-2.5 pl-[9px] pr-3 text-sm font-medium text-text-secondary hover:bg-bg-subtle/60 hover:text-text-primary transition-all duration-200 active:scale-[0.96]"
-    >
-      <Download className="h-[18px] w-[18px] shrink-0" />
-      <span className="truncate">Install App</span>
-      {isIOS && <span className="text-[10px] text-text-muted ml-auto">Share → Add to Home Screen</span>}
-    </button>
+    <>
+      <button
+        type="button"
+        onClick={handleInstall}
+        className="flex w-full items-center gap-3 min-h-[44px] rounded-xl py-2.5 pl-[9px] pr-3 text-sm font-medium text-text-secondary hover:bg-bg-subtle/60 hover:text-text-primary transition-all duration-200 active:scale-[0.96]"
+      >
+        <Download className="h-[18px] w-[18px] shrink-0" />
+        <span className="truncate">Install App</span>
+      </button>
+      {showIOSHelp && (
+        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/60 p-4" onClick={() => setShowIOSHelp(false)}>
+          <div className="w-full max-w-sm rounded-2xl border border-border bg-bg-elevated p-6 shadow-xl" onClick={e => e.stopPropagation()}>
+            <h3 className="text-base font-semibold text-text-primary mb-2">Install ValgeMed</h3>
+            <ol className="space-y-2 text-sm text-text-secondary">
+              <li className="flex items-start gap-2">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[11px] font-bold text-primary">1</span>
+                <span>Tap the <span className="inline-flex items-center align-middle mx-0.5"><svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5a2.5 2.5 0 0 1 5 0v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6h-1.5v9.5a2.5 2.5 0 0 0 5 0V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6H16.5z"/></svg></span> Share icon in Safari</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[11px] font-bold text-primary">2</span>
+                <span>Scroll down and tap <strong>Add to Home Screen</strong></span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[11px] font-bold text-primary">3</span>
+                <span>Tap <strong>Add</strong> in the top right</span>
+              </li>
+            </ol>
+            <button
+              onClick={() => setShowIOSHelp(false)}
+              className="mt-4 w-full rounded-xl bg-primary py-2.5 text-sm font-semibold text-white hover:bg-primary-ring transition-colors"
+            >
+              Got it
+            </button>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
