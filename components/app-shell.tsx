@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Navigation } from "./navigation";
 import { LanguageSelector } from "@/components/language-selector";
 import { LogoutButton } from "./logout-button";
-import { Command, Menu, FileDown } from "lucide-react";
+import { ArrowLeft, Command, Menu, FileDown } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 import { MobileNav } from "@/components/mobile-nav";
 import { MobileDrawer } from "@/components/mobile-drawer";
@@ -137,6 +137,17 @@ export function AppShell({
     setThemeState(next);
   }, [theme]);
 
+  const handleBack = useCallback(() => {
+    if (window.history.length > 1) {
+      router.back();
+      return;
+    }
+
+    if (pathname && pathname !== "/command") {
+      router.push("/command");
+    }
+  }, [pathname, router]);
+
   return (
     <div className="min-h-school bg-bg-page">
       <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-xl focus:bg-gradient-to-br focus:from-primary focus:to-primary-ring focus:px-4 focus:py-2 focus:text-white focus:outline-none focus:shadow-lg">
@@ -170,6 +181,14 @@ export function AppShell({
           <div className="flex items-center gap-2.5 min-w-0">
             <button
               type="button"
+              onClick={handleBack}
+              className="grid h-10 w-10 shrink-0 place-items-center rounded-xl text-text-secondary hover:bg-bg-subtle hover:text-text-primary active:scale-[0.92] transition-all duration-150"
+              aria-label={t("common.back")}
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </button>
+            <button
+              type="button"
               onClick={() => setDrawerOpen(true)}
               className="grid h-10 w-10 shrink-0 place-items-center rounded-xl hover:bg-bg-subtle active:scale-[0.92] transition-all duration-150"
               aria-label={t("app.openMenu")}
@@ -191,6 +210,16 @@ export function AppShell({
         {/* Desktop Header */}
         <header className="sticky top-0 z-30 hidden min-h-16 items-center justify-between gap-3 border-b border-border bg-gradient-to-r from-bg-surface/90 via-bg-surface/95 to-bg-subtle/30 px-6 py-2.5 backdrop-blur-xl lg:flex">
           <div className="flex min-w-0 items-center gap-3">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={handleBack}
+              className="h-9 w-9 shrink-0 rounded-xl text-text-secondary"
+              aria-label={t("common.back")}
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
             <div className="min-w-0">
               <p className="text-xs font-medium text-text-muted">{t("app.owner")}</p>
               <p className="truncate text-sm font-semibold text-text-primary">{displayName}</p>

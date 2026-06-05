@@ -72,6 +72,16 @@ describe("Next routing guards", () => {
     }
   });
 
+  it("keeps a global back control in the protected app shell", () => {
+    const source = readFileSync(join(rootDir, "components/app-shell.tsx"), "utf-8");
+
+    const backControlLabels = source.match(/aria-label=\{t\("common\.back"\)\}/g) ?? [];
+
+    expect(source).toContain("router.back()");
+    expect(source).toContain("<ArrowLeft");
+    expect(backControlLabels.length).toBeGreaterThanOrEqual(2);
+  });
+
   it("does not register or run an app-shell service worker during development", () => {
     const source = readFileSync(join(rootDir, "app/sw-register.tsx"), "utf-8");
 
