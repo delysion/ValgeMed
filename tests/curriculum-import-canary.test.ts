@@ -3,6 +3,8 @@ import path from "node:path";
 import { z } from "zod";
 import { afterAll, describe, expect, it } from "vitest";
 
+import { getCloudModelSelection, getDeprecatedGroqModelWarning } from "@/lib/ai/models";
+
 /* ================================================================== */
 /*  CONFIG — read from .env directly (vitest doesn't auto-load dotenv) */
 /* ================================================================== */
@@ -22,8 +24,12 @@ function loadEnvVar(key: string): string {
 }
 
 const GROQ_API_KEY = loadEnvVar("GROQ_API_KEY");
-const GROQ_MODEL = process.env.AI_MODEL || "llama-3.3-70b-versatile";
+const GROQ_MODEL_SELECTION = getCloudModelSelection("groq", process.env.AI_MODEL, "env");
+const GROQ_MODEL = GROQ_MODEL_SELECTION.model;
+const GROQ_MODEL_WARNING = getDeprecatedGroqModelWarning(GROQ_MODEL_SELECTION);
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
+
+if (GROQ_MODEL_WARNING) console.warn(GROQ_MODEL_WARNING);
 
 /* ================================================================== */
 /*  Zod schemas matching production exactly                             */
@@ -392,7 +398,6 @@ function analyzeResponse(raw: string, mode: "v1" | "v2", input: TestInput): Cana
   const records = obj.records;
 
   // Count by type
-  const knownTypes = new Set(["subject", "topic", "exam", "task"]);
   for (const rec of records) {
     if (!rec || typeof rec !== "object") continue;
     const t = (rec as Record<string, unknown>).type;
@@ -469,7 +474,6 @@ const TIMEOUT = 60000; // 60s per AI call
 
 describe("AI canary — real Groq calls", () => {
   const results: CanaryResult[] = [];
-  let allCompleted = false;
 
   for (const input of INPUTS) {
     for (const mode of ["v1", "v2"] as const) {
@@ -500,7 +504,6 @@ describe("AI canary — real Groq calls", () => {
   }
 
   afterAll(() => {
-    allCompleted = true;
     printSummaryTable(results);
   });
 });
@@ -601,10 +604,8 @@ function printSummaryTable(results: CanaryResult[]) {
   }
 
   // Field presence rate
-  const totalPossible = v2Results.length * INPUTS.length; // normalize
   console.log("\nField presence rates (v2 only):");
   for (const [field, count] of Object.entries(v2FieldTotals).sort()) {
-    const rate = (count / (v2Results.length)) / INPUTS.length;
     console.log(`  ${field.padEnd(20)} ${count} records (avg ${(count / v2Results.length).toFixed(1)}/call)`);
   }
 

@@ -1,6 +1,7 @@
 "use server";
 
 import { boundPrompt } from "@/lib/ai/prompt-limits";
+import { getCloudModelSelection, warnIfDeprecatedGroqModel } from "@/lib/ai/models";
 
 // ─── AI Provider Abstraction ───
 // Supports: ollama (local), openai (OpenAI API), groq (Groq API)
@@ -26,7 +27,11 @@ export async function aiChat(prompt: string, model?: string, userOptions?: AiCha
     const baseUrl = provider === "groq"
       ? "https://api.groq.com/openai/v1"
       : "https://api.openai.com/v1";
-    const selectedModel = model || process.env.AI_MODEL || (provider === "groq" ? "llama-3.3-70b-versatile" : "gpt-4o-mini");
+    const modelSelection = model
+      ? getCloudModelSelection(provider, model, "explicit")
+      : getCloudModelSelection(provider, process.env.AI_MODEL, "env");
+    warnIfDeprecatedGroqModel(modelSelection, "aiChat");
+    const selectedModel = modelSelection.model;
 
     try {
       const response = await fetch(`${baseUrl}/chat/completions`, {

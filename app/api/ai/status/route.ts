@@ -2,7 +2,25 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getDb } from "@/lib/db";
 import { profiles } from "@/lib/db/schema";
+import { getCloudModelSelection, getDeprecatedGroqModelWarning } from "@/lib/ai/models";
 import { eq } from "drizzle-orm";
+
+function cloudModelStatus(provider: string, configuredModel?: string) {
+  const selection = getCloudModelSelection(provider, configuredModel, "env");
+  return {
+    provider,
+    model: selection.model,
+    models: [selection.model],
+    modelSource: selection.modelSource,
+    defaultModel: selection.defaultModel,
+    recommendedModel: selection.recommendedModel,
+    fallbackModel: selection.fallbackModel,
+    isDeprecatedModel: selection.isDeprecated,
+    deprecatedModels: selection.deprecatedModels,
+    deprecationShutdownDate: selection.deprecationShutdownDate,
+    modelWarning: getDeprecatedGroqModelWarning(selection),
+  };
+}
 
 export async function GET() {
   // Check env vars first (server default)
@@ -10,8 +28,7 @@ export async function GET() {
   const envHasKey = !!(process.env.OPENAI_API_KEY || process.env.GROQ_API_KEY);
 
   if (envProvider && envHasKey) {
-    const model = process.env.AI_MODEL || (envProvider === "groq" ? "llama-3.3-70b-versatile" : "gpt-4o-mini");
-    return NextResponse.json({ online: true, provider: envProvider, model, models: [model] });
+    return NextResponse.json({ online: true, ...cloudModelStatus(envProvider, process.env.AI_MODEL) });
   }
 
   // Check user's own API key
@@ -22,8 +39,7 @@ export async function GET() {
       const db = getDb();
       const [profile] = await db.select({ aiProvider: profiles.aiProvider, aiApiKey: profiles.aiApiKey }).from(profiles).where(eq(profiles.id, user.id)).limit(1);
       if (profile?.aiProvider && profile?.aiApiKey) {
-        const model = profile.aiProvider === "groq" ? "llama-3.3-70b-versatile" : "gpt-4o-mini";
-        return NextResponse.json({ online: true, provider: profile.aiProvider, model, models: [model] });
+        return NextResponse.json({ online: true, ...cloudModelStatus(profile.aiProvider) });
       }
     }
   } catch {}
