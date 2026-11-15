@@ -1,6 +1,30 @@
 import type { NextConfig } from "next";
 
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseOrigin = supabaseUrl ? new URL(supabaseUrl).origin : "";
+const development = process.env.NODE_ENV === "development";
+
+const csp = [
+  "default-src 'self'",
+  "base-uri 'self'",
+  "object-src 'none'",
+  "frame-ancestors 'none'",
+  "form-action 'self'",
+  // Next's inline bootstrapping requires a nonce before unsafe-inline can be removed.
+  "script-src 'self' 'unsafe-inline'" + (development ? " 'unsafe-eval'" : "") +
+    " https://apis.google.com https://accounts.google.com https://www.gstatic.com",
+  "style-src 'self' 'unsafe-inline' https://accounts.google.com",
+  "img-src 'self' data: blob: https:",
+  "font-src 'self' data:",
+  "media-src 'self' blob: data:",
+  "worker-src 'self' blob:",
+  "connect-src 'self' " + supabaseOrigin +
+    " https://accounts.google.com https://apis.google.com https://*.googleapis.com https://docs.google.com https://drive.google.com",
+  "frame-src https://accounts.google.com https://apis.google.com https://docs.google.com https://drive.google.com",
+].join("; ");
+
 const securityHeaders = [
+  { key: "Content-Security-Policy", value: csp },
   {
     key: "X-Content-Type-Options",
     value: "nosniff",

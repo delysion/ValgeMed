@@ -1,26 +1,24 @@
 import "server-only";
 
-import { requireUser } from "@/lib/auth/supabase";
-import { neon } from "@neondatabase/serverless";
+import { after } from "next/server";
+import { getCurrentUser } from "@/lib/auth/supabase";
+import { getProfileStatus } from "@/lib/auth/profile";
+import { notifyPendingProfiles } from "@/lib/push/pending";
 
 export async function GET() {
-  try {
-    const user = await requireUser();
-    const sql = neon(process.env.DATABASE_URL!);
+  const user = await getCurrentUser();
+  if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-    const rows = await sql`
-      SELECT approved, is_admin FROM profiles WHERE id = ${user.id}
-    `;
-
-    const profile = rows[0];
-
-    return Response.json({
-      hasProfile: !!profile,
-      approved: !!profile?.approved,
-      isAdmin: !!profile?.is_admin,
+  const status = await getProfileStatus(user);
+  if (!status.approved && !status.notified) {
+    after(async () => {
+      try {
+        await notifyPendingProfiles();
+      } catch {
+        console.error("Pending approval notification failed");
+      }
     });
-  } catch (e) {
-    console.error("check-status error:", e);
-    return Response.json({ error: "Internal error" }, { status: 500 });
   }
+
+  return Response.json(status);
 }

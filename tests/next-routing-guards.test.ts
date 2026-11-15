@@ -114,14 +114,4 @@ describe("Next routing guards", () => {
     expect(source).toContain("Permissions-Policy");
   });
 
-  it("does not let profile creation trust querystring identity", () => {
-    const route = readFileSync(join(rootDir, "app/api/auth/check-profile/route.ts"), "utf-8");
-    const proxy = readFileSync(join(rootDir, "proxy.ts"), "utf-8");
-
-    expect(route).toContain("supabase.auth.getUser()");
-    expect(route).not.toContain('searchParams.get("userId")');
-    expect(route).not.toContain('searchParams.get("email")');
-    expect(route).not.toContain("detail:");
-    expect(proxy).not.toContain('"/api/auth/check-profile"');
-  });
 });

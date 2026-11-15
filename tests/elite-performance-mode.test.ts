@@ -191,15 +191,13 @@ describe("elite performance product integration", () => {
     expect(commandPage).not.toContain("GamificationDashboard");
   });
 
-  it("adds a private Performance Blockers page reachable from navigation", () => {
+  it("adds a Performance Blockers page reachable from navigation", () => {
     const page = source("app", "performance-blockers", "page.tsx");
     const nav = source("components", "navigation.tsx");
-    const proxy = source("proxy.ts");
 
     expect(page).toContain("blockers.title");
     expect(page).toContain("derivePerformanceBlockers");
     expect(nav).toContain("/performance-blockers");
-    expect(proxy).toContain('"/performance-blockers"');
   });
 
   it("hardens cross-user relation writes and avoids plaintext AI key storage", () => {

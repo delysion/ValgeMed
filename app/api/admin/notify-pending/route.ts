@@ -1,71 +1,35 @@
 import "server-only";
 
-import { getDb } from "@/lib/db";
-import { profiles } from "@/lib/db/schema";
-import { sendPushNotification } from "@/lib/push/notifications";
-import { eq, and, isNull, sql } from "drizzle-orm";
+import { timingSafeEqual } from "node:crypto";
+import { notifyPendingProfiles } from "@/lib/push/pending";
 
-function getInternalToken() {
-  return process.env.INTERNAL_API_TOKEN ?? process.env.SESSION_SECRET ?? "";
+function matchesSecret(received: string | null, expected: string | undefined) {
+  if (!received || !expected) return false;
+  const actual = Buffer.from(received);
+  const secret = Buffer.from(expected);
+  return actual.length === secret.length && timingSafeEqual(actual, secret);
 }
 
-function isAuthorizedInternalRequest(request: Request) {
-  const expected = getInternalToken();
-  return expected.length > 0 && request.headers.get("x-valgemed-internal-token") === expected;
+async function deliver() {
+  try {
+    return Response.json({ ok: true, notified: await notifyPendingProfiles() });
+  } catch {
+    return Response.json({ ok: false, error: "Notification delivery failed" }, { status: 503 });
+  }
 }
 
 export async function POST(request: Request) {
-  if (!isAuthorizedInternalRequest(request)) {
+  const expected = process.env.INTERNAL_API_TOKEN ?? process.env.SESSION_SECRET;
+  if (!matchesSecret(request.headers.get("x-valgemed-internal-token"), expected)) {
     return new Response("Unauthorized", { status: 401 });
   }
+  return deliver();
+}
 
-  const db = getDb();
-
-  let [admin] = await db
-    .select()
-    .from(profiles)
-    .where(eq(profiles.isAdmin, true))
-    .limit(1);
-
-  if (!admin && process.env.OWNER_EMAIL) {
-    [admin] = await db
-      .select()
-      .from(profiles)
-      .where(eq(profiles.email, process.env.OWNER_EMAIL))
-      .limit(1);
+export async function GET(request: Request) {
+  const secret = process.env.CRON_SECRET;
+  if (!secret || !matchesSecret(request.headers.get("authorization"), "Bearer " + secret)) {
+    return new Response("Unauthorized", { status: 401 });
   }
-
-  if (!admin) return Response.json({ ok: false });
-
-  const [result] = await db
-    .select({ count: sql<number>`count(*)::int` })
-    .from(profiles)
-    .where(
-      and(
-        eq(profiles.approved, false),
-        eq(profiles.isAdmin, false),
-        isNull(profiles.notifiedAt),
-      ),
-    );
-
-  if (!result?.count) return Response.json({ ok: true, skipped: true });
-
-  await db
-    .update(profiles)
-    .set({ notifiedAt: new Date() })
-    .where(
-      and(
-        eq(profiles.approved, false),
-        eq(profiles.isAdmin, false),
-        isNull(profiles.notifiedAt),
-      ),
-    );
-
-  await sendPushNotification(admin.id, {
-    title: "New user pending",
-    body: `${result.count} new user(s) awaiting approval`,
-    url: "/admin/users",
-  });
-
-  return Response.json({ ok: true, notified: result.count });
+  return deliver();
 }

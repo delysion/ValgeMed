@@ -1,3 +1,4 @@
+import { isOwnerUser } from "@/lib/auth/owner";
 import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
 
@@ -29,7 +30,7 @@ export async function requireUser() {
 export async function requireApprovedUser() {
   const user = await requireUser();
 
-  if (process.env.OWNER_EMAIL && user.email === process.env.OWNER_EMAIL) {
+  if (isOwnerUser(user.id)) {
     return user;
   }
 

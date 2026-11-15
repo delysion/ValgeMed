@@ -1,3 +1,4 @@
+import { isOwnerUser } from "@/lib/auth/owner";
 import { createClient } from "@/lib/supabase/server";
 import { getDb } from "@/lib/db";
 import { profiles } from "@/lib/db/schema";
@@ -26,7 +27,7 @@ export async function getApprovedAuthUser(): Promise<ApprovedAuthUser | null> {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
 
-  const isOwner = !!process.env.OWNER_EMAIL && user.email === process.env.OWNER_EMAIL;
+  const isOwner = isOwnerUser(user.id);
   if (isOwner) {
     return { id: user.id, email: user.email ?? null };
   }

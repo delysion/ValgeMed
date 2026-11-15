@@ -1,9 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
+import { isOwnerUser } from "@/lib/auth/owner";
+import { setUserApproval } from "@/lib/auth/approval";
 import { neon } from "@neondatabase/serverless";
-import { db } from "@/lib/db/admin";
-import { profiles } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
+import { z } from "zod";
 
 export async function POST(request: Request) {
   const supabase = await createClient();
@@ -13,17 +13,15 @@ export async function POST(request: Request) {
   const sql = neon(process.env.DATABASE_URL!);
   const rows = await sql`SELECT is_admin FROM profiles WHERE id = ${user.id}`;
 
-  if (!rows[0]?.is_admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  if (!isOwnerUser(user.id) && !rows[0]?.is_admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-  const { userId, approved } = await request.json();
-  if (!userId || typeof approved !== "boolean") {
+  const body = await request.json().catch(() => null);
+  const parsed = z.object({ userId: z.uuid(), approved: z.boolean() }).safeParse(body);
+  if (!parsed.success) {
     return NextResponse.json({ error: "Invalid body" }, { status: 400 });
   }
 
-  await db
-    .update(profiles)
-    .set({ approved, notifiedAt: null })
-    .where(eq(profiles.id, userId));
+  await setUserApproval(user.id, parsed.data.userId, parsed.data.approved);
 
   return NextResponse.json({ success: true });
 }

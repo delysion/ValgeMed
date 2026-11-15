@@ -1,0 +1,1 @@
+export const MAX_TEXT_UPLOAD_BYTES = 4_000_000;

@@ -14,7 +14,7 @@ ValgeMed is a private, admin-approved multi-user Next.js application.
 ## Security Notes
 
 - Users can sign in, but cannot access private functionality until an admin approves them.
-- `OWNER_EMAIL` bootstrap creates/keeps the owner as approved admin.
+- `OWNER_USER_ID` grants owner access to the matching authenticated UUID.
 - Server actions use approval-aware auth helpers to avoid bypassing the proxy through direct POST calls.
 - `/api/admin/notify-pending` is an internal side-effect route and requires an internal token header.
 - AI cloud providers are permitted only for explicit user-triggered actions with usage limits.

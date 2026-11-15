@@ -24,7 +24,7 @@ export interface PushPayload {
 export async function sendPushNotification(
   userId: string,
   payload: PushPayload
-): Promise<void> {
+): Promise<boolean> {
   ensureVapid();
   const db = getDb();
   const subscriptions = await db
@@ -39,17 +39,19 @@ export async function sendPushNotification(
     };
 
     try {
-      await webPush.sendNotification(pushSubscription, JSON.stringify(payload));
+      await webPush.sendNotification(pushSubscription, JSON.stringify(payload), { timeout: 10000 });
+      return true;
     } catch (error: unknown) {
       const err = error as { statusCode?: number };
       if (err.statusCode === 410 || err.statusCode === 404) {
         await db.delete(pushSubscriptions).where(eq(pushSubscriptions.id, sub.id));
       }
-      console.error("Push failed:", error);
+      console.error("Push failed with status:", err.statusCode ?? "unknown");
     }
   });
 
-  await Promise.allSettled(promises);
+  const results = await Promise.allSettled(promises);
+  return results.some((result) => result.status === "fulfilled" && result.value === true);
 }
 
 export async function sendPushToAll(

@@ -2,51 +2,26 @@ import { createServerClient } from "@supabase/ssr";
 import { neon } from "@neondatabase/serverless";
 import { NextResponse, type NextRequest } from "next/server";
 
-const privatePrefixes = [
-  "/",
-  "/admin",
-  "/command",
-  "/dashboard",
-  "/elite-index",
-  "/performance-blockers",
-  "/subjects",
-  "/exams",
-  "/topics",
-  "/study",
-  "/study-sessions",
-  "/reviews",
-  "/errors",
-  "/daily-log",
-  "/goals",
-  "/identity",
-  "/tartu",
-  "/time",
-  "/health",
-  "/language",
-  "/reputation",
-  "/opportunities",
-  "/network",
-  "/memory",
-  "/timeline",
-  "/research",
-  "/life-admin",
-  "/portfolio",
-  "/strategic-review",
-  "/ai",
-  "/settings",
-  "/api/ai",
-  "/api/export",
-  "/api/push",
-  "/api/upload",
-];
+import { isOwnerUser } from "@/lib/auth/owner";
 
-const publicPaths = [
+const publicPaths = new Set([
   "/login",
   "/reset-password",
-  "/auth",
+  "/privacy-policy",
+  "/terms-of-service",
+  "/auth/callback",
   "/pending-approval",
   "/api/admin/check-status",
-];
+  "/api/admin/notify-pending",
+  "/api/auth/check-profile",
+  "/api/app-version",
+]);
+
+const publicAssets = new Set([
+  "/favicon.ico", "/manifest.json", "/manifest.webmanifest", "/sw.js",
+  "/file.svg", "/globe.svg", "/next.svg", "/vercel.svg", "/window.svg",
+  "/apple-icon.png", "/icon.png",
+]);
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -62,19 +37,12 @@ export async function proxy(request: NextRequest) {
     actualPathname = "/";
   }
 
-  if (publicPaths.some((path) => actualPathname.startsWith(path))) {
+  if (publicPaths.has(actualPathname) || publicAssets.has(actualPathname)
+    || actualPathname.startsWith("/icons/") || actualPathname.startsWith("/screenshots/")) {
     return NextResponse.next();
   }
 
-  const isPrivate = privatePrefixes.some(
-    (prefix) => actualPathname === prefix || actualPathname.startsWith(`${prefix}/`),
-  );
-
-  if (!isPrivate) {
-    return NextResponse.next();
-  }
-
-  const response = NextResponse.next();
+  let response = NextResponse.next({ request });
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -85,10 +53,13 @@ export async function proxy(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            request.cookies.set(name, value);
+          const previous = response.cookies.getAll();
+          for (const { name, value } of cookiesToSet) request.cookies.set(name, value);
+          response = NextResponse.next({ request });
+          for (const cookie of previous) response.cookies.set(cookie);
+          for (const { name, value, options } of cookiesToSet) {
             response.cookies.set(name, value, options);
-          });
+          }
         },
       },
     },
@@ -98,53 +69,32 @@ export async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  function withCookies(result: NextResponse) {
+    for (const cookie of response.cookies.getAll()) result.cookies.set(cookie);
+    return result;
+  }
+
   if (!user) {
+    if (pathname.startsWith("/api/")) {
+      return withCookies(NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
+    }
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("next", pathname);
-    return NextResponse.redirect(loginUrl);
+    return withCookies(NextResponse.redirect(loginUrl, 303));
   }
 
-  const adminEmail = process.env.OWNER_EMAIL;
-  if (adminEmail && user.email === adminEmail) {
-    return response;
+  if (isOwnerUser(user.id)) return response;
+
+  const sql = neon(process.env.DATABASE_URL!);
+  const [profile] = await sql`SELECT approved, is_admin FROM profiles WHERE id = ${user.id}`;
+  if (profile?.approved || profile?.is_admin) return response;
+
+  if (pathname.startsWith("/api/")) {
+    return withCookies(NextResponse.json({ error: "Approval required" }, { status: 403 }));
   }
-
-  const name = user.user_metadata?.full_name ?? user.email ?? "";
-
-  try {
-    const sql = neon(process.env.DATABASE_URL!);
-
-    const rows = await sql`
-      INSERT INTO profiles (id, email, display_name, approved)
-      VALUES (${user.id}, ${user.email ?? ""}, ${name}, false)
-      ON CONFLICT (id) DO UPDATE SET email = ${user.email ?? ""}, display_name = ${name}
-      RETURNING approved, notified_at
-    `;
-
-    const profile = rows[0];
-
-    if (profile?.approved) {
-      return response;
-    }
-
-    if (!profile?.notified_at) {
-      const internalToken = process.env.INTERNAL_API_TOKEN ?? process.env.SESSION_SECRET ?? "";
-      if (internalToken) {
-        fetch(`${request.nextUrl.origin}/api/admin/notify-pending`, {
-          method: "POST",
-          headers: { "x-valgemed-internal-token": internalToken },
-        }).catch(() => {});
-      }
-    }
-  } catch {
-    // block non-approved users on error
-  }
-
-  return NextResponse.redirect(new URL("/pending-approval", request.url));
+  return withCookies(NextResponse.redirect(new URL("/pending-approval", request.url), 303));
 }
 
 export const config = {
-  matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|manifest.json|manifest.webmanifest|sw.js|icons/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|json)$).*)",
-  ],
+  matcher: ["/((?!_next/static/|_next/image(?:/|$)).*)"],
 };

@@ -1,3 +1,4 @@
+import { isOwnerUser } from "@/lib/auth/owner";
 import "server-only";
 
 import { requireUser } from "@/lib/auth/supabase";
@@ -9,7 +10,7 @@ export async function GET() {
   const user = await requireUser();
   const db = getDb();
 
-  const isOwner = process.env.OWNER_EMAIL === user.email;
+  const isOwner = isOwnerUser(user.id);
 
   let isAdmin = isOwner;
 

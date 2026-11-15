@@ -38,7 +38,7 @@ No open access, no billing, no public ranking, no social comparison, no faculty 
 
 - Supabase Auth: Google OAuth + email/password
 - New users require admin approval before accessing the private app
-- Admin is set via `OWNER_EMAIL`
+- Set the verified Supabase Auth UUID in `OWNER_USER_ID`
 
 ## Scoring Philosophy
 
@@ -158,3 +158,13 @@ English (`en`) as default, Estonian (`et`) as secondary. Smart input and command
 ## Roadmap
 
 Tracked in `TODO.md`.
+
+## Security rollout
+
+- Use the Supabase Auth UUID in OWNER_USER_ID. Confirm email ownership in production and check existing Neon administrator grants for accounts promoted by the previous email rule.
+- Apply the Neon migrations to a disposable branch before production. Migration 0011 validates ownership of existing relations and aborts if records link across users. Review those records before retrying.
+- Supabase is used for Auth. If an older installation still has the Supabase profiles table, review and apply supabase_approval_fix.sql there to remove end-user write permissions.
+- Set CRON_SECRET to enable the scheduled retry. A push provider accepting a notification is the delivery milestone. Physical device receipt depends on the client.
+- Text uploads support UTF-8 .txt and .md, up to 4 MB and 20 attempts per approved user per UTC day. Split larger source files before uploading.
+- The Content Security Policy permits inline Next.js scripts and styles. Verify sign-in, Google Drive, microphone, and push on a preview deployment before rolling it out.
+- Schedule node scripts/backup-db.mjs with PGSERVICE set to a PostgreSQL service definition and VALGEMED_BACKUP_DIR set to a protected, encrypted backup directory. The script checks the archive index before publishing the file. Restore with pg_restore --exit-on-error --no-owner --dbname=valgemed_restore backup.dump on a fresh isolated database, then verify migrations, table counts, and owner-scoped reads. Keep backup files out of Git. Verify Neon backup retention and run a restore exercise before enabling multiuser production.

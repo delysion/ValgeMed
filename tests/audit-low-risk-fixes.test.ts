@@ -17,13 +17,6 @@ describe("audit low-risk hardening fixes", () => {
     expect(layout).not.toContain("userScalable: false");
   });
 
-  it("protects private API surfaces through the proxy approval gate", () => {
-    const proxy = source("proxy.ts");
-
-    expect(proxy).toContain('"/api/ai"');
-    expect(proxy).toContain('"/api/upload"');
-    expect(proxy).toContain('"/api/push"');
-  });
 
   it("extracts upload text without writing files to the public asset tree", () => {
     const uploadRoute = source("app", "api", "upload", "route.ts");

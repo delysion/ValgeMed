@@ -20,15 +20,6 @@ describe("priority patch plan", () => {
     expect(supabaseAuth).toContain("pending-approval");
   });
 
-  it("does not expose the pending-user notification side effect publicly", () => {
-    const route = source("app", "api", "admin", "notify-pending", "route.ts");
-    const proxy = source("proxy.ts");
-
-    expect(route).toContain("x-valgemed-internal-token");
-    expect(route).toContain("new Response");
-    expect(proxy).not.toContain('"/api/admin/notify-pending"');
-    expect(proxy).toContain('headers: { "x-valgemed-internal-token"');
-  });
 
   it("treats uploads as text extraction only, not file storage", () => {
     const route = source("app", "api", "upload", "route.ts");

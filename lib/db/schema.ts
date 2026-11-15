@@ -2,6 +2,7 @@ import {
   boolean,
   date,
   doublePrecision,
+  foreignKey,
   index,
   integer,
   jsonb,
@@ -201,6 +202,7 @@ export const subjects = pgTable("subjects", {
   createdAt: createdAtColumn(),
   updatedAt: updatedAtColumn(),
 }, (table) => [
+  uniqueIndex("subjects_user_id_record_id_idx").on(table.userId, table.id),
   index("subjects_user_id_name_idx").on(table.userId, table.name),
 ]);
 
@@ -222,6 +224,12 @@ export const exams = pgTable("exams", {
   createdAt: createdAtColumn(),
   updatedAt: updatedAtColumn(),
 }, (table) => [
+  uniqueIndex("exams_user_id_record_id_idx").on(table.userId, table.id),
+  foreignKey({
+    name: "exams_subject_id_owner_fk",
+    columns: [table.userId, table.subjectId],
+    foreignColumns: [subjects.userId, subjects.id],
+  }),
   index("exams_user_id_exam_date_idx").on(table.userId, table.examDate),
 ]);
 
@@ -243,6 +251,17 @@ export const topics = pgTable("topics", {
   createdAt: createdAtColumn(),
   updatedAt: updatedAtColumn(),
 }, (table) => [
+  uniqueIndex("topics_user_id_record_id_idx").on(table.userId, table.id),
+  foreignKey({
+    name: "topics_subject_id_owner_fk",
+    columns: [table.userId, table.subjectId],
+    foreignColumns: [subjects.userId, subjects.id],
+  }),
+  foreignKey({
+    name: "topics_exam_id_owner_fk",
+    columns: [table.userId, table.examId],
+    foreignColumns: [exams.userId, exams.id],
+  }),
   index("topics_user_id_priority_title_idx").on(table.userId, table.priority, table.title),
   index("topics_user_id_subject_id_idx").on(table.userId, table.subjectId),
 ]);
@@ -265,6 +284,21 @@ export const studySessions = pgTable("study_sessions", {
   notes: text("notes"),
   createdAt: createdAtColumn(),
 }, (table) => [
+  foreignKey({
+    name: "study_sessions_subject_id_owner_fk",
+    columns: [table.userId, table.subjectId],
+    foreignColumns: [subjects.userId, subjects.id],
+  }),
+  foreignKey({
+    name: "study_sessions_topic_id_owner_fk",
+    columns: [table.userId, table.topicId],
+    foreignColumns: [topics.userId, topics.id],
+  }),
+  foreignKey({
+    name: "study_sessions_exam_id_owner_fk",
+    columns: [table.userId, table.examId],
+    foreignColumns: [exams.userId, exams.id],
+  }),
   index("study_sessions_user_id_started_at_idx").on(table.userId, table.startedAt),
 ]);
 
@@ -287,6 +321,16 @@ export const reviewItems = pgTable("review_items", {
   createdAt: createdAtColumn(),
   updatedAt: updatedAtColumn(),
 }, (table) => [
+  foreignKey({
+    name: "review_items_subject_id_owner_fk",
+    columns: [table.userId, table.subjectId],
+    foreignColumns: [subjects.userId, subjects.id],
+  }),
+  foreignKey({
+    name: "review_items_topic_id_owner_fk",
+    columns: [table.userId, table.topicId],
+    foreignColumns: [topics.userId, topics.id],
+  }),
   index("review_items_user_id_active_due_idx").on(table.userId, table.isActive, table.dueAt),
 ]);
 
@@ -311,6 +355,21 @@ export const errorLogs = pgTable("error_logs", {
   createdAt: createdAtColumn(),
   updatedAt: updatedAtColumn(),
 }, (table) => [
+  foreignKey({
+    name: "error_logs_subject_id_owner_fk",
+    columns: [table.userId, table.subjectId],
+    foreignColumns: [subjects.userId, subjects.id],
+  }),
+  foreignKey({
+    name: "error_logs_topic_id_owner_fk",
+    columns: [table.userId, table.topicId],
+    foreignColumns: [topics.userId, topics.id],
+  }),
+  foreignKey({
+    name: "error_logs_exam_id_owner_fk",
+    columns: [table.userId, table.examId],
+    foreignColumns: [exams.userId, exams.id],
+  }),
   index("error_logs_user_id_resolved_severity_created_idx").on(
     table.userId,
     table.resolved,
@@ -334,6 +393,21 @@ export const quizAttempts = pgTable("quiz_attempts", {
   notes: text("notes"),
   createdAt: createdAtColumn(),
 }, (table) => [
+  foreignKey({
+    name: "quiz_attempts_subject_id_owner_fk",
+    columns: [table.userId, table.subjectId],
+    foreignColumns: [subjects.userId, subjects.id],
+  }),
+  foreignKey({
+    name: "quiz_attempts_topic_id_owner_fk",
+    columns: [table.userId, table.topicId],
+    foreignColumns: [topics.userId, topics.id],
+  }),
+  foreignKey({
+    name: "quiz_attempts_exam_id_owner_fk",
+    columns: [table.userId, table.examId],
+    foreignColumns: [exams.userId, exams.id],
+  }),
   index("quiz_attempts_user_id_date_idx").on(table.userId, table.date),
 ]);
 
@@ -391,6 +465,21 @@ export const tasks = pgTable("tasks", {
   createdAt: createdAtColumn(),
   updatedAt: updatedAtColumn(),
 }, (table) => [
+  foreignKey({
+    name: "tasks_related_subject_id_owner_fk",
+    columns: [table.userId, table.relatedSubjectId],
+    foreignColumns: [subjects.userId, subjects.id],
+  }),
+  foreignKey({
+    name: "tasks_related_exam_id_owner_fk",
+    columns: [table.userId, table.relatedExamId],
+    foreignColumns: [exams.userId, exams.id],
+  }),
+  foreignKey({
+    name: "tasks_related_topic_id_owner_fk",
+    columns: [table.userId, table.relatedTopicId],
+    foreignColumns: [topics.userId, topics.id],
+  }),
   index("tasks_user_id_priority_due_idx").on(table.userId, table.priority, table.dueAt),
 ]);
 
@@ -589,6 +678,7 @@ export const researchAreas = pgTable("research_areas", {
   createdAt: createdAtColumn(),
   updatedAt: updatedAtColumn(),
 }, (table) => [
+  uniqueIndex("research_areas_user_id_record_id_idx").on(table.userId, table.id),
   index("research_areas_user_id_created_idx").on(table.userId, table.createdAt),
 ]);
 
@@ -604,6 +694,11 @@ export const literatureGaps = pgTable("literature_gaps", {
   createdAt: createdAtColumn(),
   updatedAt: updatedAtColumn(),
 }, (table) => [
+  foreignKey({
+    name: "literature_gaps_research_area_id_owner_fk",
+    columns: [table.userId, table.researchAreaId],
+    foreignColumns: [researchAreas.userId, researchAreas.id],
+  }),
   index("literature_gaps_user_id_priority_created_idx").on(table.userId, table.priority, table.createdAt),
 ]);
 
@@ -618,6 +713,7 @@ export const hypotheses = pgTable("hypotheses", {
   createdAt: createdAtColumn(),
   updatedAt: updatedAtColumn(),
 }, (table) => [
+  uniqueIndex("hypotheses_user_id_record_id_idx").on(table.userId, table.id),
   index("hypotheses_user_id_created_idx").on(table.userId, table.createdAt),
 ]);
 
@@ -633,6 +729,12 @@ export const manuscripts = pgTable("manuscripts", {
   createdAt: createdAtColumn(),
   updatedAt: updatedAtColumn(),
 }, (table) => [
+  uniqueIndex("manuscripts_user_id_record_id_idx").on(table.userId, table.id),
+  foreignKey({
+    name: "manuscripts_hypothesis_id_owner_fk",
+    columns: [table.userId, table.hypothesisId],
+    foreignColumns: [hypotheses.userId, hypotheses.id],
+  }),
   index("manuscripts_user_id_deadline_idx").on(table.userId, table.deadline),
 ]);
 
@@ -648,6 +750,16 @@ export const methodologyRisks = pgTable("methodology_risks", {
   mitigationNotes: text("mitigation_notes"),
   createdAt: createdAtColumn(),
 }, (table) => [
+  foreignKey({
+    name: "methodology_risks_manuscript_id_owner_fk",
+    columns: [table.userId, table.manuscriptId],
+    foreignColumns: [manuscripts.userId, manuscripts.id],
+  }),
+  foreignKey({
+    name: "methodology_risks_hypothesis_id_owner_fk",
+    columns: [table.userId, table.hypothesisId],
+    foreignColumns: [hypotheses.userId, hypotheses.id],
+  }),
   index("methodology_risks_user_id_created_idx").on(table.userId, table.createdAt),
 ]);
 
@@ -665,6 +777,16 @@ export const uploads = pgTable("uploads", {
   flashcardsGenerated: integer("flashcards_generated").default(0).notNull(),
   createdAt: createdAtColumn(),
 }, (table) => [
+  foreignKey({
+    name: "uploads_subject_id_owner_fk",
+    columns: [table.userId, table.subjectId],
+    foreignColumns: [subjects.userId, subjects.id],
+  }),
+  foreignKey({
+    name: "uploads_topic_id_owner_fk",
+    columns: [table.userId, table.topicId],
+    foreignColumns: [topics.userId, topics.id],
+  }),
   index("uploads_user_id_created_idx").on(table.userId, table.createdAt),
 ]);
 
@@ -697,9 +819,24 @@ export const profiles = pgTable("profiles", {
   weaknessTolerance: text("weakness_tolerance").default("low").notNull(),
   examStrategy: text("exam_strategy").default("balanced").notNull(),
   isAdmin: boolean("is_admin").default(false),
+  notificationClaimedUntil: timestamp("notification_claimed_until", { withTimezone: true }),
   notifiedAt: timestamp("notified_at", { withTimezone: true }),
   createdAt: createdAtColumn(),
   updatedAt: updatedAtColumn(),
+});
+
+export const uploadDailyLimits = pgTable("upload_daily_limits", {
+  userId: uuid("user_id").primaryKey(),
+  day: date("day").notNull(),
+  attempts: integer("attempts").notNull(),
+});
+
+export const approvalAudit = pgTable("approval_audit", {
+  id: idColumn(),
+  actorId: uuid("actor_id").notNull(),
+  profileId: uuid("profile_id").notNull(),
+  approved: boolean("approved").notNull(),
+  createdAt: createdAtColumn(),
 });
 
 export const aiUsageEvents = pgTable("ai_usage_events", {

@@ -2,7 +2,10 @@
 
 import "server-only";
 
+import { getProfileStatus } from "@/lib/auth/profile";
 import { requireUser } from "@/lib/auth/supabase";
+import { isOwnerUser } from "@/lib/auth/owner";
+import { setUserApproval } from "@/lib/auth/approval";
 import { neon } from "@neondatabase/serverless";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db/admin";
@@ -19,16 +22,7 @@ import {
 export async function checkStatusAction() {
   try {
     const user = await requireUser();
-    const sql = neon(process.env.DATABASE_URL!);
-    const rows = await sql`
-      SELECT approved, is_admin FROM profiles WHERE id = ${user.id}
-    `;
-    const profile = rows[0];
-    return {
-      hasProfile: !!profile,
-      approved: !!profile?.approved,
-      isAdmin: !!profile?.is_admin,
-    };
+    return await getProfileStatus(user);
   } catch (e) {
     console.error("check-status error:", e);
     return { hasProfile: false, approved: false, isAdmin: false };
@@ -42,12 +36,9 @@ export async function approveUserAction(userId: string, approved: boolean) {
 
   const sql = neon(process.env.DATABASE_URL!);
   const rows = await sql`SELECT is_admin FROM profiles WHERE id = ${user.id}`;
-  if (!rows[0]?.is_admin) return { error: "Forbidden" };
+  if (!isOwnerUser(user.id) && !rows[0]?.is_admin) return { error: "Forbidden" };
 
-  await db
-    .update(profiles)
-    .set({ approved, notifiedAt: null, rejectedAt: approved ? null : new Date() })
-    .where(eq(profiles.id, userId));
+  await setUserApproval(user.id, userId, approved);
 
   return { success: true };
 }
@@ -59,7 +50,7 @@ export async function updateUserAiPromptLimitAction(userId: string, rawLimit: un
 
   const sql = neon(process.env.DATABASE_URL!);
   const rows = await sql`SELECT is_admin FROM profiles WHERE id = ${user.id}`;
-  if (!rows[0]?.is_admin) return { error: "Forbidden" };
+  if (!isOwnerUser(user.id) && !rows[0]?.is_admin) return { error: "Forbidden" };
 
   const aiPromptLimitChars = normalizeAiPromptLimit(rawLimit);
 
@@ -80,7 +71,7 @@ export async function updateUserAiUsageLimitsAction(userId: string, rawRequestLi
 
   const sql = neon(process.env.DATABASE_URL!);
   const rows = await sql`SELECT is_admin FROM profiles WHERE id = ${user.id}`;
-  if (!rows[0]?.is_admin) return { error: "Forbidden" };
+  if (!isOwnerUser(user.id) && !rows[0]?.is_admin) return { error: "Forbidden" };
 
   const aiDailyRequestLimit = normalizeAiDailyRequestLimit(rawRequestLimit);
   const aiDailyCharLimit = normalizeAiDailyCharLimit(rawCharLimit);
@@ -102,7 +93,7 @@ export async function updateUserAiImportLimitAction(userId: string, rawLimit: un
 
   const sql = neon(process.env.DATABASE_URL!);
   const rows = await sql`SELECT is_admin FROM profiles WHERE id = ${user.id}`;
-  if (!rows[0]?.is_admin) return { error: "Forbidden" };
+  if (!isOwnerUser(user.id) && !rows[0]?.is_admin) return { error: "Forbidden" };
 
   const aiDailyImportLimit = normalizeAiDailyImportLimit(rawLimit);
 

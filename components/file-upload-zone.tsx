@@ -4,6 +4,7 @@ import { useState, useCallback, useRef } from "react";
 import { Upload, X, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { GlassCard } from "@/components/premium/glass-card";
 import { Button } from "@/components/ui/button";
+import { MAX_TEXT_UPLOAD_BYTES } from "@/lib/constants/upload";
 import { cn } from "@/lib/utils";
 
 interface UploadedFile {
@@ -38,6 +39,10 @@ export function FileUploadZone({
   const handleFile = useCallback(
     async (file: File) => {
       setError(null);
+      if (file.size > MAX_TEXT_UPLOAD_BYTES) {
+        setError("File too large (max 4 MB)");
+        return;
+      }
       setIsUploading(true);
 
       try {
@@ -180,7 +185,7 @@ export function FileUploadZone({
             {isUploading ? "Uploading..." : "Drop file here or click to upload"}
           </p>
           <p className="mt-1 text-xs text-text-muted">
-            .txt, .md — max 10MB
+            .txt, .md — max 4 MB
           </p>
         </div>
       </div>
