@@ -1,4 +1,5 @@
-import { Activity, Brain, Clock, Edit3, Eye, Sparkles, Timer, Zap, type LucideIcon } from "lucide-react";
+import { format, startOfDay, subDays } from "date-fns";
+import { Activity, Brain, Clock, Sparkles, Timer, Zap, type LucideIcon } from "lucide-react";
 
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { StudySessionForm } from "@/components/forms/entity-forms";
@@ -8,11 +9,10 @@ import { GlassCard } from "@/components/premium/glass-card";
 import { MomentumBar } from "@/components/premium/momentum-bar";
 import { SectionHeader } from "@/components/premium/section-header";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { SessionHistory } from "@/components/session-history";
 import { requireApprovedUser } from "@/lib/auth/supabase";
-import { getReferenceData, getStudySessions } from "@/lib/data/queries";
-import type { StudySession, Subject } from "@/lib/db/schema";
+import { getReferenceData, getStudySessions, getStudySessionsInRange } from "@/lib/data/queries";
+import type { StudySession } from "@/lib/db/schema";
 import { getI18n } from "@/lib/i18n/server-i18n";
 import { fmtDate, humanize } from "@/lib/labels";
 
@@ -26,16 +26,22 @@ export default async function StudyPage({ searchParams }: { searchParams: Promis
   const user = await requireApprovedUser();
   const { t } = await getI18n();
   const params = await searchParams;
-  const [ref, studySessions] = await Promise.all([getReferenceData(), getStudySessions()]);
+  const now = new Date();
+  const weekStart = startOfDay(subDays(now, 6));
+  const [ref, studySessions, weeklySessions] = await Promise.all([
+    getReferenceData(),
+    getStudySessions(),
+    getStudySessionsInRange(weekStart, now),
+  ]);
   const editing = studySessions.find((item) => item.id === params.edit);
   const selectedSession = studySessions.find((item) => item.id === params.view);
   const subjectById = new Map(ref.subjects.map((subject) => [subject.id, subject]));
   const topicById = new Map(ref.topics.map((topic) => [topic.id, topic]));
   const examById = new Map(ref.exams.map((exam) => [exam.id, exam]));
-  const activeMinutes = studySessions.filter((item) => activeMethods.has(item.method)).reduce((sum, item) => sum + item.durationMinutes, 0);
-  const passiveMinutes = studySessions.filter((item) => ["reading", "notes"].includes(item.method)).reduce((sum, item) => sum + item.durationMinutes, 0);
-  const totalMinutes = studySessions.reduce((sum, item) => sum + item.durationMinutes, 0);
-  const activeRatio = totalMinutes === 0 ? 0 : (activeMinutes / totalMinutes) * 100;
+  const activeMinutes = weeklySessions.filter((item) => activeMethods.has(item.method)).reduce((sum, item) => sum + item.durationMinutes, 0);
+  const passiveMinutes = weeklySessions.filter((item) => ["reading", "notes"].includes(item.method)).reduce((sum, item) => sum + item.durationMinutes, 0);
+  const weeklyMinutes = weeklySessions.reduce((sum, item) => sum + item.durationMinutes, 0);
+  const activeRatio = weeklyMinutes === 0 ? 0 : (activeMinutes / weeklyMinutes) * 100;
   const methodTotals = Object.entries(
     studySessions.reduce<Record<string, number>>((acc, item) => {
       acc[item.method] = (acc[item.method] ?? 0) + item.durationMinutes;
@@ -44,20 +50,19 @@ export default async function StudyPage({ searchParams }: { searchParams: Promis
   )
     .map(([name, value]) => ({ name: humanize(name), value }))
     .sort((a, b) => b.value - a.value);
+  const methodMinutes = methodTotals.reduce((sum, method) => sum + method.value, 0);
   const dayTotals = Object.entries(
-    studySessions.slice(0, 80).reduce<Record<string, number>>((acc, item) => {
-      const key = item.startedAt.toISOString().slice(5, 10);
+    weeklySessions.reduce<Record<string, number>>((acc, item) => {
+      const key = format(item.startedAt, "yyyy-MM-dd");
       acc[key] = (acc[key] ?? 0) + item.durationMinutes;
       return acc;
     }, {}),
   )
-    .map(([name, minutes]) => ({ name, minutes }))
-    .sort((a, b) => a.name.localeCompare(b.name))
-    .slice(-14);
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([day, minutes]) => ({ name: day.slice(5), minutes }));
   const latestSession = studySessions[0];
-  const recentSessions = studySessions.slice(0, 10);
-  const avgFocus = average(recentSessions.map((item) => item.focusLevel));
-  const avgOutput = average(recentSessions.map((item) => item.outputQuality));
+  const avgFocus = average(weeklySessions.map((item) => item.focusLevel));
+  const avgOutput = average(weeklySessions.map((item) => item.outputQuality));
   const latestLabel = latestSession
     ? `${subjectById.get(latestSession.subjectId)?.name ?? t("common.subject")} · ${latestSession.durationMinutes} ${t("common.minutes").toLowerCase()}`
     : t("common.noData");
@@ -70,7 +75,7 @@ export default async function StudyPage({ searchParams }: { searchParams: Promis
           <StudyCommandPanel
             activeMinutes={activeMinutes}
             passiveMinutes={passiveMinutes}
-            totalMinutes={totalMinutes}
+            totalMinutes={weeklyMinutes}
             activeRatio={activeRatio}
             latestLabel={latestLabel}
             t={t as TFunc}
@@ -117,7 +122,7 @@ export default async function StudyPage({ searchParams }: { searchParams: Promis
             <FocusTimer compact />
           </CollapsiblePanel>
 
-          <MethodMixPanel methodTotals={methodTotals} totalMinutes={totalMinutes} t={t as TFunc} />
+          <MethodMixPanel methodTotals={methodTotals} totalMinutes={methodMinutes} t={t as TFunc} />
         </div>
       </div>
     </AppShell>

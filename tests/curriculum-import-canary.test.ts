@@ -24,12 +24,14 @@ function loadEnvVar(key: string): string {
 }
 
 const GROQ_API_KEY = loadEnvVar("GROQ_API_KEY");
+const runGroqCanary = process.env.RUN_GROQ_CANARY === "1";
 const GROQ_MODEL_SELECTION = getCloudModelSelection("groq", process.env.AI_MODEL, "env");
 const GROQ_MODEL = GROQ_MODEL_SELECTION.model;
 const GROQ_MODEL_WARNING = getDeprecatedGroqModelWarning(GROQ_MODEL_SELECTION);
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
 
-if (GROQ_MODEL_WARNING) console.warn(GROQ_MODEL_WARNING);
+if (runGroqCanary && !GROQ_API_KEY) throw new Error("GROQ_API_KEY is required when RUN_GROQ_CANARY=1.");
+if (runGroqCanary && GROQ_MODEL_WARNING) console.warn(GROQ_MODEL_WARNING);
 
 /* ================================================================== */
 /*  Zod schemas matching production exactly                             */
@@ -472,7 +474,7 @@ function analyzeResponse(raw: string, mode: "v1" | "v2", input: TestInput): Cana
 
 const TIMEOUT = 60000; // 60s per AI call
 
-describe("AI canary — real Groq calls", () => {
+describe.runIf(runGroqCanary)("AI canary — real Groq calls", () => {
   const results: CanaryResult[] = [];
 
   for (const input of INPUTS) {

@@ -50,9 +50,11 @@ describe("CRUD record UX regressions", () => {
 
   it("lets study history records be opened and keeps edit submit on the Study page", () => {
     const page = source("app", "study", "page.tsx");
+    const history = source("components", "session-history.tsx");
     const forms = source("components", "forms", "entity-forms.tsx");
 
-    expect(page).toContain("view=${item.id}");
+    expect(page).toContain("<SessionHistory");
+    expect(history).toContain("`/study?view=${item.id}`");
     expect(page).toContain("selectedSession");
     expect(page).toContain("StudySessionDetail");
     expect(forms).toContain('name="returnTo" value="/study"');
@@ -62,15 +64,19 @@ describe("CRUD record UX regressions", () => {
     const strategic = source("app", "strategic-review", "page.tsx");
     const reputation = source("app", "reputation", "page.tsx");
     const table = source("components", "tables", "resource-table.tsx");
+    const reputationList = source("components", "life", "life-lists.tsx");
+    const drawer = source("components", "ui", "record-drawer.tsx");
 
     expect(table).toContain("viewBasePath");
     expect(table).toContain("Eye");
     expect(strategic).toContain("selectedReview");
     expect(strategic).toContain("StrategicReviewDetail");
     expect(strategic).toContain('viewBasePath="/strategic-review"');
-    expect(reputation).toContain("selectedEvent");
-    expect(reputation).toContain("ReputationEventDetail");
-    expect(reputation).toContain('viewBasePath="/reputation"');
+    expect(reputation).toContain("<ReputationEventList");
+    expect(reputation).toContain('editBasePath="/reputation"');
+    expect(reputationList).toContain("setSelected(event)");
+    expect(reputationList).toContain('record={selected} type="reputation-event"');
+    expect(drawer).toContain('type === "reputation-event" && <ReputationEventDetail');
   });
 
   it("makes network contacts openable, editable, and deletable after creation", () => {
@@ -83,14 +89,13 @@ describe("CRUD record UX regressions", () => {
     expect(contactCard).toContain("DeleteButton");
   });
 
-  it("keeps the reviews table inside the desktop content width", () => {
+  it("keeps the reviews grid inside the desktop content width", () => {
     const reviewsPage = source("app", "reviews", "page.tsx");
     const reviewsList = source("components", "reviews-list.tsx");
 
-    expect(reviewsPage).toContain("xl:grid-cols-[minmax(0,460px)_minmax(0,1fr)]");
-    expect(reviewsPage).toContain('className="min-w-0 space-y-4"');
-    expect(reviewsList).toContain("table-fixed");
-    expect(reviewsList).toContain("max-w-full");
-    expect(reviewsList).toContain("w-[220px]");
+    expect(reviewsPage).toContain("xl:grid-cols-[420px_minmax(0,1fr)]");
+    expect(reviewsPage).toContain('<GlassCard tone="default" padded={false} className="min-w-0">');
+    expect(reviewsList).toContain("sm:grid-cols-2 lg:grid-cols-3");
+    expect(reviewsList).toContain("break-words");
   });
 });

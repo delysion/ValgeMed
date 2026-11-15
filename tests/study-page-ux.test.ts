@@ -34,9 +34,11 @@ describe("study page UX", () => {
 
   it("lets study session history records be edited and deleted", () => {
     const page = source("app", "study", "page.tsx");
+    const history = source("components", "session-history.tsx");
 
-    expect(page).toContain("deleteStudySessionAction");
-    expect(page).toContain("DeleteButton");
-    expect(page).toContain("`/study?edit=${item.id}`");
+    expect(page).toContain("<SessionHistory");
+    expect(history).toContain("action={deleteStudySessionAction}");
+    expect(history).toContain("<DeleteButton");
+    expect(history).toContain("`/study?edit=${item.id}`");
   });
 });

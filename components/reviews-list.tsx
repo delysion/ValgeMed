@@ -182,7 +182,7 @@ export function ReviewsList({ reviewItems, subjects, topics, labels }: ReviewsLi
                 onClick={() => setSelected(item)}
                 aria-label={labels.open}
               >
-                <p className="line-clamp-2 text-sm font-semibold text-text-primary">
+                <p className="line-clamp-2 break-words text-sm font-semibold text-text-primary">
                   {item.question}
                 </p>
 

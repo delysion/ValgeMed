@@ -73,7 +73,7 @@ export default async function ReviewsPage({
           />
         </div>
 
-        <div className="grid gap-5 xl:grid-cols-[420px_1fr]">
+        <div className="grid gap-5 xl:grid-cols-[420px_minmax(0,1fr)]">
           <GlassCard tone="neutral" padded>
             <SectionHeader
               title={editing ? "Edit Review Card" : "New Review Card"}
@@ -85,7 +85,7 @@ export default async function ReviewsPage({
             </div>
           </GlassCard>
 
-          <GlassCard tone="default" padded={false}>
+          <GlassCard tone="default" padded={false} className="min-w-0">
             <div className="flex items-center justify-between p-5 pb-3">
               <SectionHeader
                 title={tt("reviews.title")}

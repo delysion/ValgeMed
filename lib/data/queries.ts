@@ -247,6 +247,23 @@ export async function getStudySessions(limit = 200) {
   }, []);
 }
 
+export async function getStudySessionsInRange(start: Date, end: Date) {
+  const userId = await getUserIdOrThrow();
+  return withDb((db) =>
+    db.select({
+      startedAt: studySessions.startedAt,
+      method: studySessions.method,
+      durationMinutes: studySessions.durationMinutes,
+      focusLevel: studySessions.focusLevel,
+      outputQuality: studySessions.outputQuality,
+    }).from(studySessions).where(and(
+      eq(studySessions.userId, userId),
+      gte(studySessions.startedAt, start),
+      lte(studySessions.startedAt, end),
+    )),
+  []);
+}
+
 export async function getLiteratureGaps() {
   const userId = await getUserIdOrThrow();
   return withDb<LiteratureGap[]>((db) => {

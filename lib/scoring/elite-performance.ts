@@ -290,7 +290,7 @@ export function calculateEliteReadinessMetrics(input: EliteCommandInput): EliteP
   const now = input.now ?? new Date();
   const settings = normalizeEliteTargetSettings(input.settings);
   const todayLog = latestDailyLog(input.dailyLogs, now);
-  const burnoutRisk = buildBurnoutRiskFromLogs(input.dailyLogs as DailyLog[], input.quizAttempts as QuizAttempt[]).score;
+  const burnoutRisk = buildBurnoutRiskFromLogs(input.dailyLogs as DailyLog[], input.quizAttempts as QuizAttempt[], now).score;
   const examReadiness = getLiveReadiness(input);
   const readinessTarget = readinessTargetByLevel[settings.targetLevel];
   const activeCoverage = activeRecallCoverage(input.studySessions, todayLog);

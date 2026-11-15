@@ -194,7 +194,7 @@ export default async function CommandPage() {
                 <div className="flex flex-wrap items-center gap-3">
                   <div className="flex items-center gap-2 rounded-lg bg-bg-elevated/80 px-3 py-1.5">
                     <Star className={cn("h-4 w-4", moveTone === "danger" ? "text-rose" : moveTone === "rose" ? "text-rose" : "text-cyan")} />
-                    <span className="text-xs font-semibold uppercase tracking-[0.1em] text-text-primary">Today&apos;s Winning Move</span>
+                    <span className="text-xs font-semibold uppercase tracking-[0.1em] text-text-primary">{tt("command.todaysWinningMove")}</span>
                   </div>
                   <Badge variant={move.kind === "recovery" ? "danger" : move.kind === "error_review" ? "rose" : "default"} size="sm">
                     {command.settings.targetLevel.replace("_", " ")}

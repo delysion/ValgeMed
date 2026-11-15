@@ -191,12 +191,13 @@ function average(values: number[], fallback = 0) {
 export function buildBurnoutRiskFromLogs(
   dailyLogs: DailyLog[],
   quizAttempts: QuizAttempt[] = [],
+  now = new Date(),
 ) {
   const recentLogs = dailyLogs
-    .filter((log) => isAfter(new Date(log.date), subDays(new Date(), 14)))
+    .filter((log) => isAfter(new Date(log.date), subDays(now, 14)))
     .sort((a, b) => a.date.localeCompare(b.date));
   const recentQuizzes = quizAttempts
-    .filter((attempt) => isAfter(new Date(attempt.date), subDays(new Date(), 21)))
+    .filter((attempt) => isAfter(new Date(attempt.date), subDays(now, 21)))
     .sort((a, b) => a.date.localeCompare(b.date));
 
   const sleepAverage = average(

@@ -115,6 +115,10 @@ pnpm db:migrate    # apply migrations
 pnpm db:seed       # seed demo data
 ```
 
+The live Groq canary is opt-in. Set `RUN_GROQ_CANARY=1` and supply a valid
+`GROQ_API_KEY` through the environment or local `.env`, then run
+`pnpm test tests/curriculum-import-canary.test.ts`.
+
 ## Bilingual UI
 
 English (`en`) as default, Estonian (`et`) as secondary. Smart input and command copy should accept English and Estonian phrasing where practical.

@@ -225,6 +225,7 @@ export function TopicsGrid({ topics, subjects, exams, errorLogs, labels }: Topic
                   variant="ghost"
                   size="sm"
                   className="h-7 px-2 text-[10px]"
+                  aria-label={labels.open}
                   onClick={(e) => {
                     e.stopPropagation();
                     setSelected(topic);
