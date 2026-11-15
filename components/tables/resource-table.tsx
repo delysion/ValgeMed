@@ -87,16 +87,16 @@ export function ResourceTable<T extends { id: string }>({
         )}
       </div>
 
-      <div className="hidden overflow-x-auto rounded-2xl border border-border md:block">
-      <table className="w-full min-w-[760px] border-collapse text-sm">
-        <thead className="bg-bg-subtle text-xs uppercase tracking-[0.12em] text-text-secondary">
+      <div className="hidden overflow-x-auto rounded-panel border border-border bg-bg-surface md:block">
+      <table className="w-full min-w-[760px] border-collapse text-ui-body">
+        <thead className="bg-bg-subtle text-ui-label text-text-secondary">
           <tr>
             {columns.map((column) => (
-              <th key={column.header} className="px-3 py-2 text-left font-medium">
+              <th key={column.header} scope="col" className="px-4 py-2.5 text-left font-semibold">
                 {column.header}
               </th>
             ))}
-            <th className="px-3 py-2 text-right font-medium">{labels.actions}</th>
+            <th scope="col" className="px-4 py-2.5 text-right font-semibold">{labels.actions}</th>
           </tr>
         </thead>
         <tbody>
@@ -114,7 +114,7 @@ export function ResourceTable<T extends { id: string }>({
             rows.map((row) => (
               <tr key={row.id} className="border-t border-border align-top">
                 {columns.map((column) => (
-                  <td key={column.header} className="px-3 py-2 text-text-secondary">
+                  <td key={column.header} className="px-4 py-2.5 text-text-secondary">
                     {column.render(row)}
                   </td>
                 ))}

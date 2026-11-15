@@ -59,7 +59,7 @@ export const dynamic = "force-dynamic";
 export function DashboardPageSkeleton() {
   return (
     <div className="motion-premium flex flex-col gap-6">
-      <div className="relative overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-primary-soft/80 via-bg-surface to-cyan-bg/40 p-5 sm:p-7 md:p-8">
+      <div className="relative overflow-hidden rounded-panel border border-border bg-bg-surface p-5 sm:p-7 md:p-8">
         <div className="flex flex-wrap items-center gap-6">
           <Skeleton variant="circular" className="h-36 w-36" />
           <div className="flex-1 space-y-3">
@@ -171,10 +171,7 @@ export default async function DashboardPage() {
     <AppShell user={user}>
       <div className="flex flex-col gap-6">
         {/* ─── HERO SECTION ─── */}
-        <section className="relative overflow-hidden rounded-2xl border border-primary/15 bg-gradient-to-br from-primary-soft/80 via-bg-surface to-cyan-bg/40 p-5 shadow-[var(--shadow-hero)] sm:p-7 md:p-8">
-          <div className="pointer-events-none absolute -left-20 -top-20 h-72 w-72 rounded-full bg-primary/8 blur-[80px]" />
-          <div className="pointer-events-none absolute -bottom-24 -right-24 h-80 w-80 rounded-full bg-violet/6 blur-[80px]" />
-          <div className="pointer-events-none absolute left-1/3 top-1/2 h-48 w-48 rounded-full bg-cyan/6 blur-[60px]" />
+        <section className="relative overflow-hidden rounded-panel border border-border bg-bg-surface p-panel shadow-panel">
 
           <div className="relative flex flex-col gap-5">
             <div className="flex flex-wrap items-center gap-2">
@@ -215,16 +212,16 @@ export default async function DashboardPage() {
                 xpToNext={xpToNext}
                 streak={streak}
                 t={t as (key: string) => string}
-                className="min-w-[200px] flex-1 border-primary/15 bg-bg-surface/70 backdrop-blur-sm shadow-sm"
+                className="min-w-0 flex-1"
               />
               {dueReviews > 0 ? (
-                <div className="flex items-center gap-2 rounded-xl border border-violet/20 bg-violet-bg/60 px-3.5 py-2.5 shadow-sm">
+                <div className="flex items-center gap-2 rounded-control border border-border bg-bg-subtle px-3.5 py-2.5">
                   <RotateCw className="h-4 w-4 text-violet" />
                   <span className="text-xs font-semibold text-text-primary">{t("dashboard.dueReviewsCount", { count: dueReviews })}</span>
                 </div>
               ) : null}
               {openErrors.length > 0 ? (
-                <div className="flex items-center gap-2 rounded-xl border border-rose/20 bg-rose-bg/60 px-3.5 py-2.5 shadow-sm">
+                <div className="flex items-center gap-2 rounded-control border border-rose/25 bg-rose-bg px-3.5 py-2.5">
                   <ShieldCheck className="h-4 w-4 text-rose" />
                   <span className="text-xs font-semibold text-text-primary">{t("dashboard.openErrorsCount", { count: openErrors.length })}</span>
                 </div>
@@ -350,11 +347,11 @@ export default async function DashboardPage() {
                       <Link
                         key={topic.id}
                         href="/topics"
-                        className="flex items-center justify-between gap-3 rounded-xl border border-border bg-gradient-to-r from-bg-surface to-bg-subtle/30 p-3.5 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-[1px] motion-safe:fade-in"
+                        className="flex items-center justify-between gap-3 rounded-control border border-border bg-bg-surface p-3.5 transition-colors hover:border-border-strong hover:bg-bg-subtle motion-safe:fade-in"
                         style={{ animationDelay: `${i * 80}ms` }}
                       >
                         <div className="flex items-center gap-3 min-w-0">
-                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-rose-bg to-rose/10 text-rose">
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-rose-bg text-rose">
                             <Brain className="h-4 w-4" />
                           </div>
                           <div className="min-w-0">
@@ -367,7 +364,7 @@ export default async function DashboardPage() {
                         <div className="flex items-center gap-2 shrink-0">
                           <div className="h-2.5 w-20 overflow-hidden rounded-full bg-bg-subtle sm:w-24">
                             <div
-                              className="h-full rounded-full bg-gradient-to-r from-rose to-gold"
+                              className="h-full rounded-full bg-rose"
                               style={{ width: `${(topic.confidence / 10) * 100}%` }}
                             />
                           </div>
@@ -390,15 +387,15 @@ export default async function DashboardPage() {
                   {data.studySessions.slice(0, 5).map((session, i) => (
                     <div
                       key={`${session.id}-${i}`}
-                      className="flex items-center gap-3 rounded-xl border border-border bg-gradient-to-r from-bg-surface to-bg-subtle/30 p-3 shadow-sm transition-all duration-200 motion-safe:fade-in"
+                      className="flex items-center gap-3 rounded-control border border-border bg-bg-surface p-3 shadow-sm transition-all duration-200 motion-safe:fade-in"
                       style={{ animationDelay: `${i * 80}ms` }}
                     >
                       <div className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-lg", {
-                        "bg-gradient-to-br from-cyan-bg to-cyan/10 text-cyan": session.method === "active_recall",
-                        "bg-gradient-to-br from-violet-bg to-violet/10 text-violet": session.method === "quiz",
-                        "bg-gradient-to-br from-emerald-bg to-emerald/10 text-emerald": session.method === "simulation",
-                        "bg-gradient-to-br from-rose-bg to-rose/10 text-rose": session.method === "error_review",
-                        "bg-gradient-to-br from-gold-bg to-gold/10 text-gold": session.method === "reading" || session.method === "notes",
+                        "bg-cyan-bg text-cyan": session.method === "active_recall",
+                        "bg-violet-bg text-violet": session.method === "quiz",
+                        "bg-emerald-bg text-emerald": session.method === "simulation",
+                        "bg-rose-bg text-rose": session.method === "error_review",
+                        "bg-gold-bg text-gold": session.method === "reading" || session.method === "notes",
                       })}>
                         <Brain className="h-4 w-4" />
                       </div>
@@ -447,7 +444,7 @@ export default async function DashboardPage() {
                     <Link
                       key={exam.id}
                       href={`/exams/${exam.id}`}
-                      className="flex items-center justify-between gap-3 rounded-xl border border-border bg-gradient-to-r from-bg-surface to-gold-bg/20 p-3.5 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-[1px] motion-safe:fade-in"
+                      className="flex items-center justify-between gap-3 rounded-control border border-border bg-bg-surface p-3.5 transition-colors hover:border-border-strong hover:bg-bg-subtle motion-safe:fade-in"
                     >
                       <div className="min-w-0">
                         <p className="truncate text-sm font-semibold text-text-primary">{exam.title}</p>
@@ -531,16 +528,16 @@ function QuickActionButton({
   tone: "violet" | "cyan" | "rose" | "emerald";
 }) {
   const toneClasses = {
-    violet: "border-violet/25 hover:bg-gradient-to-br hover:from-violet-bg hover:to-violet/8 hover:border-violet/40 text-violet",
-    cyan: "border-cyan/25 hover:bg-gradient-to-br hover:from-cyan-bg hover:to-cyan/8 hover:border-cyan/40 text-cyan",
-    rose: "border-rose/25 hover:bg-gradient-to-br hover:from-rose-bg hover:to-rose/8 hover:border-rose/40 text-rose",
-    emerald: "border-emerald/25 hover:bg-gradient-to-br hover:from-emerald-bg hover:to-emerald/8 hover:border-emerald/40 text-emerald",
+    violet: "border-violet/25 hover:bg-violet-bg hover:border-violet/40 text-violet",
+    cyan: "border-cyan/25 hover:bg-cyan-bg hover:border-cyan/40 text-cyan",
+    rose: "border-rose/25 hover:bg-rose-bg hover:border-rose/40 text-rose",
+    emerald: "border-emerald/25 hover:bg-emerald-bg hover:border-emerald/40 text-emerald",
   };
   return (
     <Link
       href={href}
       className={cn(
-        "flex items-center gap-2 rounded-xl border border-border bg-gradient-to-br from-bg-surface to-bg-subtle/30 px-3.5 py-3 text-xs font-semibold transition-all duration-200 hover:shadow-md hover:-translate-y-[1px]",
+        "flex items-center gap-2 rounded-xl border border-border bg-gradient-to-br from-bg-surface to-bg-subtle/30 px-3.5 py-3 text-xs font-semibold transition-colors hover:border-border-strong hover:bg-bg-subtle",
         toneClasses[tone],
       )}
     >

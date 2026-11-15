@@ -57,10 +57,10 @@ export function MobileDrawer({
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/60 lg:hidden" />
+        <Dialog.Overlay className="fixed inset-0 z-50 bg-overlay lg:hidden" />
         <Dialog.Content
           aria-describedby={undefined}
-          className="fixed inset-y-0 left-0 z-50 w-[min(85vw,340px)] overflow-y-auto overscroll-contain border-r border-border bg-bg-page shadow-2xl lg:hidden"
+          className="fixed inset-y-0 left-0 z-50 w-[min(85vw,340px)] overflow-y-auto overscroll-contain border-r border-border bg-bg-surface shadow-dialog lg:hidden"
           onOpenAutoFocus={(event) => {
             event.preventDefault();
             closeRef.current?.focus();

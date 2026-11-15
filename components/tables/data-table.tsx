@@ -93,13 +93,13 @@ export function DataTable({
         )}
       </div>
 
-      <div className="hidden overflow-x-auto rounded-2xl border border-border md:block">
-        <table className="w-full min-w-[680px] border-collapse text-sm">
-          <thead className="bg-bg-subtle">
+      <div className="hidden overflow-x-auto rounded-panel border border-border bg-bg-surface md:block">
+        <table className="w-full min-w-[680px] border-collapse text-ui-body">
+          <thead className="bg-bg-subtle text-ui-label">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <th key={header.id} className="px-3 py-2 text-left font-medium text-text-secondary">
+                  <th key={header.id} scope="col" className="px-4 py-2.5 text-left font-semibold text-text-secondary">
                     {header.isPlaceholder
                       ? null
                       : flexRender(header.column.columnDef.header, header.getContext())}
@@ -113,7 +113,7 @@ export function DataTable({
               table.getRowModel().rows.map((row) => (
                 <tr key={row.id} className="border-t border-border">
                   {row.getVisibleCells().map((cell) => (
-                    <td key={cell.id} className="px-3 py-2 text-text-secondary">
+                    <td key={cell.id} className="px-4 py-2.5 text-text-secondary">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </td>
                   ))}

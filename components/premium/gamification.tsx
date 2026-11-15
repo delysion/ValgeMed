@@ -45,12 +45,12 @@ export function AchievementBadge({
   return (
     <div className={cn(
       "group rounded-xl border p-3.5 transition-all duration-200 card-hover",
-      unlocked ? "border-gold/25 bg-gradient-to-br from-gold-bg via-gold-bg to-gold/8 shadow-sm shadow-gold/10" : "border-border/60 bg-gradient-to-br from-bg-surface to-bg-subtle/20",
+      unlocked ? "border-gold/25 bg-gold-bg" : "border-border/60 bg-bg-surface",
     )}>
       <div className="flex items-center gap-2.5">
         <div className={cn(
-          "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-all duration-200 group-hover:scale-105",
-          unlocked ? "bg-gradient-to-br from-gold/25 to-gold/10 text-gold shadow-sm shadow-gold/20" : "bg-bg-subtle text-text-muted",
+          "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-all duration-200",
+          unlocked ? "bg-gold-bg text-gold" : "bg-bg-subtle text-text-muted",
         )}>
           {unlocked ? <Sparkle className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
         </div>
@@ -115,8 +115,8 @@ export function LevelBadge({
   const pct = Math.round((xp / xpToNext) * 100);
 
   return (
-    <div className={cn("flex items-center gap-3 rounded-xl bg-gradient-to-br from-bg-surface via-bg-surface to-bg-subtle/30 p-3 shadow-sm border border-border/60", className)}>
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary via-primary-ring to-violet text-white text-sm font-bold shadow-md shadow-primary/25">
+    <div className={cn("flex items-center gap-3 rounded-xl bg-bg-surface p-3 border border-border/60", className)}>
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-soft text-primary text-sm font-bold">
         {level}
       </div>
       <div className="min-w-0 flex-1">
@@ -130,11 +130,11 @@ export function LevelBadge({
         </div>
         <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-bg-subtle">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-primary via-primary-ring to-violet transition-all duration-500 progress-fill"
+            className="h-full rounded-full bg-primary transition-all duration-500 progress-fill"
             style={{ width: `${pct}%` }}
           />
         </div>
-        <p className="mt-0.5 text-[11px] text-text-muted">{xp}/{xpToNext} {t("gamification.xpToNext")}</p>
+        <p className="mt-0.5 text-ui-label text-text-muted">{xp}/{xpToNext} {t("gamification.xpToNext")}</p>
       </div>
     </div>
   );
@@ -180,17 +180,17 @@ export function LevelCard({
   const labelKey = levelLabelKey ?? getLevelLabelKey(levelLabel);
   const pct = Math.round((xp / xpToNext) * 100);
   return (
-    <div className={cn("rounded-xl border border-border/60 bg-gradient-to-br from-bg-surface via-bg-surface to-primary-soft/20 p-5 shadow-[var(--shadow-card)]", className)}>
-      <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-text-muted">{t("gamification.yourLevel")}</p>
+    <div className={cn("rounded-xl border border-border/60 bg-bg-surface p-5 shadow-panel", className)}>
+      <p className="text-ui-label font-semibold uppercase tracking-[0.12em] text-text-muted">{t("gamification.yourLevel")}</p>
       <div className="mt-3 flex items-center gap-4">
-        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary via-primary-ring to-violet text-white text-xl font-bold shadow-lg shadow-primary/30">
+        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary-soft text-primary text-xl font-bold">
           {level}
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-base font-semibold text-text-primary">{t("gamification.levelDisplay", { level, name: t(labelKey) })}</p>
           <div className="mt-2 h-2 overflow-hidden rounded-full bg-bg-subtle">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-primary via-primary-ring to-violet progress-fill"
+              className="h-full rounded-full bg-primary progress-fill"
               style={{ width: `${pct}%` }}
             />
           </div>
@@ -238,11 +238,11 @@ export function MomentumCard({
     rose: "text-rose",
   };
   const bgMap = {
-    cyan: "from-cyan-bg/50 to-bg-surface",
-    violet: "from-violet-bg/50 to-bg-surface",
-    emerald: "from-emerald-bg/50 to-bg-surface",
-    gold: "from-gold-bg/50 to-bg-surface",
-    rose: "from-rose-bg/50 to-bg-surface",
+    cyan: "border-t-cyan/55",
+    violet: "border-t-violet/55",
+    emerald: "border-t-emerald/55",
+    gold: "border-t-gold/55",
+    rose: "border-t-rose/55",
   };
 
   const radius = 32;
@@ -250,8 +250,8 @@ export function MomentumCard({
   const dash = (safe / 10) * circumference;
 
   return (
-    <div className={cn("rounded-xl border border-border bg-gradient-to-br p-5 shadow-[var(--shadow-card)] card-hover", bgMap[tone], className)}>
-      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-text-muted">{label}</p>
+    <div className={cn("rounded-panel border border-t-2 border-border bg-bg-surface p-panel shadow-panel card-hover", bgMap[tone], className)}>
+      <p className="text-ui-label font-semibold uppercase tracking-[0.12em] text-text-muted">{label}</p>
       <div className="mt-3 flex items-center gap-4">
         <div className="relative h-20 w-20 shrink-0">
           <svg viewBox="0 0 80 80" className="h-full w-full -rotate-90">
@@ -274,18 +274,18 @@ export function MomentumCard({
         <div className="min-w-0 flex-1">
           <div className="h-2 overflow-hidden rounded-full bg-bg-subtle">
             <div
-              className={cn("h-full rounded-full bg-gradient-to-r transition-all duration-700 ease-out", {
-                cyan: "from-cyan to-blue-400",
-                violet: "from-violet to-purple-400",
-                emerald: "from-emerald to-green-400",
-                gold: "from-gold to-amber-400",
-                rose: "from-rose to-pink-400",
+              className={cn("h-full rounded-full", {
+                cyan: "bg-cyan",
+                violet: "bg-violet",
+                emerald: "bg-emerald",
+                gold: "bg-gold",
+                rose: "bg-rose",
               }[tone])}
               style={{ width: `${pct}%` }}
             />
           </div>
           {subtitle ? <p className="mt-1.5 text-xs text-text-secondary">{subtitle}</p> : null}
-          <p className="mt-0.5 text-[11px] font-medium text-text-muted">{pct.toFixed(0)}%</p>
+          <p className="mt-0.5 text-ui-label font-medium text-text-muted">{pct.toFixed(0)}%</p>
         </div>
       </div>
     </div>
@@ -305,12 +305,12 @@ export function DailyStreakCard({
 }) {
   const pct = longestStreak && longestStreak > 0 ? Math.round((streak / longestStreak) * 100) : streak > 0 ? 100 : 0;
   return (
-    <div className={cn("rounded-xl border border-border bg-gradient-to-br from-gold-bg/30 via-bg-surface to-bg-surface p-5 shadow-[var(--shadow-card)] card-hover", className)}>
+    <div className={cn("rounded-xl border border-border bg-bg-surface p-5 shadow-panel card-hover", className)}>
       <div className="flex items-center justify-between">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-text-muted">{t("gamification.dailyStreak")}</p>
+        <p className="text-ui-label font-semibold uppercase tracking-[0.12em] text-text-muted">{t("gamification.dailyStreak")}</p>
         {streak > 0 ? (
           <div className="flex items-center gap-1">
-            <Flame className="h-4 w-4 text-gold drop-shadow-sm" />
+            <Flame className="h-4 w-4 text-gold" />
             <span className="font-mono text-lg font-bold text-gold">{streak}</span>
           </div>
         ) : (
@@ -319,11 +319,11 @@ export function DailyStreakCard({
       </div>
       <div className="mt-3 h-2 overflow-hidden rounded-full bg-bg-subtle">
         <div
-          className="h-full rounded-full bg-gradient-to-r from-gold via-amber-400 to-gold transition-all duration-700"
+          className="h-full rounded-full bg-gold transition-all duration-700"
           style={{ width: `${pct}%` }}
         />
       </div>
-      <p className="mt-1.5 text-[11px] text-text-secondary">
+      <p className="mt-1.5 text-ui-label text-text-secondary">
         {streak > 0 ? `${streak} ${t("gamification.daysActive")}` : t("gamification.startStreak")}
         {longestStreak ? ` · ${t("gamification.bestStreak", { streak: longestStreak })}` : ""}
       </p>
@@ -354,8 +354,8 @@ export function SystemHealthCard({
   ];
 
   return (
-    <div className={cn("rounded-xl border border-border bg-gradient-to-br from-bg-surface via-bg-surface to-bg-subtle/20 p-5 shadow-[var(--shadow-card)]", className)}>
-      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-text-muted">{t("gamification.systemHealth")}</p>
+    <div className={cn("rounded-xl border border-border bg-bg-surface p-5 shadow-panel", className)}>
+      <p className="text-ui-label font-semibold uppercase tracking-[0.12em] text-text-muted">{t("gamification.systemHealth")}</p>
       <div className="mt-4 space-y-3">
         {metrics.map((m) => (
           <div key={m.label}>
@@ -372,9 +372,9 @@ export function SystemHealthCard({
             <div className="h-1.5 overflow-hidden rounded-full bg-bg-subtle">
               <div
                 className={cn("h-full rounded-full transition-all duration-700", {
-                  "bg-gradient-to-r from-emerald to-green-400": m.tone === "emerald",
-                  "bg-gradient-to-r from-gold to-amber-400": m.tone === "gold",
-                  "bg-gradient-to-r from-rose to-pink-400": m.tone === "rose",
+                  "bg-emerald": m.tone === "emerald",
+                  "bg-gold": m.tone === "gold",
+                  "bg-rose": m.tone === "rose",
                 })}
                 style={{ width: `${(m.value / 10) * 100}%` }}
               />
@@ -413,14 +413,14 @@ export function MissionCard({
   return (
     <div className={cn(
       "rounded-lg border p-3.5 transition-all duration-200 card-hover",
-      completed ? "border-emerald/25 bg-gradient-to-br from-emerald-bg to-emerald/8" : "border-border bg-gradient-to-br from-bg-surface to-bg-subtle/20",
+      completed ? "border-emerald/25 bg-emerald-bg" : "border-border bg-bg-surface",
       !completed && toneBorder[tone],
       className,
     )}>
       <div className="flex items-start gap-3">
         <div className={cn(
           "flex h-7 w-7 shrink-0 items-center justify-center rounded-md transition-all",
-          completed ? "bg-gradient-to-br from-emerald/25 to-emerald/10 text-emerald shadow-sm shadow-emerald/20" : "bg-bg-subtle text-text-muted",
+          completed ? "bg-emerald-bg text-emerald" : "bg-bg-subtle text-text-muted",
         )}>
           {completed ? <Sparkle className="h-3.5 w-3.5" /> : <TrendingUp className="h-3.5 w-3.5" />}
         </div>
@@ -431,11 +431,11 @@ export function MissionCard({
             <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-bg-subtle">
               <div
                 className={cn("h-full rounded-full transition-all duration-700", {
-                  "bg-gradient-to-r from-cyan to-blue-400": tone === "cyan",
-                  "bg-gradient-to-r from-violet to-purple-400": tone === "violet",
-                  "bg-gradient-to-r from-emerald to-green-400": tone === "emerald",
-                  "bg-gradient-to-r from-gold to-amber-400": tone === "gold",
-                  "bg-gradient-to-r from-rose to-pink-400": tone === "rose",
+                  "bg-cyan": tone === "cyan",
+                  "bg-violet": tone === "violet",
+                  "bg-emerald": tone === "emerald",
+                  "bg-gold": tone === "gold",
+                  "bg-rose": tone === "rose",
                 })}
                 style={{ width: `${pct}%` }}
               />
@@ -490,25 +490,25 @@ export function GamificationDashboard({
   return (
     <div className="space-y-6">
       {/* Level + Streak + XP */}
-      <div className="rounded-2xl border border-border bg-gradient-to-br from-primary-soft/30 via-bg-surface to-bg-surface p-5 shadow-[var(--shadow-card)]">
+      <div className="rounded-2xl border border-border bg-bg-surface p-5 shadow-panel">
         <div className="flex items-center gap-4">
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary via-primary-ring to-cyan text-white text-xl font-bold shadow-lg shadow-primary/30">
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary-soft text-primary text-xl font-bold">
             {level}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-text-muted">
+            <p className="text-ui-label font-semibold uppercase tracking-[0.12em] text-text-muted">
               {t("gamification.yourLevel")} {level}{eliteIndex !== null && <> · {t("elite.central")} {eliteIndex.toFixed(1)}</>}
             </p>
             <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-bg-subtle">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-primary via-primary-ring to-cyan progress-fill"
+                className="h-full rounded-full bg-primary progress-fill"
                 style={{ width: `${xpPct}%` }}
               />
             </div>
             <div className="mt-1 flex items-center justify-between">
-              <p className="text-[11px] text-text-muted">{xp} / {xpToNextLevel} {t("gamification.xp")}</p>
+              <p className="text-ui-label text-text-muted">{xp} / {xpToNextLevel} {t("gamification.xp")}</p>
               {streak > 0 ? (
-                <span className="flex items-center gap-0.5 text-[11px] font-medium text-gold">
+                <span className="flex items-center gap-0.5 text-ui-label font-medium text-gold">
                   <Flame className="h-3 w-3" /> {streak} {t("gamification.dayStreak")}
                 </span>
               ) : null}
@@ -518,11 +518,11 @@ export function GamificationDashboard({
       </div>
 
       {/* Badge Grid */}
-      <div className="rounded-2xl border border-border bg-gradient-to-br from-bg-surface via-bg-surface to-gold-bg/20 p-5 shadow-[var(--shadow-card)]">
+      <div className="rounded-2xl border border-border bg-bg-surface p-5 shadow-panel">
         <div className="flex items-center gap-2 mb-4">
-          <Trophy className="h-4 w-4 text-gold drop-shadow-sm" />
+          <Trophy className="h-4 w-4 text-gold" />
           <p className="text-sm font-semibold text-text-primary">{t("gamification.badges")}</p>
-          <span className="rounded-md bg-gradient-to-br from-bg-subtle to-border/30 px-1.5 py-0.5 font-mono text-[11px] text-text-muted">
+          <span className="rounded-md bg-bg-subtle px-1.5 py-0.5 font-mono text-ui-label text-text-muted">
             {badges.filter((b) => b.unlocked).length}/{badges.length}
           </span>
         </div>
@@ -534,13 +534,13 @@ export function GamificationDashboard({
               className={cn(
                 "flex flex-col items-center gap-1.5 rounded-xl border p-3 text-center transition-all",
                 badge.unlocked
-                  ? "border-gold/25 bg-gradient-to-br from-gold-bg to-gold/8 shadow-sm shadow-gold/10"
+                  ? "border-gold/25 bg-gold-bg"
                   : "border-border opacity-30"
               )}
             >
               <div className={cn(
                 "grid h-8 w-8 place-items-center rounded-lg",
-                badge.unlocked ? "bg-gradient-to-br from-gold/25 to-gold/10 text-gold shadow-sm" : "bg-bg-subtle text-text-muted"
+                badge.unlocked ? "bg-gold-bg text-gold" : "bg-bg-subtle text-text-muted"
               )}>
 {badge.unlocked ? (
   badge.icon === "shield" ? (
@@ -562,16 +562,16 @@ export function GamificationDashboard({
   <Lock className="h-4 w-4" />
 )}
               </div>
-              <p className="text-[11px] font-medium text-text-primary leading-tight">{badge.name}</p>
+              <p className="text-ui-label font-medium text-text-primary leading-tight">{badge.name}</p>
             </div>
           ))}
         </div>
       </div>
 
       {/* Missions */}
-      <div className="rounded-2xl border border-border bg-gradient-to-br from-bg-surface via-bg-surface to-primary-soft/15 p-5 shadow-[var(--shadow-card)]">
+      <div className="rounded-2xl border border-border bg-bg-surface p-5 shadow-panel">
         <div className="flex items-center gap-2 mb-4">
-          <Target className="h-4 w-4 text-primary drop-shadow-sm" />
+          <Target className="h-4 w-4 text-primary" />
           <p className="text-sm font-semibold text-text-primary">{t("gamification.missions")}</p>
         </div>
         <div className="space-y-3">
@@ -584,7 +584,7 @@ export function GamificationDashboard({
                   <p className={cn("text-sm", complete ? "text-emerald font-medium" : "text-text-primary")}>
                     {mission.name}
                   </p>
-                  <span className="font-mono text-[11px] text-text-muted">
+                  <span className="font-mono text-ui-label text-text-muted">
                     {mission.current}/{mission.target}
                   </span>
                 </div>
@@ -592,7 +592,7 @@ export function GamificationDashboard({
                   <div
                     className={cn(
                       "h-full rounded-full transition-all duration-700",
-                      complete ? "bg-gradient-to-r from-emerald to-green-400" : "bg-gradient-to-r from-primary to-primary-ring"
+                      complete ? "bg-emerald" : "bg-primary"
                     )}
                     style={{ width: `${pct}%` }}
                   />

@@ -151,10 +151,10 @@ function StudyCommandPanel({
   t: TFunc;
 }) {
   return (
-    <section className="overflow-hidden rounded-2xl border border-cyan/15 bg-gradient-to-br from-bg-surface via-bg-surface to-cyan-bg/20 shadow-[var(--shadow-card)]">
+    <section className="overflow-hidden rounded-panel border border-border bg-bg-surface shadow-panel">
       <div className="grid gap-5 p-5 lg:grid-cols-[1fr_auto] lg:items-end">
         <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-cyan/15 bg-cyan-bg/35 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-cyan">
+          <div className="inline-flex items-center gap-2 rounded-chip bg-bg-subtle px-2 py-1 text-ui-label font-semibold text-text-secondary">
             <Activity className="h-3.5 w-3.5" />
             {t("study.commandCenter")}
           </div>
@@ -204,7 +204,7 @@ function StudySignal({
         <Icon className="h-[18px] w-[18px]" />
       </div>
       <div className="min-w-0">
-        <p className="truncate text-[11px] font-semibold uppercase tracking-[0.1em] text-text-muted">{label}</p>
+        <p className="truncate text-ui-label font-semibold uppercase tracking-[0.1em] text-text-muted">{label}</p>
         <p className="mt-0.5 truncate text-sm font-semibold text-text-primary">{value}</p>
       </div>
     </div>
@@ -239,12 +239,12 @@ function WeeklyStudyPulse({
                   <div key={day.name} className="flex min-w-0 flex-1 flex-col items-center gap-2">
                     <div className="flex h-40 w-full items-end rounded-xl bg-bg-surface/45 px-1.5 pb-1.5">
                       <div
-                        className="w-full rounded-lg bg-gradient-to-t from-cyan via-emerald to-gold shadow-[0_8px_24px_rgba(88,208,232,0.18)]"
+                        className="w-full rounded-lg bg-cyan"
                         style={{ height: `${height}%` }}
                         title={`${day.minutes} ${t("common.minutes").toLowerCase()}`}
                       />
                     </div>
-                    <span className="truncate text-[10px] font-medium text-text-muted">{day.name}</span>
+                    <span className="truncate text-ui-label font-medium text-text-muted">{day.name}</span>
                   </div>
                 );
               })}

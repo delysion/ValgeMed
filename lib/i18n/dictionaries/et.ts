@@ -1539,4 +1539,6 @@ export const et: Dictionary = {
   "dashboard.missionFixErrors": "Paranda lahtised vead",
   "dashboard.missionStreak": "Õpi 7 päeva järjest",
   "smartInput.flashcardsCreated": "{count} õpikaarti",
+  "common.closeDialog": "Sulge dialoog",
+  "app.skipToContent": "Liigu põhisisu juurde",
 };

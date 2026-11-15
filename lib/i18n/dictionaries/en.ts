@@ -1537,6 +1537,8 @@ export const en = {
   "dashboard.missionFixErrors": "Resolve open errors",
   "dashboard.missionStreak": "Build a 7-day streak",
   "smartInput.flashcardsCreated": "{count} flashcards",
+  "common.closeDialog": "Close dialog",
+  "app.skipToContent": "Skip to main content",
 } as const;
 
 export type TranslationKey = keyof typeof en;

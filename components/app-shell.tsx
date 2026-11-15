@@ -155,20 +155,20 @@ export function AppShell({
   }, [pathname, router]);
 
   return (
-    <div className="min-h-school bg-bg-page">
-      <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-xl focus:bg-gradient-to-br focus:from-primary focus:to-primary-ring focus:px-4 focus:py-2 focus:text-white focus:outline-none focus:shadow-lg">
-        Skip to main content
+    <div className="min-h-dvh bg-bg-page">
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-control focus:bg-action focus:px-4 focus:py-2 focus:text-action-foreground">
+        {t("app.skipToContent")}
       </a>
       {/* Desktop Sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-20 hidden w-64 overflow-y-auto border-r border-border bg-gradient-to-b from-bg-surface via-bg-surface to-bg-page/90 backdrop-blur-sm lg:block">
-        <div className="sticky top-0 z-10 border-b border-border bg-gradient-to-r from-bg-page/80 to-bg-surface/80 backdrop-blur-xl p-5">
+      <aside className="fixed inset-y-0 left-0 z-20 hidden w-60 overflow-y-auto border-r border-border bg-bg-surface lg:block">
+        <div className="sticky top-0 z-10 border-b border-border bg-bg-surface px-4 py-5">
           <div className="flex items-center gap-3">
-            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-primary via-primary-ring to-violet shadow-md shadow-primary/25">
-              <Command className="h-5 w-5 text-white" />
+            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-control border border-primary/25 bg-primary-soft text-primary">
+              <Command aria-hidden="true" className="h-5 w-5" />
             </div>
             <div className="min-w-0">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-text-muted">{t("app.privateConsole")}</p>
-              <h1 className="truncate text-sm font-bold tracking-tight text-text-primary">{t("app.name")}</h1>
+              <p className="text-ui-label font-medium text-text-muted">{t("app.privateConsole")}</p>
+              <h1 className="truncate text-base font-semibold tracking-tight text-text-primary">{t("app.name")}</h1>
             </div>
           </div>
         </div>
@@ -181,14 +181,14 @@ export function AppShell({
       </aside>
 
       {/* Main Content Area */}
-      <div className="lg:pl-64 pb-16 lg:pb-0">
+      <div className="min-w-0 pb-[calc(4rem+env(safe-area-inset-bottom))] lg:pb-0 lg:pl-60">
         {/* Mobile Header */}
-        <header className="sticky top-0 z-30 flex h-12 items-center justify-between gap-2 border-b border-border/80 bg-gradient-to-r from-bg-page/95 to-bg-surface/95 px-4 backdrop-blur-2xl lg:hidden">
+        <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-2 border-b border-border bg-bg-surface px-3 lg:hidden">
           <div className="flex items-center gap-2.5 min-w-0">
             <button
               type="button"
               onClick={handleBack}
-              className="grid h-10 w-10 shrink-0 place-items-center rounded-xl text-text-secondary hover:bg-bg-subtle hover:text-text-primary active:scale-[0.92] transition-all duration-150"
+              className="grid h-10 w-10 shrink-0 place-items-center rounded-control text-text-secondary transition-colors hover:bg-bg-subtle hover:text-text-primary"
               aria-label={t("common.back")}
             >
               <ArrowLeft className="h-5 w-5" />
@@ -198,14 +198,14 @@ export function AppShell({
               aria-haspopup="dialog"
               aria-expanded={drawerOpen}
               onClick={openDrawer}
-              className="grid h-10 w-10 shrink-0 place-items-center rounded-xl hover:bg-bg-subtle active:scale-[0.92] transition-all duration-150"
+              className="grid h-10 w-10 shrink-0 place-items-center rounded-control transition-colors hover:bg-bg-subtle"
               aria-label={t("app.openMenu")}
             >
               <Menu className="h-5 w-5 text-text-primary" />
             </button>
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-text-primary leading-tight">{pageTitle}</p>
-              <p className="truncate text-[11px] text-text-muted leading-tight">{displayName}</p>
+              <p className="truncate text-ui-label text-text-muted leading-tight">{displayName}</p>
             </div>
           </div>
           <div className="flex items-center gap-1">
@@ -216,7 +216,7 @@ export function AppShell({
         </header>
 
         {/* Desktop Header */}
-        <header className="sticky top-0 z-30 hidden min-h-16 items-center justify-between gap-3 border-b border-border bg-gradient-to-r from-bg-surface/90 via-bg-surface/95 to-bg-subtle/30 px-6 py-2.5 backdrop-blur-xl lg:flex">
+        <header className="sticky top-0 z-30 hidden min-h-16 items-center justify-between gap-3 border-b border-border bg-bg-surface px-6 py-2.5 lg:flex">
           <div className="flex min-w-0 items-center gap-3">
             <Button
               type="button"
@@ -245,7 +245,7 @@ export function AppShell({
             <LogoutButton />
           </div>
         </header>
-        <main id="main-content" className="mx-auto w-full max-w-[1440px] px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-8 overflow-visible">
+        <main id="main-content" className="mx-auto w-full max-w-[84rem] px-4 py-5 sm:px-6 sm:py-6 xl:px-8 xl:py-7 overflow-visible">
           {children}
         </main>
       </div>
@@ -268,13 +268,13 @@ export function PageHeader({
   eyebrow?: string;
 }) {
   return (
-    <div className="motion-premium mb-6">
+    <div className="mb-5">
       <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <div className="min-w-0">
           {eyebrow ? (
-            <p className="mb-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-primary">{eyebrow}</p>
+            <p className="mb-1.5 text-ui-label font-medium text-text-secondary">{eyebrow}</p>
           ) : null}
-          <h2 className="text-balance text-2xl font-bold tracking-tight text-text-primary sm:text-3xl">{title}</h2>
+          <h2 className="text-balance text-2xl font-semibold tracking-tight text-text-primary sm:text-3xl">{title}</h2>
           {description ? <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-text-secondary">{description}</p> : null}
         </div>
         {actions ? <div className="flex flex-wrap items-center gap-2.5 shrink-0">{actions}</div> : null}

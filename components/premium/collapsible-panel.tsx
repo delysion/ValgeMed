@@ -21,7 +21,7 @@ export function CollapsiblePanel({
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
   return (
-    <div className="overflow-hidden rounded-xl border border-border bg-gradient-to-br from-bg-surface to-bg-subtle/30 shadow-[var(--shadow-card)]">
+    <div className="overflow-hidden rounded-panel border border-border bg-bg-surface shadow-panel">
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="flex w-full items-center justify-between gap-3 p-4 text-left transition hover:bg-bg-subtle"

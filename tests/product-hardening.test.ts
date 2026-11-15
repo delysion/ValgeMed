@@ -166,8 +166,9 @@ describe("product hardening flows", () => {
 
     expect(ring).toContain("tabular-nums");
     expect(ring).toContain("leading-none");
-    expect(ring).toContain("scoreTextSize");
-    expect(ring).not.toContain('"lg": "text-4xl"');
+    expect(ring).toContain('lg: { ring: "size-32", value: "text-3xl"');
+    expect(ring).toContain("<figcaption");
+    expect(ring).toContain("break-words text-ui-label");
   });
 
   it("keeps lint focused on application code instead of local agent assets", () => {

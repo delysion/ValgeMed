@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { differenceInCalendarDays, startOfToday } from "date-fns";
-import { ArrowRight, Edit3, ShieldCheck, Calendar, Zap, AlertTriangle } from "lucide-react";
+import { ArrowRight, Edit3, ShieldCheck, Calendar } from "lucide-react";
 
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { DeleteButton } from "@/components/forms/delete-button";
@@ -197,7 +197,7 @@ export default async function ExamsPage({ searchParams }: { searchParams: Promis
                     )}
 
                     <div className="relative mt-auto flex items-center justify-between gap-3 border-t border-border/40 pt-4">
-                      <Button asChild size="sm" className="gap-1.5 bg-gradient-to-r from-primary to-violet text-white shadow-lg shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-0.5">
+                      <Button asChild size="sm" className="gap-1.5">
                         <Link href={`/exams/${exam.id}`}>
                           <ShieldCheck className="h-3.5 w-3.5" />
                           {t("exams.cardAction")}

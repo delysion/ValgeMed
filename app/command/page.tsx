@@ -164,52 +164,54 @@ export default async function CommandPage() {
   return (
     <AppShell user={user}>
       <PageHeader title={tt("command.title")} />
-      <div className="flex flex-col gap-5">
-        <section className="rounded-2xl border border-border border-l-4 border-l-primary bg-bg-surface p-5 sm:p-7" aria-labelledby="command-priority">
-          <p className="text-sm font-semibold text-primary">{tt("command.todaysWinningMove")}</p>
-          <h2 id="command-priority" className="mt-2 text-balance text-3xl font-bold tracking-tight text-text-primary sm:text-4xl">
-            {showSetup ? tt(nextStep.label) : localizedMove.title}
-          </h2>
-          <p className="mt-3 max-w-2xl text-base leading-relaxed text-text-secondary">
-            {showSetup ? tt(nextStep.help) : localizedMove.reason}
-          </p>
-          {command.recoveryWarning && (
-            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-rose">
-              <strong>{tt("command.recoveryWarningTitle")}.</strong>{" "}{tt("command.recoveryWarningMessage")}
+      <div className="flex min-w-0 flex-col gap-4">
+        <div className="grid min-w-0 gap-3 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+          <section className="min-w-0 rounded-panel border border-border border-t-2 border-t-primary bg-bg-surface px-5 py-5 shadow-panel sm:px-7 sm:py-6" aria-labelledby="command-priority">
+            <p className="text-ui-label font-semibold text-primary">{tt("command.todaysWinningMove")}</p>
+            <h2 id="command-priority" className="mt-2 text-balance text-2xl font-semibold leading-tight tracking-tight text-text-primary sm:text-4xl">
+              {showSetup ? tt(nextStep.label) : localizedMove.title}
+            </h2>
+            <p className="mt-2 max-w-[62ch] text-sm leading-relaxed text-text-secondary sm:text-base">
+              {showSetup ? tt(nextStep.help) : localizedMove.reason}
             </p>
-          )}
-          <div className="mt-5 flex flex-wrap items-center gap-4">
-            <Button asChild size="lg" className="gap-2">
-              <Link href={showSetup ? nextStep.href : move.href}>
-                {showSetup ? tt(nextStep.label) : localizedMove.cta}
-                <ArrowRight aria-hidden="true" className="h-4 w-4" />
-              </Link>
-            </Button>
-            {!showSetup && <span className="text-sm text-text-secondary">{localizedMove.estimatedMinutes} {tt("command.minutes")}</span>}
-          </div>
-          {!showSetup && (
-            <details className="mt-4 max-w-xl text-sm text-text-secondary">
-              <summary className="cursor-pointer py-1 font-medium">{tt("command.recommendationDetails")}</summary>
-              <p className="mt-2 leading-relaxed">{localizedMove.expectedImpact}</p>
-              <p className="mt-1 leading-relaxed">{localizedMove.dangerIfIgnored}</p>
-            </details>
-          )}
-        </section>
+            {command.recoveryWarning && (
+              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-rose">
+                <strong>{tt("command.recoveryWarningTitle")}.</strong>{" "}{tt("command.recoveryWarningMessage")}
+              </p>
+            )}
+            <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+              <Button asChild size="lg" className="h-auto min-h-control-lg max-w-full gap-2 whitespace-normal py-2 text-left">
+                <Link href={showSetup ? nextStep.href : move.href}>
+                  {showSetup ? tt(nextStep.label) : localizedMove.cta}
+                  <ArrowRight aria-hidden="true" className="size-4 shrink-0" />
+                </Link>
+              </Button>
+              {!showSetup && <span className="text-sm text-text-secondary">{localizedMove.estimatedMinutes} {tt("command.minutes")}</span>}
+            </div>
+            {!showSetup && (
+              <details className="mt-3 max-w-xl text-ui-label text-text-secondary">
+                <summary className="w-fit cursor-pointer rounded-chip px-0.5 py-1.5 font-medium">{tt("command.recommendationDetails")}</summary>
+                <p className="mt-2 leading-relaxed">{localizedMove.expectedImpact}</p>
+                <p className="mt-1 leading-relaxed">{localizedMove.dangerIfIgnored}</p>
+              </details>
+            )}
+          </section>
 
-        <div className="grid gap-3 sm:grid-cols-2">
-          <Link href={nextExam ? `/exams/${nextExam.id}` : "/exams"} className="block min-w-0 rounded-xl border border-border bg-bg-surface p-4 hover:border-primary">
-            <h2 className="text-sm font-medium text-text-secondary">{tt("command.nextExam")}</h2>
-            <p className="mt-1 break-words text-lg font-semibold text-text-primary">{nextExam?.title ?? tt("command.noUpcomingExam")}</p>
-            {nextExam && <p className="mt-1 text-sm text-text-secondary">{examDateLabel}{!lowData && nextExamPlan && <> · {tt("command.examReadinessValue", { score: nextExamPlan.readiness.toFixed(1) })}</>}</p>}
-          </Link>
-          <Link href="/reviews" className="block rounded-xl border border-border bg-bg-surface p-4 hover:border-primary">
-            <h2 className="text-sm font-medium text-text-secondary">{tt("nav.reviews")}</h2>
-            <p className="mt-1 text-lg font-semibold text-text-primary">{dueReviews > 0 ? tt("command.dueReviewCount", { count: dueReviews }) : tt("command.noDueReviews")}</p>
-          </Link>
+          <div className="grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-1">
+            <Link href={nextExam ? `/exams/${nextExam.id}` : "/exams"} className="block min-w-0 rounded-panel border border-border bg-bg-surface p-4 transition-colors hover:border-border-strong hover:bg-bg-subtle">
+              <h2 className="text-ui-label font-medium text-text-secondary">{tt("command.nextExam")}</h2>
+              <p className="mt-1 break-words text-lg font-semibold text-text-primary">{nextExam?.title ?? tt("command.noUpcomingExam")}</p>
+              {nextExam && <p className="mt-1 text-sm text-text-secondary">{examDateLabel}{!lowData && nextExamPlan && <> · {tt("command.examReadinessValue", { score: nextExamPlan.readiness.toFixed(1) })}</>}</p>}
+            </Link>
+            <Link href="/reviews" className="block min-w-0 rounded-panel border border-border bg-bg-surface p-4 transition-colors hover:border-border-strong hover:bg-bg-subtle">
+              <h2 className="text-ui-label font-medium text-text-secondary">{tt("nav.reviews")}</h2>
+              <p className="mt-1 text-lg font-semibold text-text-primary">{dueReviews > 0 ? tt("command.dueReviewCount", { count: dueReviews }) : tt("command.noDueReviews")}</p>
+            </Link>
+          </div>
         </div>
 
         {nextStep && (
-          <section className="rounded-xl border border-border bg-bg-surface p-4 sm:p-5" aria-labelledby="command-setup">
+          <section className="rounded-panel border border-border bg-bg-surface p-4 sm:p-5" aria-labelledby="command-setup">
             <h2 id="command-setup" className="text-base font-semibold">{tt("command.setupHeading")}</h2>
             <ol className="mt-3 divide-y divide-border">
               {setupSteps.map((step) => (
@@ -222,12 +224,12 @@ export default async function CommandPage() {
           </section>
         )}
 
-        <details className="group rounded-xl border border-border bg-bg-surface">
-          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-xl p-4 font-semibold marker:hidden [&::-webkit-details-marker]:hidden">
+        <details className="group rounded-panel border border-border bg-bg-surface">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-panel px-4 py-3.5 text-ui-body font-semibold hover:bg-bg-subtle marker:hidden [&::-webkit-details-marker]:hidden">
             {tt("command.studyTools")}
             <ChevronDown aria-hidden="true" className="h-4 w-4 shrink-0 group-open:rotate-180" />
           </summary>
-          <div className="space-y-4 border-t border-border p-4">
+          <div className="space-y-4 border-t border-border p-panel">
             <SmartInputWrapper />
             <QuickActions />
             <GlassCard>
@@ -236,12 +238,12 @@ export default async function CommandPage() {
           </div>
         </details>
 
-        <details className="group rounded-xl border border-border bg-bg-surface">
-          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-xl p-4 font-semibold marker:hidden [&::-webkit-details-marker]:hidden">
+        <details className="group rounded-panel border border-border bg-bg-surface">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-panel px-4 py-3.5 text-ui-body font-semibold hover:bg-bg-subtle marker:hidden [&::-webkit-details-marker]:hidden">
             {tt("command.performanceDetails")}
             <ChevronDown aria-hidden="true" className="h-4 w-4 shrink-0 group-open:rotate-180" />
           </summary>
-          <div className="space-y-4 border-t border-border p-4">
+          <div className="space-y-4 border-t border-border p-panel">
             <div className="flex flex-wrap gap-3 text-sm">
               <Link href="/settings" className="text-primary underline underline-offset-4">{tt("command.eliteTargetMode")}</Link>
               <Link href="/performance-blockers" className="text-primary underline underline-offset-4">{tt("command.performanceBlockers")}</Link>
@@ -255,7 +257,7 @@ export default async function CommandPage() {
                     caption={localizeScoreLabel(snapshot.elitePerformanceIndex.label, tt)} size="md" />
                   <p className="max-w-sm text-sm text-text-secondary">{tt("command.score.recommendedAction")}</p>
                 </div>
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="grid min-w-0 gap-3 sm:grid-cols-2 xl:grid-cols-4">
                   <MetricCard
                     label={tt("command.examReadiness")}
                     value={snapshot.examReadiness.toFixed(1)}
@@ -287,7 +289,7 @@ export default async function CommandPage() {
                 </div>
 
                 <GlassCard>
-                  <div className="mb-5 flex items-center justify-between">
+                  <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
                       <Gauge className="h-4 w-4 text-text-muted" />
                       <h3 className="text-base font-semibold text-text-primary">{tt("command.snapshotTitle")}</h3>
@@ -315,7 +317,7 @@ export default async function CommandPage() {
                           <Link
                             key={`${threat.type}-${threat.title}`}
                             href={threat.href}
-                            className="flex items-start gap-3 rounded-xl border border-border/70 bg-bg-elevated/50 p-4 transition hover:border-rose/40 hover:bg-rose-bg/15"
+                            className="flex items-start gap-3 rounded-control border border-border bg-bg-surface p-3 transition-colors hover:border-border-strong hover:bg-bg-subtle"
                           >
                             <div className="min-w-0 flex-1">
                               <p className="font-medium text-text-primary">{localizedThreat.title}</p>
@@ -339,7 +341,7 @@ export default async function CommandPage() {
                       <h3 className="text-base font-semibold text-text-primary">{tt("command.mostDangerousCluster")}</h3>
                     </div>
                     {command.blockers[0] ? (
-                      <div className="rounded-xl border border-border/70 bg-bg-elevated/50 p-4">
+                      <div className="rounded-control border border-border bg-bg-subtle p-3">
                         <div className="flex items-start justify-between gap-3">
                           <div>
                             <p className="text-base font-semibold text-text-primary">{command.blockers[0].label}</p>
@@ -369,7 +371,7 @@ export default async function CommandPage() {
               </div>
               <div className="space-y-3">
                 {command.examPlans.slice(0, 3).map((plan) => (
-                  <Link key={plan.examId} href={`/exams/${plan.examId}`} className="flex items-center justify-between gap-3 rounded-xl border border-border/70 bg-bg-elevated/50 px-4 py-3 transition hover:border-primary/40">
+                  <Link key={plan.examId} href={`/exams/${plan.examId}`} className="flex items-center justify-between gap-3 rounded-control border border-border bg-bg-surface px-4 py-3 transition-colors hover:border-border-strong hover:bg-bg-subtle">
                     <div className="min-w-0 flex-1">
                       <p className="truncate font-medium text-text-primary">{plan.title}</p>
                       <p className="mt-1 text-xs text-text-secondary">
