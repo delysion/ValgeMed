@@ -2,6 +2,7 @@ import { Flame, Lock, ShieldAlert, Sparkle, Target, TrendingUp, Trophy, Zap, Lan
 import { Badge } from "@/components/ui/badge";
 import type { TranslationKey } from "@/lib/i18n/dictionaries/en";
 import { cn } from "@/lib/utils";
+import { progressionLevel } from "@/lib/scoring/progression";
 
 export type TFunction = (key: string, params?: Record<string, string | number>) => string;
 
@@ -86,13 +87,8 @@ const levelLabelKeys: TranslationKey[] = [
   "gamification.levelLegend",
 ];
 
-export function computeLevel(eliteScore: number): { level: number; xp: number; xpToNext: number; levelLabel: string; levelLabelKey: TranslationKey } {
-  const raw = Math.max(0, eliteScore);
-  const level = Math.min(100, Math.floor(raw) + 1);
-  const xpPerLevel = 10;
-  const xp = Math.round((raw % 1) * xpPerLevel);
-  const xpToNext = xpPerLevel;
-
+export function computeLevel(totalXp: number): { level: number; xp: number; xpToNext: number; levelLabel: string; levelLabelKey: TranslationKey } {
+  const { level, xp, xpToNext } = progressionLevel(totalXp);
   const labels = [
     "Initiate", "Novice", "Apprentice", "Scholar", "Strategist",
     "Tactician", "Elite", "Master", "Grandmaster", "Legend",
@@ -105,17 +101,17 @@ export function computeLevel(eliteScore: number): { level: number; xp: number; x
 }
 
 export function LevelBadge({
-  eliteScore,
+  totalXp,
   streak,
   t,
   className,
 }: {
-  eliteScore: number;
+  totalXp: number;
   streak: number;
   t: TFunction;
   className?: string;
 }) {
-  const { level, xp, xpToNext, levelLabelKey } = computeLevel(eliteScore);
+  const { level, xp, xpToNext, levelLabelKey } = computeLevel(totalXp);
   const pct = Math.round((xp / xpToNext) * 100);
 
   return (
@@ -469,7 +465,7 @@ interface MissionItem {
 }
 
 interface GamificationDashboardProps {
-  eliteIndex: number;
+  eliteIndex: number | null;
   level: number;
   xp: number;
   xpToNextLevel: number;
@@ -501,7 +497,7 @@ export function GamificationDashboard({
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-text-muted">
-              {t("gamification.yourLevel")} {level} · {t("elite.central")} {eliteIndex.toFixed(1)}
+              {t("gamification.yourLevel")} {level}{eliteIndex !== null && <> · {t("elite.central")} {eliteIndex.toFixed(1)}</>}
             </p>
             <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-bg-subtle">
               <div

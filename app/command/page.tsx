@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AlertTriangle, ArrowRight, Gauge, ShieldCheck, Target, Zap, Star, Clock, TrendingUp, AlertCircle } from "lucide-react";
+import { AlertTriangle, ArrowRight, ChevronDown, Gauge, ShieldCheck, Target, Zap } from "lucide-react";
 
 import { AppShell, PageHeader } from "@/components/app-shell";
 import { DailyLogForm } from "@/components/forms/entity-forms";
@@ -20,7 +20,7 @@ import {
 } from "@/lib/scoring/elite-performance";
 import { SmartInputWrapper } from "@/components/smart-input-wrapper";
 import { QuickActions } from "@/components/quick-actions";
-import { cn } from "@/lib/utils";
+import { tallinnDate } from "@/lib/dates";
 
 export const dynamic = "force-dynamic";
 
@@ -117,7 +117,8 @@ function localizeBlockerAction(blocker: PerformanceBlocker, t: Translate) {
 
 export default async function CommandPage() {
   const user = await requireApprovedUser();
-  const { t } = await getI18n();
+  const { t, locale } = await getI18n();
+  const now = new Date();
   const tt = t as Translate;
   const [data, settings] = await Promise.all([
     getCommandPageData(user.id),
@@ -126,6 +127,7 @@ export default async function CommandPage() {
 
   const command = buildElitePerformanceCommand({
     settings,
+    now,
     exams: data.exams,
     topics: data.topics,
     studySessions: data.studySessions,
@@ -136,282 +138,254 @@ export default async function CommandPage() {
     healthLogs: data.healthLogs,
   });
 
-  const todayKey = new Date().toISOString().slice(0, 10);
+  const todayKey = tallinnDate(now);
   const todayLog = data.dailyLogs.find((log) => log.date === todayKey) ?? null;
-  const lowData = data.subjects.length === 0 || data.topics.length === 0 || data.dailyLogs.length === 0;
+  const setupSteps = [
+    { href: "/subjects", label: "command.setupFirstSubject", help: "command.setupSubjectHelp", done: data.subjects.length > 0 },
+    { href: "/exams", label: "command.setupFirstExam", help: "command.setupExamHelp", done: data.exams.length > 0 },
+    { href: "/study", label: "command.setupFirstSession", help: "command.setupSessionHelp", done: data.studySessions.length > 0 },
+  ];
+  const nextStep = setupSteps.find((step) => !step.done);
+  const lowData = !data.subjects.length || !data.topics.length || !data.studySessions.length;
   const move = command.winningMove;
+  const showSetup = nextStep && data.studySessions.length === 0 && move.kind !== "recovery";
   const localizedMove = localizeMove(move, tt);
   const snapshot = command.snapshot;
-
-  const moveTone = move.kind === "recovery" ? "danger" : move.kind === "error_review" ? "rose" : "cyan";
+  const nextExam = data.exams
+    .filter((exam) => exam.examDate && tallinnDate(exam.examDate) >= todayKey)
+    .sort((a, b) => a.examDate!.getTime() - b.examDate!.getTime())[0];
+  const nextExamPlan = command.examPlans.find((plan) => plan.examId === nextExam?.id);
+  const examDateLabel = nextExam?.examDate && new Intl.DateTimeFormat(locale, {
+    dateStyle: "medium",
+    timeZone: "Europe/Tallinn",
+  }).format(nextExam.examDate);
+  const dueReviews = data.reviewItems.filter((item) => item.isActive && item.dueAt <= now).length;
 
   return (
     <AppShell user={user}>
-      <PageHeader
-        eyebrow={tt("command.eyebrow")}
-        title={tt("command.title")}
-        description={tt("command.description")}
-        actions={
-          <div className="flex flex-wrap gap-2">
-            <Button asChild variant="outline" size="sm">
-              <Link href="/settings">
-                {tt("command.eliteTargetMode")}
-                <ArrowRight className="h-4 w-4" />
+      <PageHeader title={tt("command.title")} />
+      <div className="flex flex-col gap-5">
+        <section className="rounded-2xl border border-border border-l-4 border-l-primary bg-bg-surface p-5 sm:p-7" aria-labelledby="command-priority">
+          <p className="text-sm font-semibold text-primary">{tt("command.todaysWinningMove")}</p>
+          <h2 id="command-priority" className="mt-2 text-balance text-3xl font-bold tracking-tight text-text-primary sm:text-4xl">
+            {showSetup ? tt(nextStep.label) : localizedMove.title}
+          </h2>
+          <p className="mt-3 max-w-2xl text-base leading-relaxed text-text-secondary">
+            {showSetup ? tt(nextStep.help) : localizedMove.reason}
+          </p>
+          {command.recoveryWarning && (
+            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-rose">
+              <strong>{tt("command.recoveryWarningTitle")}.</strong>{" "}{tt("command.recoveryWarningMessage")}
+            </p>
+          )}
+          <div className="mt-5 flex flex-wrap items-center gap-4">
+            <Button asChild size="lg" className="gap-2">
+              <Link href={showSetup ? nextStep.href : move.href}>
+                {showSetup ? tt(nextStep.label) : localizedMove.cta}
+                <ArrowRight aria-hidden="true" className="h-4 w-4" />
               </Link>
             </Button>
-            <Button asChild variant="outline" size="sm">
-              <Link href="/performance-blockers">
-                {tt("command.performanceBlockers")}
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </Button>
+            {!showSetup && <span className="text-sm text-text-secondary">{localizedMove.estimatedMinutes} {tt("command.minutes")}</span>}
           </div>
-        }
-      />
+          {!showSetup && (
+            <details className="mt-4 max-w-xl text-sm text-text-secondary">
+              <summary className="cursor-pointer py-1 font-medium">{tt("command.recommendationDetails")}</summary>
+              <p className="mt-2 leading-relaxed">{localizedMove.expectedImpact}</p>
+              <p className="mt-1 leading-relaxed">{localizedMove.dangerIfIgnored}</p>
+            </details>
+          )}
+        </section>
 
-      <div className="motion-premium flex flex-col gap-5">
-        {lowData ? (
-          <GlassCard tone="gold">
-            <div className="flex items-start gap-3">
-              <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-gold" />
-              <div>
-                <h2 className="text-base font-semibold text-text-primary">{tt("command.lowDataTitle")}</h2>
-                <p className="mt-1.5 text-sm leading-6 text-text-secondary">
-                  {tt("command.lowDataDescription")}
-                </p>
-              </div>
-            </div>
-          </GlassCard>
-        ) : null}
-
-        <GlassCard tone={moveTone} className="overflow-hidden p-0">
-          <div className="relative overflow-hidden bg-gradient-to-br from-bg-surface via-bg-surface to-bg-elevated p-6 sm:p-8">
-            {move.kind === "recovery" && (
-              <div className="absolute inset-0 bg-gradient-to-r from-rose-bg/30 via-transparent to-transparent" />
-            )}
-            <div className="relative grid gap-6 lg:grid-cols-[1fr_280px]">
-              <div>
-                <div className="flex flex-wrap items-center gap-3">
-                  <div className="flex items-center gap-2 rounded-lg bg-bg-elevated/80 px-3 py-1.5">
-                    <Star className={cn("h-4 w-4", moveTone === "danger" ? "text-rose" : moveTone === "rose" ? "text-rose" : "text-cyan")} />
-                    <span className="text-xs font-semibold uppercase tracking-[0.1em] text-text-primary">{tt("command.todaysWinningMove")}</span>
-                  </div>
-                  <Badge variant={move.kind === "recovery" ? "danger" : move.kind === "error_review" ? "rose" : "default"} size="sm">
-                    {command.settings.targetLevel.replace("_", " ")}
-                  </Badge>
-                </div>
-
-                <div className={cn("mt-5 text-3xl font-bold tracking-tight sm:text-4xl", moveTone === "danger" ? "text-rose" : "text-text-primary")}>
-                  {localizedMove.title}
-                </div>
-                <p className="mt-3 max-w-2xl text-base leading-relaxed text-text-secondary">
-                  {localizedMove.reason}
-                </p>
-
-                <div className="mt-6 grid gap-4 sm:grid-cols-3">
-                  <div className="flex items-center gap-3 rounded-xl border border-border/60 bg-bg-page/60 px-4 py-3">
-                    <Clock className="h-5 w-5 text-text-muted" />
-                    <div>
-                      <p className="text-[10px] uppercase tracking-[0.1em] text-text-muted">{tt("command.time")}</p>
-                      <p className="mt-0.5 text-lg font-semibold text-text-primary">{localizedMove.estimatedMinutes} {tt("command.minutes")}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 rounded-xl border border-border/60 bg-bg-page/60 px-4 py-3">
-                    <TrendingUp className="h-5 w-5 text-emerald" />
-                    <div>
-                      <p className="text-[10px] uppercase tracking-[0.1em] text-text-muted">{tt("command.expectedImpact")}</p>
-                      <p className="mt-0.5 text-sm font-medium text-text-primary">{localizedMove.expectedImpact}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 rounded-xl border border-rose/20 bg-rose-bg/20 px-4 py-3">
-                    <AlertCircle className="h-5 w-5 text-rose" />
-                    <div>
-                      <p className="text-[10px] uppercase tracking-[0.1em] text-rose">{tt("command.dangerIfIgnored")}</p>
-                      <p className="mt-0.5 text-sm font-medium text-text-primary">{localizedMove.dangerIfIgnored}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <Button asChild size="lg" className="mt-6 gap-2">
-                  <Link href={move.href}>
-                    {localizedMove.cta}
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </Button>
-              </div>
-
-              <div className="flex flex-col items-center justify-center">
-                <ScoreRing
-                  score={snapshot.elitePerformanceIndex.score}
-                  label={tt("command.eliteIndex")}
-                  caption={localizeScoreLabel(snapshot.elitePerformanceIndex.label, tt)}
-                  size="lg"
-                  tone={snapshot.elitePerformanceIndex.score >= 7 ? "emerald" : snapshot.elitePerformanceIndex.score >= 5 ? "gold" : "danger"}
-                  glow={snapshot.elitePerformanceIndex.score >= 7}
-                />
-                <p className="mt-4 text-center text-xs leading-5 text-text-muted">
-                  {tt("command.score.recommendedAction")}
-                </p>
-              </div>
-            </div>
-          </div>
-        </GlassCard>
-
-        {command.recoveryWarning ? (
-          <GlassCard tone="danger" hover>
-            <div className="flex items-start gap-4">
-              <div className="grid h-10 w-10 place-items-center rounded-xl bg-rose/20">
-                <Zap className="h-5 w-5 text-rose" />
-              </div>
-              <div>
-                <h3 className="text-base font-semibold text-text-primary">{tt("command.recoveryWarningTitle")}</h3>
-                <p className="mt-1.5 text-sm leading-6 text-text-secondary">{tt("command.recoveryWarningMessage")}</p>
-                <p className="mt-2 text-sm font-medium text-text-primary">{tt("command.recoveryWarningAction")}</p>
-              </div>
-            </div>
-          </GlassCard>
-        ) : null}
-
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <MetricCard
-            label={tt("command.examReadiness")}
-            value={snapshot.examReadiness.toFixed(1)}
-            detail={tt("command.readinessTargetDetail", { target: snapshot.readinessTarget.toFixed(1) })}
-            icon={Gauge}
-            tone={snapshot.readinessGap > 2 ? "danger" : "violet"}
-          />
-          <MetricCard
-            label={tt("command.readinessGap")}
-            value={snapshot.readinessGap.toFixed(1)}
-            detail={tt("command.readinessGapDetail")}
-            icon={Target}
-            tone={snapshot.readinessGap > 2 ? "rose" : "emerald"}
-          />
-          <MetricCard
-            label={tt("command.errorDestruction")}
-            value={pct(snapshot.errorDestructionProgress)}
-            detail={tt("command.blockersOpen", { count: command.blockers.filter((blocker) => blocker.status !== "destroyed").length })}
-            icon={ShieldCheck}
-            tone={snapshot.criticalErrorPenalty >= 7 ? "danger" : "emerald"}
-          />
-          <MetricCard
-            label={tt("command.energyIntegrity")}
-            value={snapshot.energyIntegrity.toFixed(1)}
-            detail={snapshot.burnoutRisk >= 7 ? tt("command.overtrainingRisk") : tt("command.performanceProtection")}
-            icon={Zap}
-            tone={snapshot.burnoutRisk >= 7 ? "danger" : "gold"}
-          />
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Link href={nextExam ? `/exams/${nextExam.id}` : "/exams"} className="block min-w-0 rounded-xl border border-border bg-bg-surface p-4 hover:border-primary">
+            <h2 className="text-sm font-medium text-text-secondary">{tt("command.nextExam")}</h2>
+            <p className="mt-1 break-words text-lg font-semibold text-text-primary">{nextExam?.title ?? tt("command.noUpcomingExam")}</p>
+            {nextExam && <p className="mt-1 text-sm text-text-secondary">{examDateLabel}{!lowData && nextExamPlan && <> · {tt("command.examReadinessValue", { score: nextExamPlan.readiness.toFixed(1) })}</>}</p>}
+          </Link>
+          <Link href="/reviews" className="block rounded-xl border border-border bg-bg-surface p-4 hover:border-primary">
+            <h2 className="text-sm font-medium text-text-secondary">{tt("nav.reviews")}</h2>
+            <p className="mt-1 text-lg font-semibold text-text-primary">{dueReviews > 0 ? tt("command.dueReviewCount", { count: dueReviews }) : tt("command.noDueReviews")}</p>
+          </Link>
         </div>
 
-        <GlassCard>
-          <div className="mb-5 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Gauge className="h-4 w-4 text-text-muted" />
-              <h3 className="text-base font-semibold text-text-primary">{tt("command.snapshotTitle")}</h3>
-            </div>
-            <p className="text-xs text-text-muted">{tt("command.snapshotDescription")}</p>
-          </div>
-          <div className="grid gap-4 md:grid-cols-2">
-            <MomentumBar label={tt("command.activeRecallCoverage")} value={snapshot.activeRecallCoverage * 10} tone="cyan" detail={tt("command.activeRecallCoverageDetail")} />
-            <MomentumBar label={tt("command.passiveStudyPenalty")} value={snapshot.passiveStudyPenalty * 10} tone={snapshot.passiveStudyPenalty >= 6 ? "rose" : "emerald"} detail={snapshot.passiveStudyPenalty >= 6 ? tt("command.passiveStudyWarning") : tt("command.controlled")} />
-            <MomentumBar label={tt("command.criticalErrorPenalty")} value={snapshot.criticalErrorPenalty * 10} tone={snapshot.criticalErrorPenalty >= 7 ? "rose" : "emerald"} detail={tt("command.criticalErrorPenaltyDetail")} />
-            <MomentumBar label={tt("command.simulationRequirement")} value={snapshot.simulationRequirementNearExam * 10} tone={snapshot.simulationRequirementNearExam >= 7 ? "gold" : "violet"} detail={tt("command.simulationRequirementDetail")} />
-          </div>
-        </GlassCard>
-
-        <div className="grid gap-5 lg:grid-cols-[1fr_0.9fr]">
-          <GlassCard tone="rose" hover>
-            <div className="mb-4 flex items-center gap-2">
-              <AlertTriangle className="h-4 w-4 text-rose" />
-              <h3 className="text-base font-semibold text-text-primary">{tt("command.topThreats")}</h3>
-            </div>
-            <div className="space-y-3">
-              {command.threats.length > 0 ? command.threats.map((threat) => {
-                const localizedThreat = localizeThreat(threat, tt);
-                return (
-                  <Link
-                    key={`${threat.type}-${threat.title}`}
-                    href={threat.href}
-                    className="flex items-start gap-3 rounded-xl border border-border/70 bg-bg-elevated/50 p-4 transition hover:border-rose/40 hover:bg-rose-bg/15"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <p className="font-medium text-text-primary">{localizedThreat.title}</p>
-                      <p className="mt-1 text-xs leading-5 text-text-secondary">{localizedThreat.detail}</p>
-                    </div>
-                    <Badge variant={threat.severity >= 7 ? "danger" : "warning"} size="sm">{threat.severity.toFixed(1)}</Badge>
-                  </Link>
-                );
-              }) : (
-                <div className="flex flex-col items-center justify-center py-8 text-center">
-                  <ShieldCheck className="h-8 w-8 text-emerald" />
-                  <p className="mt-2 text-sm text-text-secondary">{tt("command.noThreats")}</p>
-                </div>
-              )}
-            </div>
-          </GlassCard>
-
-          <GlassCard tone="violet" hover>
-            <div className="mb-4 flex items-center gap-2">
-              <ShieldCheck className="h-4 w-4 text-violet" />
-              <h3 className="text-base font-semibold text-text-primary">{tt("command.mostDangerousCluster")}</h3>
-            </div>
-            {command.blockers[0] ? (
-              <div className="rounded-xl border border-border/70 bg-bg-elevated/50 p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-base font-semibold text-text-primary">{command.blockers[0].label}</p>
-                    <p className="mt-2 text-sm leading-6 text-text-secondary">{localizeBlockerAction(command.blockers[0], tt)}</p>
-                  </div>
-                  <Badge variant="danger">{command.blockers[0].severity.toFixed(1)}</Badge>
-                </div>
-                <Button asChild variant="outline" size="sm" className="mt-4">
-                  <Link href="/performance-blockers">{tt("command.openEnemyList")}</Link>
-                </Button>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center py-8 text-center">
-                <ShieldCheck className="h-8 w-8 text-emerald" />
-                <p className="mt-2 text-sm text-text-secondary">{tt("command.noBlockerLogged")}</p>
-              </div>
-            )}
-          </GlassCard>
-        </div>
-
-        <SmartInputWrapper />
-        <QuickActions hasData={!lowData} />
-
-        <div className="grid gap-5 lg:grid-cols-[1fr_0.8fr]">
-          <GlassCard>
-            <div className="mb-4 flex items-center gap-2">
-              <Target className="h-4 w-4 text-text-muted" />
-              <h3 className="text-base font-semibold text-text-primary">{tt("command.oneClearNextAction")}</h3>
-            </div>
-            <DailyLogForm log={todayLog} compact t={t as (key: string) => string} />
-          </GlassCard>
-
-          <GlassCard>
-            <div className="mb-4 flex items-center gap-2">
-              <Gauge className="h-4 w-4 text-text-muted" />
-              <h3 className="text-base font-semibold text-text-primary">{tt("command.examPlans")}</h3>
-            </div>
-            <div className="space-y-3">
-              {command.examPlans.slice(0, 3).map((plan) => (
-                <Link key={plan.examId} href={`/exams/${plan.examId}`} className="flex items-center justify-between gap-3 rounded-xl border border-border/70 bg-bg-elevated/50 px-4 py-3 transition hover:border-primary/40">
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-medium text-text-primary">{plan.title}</p>
-                    <p className="mt-1 text-xs text-text-secondary">
-                      {tt("command.examPlanGap", { gap: plan.eliteReadinessGap.toFixed(1) })}
-                    </p>
-                  </div>
-                  <Badge variant="muted" size="sm">{plan.daysRemaining === null ? "--" : `${plan.daysRemaining}d`}</Badge>
-                </Link>
+        {nextStep && (
+          <section className="rounded-xl border border-border bg-bg-surface p-4 sm:p-5" aria-labelledby="command-setup">
+            <h2 id="command-setup" className="text-base font-semibold">{tt("command.setupHeading")}</h2>
+            <ol className="mt-3 divide-y divide-border">
+              {setupSteps.map((step) => (
+                <li key={step.href} className="flex items-center justify-between gap-3 py-2 text-sm">
+                  <Link href={step.href} className="rounded py-1 font-medium text-primary underline-offset-4 hover:underline">{tt(step.label)}</Link>
+                  {step.done && <span className="shrink-0 text-emerald">{tt("command.setupDone")}</span>}
+                </li>
               ))}
-              {command.examPlans.length === 0 && (
-                <p className="py-4 text-center text-sm text-text-muted">{tt("command.noExamPlans")}</p>
-              )}
+            </ol>
+          </section>
+        )}
+
+        <details className="group rounded-xl border border-border bg-bg-surface">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-xl p-4 font-semibold marker:hidden [&::-webkit-details-marker]:hidden">
+            {tt("command.studyTools")}
+            <ChevronDown aria-hidden="true" className="h-4 w-4 shrink-0 group-open:rotate-180" />
+          </summary>
+          <div className="space-y-4 border-t border-border p-4">
+            <SmartInputWrapper />
+            <QuickActions />
+            <GlassCard>
+              <DailyLogForm log={todayLog} defaultDate={todayKey} compact t={tt} />
+            </GlassCard>
+          </div>
+        </details>
+
+        <details className="group rounded-xl border border-border bg-bg-surface">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-xl p-4 font-semibold marker:hidden [&::-webkit-details-marker]:hidden">
+            {tt("command.performanceDetails")}
+            <ChevronDown aria-hidden="true" className="h-4 w-4 shrink-0 group-open:rotate-180" />
+          </summary>
+          <div className="space-y-4 border-t border-border p-4">
+            <div className="flex flex-wrap gap-3 text-sm">
+              <Link href="/settings" className="text-primary underline underline-offset-4">{tt("command.eliteTargetMode")}</Link>
+              <Link href="/performance-blockers" className="text-primary underline underline-offset-4">{tt("command.performanceBlockers")}</Link>
             </div>
-          </GlassCard>
-        </div>
+            {lowData ? (
+              <p className="text-sm text-text-secondary">{tt("command.insufficientData")}</p>
+            ) : (
+              <>
+                <div className="flex flex-wrap items-center gap-4">
+                  <ScoreRing score={snapshot.elitePerformanceIndex.score} label={tt("command.eliteIndex")}
+                    caption={localizeScoreLabel(snapshot.elitePerformanceIndex.label, tt)} size="md" />
+                  <p className="max-w-sm text-sm text-text-secondary">{tt("command.score.recommendedAction")}</p>
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                  <MetricCard
+                    label={tt("command.examReadiness")}
+                    value={snapshot.examReadiness.toFixed(1)}
+                    detail={tt("command.readinessTargetDetail", { target: snapshot.readinessTarget.toFixed(1) })}
+                    icon={Gauge}
+                    tone={snapshot.readinessGap > 2 ? "danger" : "violet"}
+                  />
+                  <MetricCard
+                    label={tt("command.readinessGap")}
+                    value={snapshot.readinessGap.toFixed(1)}
+                    detail={tt("command.readinessGapDetail")}
+                    icon={Target}
+                    tone={snapshot.readinessGap > 2 ? "rose" : "emerald"}
+                  />
+                  <MetricCard
+                    label={tt("command.errorDestruction")}
+                    value={pct(snapshot.errorDestructionProgress)}
+                    detail={tt("command.blockersOpen", { count: command.blockers.filter((blocker) => blocker.status !== "destroyed").length })}
+                    icon={ShieldCheck}
+                    tone={snapshot.criticalErrorPenalty >= 7 ? "danger" : "emerald"}
+                  />
+                  <MetricCard
+                    label={tt("command.energyIntegrity")}
+                    value={snapshot.energyIntegrity.toFixed(1)}
+                    detail={snapshot.burnoutRisk >= 7 ? tt("command.overtrainingRisk") : tt("command.performanceProtection")}
+                    icon={Zap}
+                    tone={snapshot.burnoutRisk >= 7 ? "danger" : "gold"}
+                  />
+                </div>
+
+                <GlassCard>
+                  <div className="mb-5 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Gauge className="h-4 w-4 text-text-muted" />
+                      <h3 className="text-base font-semibold text-text-primary">{tt("command.snapshotTitle")}</h3>
+                    </div>
+                    <p className="text-xs text-text-muted">{tt("command.snapshotDescription")}</p>
+                  </div>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <MomentumBar label={tt("command.activeRecallCoverage")} value={snapshot.activeRecallCoverage * 10} tone="cyan" detail={tt("command.activeRecallCoverageDetail")} />
+                    <MomentumBar label={tt("command.passiveStudyPenalty")} value={snapshot.passiveStudyPenalty * 10} tone={snapshot.passiveStudyPenalty >= 6 ? "rose" : "emerald"} detail={snapshot.passiveStudyPenalty >= 6 ? tt("command.passiveStudyWarning") : tt("command.controlled")} />
+                    <MomentumBar label={tt("command.criticalErrorPenalty")} value={snapshot.criticalErrorPenalty * 10} tone={snapshot.criticalErrorPenalty >= 7 ? "rose" : "emerald"} detail={tt("command.criticalErrorPenaltyDetail")} />
+                    <MomentumBar label={tt("command.simulationRequirement")} value={snapshot.simulationRequirementNearExam * 10} tone={snapshot.simulationRequirementNearExam >= 7 ? "gold" : "violet"} detail={tt("command.simulationRequirementDetail")} />
+                  </div>
+                </GlassCard>
+
+                <div className="grid gap-5 lg:grid-cols-[1fr_0.9fr]">
+                  <GlassCard tone="rose" hover>
+                    <div className="mb-4 flex items-center gap-2">
+                      <AlertTriangle className="h-4 w-4 text-rose" />
+                      <h3 className="text-base font-semibold text-text-primary">{tt("command.topThreats")}</h3>
+                    </div>
+                    <div className="space-y-3">
+                      {command.threats.length > 0 ? command.threats.map((threat) => {
+                        const localizedThreat = localizeThreat(threat, tt);
+                        return (
+                          <Link
+                            key={`${threat.type}-${threat.title}`}
+                            href={threat.href}
+                            className="flex items-start gap-3 rounded-xl border border-border/70 bg-bg-elevated/50 p-4 transition hover:border-rose/40 hover:bg-rose-bg/15"
+                          >
+                            <div className="min-w-0 flex-1">
+                              <p className="font-medium text-text-primary">{localizedThreat.title}</p>
+                              <p className="mt-1 text-xs leading-5 text-text-secondary">{localizedThreat.detail}</p>
+                            </div>
+                            <Badge variant={threat.severity >= 7 ? "danger" : "warning"} size="sm">{threat.severity.toFixed(1)}</Badge>
+                          </Link>
+                        );
+                      }) : (
+                        <div className="flex flex-col items-center justify-center py-8 text-center">
+                          <ShieldCheck className="h-8 w-8 text-emerald" />
+                          <p className="mt-2 text-sm text-text-secondary">{tt("command.noThreats")}</p>
+                        </div>
+                      )}
+                    </div>
+                  </GlassCard>
+
+                  <GlassCard tone="violet" hover>
+                    <div className="mb-4 flex items-center gap-2">
+                      <ShieldCheck className="h-4 w-4 text-violet" />
+                      <h3 className="text-base font-semibold text-text-primary">{tt("command.mostDangerousCluster")}</h3>
+                    </div>
+                    {command.blockers[0] ? (
+                      <div className="rounded-xl border border-border/70 bg-bg-elevated/50 p-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <p className="text-base font-semibold text-text-primary">{command.blockers[0].label}</p>
+                            <p className="mt-2 text-sm leading-6 text-text-secondary">{localizeBlockerAction(command.blockers[0], tt)}</p>
+                          </div>
+                          <Badge variant="danger">{command.blockers[0].severity.toFixed(1)}</Badge>
+                        </div>
+                        <Button asChild variant="outline" size="sm" className="mt-4">
+                          <Link href="/performance-blockers">{tt("command.openEnemyList")}</Link>
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center justify-center py-8 text-center">
+                        <ShieldCheck className="h-8 w-8 text-emerald" />
+                        <p className="mt-2 text-sm text-text-secondary">{tt("command.noBlockerLogged")}</p>
+                      </div>
+                    )}
+                  </GlassCard>
+                </div>
+
+              </>
+            )}
+            <GlassCard>
+              <div className="mb-4 flex items-center gap-2">
+                <Gauge className="h-4 w-4 text-text-muted" />
+                <h3 className="text-base font-semibold text-text-primary">{tt("command.examPlans")}</h3>
+              </div>
+              <div className="space-y-3">
+                {command.examPlans.slice(0, 3).map((plan) => (
+                  <Link key={plan.examId} href={`/exams/${plan.examId}`} className="flex items-center justify-between gap-3 rounded-xl border border-border/70 bg-bg-elevated/50 px-4 py-3 transition hover:border-primary/40">
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-medium text-text-primary">{plan.title}</p>
+                      <p className="mt-1 text-xs text-text-secondary">
+                        {tt("command.examPlanGap", { gap: plan.eliteReadinessGap.toFixed(1) })}
+                      </p>
+                    </div>
+                    <Badge variant="muted" size="sm">{plan.daysRemaining === null ? "--" : `${plan.daysRemaining}d`}</Badge>
+                  </Link>
+                ))}
+                {command.examPlans.length === 0 && (
+                  <p className="py-4 text-center text-sm text-text-muted">{tt("command.noExamPlans")}</p>
+                )}
+              </div>
+            </GlassCard>
+          </div>
+        </details>
       </div>
     </AppShell>
   );

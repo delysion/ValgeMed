@@ -4,6 +4,7 @@ import { CheckCircle2, XCircle, Sparkles } from "lucide-react";
 
 import { GlassCard } from "@/components/premium/glass-card";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 interface SmartInputResponseProps {
   message: string;
@@ -19,6 +20,7 @@ interface SmartInputResponseProps {
 }
 
 export function SmartInputResponse({ message, success, details, onDismiss, dismissLabel }: SmartInputResponseProps) {
+  const { t } = useTranslation();
   return (
     <GlassCard tone={success ? "emerald" : "rose"} className="animate-in slide-in-from-top-2 fade-in duration-300">
       <div className="flex items-start gap-3">
@@ -28,7 +30,7 @@ export function SmartInputResponse({ message, success, details, onDismiss, dismi
           <XCircle className="mt-0.5 h-5 w-5 shrink-0 text-rose" />
         )}
         <div className="flex-1">
-          <p className="text-sm font-medium text-text-primary">{message}</p>
+          <p role={success ? "status" : "alert"} className="text-sm font-medium text-text-primary">{message}</p>
           {details && success && (
             <div className="mt-2 flex flex-wrap gap-1.5">
               {details.subject && (
@@ -44,12 +46,12 @@ export function SmartInputResponse({ message, success, details, onDismiss, dismi
               )}
               {details.durationMinutes && (
                 <span className="inline-flex items-center gap-1 rounded-md bg-cyan/10 px-2 py-0.5 text-xs font-medium text-cyan">
-                  {details.durationMinutes} min
+                  {details.durationMinutes} {t("command.minutes")}
                 </span>
               )}
               {details.itemsCreated && details.itemsCreated > 0 && (
                 <span className="inline-flex items-center gap-1 rounded-md bg-gold/10 px-2 py-0.5 text-xs font-medium text-gold">
-                  {details.itemsCreated} flashcards
+                  {t("smartInput.flashcardsCreated", { count: details.itemsCreated })}
                 </span>
               )}
             </div>

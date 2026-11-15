@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, asc, desc, eq, gte, ilike, isNull, lte, or } from "drizzle-orm";
+import { and, asc, count, desc, eq, gte, ilike, isNull, lte, or, sum } from "drizzle-orm";
 import { addDays, formatISO, startOfDay, subDays } from "date-fns";
 
 import { getUserId } from "@/lib/db/auth";
@@ -863,11 +863,13 @@ export type DashboardData = Pick<
   | "dailyLogs"
 > & {
   todayLog: DailyLog | null;
+  lifetimeStudyXp: number;
+  resolvedErrorCount: number;
 };
 
 const emptyDashboardData: DashboardData = {
   subjects: [], exams: [], topics: [], studySessions: [], reviewItems: [],
-  errorLogs: [], quizAttempts: [], dailyLogs: [], todayLog: null,
+  errorLogs: [], quizAttempts: [], dailyLogs: [], todayLog: null, lifetimeStudyXp: 0, resolvedErrorCount: 0,
 };
 
 export async function getDashboardData(): Promise<DashboardData> {
@@ -877,7 +879,7 @@ export async function getDashboardData(): Promise<DashboardData> {
   const weekAgo = subDays(today, 6);
 
   return withDb<DashboardData>(async (db) => {
-    const [subjectRows, examRows, topicRows, sessionRows, reviewRows, errorRows, quizRows, dailyRows, todayRows] =
+    const [subjectRows, examRows, topicRows, sessionRows, reviewRows, errorRows, quizRows, dailyRows, todayRows, xpRows, resolvedRows] =
       await Promise.all([
         db.select().from(subjects).where(eq(subjects.userId, userId)).orderBy(asc(subjects.name)),
         db.select().from(exams).where(and(eq(exams.userId, userId), or(isNull(exams.examDate), gte(exams.examDate, today)))).orderBy(asc(exams.examDate), desc(exams.importance)).limit(10),
@@ -888,11 +890,14 @@ export async function getDashboardData(): Promise<DashboardData> {
         db.select().from(quizAttempts).where(eq(quizAttempts.userId, userId)).orderBy(desc(quizAttempts.date)).limit(50),
         db.select().from(dailyLogs).where(eq(dailyLogs.userId, userId)).orderBy(desc(dailyLogs.date)).limit(30),
         db.select().from(dailyLogs).where(and(eq(dailyLogs.userId, userId), eq(dailyLogs.date, todayDate))).limit(1),
+        db.select({ xp: sum(studySessions.durationMinutes) }).from(studySessions).where(and(eq(studySessions.userId, userId), lte(studySessions.startedAt, new Date()))),
+        db.select({ total: count() }).from(errorLogs).where(and(eq(errorLogs.userId, userId), eq(errorLogs.resolved, true))),
       ]);
     return {
       subjects: subjectRows, exams: examRows, topics: topicRows,
       studySessions: sessionRows, reviewItems: reviewRows, errorLogs: errorRows,
       quizAttempts: quizRows, dailyLogs: dailyRows, todayLog: todayRows[0] ?? null,
+      lifetimeStudyXp: Number(xpRows[0]?.xp ?? 0), resolvedErrorCount: resolvedRows[0]?.total ?? 0,
     };
   }, emptyDashboardData);
 }

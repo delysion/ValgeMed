@@ -41,7 +41,7 @@ describe("audit low-risk hardening fixes", () => {
     const copilot = source("components", "study-copilot-chat.tsx");
 
     expect(smartInput).toContain('aria-label={placeholder}');
-    expect(smartInput).toContain('aria-label={isListening ? listeningLabel : "Start voice input"}');
+    expect(smartInput).toContain('aria-label={t(isListening ? "smartInput.voiceStop" : "smartInput.voiceStart")}');
     expect(smartInput).toContain("aria-label={submitLabel}");
     expect(uploadZone).toContain('aria-label="Upload study file"');
     expect(uploadZone).toContain('role="alert"');

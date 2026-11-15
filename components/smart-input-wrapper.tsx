@@ -14,6 +14,7 @@ export function SmartInputWrapper() {
     setResponse(null);
     const result = await processSmartInputAction(text, locale);
     setResponse(result);
+    return result.success;
   };
 
   return (

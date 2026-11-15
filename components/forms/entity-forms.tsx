@@ -363,7 +363,7 @@ export function QuizAttemptForm({
   );
 }
 
-export function DailyLogForm({ log, compact = false, t }: { log?: DailyLog | null; compact?: boolean; t: TFunc }) {
+export function DailyLogForm({ log, compact = false, defaultDate, t }: { log?: DailyLog | null; compact?: boolean; defaultDate?: string; t: TFunc }) {
   return (
     <FormCard
       title={log?.id ? t("form.dailyLog.editTitle") : t("form.dailyLog.createTitle")}
@@ -374,7 +374,7 @@ export function DailyLogForm({ log, compact = false, t }: { log?: DailyLog | nul
         <input type="hidden" name="returnTo" value="/daily-log" />
         <input type="hidden" name="movementDone" value="false" />
         <FieldGrid className={compact ? "xl:grid-cols-3" : undefined}>
-          <TextField label={t("form.dailyLog.dateLabel")} name="date" type="date" defaultValue={log?.date ?? formatISO(new Date(), { representation: "date" })} description={t("form.dailyLog.dateDescription")} required />
+          <TextField label={t("form.dailyLog.dateLabel")} name="date" type="date" defaultValue={log?.date ?? defaultDate ?? formatISO(new Date(), { representation: "date" })} description={t("form.dailyLog.dateDescription")} required />
           <TextField label={t("form.dailyLog.sleepLabel")} name="sleepHours" type="number" defaultValue={log?.sleepHours ?? ""} placeholder={t("form.dailyLog.sleepPlaceholder")} description={t("form.dailyLog.sleepDescription")} />
           <TextField label={t("form.dailyLog.energyLabel")} name="energyLevel" type="number" min={0} max={10} defaultValue={log?.energyLevel ?? ""} description={t("form.dailyLog.energyDescription")} />
           <TextField label={t("form.dailyLog.stressLabel")} name="stressLevel" type="number" min={0} max={10} defaultValue={log?.stressLevel ?? ""} description={t("form.dailyLog.stressDescription")} />

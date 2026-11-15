@@ -81,7 +81,7 @@ export function MetricCard({
       ) : null}
       <div className="min-w-0 flex-1">
         {displayLabel ? (
-          <p className="truncate text-[10px] font-semibold uppercase tracking-[0.1em] text-text-muted">
+          <p className="break-words text-xs font-semibold text-text-muted">
             {displayLabel}
           </p>
         ) : null}
@@ -110,7 +110,7 @@ export function MetricCard({
           ) : null}
         </div>
         {detail ? (
-          <p className="mt-1 text-[11px] leading-relaxed text-text-muted line-clamp-1">{detail}</p>
+          <p className="mt-1 break-words text-sm leading-snug text-text-secondary">{detail}</p>
         ) : null}
       </div>
     </div>

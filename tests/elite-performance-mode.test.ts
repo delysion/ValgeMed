@@ -193,7 +193,7 @@ describe("elite performance product integration", () => {
 
   it("adds a Performance Blockers page reachable from navigation", () => {
     const page = source("app", "performance-blockers", "page.tsx");
-    const nav = source("components", "navigation.tsx");
+    const nav = source("components", "navigation-config.tsx");
 
     expect(page).toContain("blockers.title");
     expect(page).toContain("derivePerformanceBlockers");

@@ -1,4 +1,4 @@
-import { differenceInCalendarDays, formatISO, isAfter, startOfDay, subDays } from "date-fns";
+import { differenceInCalendarDays, isAfter, subDays } from "date-fns";
 
 import type {
   DailyLog,
@@ -10,6 +10,7 @@ import type {
   StudySession,
   Topic,
 } from "@/lib/db/schema";
+import { tallinnDate } from "@/lib/dates";
 import { asNumber, clamp } from "@/lib/utils";
 import { buildBurnoutRiskFromLogs, buildExamReadiness } from "@/lib/scoring/engine";
 
@@ -196,7 +197,7 @@ function isExamStrategy(value: unknown): value is ExamStrategy {
 }
 
 function latestDailyLog(logs: Array<Partial<DailyLog>>, now: Date) {
-  const todayKey = formatISO(startOfDay(now), { representation: "date" });
+  const todayKey = tallinnDate(now);
   return logs.find((log) => log.date === todayKey) ?? logs[0] ?? null;
 }
 

@@ -1,14 +1,15 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { Mic, MicOff, Send, Loader2 } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n/useTranslation";
 
 interface SmartInputProps {
-  onSubmit: (text: string) => Promise<void>;
+  onSubmit: (text: string) => Promise<boolean>;
   placeholder: string;
   submitLabel: string;
   listeningLabel: string;
@@ -48,6 +49,7 @@ interface SpeechRecognition extends EventTarget {
   onresult: ((event: SpeechRecognitionEvent) => void) | null;
   start(): void;
   stop(): void;
+  abort(): void;
 }
 
 declare global {
@@ -58,59 +60,80 @@ declare global {
 }
 
 export function SmartInput({ onSubmit, placeholder, submitLabel, listeningLabel, disabled, className }: SmartInputProps) {
+  const { locale, t } = useTranslation();
+  const [inputError, setInputError] = useState<string>();
   const [text, setText] = useState("");
   const [isListening, setIsListening] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
 
+  useEffect(() => () => {
+    const recognition = recognitionRef.current;
+    recognitionRef.current = null;
+    recognition?.abort();
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!text.trim() || isLoading) return;
+    if (!text.trim() || isLoading || isListening || disabled) return;
+    setInputError(undefined);
     setIsLoading(true);
     try {
-      await onSubmit(text.trim());
-      setText("");
+      if (await onSubmit(text.trim())) setText("");
+    } catch {
+      setInputError(t("smartInput.sendFailed"));
     } finally {
       setIsLoading(false);
     }
   };
 
   const startListening = useCallback(() => {
-    if (typeof window === "undefined") return;
+    if (recognitionRef.current) return;
+    setInputError(undefined);
 
     const SpeechRecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognitionCtor) {
-      console.warn("Speech recognition not supported in this browser");
+      setInputError(t("smartInput.voiceUnsupported"));
       return;
-    }
-
-    if (recognitionRef.current) {
-      recognitionRef.current.stop();
     }
 
     const recognition = new SpeechRecognitionCtor();
     recognition.continuous = false;
     recognition.interimResults = true;
-    recognition.lang = "en-US";
+    recognition.lang = locale === "et" ? "et-EE" : "en-US";
 
-    recognition.onstart = () => setIsListening(true);
-    recognition.onend = () => setIsListening(false);
-    recognition.onerror = () => setIsListening(false);
+    recognition.onend = () => {
+      if (recognitionRef.current !== recognition) return;
+      recognitionRef.current = null;
+      setIsListening(false);
+    };
+    recognition.onerror = () => {
+      if (recognitionRef.current !== recognition) return;
+      recognitionRef.current = null;
+      setIsListening(false);
+      setInputError(t("smartInput.voiceFailed"));
+    };
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
+      if (recognitionRef.current !== recognition) return;
       const transcript = Array.from(event.results)
         .map((result) => result[0].transcript)
         .join("");
-      setText(transcript);
+      setText([text.trimEnd(), transcript.trim()].filter(Boolean).join(" "));
     };
 
     recognitionRef.current = recognition;
-    recognition.start();
-  }, []);
+    try {
+      recognition.start();
+      setIsListening(true);
+    } catch {
+      recognitionRef.current = null;
+      setInputError(t("smartInput.voiceFailed"));
+    }
+  }, [locale, t, text]);
 
   const stopListening = useCallback(() => {
     recognitionRef.current?.stop();
-    setIsListening(false);
   }, []);
 
   return (
@@ -125,7 +148,7 @@ export function SmartInput({ onSubmit, placeholder, submitLabel, listeningLabel,
             placeholder={placeholder}
             aria-label={placeholder}
             autoComplete="off"
-            disabled={disabled || isLoading}
+            disabled={disabled || isLoading || isListening}
             className="pr-12 h-12 text-sm sm:text-base"
           />
           {isListening && (
@@ -141,7 +164,7 @@ export function SmartInput({ onSubmit, placeholder, submitLabel, listeningLabel,
           size="icon"
           onClick={isListening ? stopListening : startListening}
           disabled={disabled || isLoading}
-          aria-label={isListening ? listeningLabel : "Start voice input"}
+          aria-label={t(isListening ? "smartInput.voiceStop" : "smartInput.voiceStart")}
           className="h-12 w-10 sm:w-12 shrink-0"
         >
           {isListening ? <MicOff className="h-5 w-5" aria-hidden="true" /> : <Mic className="h-5 w-5" aria-hidden="true" />}
@@ -149,7 +172,7 @@ export function SmartInput({ onSubmit, placeholder, submitLabel, listeningLabel,
         <Button
           type="submit"
           size="lg"
-          disabled={!text.trim() || isLoading}
+          disabled={disabled || !text.trim() || isLoading || isListening}
           aria-label={submitLabel}
           className="h-12 shrink-0 px-3 sm:px-5"
         >
@@ -157,8 +180,9 @@ export function SmartInput({ onSubmit, placeholder, submitLabel, listeningLabel,
           <span className="ml-1 hidden sm:inline">{submitLabel}</span>
         </Button>
       </div>
+      {inputError && <p role="alert" className="text-sm text-rose">{inputError}</p>}
       {isListening && (
-        <p className="text-sm text-text-secondary animate-pulse">
+        <p role="status" className="text-sm text-text-secondary animate-pulse">
           {listeningLabel}
         </p>
       )}

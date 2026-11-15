@@ -1,5 +1,6 @@
 "use client";
 
+import { useId } from "react";
 import { useTranslation } from "@/lib/i18n/useTranslation";
 import { cn } from "@/lib/utils";
 
@@ -50,7 +51,7 @@ const RADIUS = 42;
 const CENTER = 50;
 const STROKE_WIDTH = 4;
 const GLOW_SIZE = 8;
-const TEXT_MAX_WIDTH = "38%";
+const TEXT_MAX_WIDTH = "66%";
 
 export function ScoreRing({
   score,
@@ -70,6 +71,7 @@ export function ScoreRing({
   glow?: boolean;
 }) {
   const { t } = useTranslation();
+  const gradientId = useId();
   const safe = Math.max(0, Math.min(10, score));
   const circumference = 2 * Math.PI * RADIUS;
   const dash = (safe / 10) * circumference;
@@ -83,6 +85,7 @@ export function ScoreRing({
         bgTone[tone],
         glow && "shadow-[0_0_40px_rgba(120,152,248,0.25)]"
       )}
+      role="img"
       aria-label={t("scoreRing.ariaLabel", { label, value: safe.toFixed(1) })}
     >
       {animated ? (
@@ -93,7 +96,7 @@ export function ScoreRing({
       ) : null}
       <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full -rotate-90" style={{ overflow: "visible" }}>
         <defs>
-          <linearGradient id={`ring-grad-${tone}`} x1="0%" y1="0%" x2="100%" y2="100%">
+          <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor={colorByTone[tone]} stopOpacity="0.8" />
             <stop offset="100%" stopColor={colorByTone[tone]} stopOpacity="1" />
           </linearGradient>
@@ -104,7 +107,7 @@ export function ScoreRing({
           cy={CENTER}
           r={RADIUS}
           fill="none"
-          stroke={`url(#ring-grad-${tone})`}
+          stroke={`url(#${gradientId})`}
           strokeDasharray={`${dash} ${circumference - dash}`}
           strokeLinecap="round"
           strokeWidth={STROKE_WIDTH}
@@ -116,11 +119,11 @@ export function ScoreRing({
         <div className={cn("font-mono font-bold leading-none tabular-nums text-text-primary tracking-normal drop-shadow-sm", scoreTextSize[size])}>
           {safe.toFixed(1)}
         </div>
-        <div className={cn("font-semibold uppercase tracking-[0.12em] text-text-secondary", size === "xs" ? "text-[8px] mt-1" : "text-[9px] mt-1.5")}>
+        <div className={cn("font-semibold uppercase tracking-[0.12em] text-text-secondary", size === "xs" ? "mt-0.5 text-[10px] tracking-normal" : "mt-1 text-xs tracking-normal")}>
           {label}
         </div>
         {caption ? (
-          <div className={cn("leading-snug text-text-muted", size === "xs" ? "text-[9px] mt-0.5" : "text-[11px] mt-1")}>
+          <div className={cn("leading-snug text-text-muted", size === "xs" ? "mt-0.5 text-[10px]" : "mt-1 text-xs")}>
             {caption}
           </div>
         ) : null}

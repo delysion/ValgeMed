@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { getI18n } from "@/lib/i18n/server";
 import { getTheme, themeCookie } from "@/lib/theme/config";
@@ -80,6 +80,12 @@ export function AppShell({
   const [theme, setThemeState] = useState<"light" | "dark">("dark");
   const [i18n, setI18n] = useState<ClientI18n | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const drawerTrigger = useRef<HTMLButtonElement | null>(null);
+
+  function openDrawer(event: React.MouseEvent<HTMLButtonElement>) {
+    drawerTrigger.current = event.currentTarget;
+    setDrawerOpen(true);
+  }
 
   useEffect(() => {
     getTheme().then(setThemeState);
@@ -189,7 +195,9 @@ export function AppShell({
             </button>
             <button
               type="button"
-              onClick={() => setDrawerOpen(true)}
+              aria-haspopup="dialog"
+              aria-expanded={drawerOpen}
+              onClick={openDrawer}
               className="grid h-10 w-10 shrink-0 place-items-center rounded-xl hover:bg-bg-subtle active:scale-[0.92] transition-all duration-150"
               aria-label={t("app.openMenu")}
             >
@@ -242,8 +250,8 @@ export function AppShell({
         </main>
       </div>
 
-      <MobileNav onOpenDrawer={() => setDrawerOpen(true)} />
-      <MobileDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} displayName={displayName} />
+      <MobileNav drawerOpen={drawerOpen} onOpenDrawer={openDrawer} />
+      <MobileDrawer open={drawerOpen} onOpenChange={setDrawerOpen} triggerRef={drawerTrigger} displayName={displayName} theme={theme} onToggleTheme={handleToggleTheme} />
     </div>
   );
 }

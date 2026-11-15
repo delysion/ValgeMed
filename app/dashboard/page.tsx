@@ -135,7 +135,7 @@ export default async function DashboardPage() {
   const streak = commandStreak(data.dailyLogs.map((log) => log.date));
   const longest = longestStreak(data.dailyLogs.map((log) => log.date));
   const dueReviews = data.reviewItems.filter((item) => item.isActive && item.dueAt <= new Date()).length;
-  const lowData = data.subjects.length === 0 || data.topics.length === 0;
+  const lowData = data.subjects.length === 0 || data.topics.length === 0 || data.lifetimeStudyXp === 0;
 
   const avgConfidence = data.topics.length > 0
     ? data.topics.reduce((sum, t) => sum + t.confidence, 0) / data.topics.length
@@ -144,7 +144,7 @@ export default async function DashboardPage() {
     ? examsWithReadiness.reduce((sum, e) => sum + e.liveReadiness, 0) / examsWithReadiness.length
     : 0;
   const eliteScore = Math.min(10, Math.max(0, (avgConfidence * 0.4 + examAvgReadiness * 0.3 + Math.min(10, studyMinutesThisWeek / 60) * 0.3)));
-  const { level, xp, xpToNext, levelLabel } = computeLevel(eliteScore);
+  const { level, xp, xpToNext, levelLabel } = computeLevel(data.lifetimeStudyXp);
 
   const todayLog = data.todayLog;
   const energyLevel = todayLog?.energyLevel ?? null;
@@ -154,17 +154,17 @@ export default async function DashboardPage() {
 
   const scoreTone = eliteScore >= 7 ? "emerald" : eliteScore >= 5 ? "violet" : eliteScore >= 3 ? "gold" : "rose";
   const dashboardBadges = [
-    { id: "study-machine", name: "Study Machine", description: "10+ hours studied this week", icon: "book", unlocked: studyMinutesThisWeek >= 600 },
-    { id: "active-learner", name: "Active Learner", description: "70%+ active study ratio", icon: "brain", unlocked: activeRatio >= 70 },
-    { id: "error-free", name: "Error Free", description: "Zero open errors", icon: "shield", unlocked: openErrors.length === 0 },
-    { id: "streak-warrior", name: "Streak Warrior", description: "7-day command streak", icon: "flame", unlocked: streak >= 7 },
-    { id: "balanced", name: "Balanced", description: "Low burnout risk", icon: "zap", unlocked: burnoutRisk.score < 4 },
+    { id: "study-machine", name: t("dashboard.badgeStudyMachine"), description: t("dashboard.badgeStudyMachineDetail"), icon: "book", unlocked: studyMinutesThisWeek >= 600 },
+    { id: "active-learner", name: t("dashboard.badgeActiveLearner"), description: t("dashboard.badgeActiveLearnerDetail"), icon: "brain", unlocked: activeRatio >= 70 },
+    { id: "error-free", name: t("dashboard.errorsResolvedBadge"), description: t("dashboard.errorsResolvedBadgeDetail"), icon: "shield", unlocked: data.resolvedErrorCount > 0 && openErrors.length === 0 },
+    { id: "streak-warrior", name: t("dashboard.badgeStreak"), description: t("dashboard.badgeStreakDetail"), icon: "flame", unlocked: streak >= 7 },
+    { id: "balanced", name: t("dashboard.badgeBalanced"), description: t("dashboard.badgeBalancedDetail"), icon: "zap", unlocked: data.dailyLogs.length > 0 && burnoutRisk.score < 4 },
   ];
   const dashboardMissions = [
-    { id: "study-hours", name: "Reach 10h study this week", current: Math.min(studyMinutesThisWeek, 600), target: 600 },
-    { id: "clear-reviews", name: "Clear all due reviews", current: dueReviews === 0 ? 1 : 0, target: 1 },
-    { id: "fix-errors", name: "Resolve open errors", current: openErrors.length === 0 ? 1 : 0, target: 1 },
-    { id: "build-streak", name: "Build a 7-day streak", current: Math.min(streak, 7), target: 7 },
+    { id: "study-hours", name: t("dashboard.missionStudyHours"), current: Math.min(studyMinutesThisWeek, 600), target: 600 },
+    { id: "clear-reviews", name: t("dashboard.missionClearReviews"), current: dueReviews === 0 ? 1 : 0, target: 1 },
+    { id: "fix-errors", name: t("dashboard.missionFixErrors"), current: data.resolvedErrorCount > 0 && openErrors.length === 0 ? 1 : 0, target: 1 },
+    { id: "build-streak", name: t("dashboard.missionStreak"), current: Math.min(streak, 7), target: 7 },
   ];
 
   return (
@@ -190,19 +190,19 @@ export default async function DashboardPage() {
             </div>
 
             <div className="flex flex-wrap items-center gap-4 sm:gap-6 lg:gap-8">
-              <ScoreRing
+              {!lowData && <ScoreRing
                 score={eliteScore}
                 label={t("elite.title")}
                 size="lg"
                 tone={scoreTone as "emerald" | "violet" | "gold" | "rose"}
                 animated
-              />
+              />}
               <div className="min-w-0 flex-1">
                 <h2 className="text-balance text-3xl font-bold tracking-tight text-text-primary sm:text-4xl">
                   {t("dashboard.heroTitle")}
                 </h2>
                 <p className="mt-2 max-w-xl text-sm leading-relaxed text-text-secondary sm:text-base">
-                  {t("dashboard.heroDescription")}
+                  {lowData ? t("command.insufficientData") : t("dashboard.heroDescription")}
                 </p>
               </div>
             </div>
@@ -235,7 +235,7 @@ export default async function DashboardPage() {
 
         {/* ─── GAMIFICATION DASHBOARD ─── */}
         <GamificationDashboard
-          eliteIndex={eliteScore}
+          eliteIndex={lowData ? null : eliteScore}
           level={level}
           xp={xp}
           xpToNextLevel={xpToNext}
@@ -431,12 +431,12 @@ export default async function DashboardPage() {
             />
 
             {/* Momentum */}
-            <MomentumCard
+            {!lowData && <MomentumCard
               score={eliteScore}
               label={t("dashboard.momentumScore")}
               subtitle={eliteScore >= 7 ? t("dashboard.momentumStrong") : eliteScore >= 4 ? t("dashboard.momentumBuilding") : t("dashboard.momentumLow")}
               tone={eliteScore >= 7 ? "emerald" : eliteScore >= 4 ? "violet" : "gold"}
-            />
+            />}
 
             {/* Upcoming Exams */}
             <GlassCard tone="gold" padded={false}>
